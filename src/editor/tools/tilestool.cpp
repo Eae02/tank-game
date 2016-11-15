@@ -8,6 +8,7 @@
 
 #include <imgui.h>
 #include <GLFW/glfw3.h>
+#include <algorithm>
 
 namespace TankGame
 {
@@ -25,6 +26,23 @@ namespace TankGame
 		glEnableVertexArrayAttrib(m_gridVAO.GetID(), 0);
 		glVertexArrayAttribFormat(m_gridVAO.GetID(), 0, 2, GL_FLOAT, GL_FALSE, 0);
 		glVertexArrayAttribBinding(m_gridVAO.GetID(), 0, 0);
+		
+		for (int i = 0; i < TileGridMaterial::GetInstance().GetMaterialCount() && i < 255; i++)
+		{
+			m_tileMaterials.emplace_back(TileGridMaterial::GetInstance().GetMaterialName(i), static_cast<uint8_t>(i));
+		}
+		
+		std::sort(m_tileMaterials.begin(), m_tileMaterials.end(), [] (const TileMaterial& a, const TileMaterial& b)
+		{ return std::less<std::string>()(a.m_name, b.m_name); });
+		
+		auto currentTilePos = std::find_if(m_tileMaterials.begin(), m_tileMaterials.end(), [this] (const auto& material)
+		{
+			return material.m_id == m_currentTileID;
+		});
+		
+		assert(currentTilePos != m_tileMaterials.end());
+		
+		m_currentMaterialIndex = currentTilePos - m_tileMaterials.begin();
 	}
 	
 	void TilesTool::Update(const UpdateInfo& updateInfo)
@@ -72,17 +90,14 @@ namespace TankGame
 		
 		if (ImGui::Begin("Tiles"))
 		{
-			int currentTileID = m_currentTileID;
-			bool changed = ImGui::ListBox("Tile", &currentTileID, [] (void* data, int i, const char** out)
+			bool changed = ImGui::ListBox("Tile", &m_currentMaterialIndex, [] (void* data, int i, const char** out)
 			{
-				*out = reinterpret_cast<TilesTool*>(data)->GetGameWorld().GetTileGridMaterial()->GetMaterialName(i).c_str();
+				*out = reinterpret_cast<TilesTool*>(data)->m_tileMaterials[i].m_name.c_str();
 				return true;
-			}, this, GetGameWorld().GetTileGridMaterial()->GetMaterialCount());
+			}, this, m_tileMaterials.size());
 			
 			if (changed)
-			{
-				m_currentTileID = currentTileID;
-			}
+				m_currentTileID = m_tileMaterials[m_currentMaterialIndex].m_id;
 		}
 		
 		ImGui::End();

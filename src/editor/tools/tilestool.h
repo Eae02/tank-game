@@ -28,6 +28,18 @@ namespace TankGame
 		
 		bool m_drawGrid = true;
 		
+		struct TileMaterial
+		{
+			std::string m_name;
+			uint8_t m_id;
+			
+			inline TileMaterial(std::string name, uint8_t id)
+			    : m_name(std::move(name)), m_id(id) { }
+		};
+		
+		std::vector<TileMaterial> m_tileMaterials;
+		int m_currentMaterialIndex = 0;
+		
 		uint8_t m_currentTileID = 1;
 		
 		glm::ivec2 m_selectedTile;
