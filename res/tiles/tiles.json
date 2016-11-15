@@ -56,7 +56,7 @@
 	
 	{
 		"id": 4,
-		"name": "Smooth floor",
+		"name": "Yellow floor",
 		"solid": false,
 		"diffuse": "floor_yellow_diffuse.png",
 		"normalMap": "floor_yellow_normals.png",
