@@ -1,0 +1,31 @@
+#ifndef BLOOM_H
+#define BLOOM_H
+
+layout(std140, binding=1) uniform BlurVectorUB
+{
+	vec4 blurVectors;
+};
+
+const int SAMPLE_COUNT = 7;
+const float KERNEL[] = float[] (
+	0.000489, 0.002403, 0.009246, 0.02784, 0.065602, 0.120999, 0.174697, 0.197448, 0.174697, 0.120999, 0.065602, 0.02784, 0.009246, 0.002403, 0.000489
+);
+
+vec3 sampleInput(vec2 tc);
+
+vec3 getBloomColor(vec2 texCoord, int passIndex)
+{
+	vec3 color = sampleInput(texCoord).rgb * KERNEL[SAMPLE_COUNT];
+	
+	vec2 blurVector = vec2(blurVectors[passIndex * 2], blurVectors[passIndex * 2 + 1]);
+	
+	for (int i = 1; i <= SAMPLE_COUNT; i++)
+	{
+		color += sampleInput(texCoord + blurVector * i).rgb * KERNEL[SAMPLE_COUNT - i];
+		color += sampleInput(texCoord - blurVector * i).rgb * KERNEL[SAMPLE_COUNT + i];
+	}
+	
+	return color;
+}
+
+#endif

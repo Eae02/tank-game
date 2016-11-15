@@ -1,0 +1,31 @@
+#version 420 core
+
+#include lighting.glh
+
+layout(std140, binding=1) uniform LightUB
+{
+	vec3 color;
+	float intensity;
+	Attenuation attenuation;
+} light;
+
+uniform vec3 position;
+
+layout(location=0) in vec2 worldPos_in;
+
+layout(location=0) out vec3 lighting_out;
+
+void main()
+{
+	vec2 texCoord = getTexCoord();
+	GBufferData data = getGBufferData(texCoord);
+	
+	vec3 lightIn = vec3(worldPos_in.x, 0, worldPos_in.y) - position;
+	float dist = length(lightIn);
+	
+	lighting_out = phong(light.intensity, lightIn / dist, eyePosition, worldPos_in, data) * light.color;
+	
+	lighting_out /= 1.0 + (light.attenuation.linear * dist) + (light.attenuation.exponent * dist * dist);
+	
+	lighting_out *= getShadowFactor(worldPos_in);
+}

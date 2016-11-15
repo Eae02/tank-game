@@ -1,0 +1,71 @@
+#pragma once
+
+#include "../elements/menubutton.h"
+#include "../elements/combobox.h"
+
+#include <functional>
+#include <array>
+
+namespace TankGame
+{
+	class OptionsMenu
+	{
+	public:
+		using ApplyCallback = std::function<void(bool fullscreen, int resX, int resY)>;
+		
+		OptionsMenu();
+		
+		void OnResize(int newWidth, int newHeight);
+		
+		void Update(const class UpdateInfo& updateInfo);
+		void Draw(const class UIRenderer& uiRenderer) const;
+		
+		inline void SetBackCallback(std::function<void()> backCallback)
+		{ m_backCallback = std::move(backCallback); }
+		
+		inline void SetApplyCallback(ApplyCallback applyCallback)
+		{ m_applyCallback = std::move(applyCallback); }
+		
+		void OnOpen();
+		
+	private:
+		static constexpr size_t NUM_SECTIONS = 3;
+		static const std::array<std::u32string, NUM_SECTIONS> SECTION_TITLES;
+		
+		void LayoutContentWidgets();
+		
+		struct Label
+		{
+			std::u32string m_string;
+			Rectangle m_rectangle;
+			
+			inline explicit Label(std::u32string string)
+			    : m_string(string + U":") { }
+		};
+		
+		std::array<Label, 5> m_settingLabels;
+		
+		std::array<Rectangle, NUM_SECTIONS> m_sectionTitleRectangles;
+		
+		std::function<void()> m_backCallback;
+		ApplyCallback m_applyCallback;
+		
+		Rectangle m_scissorArea;
+		
+		float m_contentsBeginY = 0;
+		float m_contentsBeginX = 0;
+		
+		MenuButton m_backButton;
+		MenuButton m_applyButton;
+		
+		long m_displayModeIndex;
+		ComboBox m_displayModeComboBox;
+		
+		long m_currentResolutionIndex;
+		ComboBox m_resolutionsComboBox;
+		
+		ComboBox m_lightingQualityComboBox;
+		ComboBox m_particlesQualityComboBox;
+		ComboBox m_postQualityComboBox;
+	};
+}

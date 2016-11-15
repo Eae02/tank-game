@@ -1,0 +1,9 @@
+{
+	"name": "SpiderbotLeg",
+	"diffuse": "spiderbot-leg.png",
+	"normals": "spiderbot-leg-normals.png",
+	"specular": {
+		"intensity": 1,
+		"exponent": 30
+	}
+}

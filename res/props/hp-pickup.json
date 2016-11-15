@@ -1,0 +1,8 @@
+{
+	"name": "HpPickup",
+	"diffuse": "hp-pickup.png",
+	"specular": {
+		"intensity": 0,
+		"exponent": 0
+	}
+}

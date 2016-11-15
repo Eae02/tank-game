@@ -1,0 +1,20 @@
+#ifndef MATERIAL_H
+#define MATERIAL_H
+
+layout(location=0) out vec4 color_out;
+layout(location=1) out vec4 normalAndSpec_out;
+
+void writeMaterialOutputs(vec4 color, vec2 normal, float specIntensity, float specExponent)
+{
+	if (color.a < 0.2)
+		discard;
+	color_out = color / color.a;
+	normalAndSpec_out = vec4(normal, specIntensity, specExponent);
+}
+
+vec2 toWorldNormal(vec3 nmNormal)
+{
+	return normalize(nmNormal * (255.0 / 128.0) - vec3(1.0)).xy;
+}
+
+#endif

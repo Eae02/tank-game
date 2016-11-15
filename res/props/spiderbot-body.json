@@ -1,0 +1,9 @@
+{
+	"name": "SpiderbotBody",
+	"diffuse": "spiderbot-body.png",
+	"normals": "spiderbot-body-normals.png",
+	"specular": {
+		"intensity": 1,
+		"exponent": 30
+	}
+}

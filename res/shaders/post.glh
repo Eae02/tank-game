@@ -1,0 +1,11 @@
+#ifndef POST_H
+#define POST_H
+
+layout(binding=2) uniform sampler2D distortionSampler;
+
+vec2 getDistortedTexCoord(vec2 texCoord)
+{
+	return texCoord + texture(distortionSampler, texCoord).xy / vec2(textureSize(distortionSampler, 0).xy);
+}
+
+#endif

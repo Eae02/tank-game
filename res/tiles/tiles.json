@@ -1,0 +1,70 @@
+[
+	{
+		"id": 0,
+		"name": "Floor 1",
+		"solid": false,
+		"diffuse": "floor1_diffuse.png",
+		"normalMap": "floor1_normals.png",
+		"specularMap": "floor1_specular.png",
+		"textureScale": [ 0.2, 0.2 ],
+		"specular": {
+			"intensity": 10,
+			"exponent": 20
+		}
+	},
+	
+	{
+		"id": 1,
+		"name": "Wall",
+		"solid": true,
+		"diffuse": "wall_diffuse.png",
+		"normalMap": "wall_normals.png",
+		"specularMap": "wall_specular.png",
+		"textureScale": [ 0.25, 0.25 ],
+		"specular": {
+			"intensity": 5,
+			"exponent": 5
+		}
+	},
+	
+	{
+		"id": 2,
+		"name": "Floor 2",
+		"solid": false,
+		"diffuse": "floor2_diffuse.png",
+		"normalMap": "floor2_normals.png",
+		"specularMap": "floor2_specular.png",
+		"textureScale": [ 0.3333333, 0.3333333 ],
+		"specular": {
+			"intensity": 10,
+			"exponent": 50
+		}
+	},
+	
+	{
+		"id": 3,
+		"name": "Floor with cross",
+		"solid": false,
+		"diffuse": "floor_cross_diffuse.png",
+		"normalMap": "floor_cross_normals.png",
+		"specularMap": "floor_cross_specular.png",
+		"specular": {
+			"intensity": 10,
+			"exponent": 50
+		}
+	},
+	
+	{
+		"id": 4,
+		"name": "Smooth floor",
+		"solid": false,
+		"diffuse": "floor_yellow_diffuse.png",
+		"normalMap": "floor_yellow_normals.png",
+		"specularMap": "floor_yellow_specular.png",
+		"textureScale": [ 0.16666666, 0.16666666 ],
+		"specular": {
+			"intensity": 4,
+			"exponent": 50
+		}
+	}
+]

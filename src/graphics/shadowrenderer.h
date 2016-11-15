@@ -1,0 +1,44 @@
+#pragma once
+
+#include "gl/shadermodule.h"
+#include "gl/shaderprogram.h"
+#include "../utils/memory/stackobject.h"
+#include "../utils/abstract.h"
+#include "../world/lights/ilightsource.h"
+
+#include <glm/glm.hpp>
+
+namespace TankGame
+{
+	class ShadowRenderer
+	{
+	public:
+		class IShadowMapGeometryProvider : public Abstract
+		{
+		public:
+			virtual void DrawShadowCasters(glm::vec2 lightPos, const class ViewInfo& viewInfo) const = 0;
+		};
+		
+		ShadowRenderer();
+		
+		void RenderShadowMap(class ShadowMap& shadowMap, LightInfo lightInfo, const class ViewInfo& viewInfo,
+		                     const IShadowMapGeometryProvider& geometryProvider) const;
+		
+		void OnResize(GLsizei width, GLsizei height);
+		
+		static const ShaderModule& GetGeometryShader();
+		static const ShaderModule& GetFragmentShader();
+		
+	private:
+		static StackObject<ShaderModule> s_geometryShader;
+		static StackObject<ShaderModule> s_fragmentShader;
+		
+		static ShaderProgram CreateBlurPassShader();
+		
+		ShaderProgram m_blurPassShader;
+		int m_inverseViewMatrixUniformLoc;
+		
+		GLsizei m_width;
+		GLsizei m_height;
+	};
+}

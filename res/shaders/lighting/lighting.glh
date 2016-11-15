@@ -1,0 +1,66 @@
+#ifndef LIGHTING_H
+#define LIGHTING_H
+
+#include ../rendersettings.glh
+
+layout(binding=0) uniform sampler2D normalsAndSpecSampler;
+layout(binding=1) uniform sampler2D shadowSampler;
+
+layout(std140, binding=2) uniform ShadowRenderSettingsUB
+{
+	mat3 shadowViewMatrix;
+};
+
+struct Attenuation
+{
+	float linear;
+	float exponent;
+};
+
+struct GBufferData
+{
+	vec3 normal;
+	float specIntensity;
+	float specExponent;
+};
+
+vec2 getTexCoord()
+{
+	return gl_FragCoord.xy / vec2(textureSize(normalsAndSpecSampler, 0));
+}
+
+float getShadowFactor(vec2 worldPos)
+{
+	vec2 samplePos = (shadowViewMatrix * vec3(worldPos, 1.0)).xy / 2.0 + vec2(0.5);
+	if (samplePos.x < 0 || samplePos.y < 0 || samplePos.x > 1 || samplePos.y > 1)
+		return 0.0;
+	return 1.0 - texture(shadowSampler, samplePos).r;
+}
+
+GBufferData getGBufferData(vec2 texCoord)
+{
+	GBufferData data;
+	
+	vec4 normalAndSpec = texture(normalsAndSpecSampler, texCoord);
+	float ny = 1.0 - normalAndSpec.x * normalAndSpec.x - normalAndSpec.y * normalAndSpec.y;
+	data.normal = vec3(normalAndSpec.x, ny, normalAndSpec.y);
+	
+	data.specIntensity = normalAndSpec.z;
+	data.specExponent = normalAndSpec.w;
+	
+	return data;
+}
+
+float phong(float intensity, vec3 lightIn, vec3 cameraPos, vec2 worldPos, GBufferData data)
+{
+	float diffuseFactor = max(dot(data.normal, -lightIn), 0.0);
+	
+	vec3 dirToEye = normalize(cameraPos - vec3(worldPos.x, 0.0, worldPos.y));
+	vec3 reflectDir = reflect(lightIn, data.normal);
+	
+	float specFactor = max(pow(dot(dirToEye, reflectDir), data.specExponent), 0.0);
+	
+	return intensity * diffuseFactor * (data.specIntensity * specFactor + 1.0);
+}
+
+#endif

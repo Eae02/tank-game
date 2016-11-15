@@ -1,0 +1,122 @@
+﻿#include "tankentity.h"
+#include "projectiles/plasmabulletentity.h"
+#include "projectiles/rocketentity.h"
+#include "../gameworld.h"
+#include "../../settings.h"
+#include "../../audio/soundsmanager.h"
+#include "../../graphics/spriterenderlist.h"
+#include "../../updateinfo.h"
+#include "../../utils/utils.h"
+#include "../../utils/mathutils.h"
+
+#include <imgui.h>
+
+namespace TankGame
+{
+	static const float SIZE = 0.35f;
+	static const float CANNON_SIZE = 0.15f;
+	
+	TankEntity::TankEntity(glm::vec3 spotlightColor, const TankEntity::TextureInfo& textureInfo, int teamID, float maxHp)
+	    : SpotLightEntity(spotlightColor, 7, glm::radians(80.0f), Attenuation(0, 0.7f)), Hittable(maxHp, teamID),
+	      m_textureInfo(textureInfo), m_teamID(teamID)
+	{
+		float baseTextureAR = textureInfo.m_baseTextureHeight / static_cast<float>(textureInfo.m_baseTextureWidth);
+		GetTransform().SetScale({ SIZE, SIZE * baseTextureAR });
+		
+		m_cannonTransform = GetBaseCannonTransform(textureInfo);
+		
+		if (Settings::GetInstance().GetLightingQuality() != QualitySettings::Low)
+			SetShadowMode(EntityShadowModes::Dynamic);
+		else
+			SetShadowMode(EntityShadowModes::None);
+	}
+	
+	Transform TankEntity::GetBaseCannonTransform(const TankEntity::TextureInfo& textureInfo)
+	{
+		Transform transform;
+		
+		float cannonAR = textureInfo.m_cannonTextureWidth / static_cast<float>(textureInfo.m_cannonTextureHeight);
+		transform.SetScale({ CANNON_SIZE, CANNON_SIZE / cannonAR });
+		
+		transform.SetCenterOfRotation({ 0.0f, 1.0f - cannonAR });
+		
+		return transform;
+	}
+	
+	void TankEntity::Draw(SpriteRenderList& spriteRenderList) const
+	{
+		int frame = static_cast<int>(m_frame - m_textureInfo.m_baseTextureFrames *
+		                             std::floor(m_frame / static_cast<float>(m_textureInfo.m_baseTextureFrames)));
+		
+		glm::vec2 forward = GetTransform().GetForward();
+		glm::vec2 cannonForward = m_cannonTransform.GetForward();
+		
+		m_cannonTransform.SetPosition(GetTransform().GetPosition() + forward * m_textureInfo.m_cannonYOffset -
+		                              cannonForward * m_cannonOffset);
+		
+		spriteRenderList.Add(GetTransform(), GetBaseMaterial(frame), 0.5f);
+		spriteRenderList.Add(m_cannonTransform, GetCannonMaterial(), 0.4f);
+	}
+	
+	void TankEntity::Update(const UpdateInfo& updateInfo)
+	{
+		m_cannonOffset -= m_cannonOffset * 15 * updateInfo.m_dt;
+		m_cannonOffset = std::max(m_cannonOffset, 0.0f);
+		
+		m_audioSource.SetPosition(GetTransform().GetPosition());
+	}
+	
+	void TankEntity::Fire(std::unique_ptr<Entity>&& bullet, float gameTime, float rotationOffset)
+	{
+		bullet->GetTransform().SetPosition(m_cannonTransform.GetPosition());
+		bullet->GetTransform().SetRotation(m_cannonTransform.GetRotation() + rotationOffset);
+		
+		GetGameWorld()->Spawn(std::move(bullet));
+		
+		m_lastFireTime = gameTime;
+		m_cannonOffset = 0.05f;
+	}
+	
+	static std::uniform_real_distribution<float> pitchDist(1.0f, 1.0f);
+	
+	void TankEntity::FirePlasmaGun(glm::vec3 bulletColor, float damage, float gameTime, float rotationOffset)
+	{
+		Fire(std::make_unique<PlasmaBulletEntity>(bulletColor, m_teamID, damage), gameTime, rotationOffset);
+		
+		m_audioSource.SetBuffer(SoundsManager::GetInstance().GetSound("PlasmaGun"));
+		m_audioSource.Play(1, pitchDist(randomGen));
+		
+		m_fireCooldown = 0.25f;
+	}
+	
+	void TankEntity::FireRocket(float damage, float gameTime)
+	{
+		Fire(std::make_unique<RocketEntity>(GetGameWorld()->GetParticlesManager(), m_teamID, damage), gameTime, 0.0f);
+		
+		m_fireCooldown = 1.5f;
+	}
+	
+	nlohmann::json TankEntity::Serialize() const
+	{
+		return Entity::Serialize();
+	}
+	
+	IntersectInfo TankEntity::GetIntersectInfo(const Circle& circle) const
+	{
+		return GetTransform().GetBoundingCircle().GetIntersectInfo(circle);
+	}
+	
+	void TankEntity::RenderProperties()
+	{
+		RenderTransformProperty(Transform::Properties::Position | Transform::Properties::Rotation);
+		
+		float hp = GetHp();
+		if (ImGui::SliderFloat("Hp", &hp, 1, GetMaxHp()))
+			Hittable::SetHp(glm::clamp(hp, 1.0f, GetMaxHp()));
+	}
+	
+	bool TankEntity::CanFire(float gameTime) const
+	{
+		return gameTime > m_lastFireTime + m_fireCooldown;
+	}
+}

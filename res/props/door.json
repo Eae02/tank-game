@@ -1,0 +1,10 @@
+{
+	"name": "Door",
+	"diffuse": "door-diffuse.png",
+	"normalMap": "door-normals.png",
+	"solid": true,
+	"specular": {
+		"intensity": 1,
+		"exponent": 40
+	}
+}

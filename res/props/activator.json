@@ -1,0 +1,9 @@
+{
+	"name": "Activator",
+	"diffuse": "activator.png",
+	"normalMap": "activator-normals.png",
+	"specular": {
+		"intensity": 0.5,
+		"exponent": 40
+	}
+}

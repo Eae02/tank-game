@@ -1,0 +1,11 @@
+#ifndef SHADOW_RENDER_SETTINGS_H
+#define SHADOW_RENDER_SETTINGS_H
+
+layout(std140, binding=3) uniform ShadowRenderSettingsUB
+{
+	mat3 shadowViewMatrix;
+	vec2 lightPosition;
+	float projectionCircleRadius;
+};
+
+#endif

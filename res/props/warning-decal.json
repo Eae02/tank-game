@@ -1,0 +1,8 @@
+{
+	"name": "WarningDecal",
+	"diffuse": "warning-decal.png",
+	"specular": {
+		"intensity": 0,
+		"exponent": 0
+	}
+}

@@ -1,0 +1,38 @@
+[
+	{
+		"name": "PlasmaGun",
+		"src": "plasma_gun.ogg"
+	},
+	{
+		"name": "DoorOpen",
+		"src": "door_open.ogg"
+	},
+	{
+		"name": "Beam",
+		"src": "beam.ogg"
+	},
+	{
+		"name": "Explosion",
+		"src": "explosion.ogg"
+	},
+	{
+		"name": "RocketFire",
+		"src": "rocket_fire.ogg"
+	},
+	{
+		"name": "TurretDetected",
+		"src": "turret_detected.ogg"
+	},
+	{
+		"name": "HpPickup",
+		"src": "hp_pickup.ogg"
+	},
+	{
+		"name": "BulletImpact",
+		"src": "bullet_impact.ogg"
+	},
+	{
+		"name": "SpiderWakingUp",
+		"src": "spider_waking_up.ogg"
+	}
+]

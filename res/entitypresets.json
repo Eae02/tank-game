@@ -1,0 +1,48 @@
+{
+	"Point Light": {
+		"class": "PointLight",
+		"intensity": 4,
+		"color": "FFFFFF",
+		"shadows": "static"
+	},
+	"Enemy Tank": {
+		"class": "EnemyTank",
+		"idle_path": [ [ 0, 0 ] ]
+	},
+	"Enemy Spider": {
+		"class": "SpiderBot"
+	},
+	"Checkpoint": {
+		"class": "Checkpoint",
+		"index": 0,
+		"length": 2
+	},
+	"Zone Hider": {
+		"class": "ZoneHider"
+	},
+	"Activator": {
+		"class": "Activator",
+		"activated": ""
+	},
+	"Light Strip": {
+		"class": "LightStrip",
+		"color": "FF0000",
+		"nodes": [ [ 0, 0 ], [ 0, 1 ] ]
+	},
+	"Rocket Turret": {
+		"class": "RocketTurret",
+		"rotation_min": -45,
+		"rotation_max": 45,
+		"rotation_speed": 1
+	},
+	"Prop": {
+		"class": "Prop",
+		"prop_class": "ArrowDecal"
+	},
+	"Event Box": {
+		"class": "EventBox"
+	},
+	"Door": {
+		"class": "Door"
+	}
+}

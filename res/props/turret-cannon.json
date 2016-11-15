@@ -1,0 +1,9 @@
+{
+	"name": "TurretCannon",
+	"diffuse": "turret-cannon-diffuse.png",
+	"normalMap": "turret-cannon-normals.png",
+	"specular": {
+		"intensity": 1,
+		"exponent": 30
+	}
+}
