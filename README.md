@@ -17,7 +17,7 @@ First, make sure you have all the runtime dependencies installed. These are:
 * vorbisfile
 * zlib
 
-You will also need CMake and GCC version 5.3 or later.
+You will also need CMake and GCC version 5.3 or later to build the game.
 
 1. `mkdir PROJECT_ROOT/.build`
 2. `cd PROJECT_ROOT/.build`
