@@ -23,7 +23,7 @@ You will also need CMake and GCC version 5.3 or later to build the game.
 2. `cd PROJECT_ROOT/.build`
 3. `cmake -DCMAKE_BUILD_TYPE=Release ..`
 4. `make`
-5. `cp ../res ../bin`
+5. `cp -R ../res ../bin`
 
 The binary will be put in PROJECT_ROOT/bin.
 
