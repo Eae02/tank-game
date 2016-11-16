@@ -1,0 +1,9 @@
+{
+	"name": "Digit 3",
+	"diffuse": "d3.png",
+	"specular": {
+		"intensity": 0,
+		"exponent": 0
+	},
+	"decal": true
+}

@@ -1,0 +1,9 @@
+{
+	"name": "Digit 9",
+	"diffuse": "d9.png",
+	"specular": {
+		"intensity": 0,
+		"exponent": 0
+	},
+	"decal": true
+}
