@@ -21,6 +21,8 @@ namespace TankGame
 		void Prepare(const class ViewInfo& viewInfo) const;
 		
 		virtual void DrawGeometry(const class ViewInfo& viewInfo) const override;
+		virtual void DrawTranslucentGeometry(const class ViewInfo& viewInfo) const override;
+		
 		virtual void DrawDistortions(const class ViewInfo& viewInfo) const override;
 		virtual void DrawLighting(const class ViewInfo& viewInfo) const override;
 		virtual void DrawParticles(const class ViewInfo& viewInfo, class ParticleRenderer& renderer) const override;

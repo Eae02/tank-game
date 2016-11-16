@@ -41,6 +41,10 @@ namespace TankGame
 		PropClass propClass({ *diffuse, normalMap == nullptr ? GetDefaultNormalMap() : *normalMap,
 		                      specIntensity, specExponent, shade });
 		
+		auto decalIt = jsonDoc.find("decal");
+		if (decalIt != jsonDoc.end())
+			propClass.m_isDecal = decalIt->get<bool>();
+		
 		propClass.m_diffuse = std::move(diffuse);
 		propClass.m_normalMap = std::move(normalMap);
 		

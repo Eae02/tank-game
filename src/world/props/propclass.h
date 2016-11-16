@@ -15,6 +15,9 @@ namespace TankGame
 		inline const std::string& GetName() const
 		{ return m_name; }
 		
+		inline bool IsDecal() const
+		{ return m_isDecal; }
+		
 		inline GLsizei GetTextureWidth() const
 		{ return m_diffuse->GetWidth(); }
 		inline GLsizei GetTextureHeight() const
@@ -26,6 +29,8 @@ namespace TankGame
 	private:
 		inline explicit PropClass(SpriteMaterial spriteMaterial)
 		    : m_material(std::move(spriteMaterial)) { }
+		
+		bool m_isDecal = false;
 		
 		std::shared_ptr<Texture2D> m_diffuse;
 		std::shared_ptr<Texture2D> m_normalMap;

@@ -69,6 +69,22 @@ namespace TankGame
 			tileGrid->Draw(*tileGridMaterial);
 	}
 	
+	void WorldRenderer::DrawTranslucentGeometry(const ViewInfo& viewInfo) const
+	{
+		m_spriteRenderList.Begin();
+		
+		m_gameWorld->IterateIntersectingEntities(viewInfo.GetViewRectangle(), [&] (const Entity& entity)
+		{
+			if (const Entity::ITranslucentSpriteDrawable* translucentDrawable = entity.AsTranslucentSpriteDrawable())
+			{
+				if (viewInfo.Visible(entity.GetBoundingCircle()))
+					translucentDrawable->DrawTranslucent(m_spriteRenderList);
+			}
+		});
+		
+		m_spriteRenderList.End(true);
+	}
+	
 	void WorldRenderer::DrawDistortions(const ViewInfo& viewInfo) const
 	{
 		if (m_gameWorld == nullptr)

@@ -34,6 +34,12 @@ namespace TankGame
 			virtual void Draw(class SpriteRenderList& spriteRenderList) const = 0;
 		};
 		
+		class ITranslucentSpriteDrawable : public Abstract
+		{
+		public:
+			virtual void DrawTranslucent(class SpriteRenderList& spriteRenderList) const = 0;
+		};
+		
 		class IDistortionDrawable : public Abstract
 		{
 		public:
@@ -66,6 +72,8 @@ namespace TankGame
 		virtual void OnSpawned(class GameWorld& gameWorld);
 		
 		virtual const ISpriteDrawable* AsSpriteDrawable() const
+		{ return nullptr; }
+		virtual const ITranslucentSpriteDrawable* AsTranslucentSpriteDrawable() const
 		{ return nullptr; }
 		virtual const IDistortionDrawable* AsDistortionDrawable() const
 		{ return nullptr; }

@@ -12,6 +12,8 @@ namespace TankGame
 {
 	StackObject<ShaderProgram> SpriteRenderList::s_shaderProgram;
 	
+	int SpriteRenderList::s_translucentUniformLocation;
+	
 	GLint SpriteRenderList::s_maxVertexRelativeOffset = -1;
 	size_t SpriteRenderList::s_elementsPerDrawBuffer;
 	
@@ -51,8 +53,11 @@ namespace TankGame
 		}
 	}
 	
-	void SpriteRenderList::End()
+	void SpriteRenderList::End(bool isTranslucent)
 	{
+		if (Empty())
+			return;
+		
 		if (s_shaderProgram.IsNull())
 		{
 			auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "sprite.vs.glsl", GL_VERTEX_SHADER);
@@ -60,10 +65,14 @@ namespace TankGame
 			
 			s_shaderProgram.Construct<std::initializer_list<const ShaderModule*>>({ &vs, &fs });
 			
+			s_translucentUniformLocation = s_shaderProgram->GetUniformLocation("translucent");
+			
 			CallOnClose([] { s_shaderProgram.Destroy(); });
 		}
 		
 		s_shaderProgram->Use();
+		
+		glProgramUniform1i(s_shaderProgram->GetID(), s_translucentUniformLocation, isTranslucent ? true : false);
 		
 		glm::mat3* matricesMemory;
 		float* zValuesMemory;

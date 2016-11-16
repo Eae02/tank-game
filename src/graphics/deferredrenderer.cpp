@@ -90,12 +90,18 @@ namespace TankGame
 		
 		renderer.DrawGeometry(viewInfo);
 		
-		// ** Distortion pass **
-		glNamedFramebufferDrawBuffer(m_geometryFramebuffer->GetID(), GL_COLOR_ATTACHMENT2);
+		glEnablei(GL_BLEND, 0);
+		glBlendFuncSeparatei(0, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 		glDepthMask(GL_FALSE);
 		
+		glNamedFramebufferDrawBuffer(m_geometryFramebuffer->GetID(), GL_COLOR_ATTACHMENT0);
+		
+		renderer.DrawTranslucentGeometry(viewInfo);
+		
+		// ** Distortion pass **
+		glNamedFramebufferDrawBuffer(m_geometryFramebuffer->GetID(), GL_COLOR_ATTACHMENT2);
+		
 		//Enables additive blending for this pass and the light accumulation pass
-		glEnablei(GL_BLEND, 0);
 		glBlendFuncSeparatei(0, GL_ONE, GL_ONE, GL_ZERO, GL_ZERO);
 		
 		glClearBufferfv(GL_COLOR, 0, clearColor);

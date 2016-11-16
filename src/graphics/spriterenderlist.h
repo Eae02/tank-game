@@ -18,12 +18,16 @@ namespace TankGame
 	public:
 		SpriteRenderList();
 		
+		inline bool Empty() const
+		{ return m_materialBatches.empty(); }
+		
 		void Begin();
 		void Add(const class Transform& transform, const class SpriteMaterial& material, float z);
-		void End();
+		void End(bool isTranslucent = false);
 		
 	private:
 		static StackObject<ShaderProgram> s_shaderProgram;
+		static int s_translucentUniformLocation;
 		
 		static GLint s_maxVertexRelativeOffset;
 		static size_t s_elementsPerDrawBuffer;

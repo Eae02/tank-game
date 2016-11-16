@@ -12,7 +12,7 @@ namespace TankGame
 	{
 		const PropClass* propClass = PropsManager::GetInstance().GetPropClassByName(name);
 		if (propClass == nullptr)
-			throw std::runtime_error("");
+			throw std::runtime_error("Prop class not found: ' " + name + "'.");
 		return *propClass;
 	}
 	
@@ -23,9 +23,16 @@ namespace TankGame
 		SetSizeX(0.5f);
 	}
 	
+	void PropEntity::DrawTranslucent(SpriteRenderList& spriteRenderList) const
+	{
+		if (m_propClass->IsDecal())
+			spriteRenderList.Add(GetTransform(), m_propClass->GetMaterial(), m_z);
+	}
+	
 	void PropEntity::Draw(SpriteRenderList& spriteRenderList) const
 	{
-		spriteRenderList.Add(GetTransform(), m_propClass->GetMaterial(), m_z);
+		if (!m_propClass->IsDecal())
+			spriteRenderList.Add(GetTransform(), m_propClass->GetMaterial(), m_z);
 	}
 	
 	void PropEntity::SetSizeX(float sizeX)

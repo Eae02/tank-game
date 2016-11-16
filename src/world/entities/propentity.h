@@ -6,11 +6,13 @@
 
 namespace TankGame
 {
-	class PropEntity : public virtual Entity, public Entity::ISpriteDrawable
+	class PropEntity : public virtual Entity, public Entity::ITranslucentSpriteDrawable,
+	        public Entity::ISpriteDrawable
 	{
 	public:
 		explicit PropEntity(const std::string& propClassName, bool isSolid = false);
 		
+		virtual void DrawTranslucent(class SpriteRenderList& spriteRenderList) const override;
 		virtual void Draw(class SpriteRenderList& spriteRenderList) const override;
 		
 		void SetSizeX(float sizeX);
@@ -27,6 +29,8 @@ namespace TankGame
 		inline bool IsSolid() const
 		{ return m_isSolid; }
 		
+		virtual const Entity::ITranslucentSpriteDrawable* AsTranslucentSpriteDrawable() const final override
+		{ return this; }
 		virtual const Entity::ISpriteDrawable* AsSpriteDrawable() const final override
 		{ return this; }
 		
