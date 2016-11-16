@@ -7,9 +7,9 @@ namespace TankGame
 	class DoorEntity : public PropEntity//, public Entity::IUpdateable
 	{
 	public:
-		inline DoorEntity() : DoorEntity("") { }
+		inline DoorEntity() : DoorEntity(nullptr, 0) { }
 		
-		explicit DoorEntity(std::string openEventName);
+		DoorEntity(const std::string* openEvents, size_t numOpenEvents);
 		
 		//virtual void Update(const class UpdateInfo& updateInfo) override;
 		
@@ -30,6 +30,19 @@ namespace TankGame
 		virtual std::unique_ptr<Entity> Clone() const override;
 		
 	private:
-		std::string m_openEventName;
+		struct OpenEvent
+		{
+			std::string m_name;
+			bool m_received = false;
+			
+			OpenEvent() = default;
+			
+			inline explicit OpenEvent(std::string name)
+			    : m_name(std::move(name)) { }
+		};
+		
+		std::vector<OpenEvent> m_openEvents;
+		
+		int m_editorCurrentOpenEvent = 0;
 	};
 }
