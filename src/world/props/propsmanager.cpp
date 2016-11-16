@@ -51,6 +51,11 @@ namespace TankGame
 				}
 			}
 		}
+		
+		std::sort(m_propClasses.begin(), m_propClasses.end(), [] (const auto& a, const auto& b)
+		{
+			return std::less<std::string>()(a->GetName(), b->GetName());
+		});
 	}
 	
 	bool PropsManager::RenderPropClassSeletor(const char* label, const PropClass** propClass) const
