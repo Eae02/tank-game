@@ -1,10 +1,10 @@
 {
 	"name": "ArrowDecal",
 	"diffuse": "arrow-decal-diffuse.png",
-	"normalMap": "arrow-decal-normals.png",
 	"specular": {
 		"intensity": 0.1,
 		"exponent": 10
 	},
+	"decal": true,
 	"shade": "FF9436"
 }

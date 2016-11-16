@@ -4,11 +4,19 @@
 layout(location=0) out vec4 color_out;
 layout(location=1) out vec4 normalAndSpec_out;
 
+uniform bool translucent;
+
 void writeMaterialOutputs(vec4 color, vec2 normal, float specIntensity, float specExponent)
 {
-	if (color.a < 0.2)
-		discard;
-	color_out = color / color.a;
+	if (!translucent)
+	{
+		if (color.a < 0.2)
+			discard;
+		color /= color.a;
+	}
+	
+	color_out = color;
+	
 	normalAndSpec_out = vec4(normal, specIntensity, specExponent);
 }
 
