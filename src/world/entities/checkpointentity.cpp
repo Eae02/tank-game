@@ -10,7 +10,7 @@
 
 namespace TankGame
 {
-	static const glm::vec3 DEFAULT_COLOR = ParseColorHexCodeSRGB(0x49B9DE);
+	static const glm::vec3 DEFAULT_COLOR = ParseColorHexCodeSRGB(0xE38D14);
 	static const glm::vec3 ACTIVATED_COLOR = ParseColorHexCodeSRGB(0x49DE5D);
 	
 	CheckpointEntity::CheckpointEntity(int checkpointIndex)

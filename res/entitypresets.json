@@ -12,6 +12,9 @@
 	"Enemy Spider": {
 		"class": "SpiderBot"
 	},
+	"Deflection Field": {
+		"class": "DeflectionField"
+	},
 	"Checkpoint": {
 		"class": "Checkpoint",
 		"index": 0,

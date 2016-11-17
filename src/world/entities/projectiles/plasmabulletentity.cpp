@@ -1,8 +1,11 @@
 #include "plasmabulletentity.h"
 #include "../particlesystementity.h"
 #include "../hittable.h"
+#include "../deflectionfieldentity.h"
+#include "../../spteams.h"
 #include "../../gameworld.h"
 #include "../../particles/systems/sparkparticlesystem.h"
+#include "../../particles/systems/blueorbparticlesystem.h"
 #include "../../../audio/soundeffectplayer.h"
 #include "../../../updateinfo.h"
 #include "../../../utils/utils.h"
@@ -53,6 +56,26 @@ namespace TankGame
 		entity->GetTransform().SetPosition(GetTransform().GetPosition());
 		
 		GetGameWorld()->Spawn(std::move(entity));
+	}
+	
+	void PlasmaBulletEntity::OnDeflected(glm::vec2 deflectionPos)
+	{
+		BlueOrbParticleSystem particleSystem(GetGameWorld()->GetParticlesManager());
+		
+		auto entity = std::make_unique<ParticleSystemEntity<BlueOrbParticleSystem>>(std::move(particleSystem), 0.05f);
+		
+		entity->GetTransform().SetPosition(deflectionPos);
+		
+		GetGameWorld()->Spawn(std::move(entity));
+		
+		impactEffectPlayer.Play(deflectionPos, 0.5f, 2.0f);
+	}
+	
+	bool PlasmaBulletEntity::ShouldDeflect(const DeflectionFieldEntity& deflectionField) const
+	{
+		if (!deflectionField.DeflectEnemy() && GetTeamID() == EnemyTeamID)
+			return false;
+		return true;
 	}
 	
 	const char* PlasmaBulletEntity::GetSerializeClassName() const

@@ -19,6 +19,10 @@ namespace TankGame
 	protected:
 		virtual void OnImpact() override;
 		
+		virtual void OnDeflected(glm::vec2 deflectionPos) override;
+		
+		virtual bool ShouldDeflect(const class DeflectionFieldEntity& deflectionField) const;
+		
 	private:
 		bool m_isFading = false;
 	};

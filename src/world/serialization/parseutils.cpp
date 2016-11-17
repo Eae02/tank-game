@@ -11,6 +11,7 @@
 #include "entityparsers/propparser.h"
 #include "entityparsers/doorparser.h"
 #include "entityparsers/checkpointparser.h"
+#include "entityparsers/deflectionfieldparser.h"
 
 namespace TankGame
 {
@@ -21,6 +22,7 @@ namespace TankGame
 	static EnemyTankParser enemyTankParser;
 	static SpiderBotParser spiderBotParser;
 	static RocketTurretParser rocketTurretParser;
+	static DeflectionFieldParser deflectionFieldParser;
 	
 	static ActivatorParser activatorParser;
 	static EventBoxParser eventBoxParser;
@@ -37,6 +39,8 @@ namespace TankGame
 			return &enemyTankParser;
 		if (className == "SpiderBot")
 			return &spiderBotParser;
+		if (className == "DeflectionField")
+			return &deflectionFieldParser;
 		
 		if (className == "PointLight")
 			return &pointLightParser;

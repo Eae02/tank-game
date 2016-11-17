@@ -22,9 +22,14 @@ namespace TankGame
 		
 		virtual void OnImpact() { }
 		
+		virtual bool ShouldDeflect(const class DeflectionFieldEntity& deflectionField) const;
+		virtual void OnDeflected(glm::vec2 deflectionPos) { }
+		
 	private:
 		int m_teamID;
 		float m_speed;
 		float m_damage;
+		
+		bool m_hasDeflected = false;
 	};
 }
