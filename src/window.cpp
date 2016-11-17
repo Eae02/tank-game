@@ -63,6 +63,12 @@ namespace TankGame
 		glfwSetWindowUserPointer(m_window, this);
 		glfwSetWindowSizeCallback(m_window, &Window::ResizeCallback);
 		
+		glfwSetWindowFocusCallback(m_window, [] (GLFWwindow* window, int hasFocus)
+		{
+			if (reinterpret_cast<Window*>(glfwGetWindowUserPointer(window))->m_isFullscreen && hasFocus == GLFW_FALSE)
+				glfwIconifyWindow(window);
+		});
+		
 		glfwSetKeyCallback(m_window, [] (GLFWwindow* window, int key, int, int action, int)
 		{
 			reinterpret_cast<Window*>(glfwGetWindowUserPointer(window))->m_keyboard.KeyEvent(key, action);
@@ -179,8 +185,6 @@ namespace TankGame
 	
 	void Window::Initialize()
 	{
-		
-		
 		m_menuManager.Construct();
 		m_menuManager->SetQuitCallback([this] { glfwSetWindowShouldClose(m_window, true); });
 		
