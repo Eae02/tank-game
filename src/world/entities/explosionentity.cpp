@@ -1,4 +1,5 @@
 #include "explosionentity.h"
+#include "propentity.h"
 #include "../gameworld.h"
 #include "../../updateinfo.h"
 #include "../../utils/utils.h"
@@ -8,6 +9,7 @@
 #include "../../graphics/quadmesh.h"
 
 #include <GLFW/glfw3.h>
+#include <glm/gtc/constants.hpp>
 #include <initializer_list>
 
 namespace TankGame
@@ -92,6 +94,15 @@ namespace TankGame
 		gameWorld.ShakeCamera(0.25f, 2.0f / glm::max(distToFocus, 0.1f));
 		
 		explosionEffectPlayer.Play(GetTransform().GetPosition(), 10.0f, 1.0f);
+		
+		//Generates and spawns an explosion decal
+		std::uniform_real_distribution<float> decalSizeDist(0.8f, 1.2f);
+		std::uniform_real_distribution<float> decalRotDist(0.0f, glm::two_pi<float>());
+		
+		auto decal = std::make_unique<PropEntity>("ExplosionDecal", decalSizeDist(randomGen));
+		decal->GetTransform().SetPosition(GetTransform().GetPosition());
+		decal->GetTransform().SetRotation(decalRotDist(randomGen));
+		gameWorld.Spawn(std::move(decal));
 		
 		PointLightEntity::OnSpawned(gameWorld);
 		ParticleSystemEntity::OnSpawned(gameWorld);

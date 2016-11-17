@@ -10,7 +10,7 @@ namespace TankGame
 	        public Entity::ISpriteDrawable
 	{
 	public:
-		explicit PropEntity(const std::string& propClassName, bool isSolid = false);
+		explicit PropEntity(const std::string& propClassName, float sizeX = 0.5f, bool isSolid = false);
 		
 		virtual void DrawTranslucent(class SpriteRenderList& spriteRenderList) const override;
 		virtual void Draw(class SpriteRenderList& spriteRenderList) const override;

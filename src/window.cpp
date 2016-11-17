@@ -264,8 +264,6 @@ namespace TankGame
 		m_menuManager->SetBackground("Level1_0");
 		m_menuManager->ShowMainMenu();
 		
-		LoadLevel("level_1");
-		
 		ImGuiInterface::Init(m_window);
 	}
 	

@@ -16,11 +16,11 @@ namespace TankGame
 		return *propClass;
 	}
 	
-	PropEntity::PropEntity(const std::string& propClassName, bool isSolid)
+	PropEntity::PropEntity(const std::string& propClassName, float sizeX, bool isSolid)
 	    : m_propClass(&GetPropClass(propClassName)), m_isSolid(isSolid),
 	      m_aspectRatio(m_propClass->GetTextureHeight() / static_cast<float>(m_propClass->GetTextureWidth()))
 	{
-		SetSizeX(0.5f);
+		SetSizeX(sizeX);
 	}
 	
 	void PropEntity::DrawTranslucent(SpriteRenderList& spriteRenderList) const
