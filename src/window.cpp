@@ -35,6 +35,9 @@ namespace TankGame
 	
 	std::string glVendorName;
 	
+	constexpr int Window::MIN_WIDTH;
+	constexpr int Window::MIN_HEIGHT;
+	
 	Window::Window(const ArgumentData& argumentData)
 	    : m_argumentData(argumentData)
 	{
@@ -54,6 +57,8 @@ namespace TankGame
 		
 		GLFWmonitor* monitor = m_isFullscreen ? glfwGetPrimaryMonitor() : nullptr;
 		m_window = glfwCreateWindow(m_width, m_height, "Tank Game", monitor, nullptr);
+		
+		glfwSetWindowSizeLimits(m_window, MIN_WIDTH, MIN_HEIGHT, GLFW_DONT_CARE, GLFW_DONT_CARE);
 		
 		glfwSetWindowUserPointer(m_window, this);
 		glfwSetWindowSizeCallback(m_window, &Window::ResizeCallback);
@@ -174,6 +179,8 @@ namespace TankGame
 	
 	void Window::Initialize()
 	{
+		
+		
 		m_menuManager.Construct();
 		m_menuManager->SetQuitCallback([this] { glfwSetWindowShouldClose(m_window, true); });
 		

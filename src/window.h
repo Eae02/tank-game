@@ -36,6 +36,9 @@ namespace TankGame
 		void MakeFullscreen(int resX, int resY);
 		void MakeWindowed();
 		
+		static constexpr int MIN_WIDTH = 600;
+		static constexpr int MIN_HEIGHT = 400;
+		
 	private:
 		static void ResizeCallback(GLFWwindow* glfwWindow, int newWidth, int newHeight);
 		

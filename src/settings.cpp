@@ -1,3 +1,4 @@
+#include "window.h"
 #include "settings.h"
 #include "utils/utils.h"
 #include "utils/ioutils.h"
@@ -92,6 +93,9 @@ namespace TankGame
 		
 		for (int i = 0; i < videoModeCount; i++)
 		{
+			if (videoModes[i].width < Window::MIN_WIDTH || videoModes[i].height < Window::MIN_HEIGHT)
+				continue;
+			
 			auto pos = std::find_if(s_resolutions.begin(), s_resolutions.end(), [&] (glm::ivec2 res)
 			{
 				return res.x == videoModes[i].width && res.y == videoModes[i].height;
