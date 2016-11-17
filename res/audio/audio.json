@@ -12,6 +12,10 @@
 		"src": "beam.ogg"
 	},
 	{
+		"name": "Checkpoint",
+		"src": "checkpoint.ogg"
+	},
+	{
 		"name": "Explosion",
 		"src": "explosion.ogg"
 	},

@@ -1,6 +1,7 @@
 #include "checkpointentity.h"
 #include "playerentity.h"
 #include "../gameworld.h"
+#include "../../audio/soundeffectplayer.h"
 #include "../../graphics/spriterenderlist.h"
 #include "../../updateinfo.h"
 #include "../../orientedrectangle.h"
@@ -10,6 +11,8 @@
 
 namespace TankGame
 {
+	static SoundEffectPlayer activatedEffectPlayer("Checkpoint");
+	
 	static const glm::vec3 DEFAULT_COLOR = ParseColorHexCodeSRGB(0xE38D14);
 	static const glm::vec3 ACTIVATED_COLOR = ParseColorHexCodeSRGB(0x49DE5D);
 	
@@ -38,6 +41,8 @@ namespace TankGame
 		{
 			m_activated = true;
 			SetColor(ACTIVATED_COLOR);
+			
+			activatedEffectPlayer.Play(center, 1.0f, 1.0f);
 			
 			GetGameWorld()->SetCheckpoint(m_checkpointIndex, center, m_playerEntity->GetTransform().GetRotation());
 		}
