@@ -16,6 +16,10 @@
 		"src": "checkpoint.ogg"
 	},
 	{
+		"name": "MenuMouseOver",
+		"src": "menu_mouse_over.ogg"
+	},
+	{
 		"name": "Explosion",
 		"src": "explosion.ogg"
 	},

@@ -3,11 +3,14 @@
 #include "../../mouse.h"
 #include "../../graphics/ui/uirenderer.h"
 #include "../../graphics/ui/font.h"
+#include "../../audio/soundeffectplayer.h"
 
 #include <GLFW/glfw3.h>
 
 namespace TankGame
 {
+	static SoundEffectPlayer mouseOverPlayer("MenuMouseOver");
+	
 	MenuButton::MenuButton(std::u32string label)
 	{
 		SetLabel(std::move(label));
@@ -20,6 +23,9 @@ namespace TankGame
 		
 		if (m_area.Contains(updateInfo.m_mouse.GetPosition()))
 		{
+			if (m_hoverTransition == 0.0f)
+				mouseOverPlayer.Play(glm::vec2(), 0.5f, 1.0f);
+			
 			targetHoverTransition = 1.0f;
 			
 			if (updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
