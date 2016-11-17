@@ -8,6 +8,8 @@
 
 namespace TankGame
 {
+	std::unique_ptr<UIRenderer> UIRenderer::s_instance;
+	
 	UIRenderer::SpriteShader UIRenderer::s_spriteShader;
 	UIRenderer::TextShader UIRenderer::s_textShader;
 	

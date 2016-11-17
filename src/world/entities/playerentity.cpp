@@ -79,10 +79,7 @@ namespace TankGame
 		
 		if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_E) && !updateInfo.m_keyboard.WasKeyDown(GLFW_KEY_E))
 		{
-			const float INTERACT_DIST = 0.5f;
-			Rectangle interactRect = Rectangle::CreateCentered(GetTransform().GetPosition(), INTERACT_DIST, INTERACT_DIST);
-			
-			GetGameWorld()->IterateIntersectingEntities(interactRect, [] (Entity& entity)
+			GetGameWorld()->IterateIntersectingEntities(GetInteractRectangle(), [] (Entity& entity)
 			{
 				if (entity.CanInteract())
 					entity.OnInteract();
@@ -195,6 +192,12 @@ namespace TankGame
 		GetGameWorld()->Spawn(std::move(explosion));
 		
 		GetGameWorld()->SendEvent("PlayerKilled", this);
+	}
+	
+	Rectangle PlayerEntity::GetInteractRectangle() const
+	{
+		const float INTERACT_DIST = 0.5f;
+		return Rectangle::CreateCentered(GetTransform().GetPosition(), INTERACT_DIST, INTERACT_DIST);
 	}
 	
 	const char* PlayerEntity::GetObjectName() const

@@ -1,7 +1,12 @@
 #include "gamemanager.h"
 #include "updateinfo.h"
 #include "utils/ioutils.h"
+#include "graphics/ui/drawbutton.h"
+#include "world/entities/playerentity.h"
 #include "graphics/imainrenderer.h"
+#include "settings.h"
+
+#include <GLFW/glfw3.h>
 
 namespace TankGame
 {
@@ -32,12 +37,38 @@ namespace TankGame
 		if (!m_hudManager.IsPaused() && !m_level.IsNull())
 			m_level->Update(updateInfo);
 		m_ambiencePlayer.Update();
+		
+		float targetInteractButtonOpacity = 0.0f;
+		m_level->GetGameWorld().IterateIntersectingEntities(m_level->GetPlayerEntity().GetInteractRectangle(),
+		                                                    [&] (const Entity& entity)
+		{
+			if (entity.CanInteract())
+			{
+				targetInteractButtonOpacity = 1.0f;
+				m_interactButtonPos = updateInfo.m_viewInfo.WorldToScreen(entity.GetTransform().GetPosition());
+			}
+		});
+		
+		float deltaInteractButtonOpacity = targetInteractButtonOpacity - m_interactButtonOpacity;
+		m_interactButtonOpacity += glm::min(updateInfo.m_dt * 5.0f, glm::abs(deltaInteractButtonOpacity)) *
+		                           glm::sign(deltaInteractButtonOpacity);
 	}
 	
 	void GameManager::DrawUI()
 	{
 		if (!m_level.IsNull())
+		{
 			m_hudManager.DrawHUD();
+			
+			if (m_interactButtonOpacity > (1 / 255.0f))
+			{
+				glm::vec2 pos = m_interactButtonPos * glm::vec2(UIRenderer::GetInstance().GetWindowWidth(),
+				                                                UIRenderer::GetInstance().GetWindowHeight());
+				
+				DrawButton(Settings::GetInstance().GetInteractButton(), UIRenderer::GetInstance(), pos, 40,
+				           m_interactButtonOpacity * 0.75f);
+			}
+		}
 	}
 	
 	void GameManager::SetLevel(Level&& level, bool testing)

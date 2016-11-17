@@ -80,8 +80,6 @@ namespace TankGame
 		int m_currentToolIndex = 0;
 		EditorTool* m_tools[3];
 		
-		UIRenderer m_uiRenderer;
-		
 		glm::vec2 m_focusLocation;
 		float m_viewWidth;
 		

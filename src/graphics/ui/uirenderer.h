@@ -50,11 +50,18 @@ namespace TankGame
 		inline int GetWindowHeight() const
 		{ return m_windowHeight; }
 		
+		inline static UIRenderer& GetInstance()
+		{ return *s_instance; }
+		inline static void SetInstance(std::unique_ptr<UIRenderer>&& instance)
+		{ s_instance = std::move(instance); }
+		
 	private:
 		static void LoadSpriteShader();
 		static void LoadQuadShader();
 		static void LoadLineShader();
 		static void LoadTextShader();
+		
+		static std::unique_ptr<UIRenderer> s_instance;
 		
 		struct SpriteShader
 		{

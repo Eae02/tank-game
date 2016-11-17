@@ -4,6 +4,8 @@
 
 namespace TankGame
 {
+	constexpr int Font::NUM_NAMED_FONTS;
+	
 	FT_Library theFTLibrary;
 	
 	FT_Face OpenFontFace(const std::string& path, FT_UInt size)
@@ -60,20 +62,22 @@ namespace TankGame
 		return glyph;
 	}
 	
-	static StackObject<Font> namedFonts[3];
+	static StackObject<Font> namedFonts[Font::NUM_NAMED_FONTS];
 	
-	static std::string fontFileNames[3] =
+	static std::string fontFileNames[Font::NUM_NAMED_FONTS] =
 	{
 		"ui.ttf",
 		"ui.ttf",
-		"orbitron.ttf"
+		"orbitron.ttf",
+		"orbitron.ttf",
 	};
 	
-	static FT_UInt namedFontSizes[3] =
+	static FT_UInt namedFontSizes[Font::NUM_NAMED_FONTS] =
 	{
 		16,
 		24,
-		20
+		20,
+		40
 	};
 	
 	void Font::DestroyFonts()

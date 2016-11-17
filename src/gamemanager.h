@@ -49,6 +49,9 @@ namespace TankGame
 		
 		std::function<void()> m_quitCallback;
 		
+		float m_interactButtonOpacity = 0;
+		glm::vec2 m_interactButtonPos;
+		
 		bool m_isTesting = false;
 		
 		StackObject<Level> m_level;

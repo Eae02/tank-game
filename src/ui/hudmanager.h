@@ -63,8 +63,6 @@ namespace TankGame
 		
 		Textures m_textures;
 		
-		UIRenderer m_uiRenderer;
-		
 		PauseMenu m_pauseMenu;
 		
 		Rectangle m_hpBarRectangle;

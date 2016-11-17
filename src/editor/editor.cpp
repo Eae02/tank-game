@@ -147,7 +147,6 @@ namespace TankGame
 	
 	void Editor::OnResize(int newWidth, int newHeight)
 	{
-		m_uiRenderer.SetWindowDimensions(newWidth, newHeight);
 		m_halfScreenSize = { newWidth / 2.0f, newHeight / 2.0f };
 		
 		for (EditorTool* tool : m_tools)
@@ -261,9 +260,6 @@ namespace TankGame
 			ImGui::EndPopup();
 		}
 		
-		glEnable(GL_BLEND);
-		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
-		
 		if (m_drawQuadTree)
 		{
 			glm::mat3 W(
@@ -272,12 +268,11 @@ namespace TankGame
 					m_halfScreenSize.x, m_halfScreenSize.y, 1.0f
 			);
 			
-			m_quadTreeVisualizer.DrawQuadTree(m_uiRenderer, m_gameWorld->GetQuadTree(), W * viewInfo.GetViewMatrix());
+			m_quadTreeVisualizer.DrawQuadTree(UIRenderer::GetInstance(), m_gameWorld->GetQuadTree(),
+			                                  W * viewInfo.GetViewMatrix());
 		}
 		
-		m_tools[m_currentToolIndex]->DrawUI(viewInfo, m_uiRenderer);
-		
-		glDisable(GL_BLEND);
+		m_tools[m_currentToolIndex]->DrawUI(viewInfo, UIRenderer::GetInstance());
 	}
 	
 	void Editor::ShowPropertiesWindow(IPropertiesObject& object)

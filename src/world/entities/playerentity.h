@@ -26,6 +26,8 @@ namespace TankGame
 		inline glm::vec2 GetVelocity() const
 		{ return m_velocity; }
 		
+		Rectangle GetInteractRectangle() const;
+		
 		virtual void SetHp(float hp) override;
 		
 		virtual const char* GetObjectName() const override;

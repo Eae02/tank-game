@@ -59,8 +59,6 @@ namespace TankGame
 		
 		UpdateViewInfo();
 		
-		m_uiRenderer.SetWindowDimensions(newWidth, newHeight);
-		
 		m_mainMenu.OnResize(newWidth, newHeight);
 		m_optionsMenu.OnResize(newWidth, newHeight);
 	}
@@ -115,9 +113,9 @@ namespace TankGame
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 		
 		if (m_currentMenu == MenuScreens::MainMenu)
-			m_mainMenu.Draw(m_uiRenderer);
+			m_mainMenu.Draw(UIRenderer::GetInstance());
 		else if (m_currentMenu == MenuScreens::Options)
-			m_optionsMenu.Draw(m_uiRenderer);
+			m_optionsMenu.Draw(UIRenderer::GetInstance());
 		
 		glDisable(GL_BLEND);
 	}

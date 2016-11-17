@@ -76,7 +76,5 @@ namespace TankGame
 		
 		MainMenu m_mainMenu;
 		OptionsMenu m_optionsMenu;
-		
-		UIRenderer m_uiRenderer;
 	};
 }

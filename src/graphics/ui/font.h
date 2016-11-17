@@ -21,7 +21,8 @@ namespace TankGame
 		StandardUI = 0,
 		MenuTitle = 1,
 		HudFont = 2,
-		MenuButtonFont = 2
+		MenuButtonFont = 2,
+		ButtonFont = 3
 	};
 	
 	class Font
@@ -55,6 +56,8 @@ namespace TankGame
 		
 		inline FT_UInt GetSize() const
 		{ return m_size; }
+		
+		static constexpr int NUM_NAMED_FONTS = 4;
 		
 	private:
 		static Glyph RenderGlyph(FT_GlyphSlot ftGlyph);

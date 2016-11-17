@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
 #include <vector>
+#include <json.hpp>
 
 namespace TankGame
 {
@@ -86,6 +87,8 @@ namespace TankGame
 		{ return m_leftButton; }
 		inline int GetRightButton() const
 		{ return m_rightButton; }
+		inline int GetInteractButton() const
+		{ return m_interactButton; }
 		inline int GetFireButton() const
 		{ return m_fireButton; }
 		
@@ -97,6 +100,8 @@ namespace TankGame
 		{ m_leftButton = button; }
 		inline void SetRightButton(int button)
 		{ m_rightButton = button; }
+		inline void SetInteractButton(int button)
+		{ m_interactButton = button; }
 		inline void SetFireButton(int button)
 		{ m_fireButton = button; }
 		
@@ -117,6 +122,7 @@ namespace TankGame
 		{ m_postProcessingQuality = postProcessingQuality; }
 		
 	private:
+		static void MaybeParseButtonFromJSON(const nlohmann::json& json, const std::string& elementName, int& out);
 		static int ParseButtonString(const std::string& string);
 		static std::string GetButtonString(int button);
 		
@@ -134,6 +140,7 @@ namespace TankGame
 		int m_backButton = GLFW_KEY_S;
 		int m_leftButton = GLFW_KEY_A;
 		int m_rightButton = GLFW_KEY_D;
+		int m_interactButton = GLFW_KEY_E;
 		int m_fireButton = GLFW_MOUSE_BUTTON_1;
 		
 		float m_musicVolume = 1;

@@ -5,6 +5,7 @@
 #include "tanktextures.h"
 #include "graphics/quadmesh.h"
 #include "graphics/ui/font.h"
+#include "graphics/ui/drawbutton.h"
 #include "world/lights/pointlightentity.h"
 #include "world/particles/systems/smokeparticlesystem.h"
 #include "world/entities/playerentity.h"
@@ -118,12 +119,11 @@ namespace TankGame
 			window->m_shadowRenderer->OnResize(newWidth, newHeight);
 			window->m_gameManager->OnResize(newWidth, newHeight);
 			
+			UIRenderer::GetInstance().SetWindowDimensions(newWidth, newHeight);
+			
 			if (!window->m_editor.IsNull())
 				window->m_editor->OnResize(newWidth, newHeight);
-			if (!window->m_profilingUiRenderer.IsNull())
-				window->m_profilingUiRenderer->SetWindowDimensions(newWidth, newHeight);
 		}
-		
 		
 		Settings::GetInstance().SetResolution({ newWidth, newHeight });
 	}
@@ -212,9 +212,6 @@ namespace TankGame
 				m_menuManager->ShowMainMenu();
 		});
 		
-		if (m_argumentData.m_profiling)
-			m_profilingUiRenderer.Construct();
-		
 		m_console.AddCommand("heal", [&] (const std::string* argv, size_t argc)
 		{
 			if (m_gameManager->GetLevel() == nullptr)
@@ -275,6 +272,8 @@ namespace TankGame
 		m_menuManager->SetBackground("Level1_0");
 		m_menuManager->ShowMainMenu();
 		
+		UIRenderer::SetInstance(std::make_unique<UIRenderer>());
+		
 		ImGuiInterface::Init(m_window);
 	}
 	
@@ -331,9 +330,14 @@ namespace TankGame
 			worldRenderer->DrawShadowMaps(*m_shadowRenderer, m_viewInfo);
 			m_deferredRenderer->Draw(*worldRenderer, m_viewInfo);
 			
+			glEnable(GL_BLEND);
+			glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+			
 			if (isEditorOpen)
 				m_editor->DrawUI(m_viewInfo);
 			m_gameManager->DrawUI();
+			
+			glDisable(GL_BLEND);
 		}
 		
 		if (m_menuManager->Visible())
@@ -361,8 +365,8 @@ namespace TankGame
 			Rectangle viewRect(0, 0, m_width, m_height);
 			viewRect.Inflate(-5);
 			
-			m_profilingUiRenderer->DrawString(Font::GetNamedFont(FontNames::StandardUI), profileTextStream.str(),
-			                                  viewRect, Alignment::Left, Alignment::Bottom, glm::vec4(1.0f));
+			UIRenderer::GetInstance().DrawString(Font::GetNamedFont(FontNames::StandardUI), profileTextStream.str(),
+			                                     viewRect, Alignment::Left, Alignment::Bottom, glm::vec4(1.0f));
 		}
 		
 		glDisable(GL_BLEND);
@@ -464,6 +468,7 @@ namespace TankGame
 		m_gameManager.Destroy();
 		
 		TileGridMaterial::SetInstance(nullptr);
+		UIRenderer::SetInstance(nullptr);
 		
 		Font::DestroyFonts();
 		

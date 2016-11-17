@@ -96,8 +96,6 @@ namespace TankGame
 		glNamedFramebufferTexture(m_framebuffer->GetID(), GL_COLOR_ATTACHMENT0, m_fbTexture->GetID(), 0);
 		glNamedFramebufferDrawBuffer(m_framebuffer->GetID(), GL_COLOR_ATTACHMENT0);
 		
-		m_uiRenderer.SetWindowDimensions(width, height);
-		
 		LayoutElements(width, height);
 		
 		m_pauseMenu.OnResize(width, height);
@@ -134,9 +132,6 @@ namespace TankGame
 	
 	void HUDManager::DrawHUD()
 	{
-		glEnable(GL_BLEND);
-		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-		
 		Framebuffer::Save();
 		Framebuffer::Bind(*m_framebuffer, 0, 0, m_fbTexture->GetWidth(), m_fbTexture->GetHeight());
 		
@@ -153,9 +148,7 @@ namespace TankGame
 		m_vertexArray.Bind();
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, m_vertexCount);
 		
-		m_pauseMenu.Draw(m_uiRenderer);
-		
-		glDisable(GL_BLEND);
+		m_pauseMenu.Draw(UIRenderer::GetInstance());
 	}
 	
 	void HUDManager::SetPlayerEntity(const PlayerEntity* playerEntity)
@@ -181,13 +174,20 @@ namespace TankGame
 		Rectangle emptyHpBarTargetRect(fullHpBarTargetRect.FarX(), m_hpBarRectangle.y, m_hpBarRectangle.w - fullHpBarTargetRect.w, m_hpBarRectangle.h);
 		
 		if (emptyHpBarSampleRect.w > 1E-6)
-			m_uiRenderer.DrawSprite(m_textures.m_hpBarEmpty, emptyHpBarTargetRect, emptyHpBarSampleRect, glm::vec4(1.0f));
+		{
+			UIRenderer::GetInstance().DrawSprite(m_textures.m_hpBarEmpty, emptyHpBarTargetRect,
+			                                     emptyHpBarSampleRect, glm::vec4(1.0f));
+		}
+		
 		if (fullHpBarSampleRect.w > 1E-6)
-			m_uiRenderer.DrawSprite(m_textures.m_hpBarFull, fullHpBarTargetRect, fullHpBarSampleRect, glm::vec4(1.0f));
+		{
+			UIRenderer::GetInstance().DrawSprite(m_textures.m_hpBarFull, fullHpBarTargetRect,
+			                                     fullHpBarSampleRect, glm::vec4(1.0f));
+		}
 		
 		std::string hpString = std::to_string(static_cast<int>(std::round(m_hp)));
-		m_uiRenderer.DrawString(Font::GetNamedFont(FontNames::HudFont), hpString, m_hpBarRectangle,
-		                        Alignment::Left, Alignment::Center, glm::vec4(1.0f));
+		UIRenderer::GetInstance().DrawString(Font::GetNamedFont(FontNames::HudFont), hpString, m_hpBarRectangle,
+		                                     Alignment::Left, Alignment::Center, glm::vec4(1.0f));
 	}
 	
 	HUDManager::Textures::Textures(const fs::path& dirPath)

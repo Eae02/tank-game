@@ -50,8 +50,6 @@ namespace TankGame
 		
 		ArgumentData m_argumentData;
 		
-		StackObject<UIRenderer> m_profilingUiRenderer;
-		
 		GLFWwindow* m_window;
 		
 		int m_width, m_height;

@@ -26,11 +26,12 @@ namespace TankGame
 		const nlohmann::json& buttonsEl = settingsDocument["buttons"];
 		const nlohmann::json& videoEl = settingsDocument["video"];
 		
-		m_forwardButton = ParseButtonString(buttonsEl["forward"].get<std::string>());
-		m_backButton = ParseButtonString(buttonsEl["back"].get<std::string>());
-		m_leftButton = ParseButtonString(buttonsEl["left"].get<std::string>());
-		m_rightButton = ParseButtonString(buttonsEl["right"].get<std::string>());
-		m_fireButton = ParseButtonString(buttonsEl["fire"].get<std::string>());
+		MaybeParseButtonFromJSON(buttonsEl, "forward", m_forwardButton);
+		MaybeParseButtonFromJSON(buttonsEl, "back", m_backButton);
+		MaybeParseButtonFromJSON(buttonsEl, "left", m_leftButton);
+		MaybeParseButtonFromJSON(buttonsEl, "right", m_rightButton);
+		MaybeParseButtonFromJSON(buttonsEl, "interact", m_interactButton);
+		MaybeParseButtonFromJSON(buttonsEl, "fire", m_fireButton);
 		
 		const nlohmann::json& resolutionEl = videoEl["resolution"];
 		m_resolution = { resolutionEl[0].get<int>(), resolutionEl[1].get<int>() };
@@ -77,6 +78,7 @@ namespace TankGame
 		buttonsEl["back"] = GetButtonString(m_backButton);
 		buttonsEl["left"] = GetButtonString(m_leftButton);
 		buttonsEl["right"] = GetButtonString(m_rightButton);
+		buttonsEl["interact"] = GetButtonString(m_interactButton);
 		buttonsEl["fire"] = GetButtonString(m_fireButton);
 		json["buttons"] = buttonsEl;
 		
@@ -109,7 +111,15 @@ namespace TankGame
 		s_defaultResolutionIndex = std::find_if(s_resolutions.begin(), s_resolutions.end(), [&] (glm::ivec2 res)
 		{
 			return res.x == defaultVideoMode->width && res.y == defaultVideoMode->height;
-		}) - s_resolutions.begin();
+	}) - s_resolutions.begin();
+	}
+	
+	void Settings::MaybeParseButtonFromJSON(const nlohmann::json& json, const std::string& elementName, int& out)
+	{
+		auto elementIt = json.find(elementName);
+		
+		if (elementIt != json.end())
+			out = ParseButtonString(*elementIt);
 	}
 	
 	int Settings::ParseButtonString(const std::string& string)
