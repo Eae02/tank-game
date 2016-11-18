@@ -28,7 +28,7 @@ find_package(Freetype REQUIRED)
 find_package(ZLIB REQUIRED)
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-	set(LIBS ${LIBS} stdc++fs)
+	set(LIBS ${LIBS} stdc++fs X11)
 endif()
 
 #Sets link libraries for all projects
