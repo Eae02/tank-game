@@ -25,11 +25,13 @@ namespace TankGame
 	OptionsMenu::OptionsMenu()
 	    : m_settingLabels{
 	          Label(U"Display Mode"), Label(U"Fullscreen Resolution"),
-	          Label(U"Lighting"), Label(U"Particles"), Label(U"Post Processing")
+	          Label(U"Lighting"), Label(U"Particles"), Label(U"Post Processing"),
+	          Label(U"Master Volume"), Label(U"Music Volume"), Label(U"SFX Volume")
 	      },
 	      m_backButton(U"Back"), m_applyButton(U"Apply"), m_displayModeComboBox{ U"Fullscreen", U"Windowed" },
-	      m_lightingQualityComboBox(CreateQualityComboBox()),
-	      m_particlesQualityComboBox(CreateQualityComboBox()), m_postQualityComboBox(CreateQualityComboBox())
+	      m_lightingQualityComboBox(CreateQualityComboBox()), m_particlesQualityComboBox(CreateQualityComboBox()),
+	      m_postQualityComboBox(CreateQualityComboBox()),
+	      m_masterVolumeSlider(0, 100, 5), m_musicVolumeSlider(0, 100, 5), m_sfxVolumeSlider(0, 100, 5)
 	{
 		for (int i = 0; i < Settings::GetResolutionsCount(); i++)
 		{
@@ -106,6 +108,27 @@ namespace TankGame
 			if (m_postQualityComboBox.Update(updateInfo, postQuality))
 				Settings::GetInstance().SetPostProcessingQuality(static_cast<QualitySettings>(postQuality));
 		}
+		
+		if (!anyDropDownShown)
+		{
+			float volume = Settings::GetInstance().GetMasterVolume() * 100.0f;
+			if (m_masterVolumeSlider.Update(updateInfo, volume))
+				Settings::GetInstance().SetMasterVolume(volume / 100.0f);
+		}
+		
+		if (!anyDropDownShown)
+		{
+			float volume = Settings::GetInstance().GetMusicVolume() * 100.0f;
+			if (m_musicVolumeSlider.Update(updateInfo, volume))
+				Settings::GetInstance().SetMusicVolume(volume / 100.0f);
+		}
+		
+		if (!anyDropDownShown)
+		{
+			float volume = Settings::GetInstance().GetSFXVolume() * 100.0f;
+			if (m_sfxVolumeSlider.Update(updateInfo, volume))
+				Settings::GetInstance().SetSFXVolume(volume / 100.0f);
+		}
 	}
 	
 	void OptionsMenu::OnOpen()
@@ -139,6 +162,9 @@ namespace TankGame
 		m_lightingQualityComboBox.Draw(uiRenderer);
 		m_resolutionsComboBox.Draw(uiRenderer);
 		m_displayModeComboBox.Draw(uiRenderer);
+		m_masterVolumeSlider.Draw(uiRenderer);
+		m_musicVolumeSlider.Draw(uiRenderer);
+		m_sfxVolumeSlider.Draw(uiRenderer);
 		
 		PopScissorRect();
 	}
@@ -155,7 +181,10 @@ namespace TankGame
 			&m_lightingQualityComboBox,
 			&m_particlesQualityComboBox,
 			&m_postQualityComboBox,
-			nullptr
+			nullptr,
+			&m_masterVolumeSlider,
+			&m_musicVolumeSlider,
+			&m_sfxVolumeSlider
 		};
 		
 		float y = m_contentsBeginY;

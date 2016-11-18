@@ -83,6 +83,9 @@ namespace TankGame
 		{
 			if (m_area.Contains(updateInfo.m_mouse.GetPosition()))
 			{
+				if (m_hoverTransition == 0.0f)
+					PlayMouseOverEffect();
+				
 				targetHoverTransition = 1.0f;
 				
 				if (clicked)

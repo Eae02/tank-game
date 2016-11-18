@@ -91,4 +91,10 @@ namespace TankGame
 		return conv.from_bytes(utf8String);
 #endif
 	}
+	
+	void UpdateTransition(float& value, float target, float dt)
+	{
+		float delta = target - value;
+		value += glm::min(dt, glm::abs(delta)) * glm::sign(delta);
+	}
 }

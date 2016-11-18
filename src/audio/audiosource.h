@@ -12,7 +12,14 @@ namespace TankGame
 	class AudioSource : public ALResource<&DestroyAudioSource>
 	{
 	public:
-		AudioSource();
+		enum class VolumeModes
+		{
+			Music,
+			Effect,
+			None
+		};
+		
+		explicit AudioSource(VolumeModes volumeMode = VolumeModes::None);
 		
 		void SetBuffer(const class AudioBuffer& buffer);
 		
@@ -36,5 +43,7 @@ namespace TankGame
 		
 		mutable float m_volume = 1;
 		mutable float m_pitch = 1;
+		
+		VolumeModes m_volumeMode;
 	};
 }

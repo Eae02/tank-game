@@ -9,8 +9,6 @@
 
 namespace TankGame
 {
-	static SoundEffectPlayer mouseOverPlayer("MenuMouseOver");
-	
 	MenuButton::MenuButton(std::u32string label)
 	{
 		SetLabel(std::move(label));
@@ -24,7 +22,7 @@ namespace TankGame
 		if (m_area.Contains(updateInfo.m_mouse.GetPosition()))
 		{
 			if (m_hoverTransition == 0.0f)
-				mouseOverPlayer.Play(glm::vec2(), 0.5f, 1.0f);
+				PlayMouseOverEffect();
 			
 			targetHoverTransition = 1.0f;
 			

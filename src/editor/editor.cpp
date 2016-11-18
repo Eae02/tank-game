@@ -53,16 +53,19 @@ namespace TankGame
 			m_focusLocation.x += updateInfo.m_dt * KEYBOARD_MOVE_SPEED;
 		
 		//Moves the camera when the mouse is close the the screen edge
-		float SCREEN_EDGE_SIZE = 0.1f;
-		float EDGE_PAN_SPEED = 5.0f;
-		if (updateInfo.m_mouse.GetX() < m_halfScreenSize.x * 2 * SCREEN_EDGE_SIZE)
-			m_focusLocation.x -= EDGE_PAN_SPEED * updateInfo.m_dt;
-		else if (updateInfo.m_mouse.GetX() > m_halfScreenSize.x * 2 * (1.0f - SCREEN_EDGE_SIZE))
-			m_focusLocation.x += EDGE_PAN_SPEED * updateInfo.m_dt;
-		if (updateInfo.m_mouse.GetY() < m_halfScreenSize.y * 2 * SCREEN_EDGE_SIZE)
-			m_focusLocation.y -= EDGE_PAN_SPEED * updateInfo.m_dt;
-		else if (updateInfo.m_mouse.GetY() > m_halfScreenSize.y * 2 * (1.0f - SCREEN_EDGE_SIZE))
-			m_focusLocation.y += EDGE_PAN_SPEED * updateInfo.m_dt;
+		if (!updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_MIDDLE))
+		{
+			float SCREEN_EDGE_SIZE = 0.1f;
+			float EDGE_PAN_SPEED = 5.0f;
+			if (updateInfo.m_mouse.GetX() < m_halfScreenSize.x * 2 * SCREEN_EDGE_SIZE)
+				m_focusLocation.x -= EDGE_PAN_SPEED * updateInfo.m_dt;
+			else if (updateInfo.m_mouse.GetX() > m_halfScreenSize.x * 2 * (1.0f - SCREEN_EDGE_SIZE))
+				m_focusLocation.x += EDGE_PAN_SPEED * updateInfo.m_dt;
+			if (updateInfo.m_mouse.GetY() < m_halfScreenSize.y * 2 * SCREEN_EDGE_SIZE)
+				m_focusLocation.y -= EDGE_PAN_SPEED * updateInfo.m_dt;
+			else if (updateInfo.m_mouse.GetY() > m_halfScreenSize.y * 2 * (1.0f - SCREEN_EDGE_SIZE))
+				m_focusLocation.y += EDGE_PAN_SPEED * updateInfo.m_dt;
+		}
 		
 		if (updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_RIGHT) && 
 		    !updateInfo.m_mouse.WasButtonPressed(GLFW_MOUSE_BUTTON_RIGHT))

@@ -18,7 +18,7 @@ namespace TankGame
 	
 	TankEntity::TankEntity(glm::vec3 spotlightColor, const TankEntity::TextureInfo& textureInfo, int teamID, float maxHp)
 	    : SpotLightEntity(spotlightColor, 7, glm::radians(80.0f), Attenuation(0, 0.7f)), Hittable(maxHp, teamID),
-	      m_textureInfo(textureInfo), m_teamID(teamID)
+	      m_audioSource(AudioSource::VolumeModes::Effect), m_textureInfo(textureInfo), m_teamID(teamID)
 	{
 		float baseTextureAR = textureInfo.m_baseTextureHeight / static_cast<float>(textureInfo.m_baseTextureWidth);
 		GetTransform().SetScale({ SIZE, SIZE * baseTextureAR });

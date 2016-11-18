@@ -47,9 +47,7 @@ namespace TankGame
 				}
 			});
 			
-			float deltaInteractButtonOpacity = targetInteractButtonOpacity - m_interactButtonOpacity;
-			m_interactButtonOpacity += glm::min(updateInfo.m_dt * 5.0f, glm::abs(deltaInteractButtonOpacity)) *
-									   glm::sign(deltaInteractButtonOpacity);
+			UpdateTransition(m_interactButtonOpacity, targetInteractButtonOpacity, updateInfo.m_dt * 5.0f);
 			
 			m_level->Update(updateInfo);
 		}

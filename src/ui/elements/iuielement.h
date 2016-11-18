@@ -13,5 +13,7 @@ namespace TankGame
 		virtual void Draw(const class UIRenderer& uiRenderer) const = 0;
 		
 		virtual glm::vec2 GetSize() const = 0;
+		
+		static void PlayMouseOverEffect();
 	};
 }

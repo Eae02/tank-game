@@ -69,11 +69,20 @@ namespace TankGame
 		static inline int GetDefaultResolutionIndex()
 		{ return s_defaultResolutionIndex; }
 		
+		inline float GetMasterVolume() const
+		{ return m_masterVolume; }
 		inline float GetMusicVolume() const
 		{ return m_musicVolume; }
 		inline float GetSFXVolume() const
 		{ return m_sfxVolume; }
 		
+		inline float GetMusicGain() const
+		{ return m_musicVolume * m_masterVolume; }
+		inline float GetSFXGain() const
+		{ return m_sfxVolume * m_masterVolume; }
+		
+		inline void SetMasterVolume(float masterVolume)
+		{ m_masterVolume = masterVolume; }
 		inline void SetMusicVolume(float musicVolume)
 		{ m_musicVolume = musicVolume; }
 		inline void SetSFXVolume(float sfxVolume)
@@ -143,6 +152,7 @@ namespace TankGame
 		int m_interactButton = GLFW_KEY_E;
 		int m_fireButton = GLFW_MOUSE_BUTTON_1;
 		
+		float m_masterVolume = 1;
 		float m_musicVolume = 1;
 		float m_sfxVolume = 1;
 		

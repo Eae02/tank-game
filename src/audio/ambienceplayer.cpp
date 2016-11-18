@@ -1,5 +1,6 @@
 #include "ambienceplayer.h"
 #include "../utils/utils.h"
+#include "../settings.h"
 
 namespace TankGame
 {
@@ -26,6 +27,13 @@ namespace TankGame
 	{
 		if (!m_isPlaying)
 			return;
+		
+		float musicVol = Settings::GetInstance().GetMusicGain();
+		if (!FloatEqual(m_volume, musicVol))
+		{
+			alSourcef(m_source.GetID(), AL_GAIN, musicVol);
+			m_volume = musicVol;
+		}
 		
 		if (!m_source.IsPlaying())
 		{

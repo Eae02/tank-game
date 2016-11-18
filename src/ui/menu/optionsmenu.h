@@ -2,6 +2,7 @@
 
 #include "../elements/menubutton.h"
 #include "../elements/combobox.h"
+#include "../elements/slider.h"
 
 #include <functional>
 #include <array>
@@ -43,7 +44,7 @@ namespace TankGame
 			    : m_string(string + U":") { }
 		};
 		
-		std::array<Label, 5> m_settingLabels;
+		std::array<Label, 8> m_settingLabels;
 		
 		std::array<Rectangle, NUM_SECTIONS> m_sectionTitleRectangles;
 		
@@ -67,5 +68,9 @@ namespace TankGame
 		ComboBox m_lightingQualityComboBox;
 		ComboBox m_particlesQualityComboBox;
 		ComboBox m_postQualityComboBox;
+		
+		Slider m_masterVolumeSlider;
+		Slider m_musicVolumeSlider;
+		Slider m_sfxVolumeSlider;
 	};
 }

@@ -41,7 +41,8 @@ namespace TankGame
 	ExplosionEntity::ExplosionEntity(ParticlesManager& particlesManager)
 	    : PointLightEntity(ParseColorHexCodeSRGB(0xff6c33), LIGHT_INTENSITY, Attenuation(0, 0.5f)),
 	      ParticleSystemEntity(ExplosionParticleSystem(particlesManager), LIFE_TIME),
-	      m_blastSettingsUniformBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(float) * 4, GL_MAP_WRITE_BIT))
+	      m_blastSettingsUniformBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(float) * 4, GL_MAP_WRITE_BIT)),
+	      m_audioSource(AudioSource::VolumeModes::Effect)
 	{
 		SetShadowMode(EntityShadowModes::Dynamic);
 		UpdateBlastSettings(0);

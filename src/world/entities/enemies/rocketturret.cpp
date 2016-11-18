@@ -27,7 +27,8 @@ namespace TankGame
 	    : RayLightEntity(SCAN_COLOR, 10, Attenuation(0, 10), 10, 0.05f),
 	      Hittable(100, EnemyTeamID), m_minRotationAngle(minRotationAngle), m_maxRotationAngle(maxRotationAngle),
 	      m_rotationSpeed(rotationSpeed), m_fireDelay(fireDelay),
-	      m_cannonPropClass(*PropsManager::GetInstance().GetPropClassByName("TurretCannon"))
+	      m_cannonPropClass(*PropsManager::GetInstance().GetPropClassByName("TurretCannon")),
+	      m_ambienceSource(AudioSource::VolumeModes::Effect), m_detectedSource(AudioSource::VolumeModes::Effect)
 	{
 		const float CANNON_SIZE = 0.3f;
 		

@@ -1,5 +1,6 @@
 #include "audiosource.h"
 #include "audiobuffer.h"
+#include "../settings.h"
 
 namespace TankGame
 {
@@ -10,7 +11,8 @@ namespace TankGame
 	
 	ViewInfo AudioSource::s_viewInfo;
 	
-	AudioSource::AudioSource()
+	AudioSource::AudioSource(VolumeModes volumeMode)
+	    : m_volumeMode(volumeMode)
 	{
 		ALuint id;
 		alGenSources(1, &id);
@@ -56,13 +58,18 @@ namespace TankGame
 	
 	void AudioSource::Play(float volume, float pitch) const
 	{
-		if (m_volume != volume)
+		if (m_volumeMode == VolumeModes::Music)
+			volume *= Settings::GetInstance().GetMusicGain();
+		if (m_volumeMode == VolumeModes::Effect)
+			volume *= Settings::GetInstance().GetSFXGain();
+		
+		if (!FloatEqual(m_volume, volume))
 		{
 			m_volume = volume;
 			alSourcef(GetID(), AL_GAIN, volume);
 		}
 		
-		if (m_pitch != pitch)
+		if (!FloatEqual(m_pitch, pitch))
 		{
 			m_pitch = pitch;
 			alSourcef(GetID(), AL_PITCH, pitch);

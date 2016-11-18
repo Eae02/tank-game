@@ -20,7 +20,7 @@ namespace TankGame
 		}
 		else
 		{
-			m_audioSources.emplace_back();
+			m_audioSources.emplace_back(AudioSource::VolumeModes::Effect);
 			audioSource = &m_audioSources.back();
 			
 			audioSource->SetBuffer(SoundsManager::GetInstance().GetSound(m_effectName));

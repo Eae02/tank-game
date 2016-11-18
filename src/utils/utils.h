@@ -20,11 +20,13 @@ namespace TankGame
 	
 	inline bool FloatEqual(float a, float b)
 	{
-		return std::abs(a - b) < 1E-6;
+		return std::abs(a - b) < 1E-6f;
 	}
 	
 	std::vector<std::string> Split(const std::string& string, const std::string& delimiters = " ",
 	                               bool trimEmpty = false);
+	
+	void UpdateTransition(float& value, float target, float dt);
 	
 	void CallOnClose(void(*callback)());
 	
