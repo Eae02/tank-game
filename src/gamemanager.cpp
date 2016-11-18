@@ -71,7 +71,7 @@ namespace TankGame
 				                                                UIRenderer::GetInstance().GetWindowHeight());
 				
 				DrawButton(Settings::GetInstance().GetInteractButton(), UIRenderer::GetInstance(), pos, 40,
-				           m_interactButtonOpacity * 0.75f);
+				           m_interactButtonOpacity * 0.9f);
 			}
 		}
 	}

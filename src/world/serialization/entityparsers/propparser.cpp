@@ -11,9 +11,15 @@ namespace TankGame
 		
 		auto widthIt = json.find("width");
 		if (widthIt != json.end())
-		{
 			entity->SetSizeX(widthIt->get<float>());
-		}
+		
+		auto solidIt = json.find("solid");
+		if (solidIt != json.end())
+			entity->SetIsSolid(solidIt->get<bool>());
+		
+		auto zIt = json.find("z");
+		if (zIt != json.end())
+			entity->SetZ(zIt->get<float>());
 		
 		return entity;
 	}

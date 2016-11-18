@@ -60,6 +60,8 @@ namespace TankGame
 		
 		json["prop_class"] = m_propClass->GetName();
 		json["width"] = m_sizeX;
+		json["solid"] = m_isSolid;
+		json["z"] = m_z;
 		
 		return json;
 	}

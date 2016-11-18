@@ -178,8 +178,10 @@ namespace TankGame
 	{
 		int width, height;
 		
+		std::string pathString = path.string();
+		
 		TextureLayerPtr layerData = CreateLayerPtr();
-		layerData.reset(stbi_load(path.c_str(), &width, &height, nullptr, 4));
+		layerData.reset(stbi_load(pathString.c_str(), &width, &height, nullptr, 4));
 		
 		if (width == TileGridMaterial::WIDTH && height == TileGridMaterial::HEIGHT)
 			return layerData;

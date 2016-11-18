@@ -10,10 +10,8 @@ namespace TankGame
 	static SoundEffectPlayer soundEffectPlayer{ "DoorOpen" };
 	
 	DoorEntity::DoorEntity(const std::string* openEvents, size_t numOpenEvents)
-	    : PropEntity("Door", true), m_openEvents(numOpenEvents)
+	    : PropEntity("Door", 1.0f, true), m_openEvents(numOpenEvents)
 	{
-		SetSizeX(0.5f);
-		
 		for (size_t i = 0; i < numOpenEvents; i++)
 			m_openEvents[i] = OpenEvent(openEvents[i]);
 	}

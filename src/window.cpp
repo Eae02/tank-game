@@ -16,6 +16,13 @@
 #include "world/serialization/serializeworld.h"
 #include "imguiinterface.h"
 
+#if defined(__linux__)
+#define GLFW_EXPOSE_NATIVE_X11
+#elif defined(_WIN32)
+#define GLFW_EXPOSE_NATIVE_WIN32
+#endif
+
+#include <GLFW/glfw3native.h>
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -64,7 +71,10 @@ namespace TankGame
 		
 		glfwSetWindowFocusCallback(m_window, [] (GLFWwindow* window, int hasFocus)
 		{
-			if (reinterpret_cast<Window*>(glfwGetWindowUserPointer(window))->m_isFullscreen && hasFocus == GLFW_FALSE)
+			Window* self = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+			self->m_isFocused = hasFocus == GLFW_TRUE;
+			
+			if (self->m_isFullscreen && !self->m_isFocused)
 				glfwIconifyWindow(window);
 		});
 		
@@ -375,6 +385,30 @@ namespace TankGame
 		
 		glDisable(GL_BLEND);
 	}
+
+	void Window::SetIsCursorCaptured(bool shouldCapture)
+	{
+		if (shouldCapture == m_isCursorCaptured)
+			return;
+		m_isCursorCaptured = shouldCapture;
+		
+		if (!shouldCapture)
+		{
+#if defined(__linux__)
+			XUngrabPointer(glfwGetX11Display(), CurrentTime);
+#elif defined(_WIN32)
+			ClipCursor(nullptr);
+#endif
+		}
+		else
+		{
+#ifdef __linux__
+			XGrabPointer(glfwGetX11Display(), glfwGetX11Window(m_window), true, ButtonPressMask | ButtonReleaseMask
+			             | PointerMotionMask | FocusChangeMask | EnterWindowMask | LeaveWindowMask, GrabModeAsync,
+			             GrabModeAsync, glfwGetX11Window(m_window), None, CurrentTime);
+#endif
+		}
+	}
 	
 	void Window::RunGame()
 	{
@@ -450,23 +484,38 @@ namespace TankGame
 			
 			glfwPollEvents();
 			
+			bool shouldCaptureCursor = false;
+			
 			if (!m_loadingScreen.IsNull())
 			{
 				m_loadingScreen->RunFrame();
-				
+
 				if (m_loadingScreen->IsLoadingDone())
 				{
 					m_loadingScreen.Destroy();
-					
+
 					double beforeInitialize = glfwGetTime();
-					
+
 					Initialize();
 					glfwGetWindowSize(m_window, &width, &height);
 					ResizeCallback(m_window, width, height);
-					
+
 					GetLogStream() << "Initializing took " << (glfwGetTime() - beforeInitialize) << "s\n";
 				}
 			}
+			else if (!m_gameManager.IsNull() && m_gameManager->GetLevel() != nullptr && !m_gameManager->IsPaused() && m_isFocused)
+				shouldCaptureCursor = true;
+			
+			SetIsCursorCaptured(shouldCaptureCursor);
+			
+#ifdef _WIN32
+			if (m_isCursorCaptured)
+			{
+				RECT clipRectangle;
+				GetWindowRect(glfwGetWin32Window(m_window), &clipRectangle);
+				ClipCursor(&clipRectangle);
+			}
+#endif
 			
 			if (m_loadingScreen.IsNull())
 				RunFrame(elapsedTime);
@@ -479,7 +528,7 @@ namespace TankGame
 			glfwSwapBuffers(m_window);
 			
 			//Caps the FPS to 60Hz in menu screens
-			if (m_loadingScreen.IsNull() && m_menuManager->Visible())
+			if (m_loadingScreen.IsNull() && m_menuManager->Visible() && !isVSyncEnabled)
 			{
 				const int MENU_FPS = 60;
 				double frameTime = glfwGetTime() - currentTime;
@@ -489,6 +538,8 @@ namespace TankGame
 					std::this_thread::sleep_for(std::chrono::duration<double>(sleepTime));
 			}
 		}
+		
+		SetIsCursorCaptured(false);
 		
 		m_menuManager.Destroy();
 		m_editor.Destroy();
@@ -508,12 +559,6 @@ namespace TankGame
 		BufferAllocator::SetInstance(nullptr);
 		
 		ImGuiInterface::Close();
-	}
-	
-	void Window::SetEnableVSync(bool enableVSync)
-	{
-		Settings::GetInstance().SetEnableVSync(enableVSync);
-		glfwSwapInterval(enableVSync ? 1 : 0);
 	}
 	
 	void Window::MakeFullscreen(int resX, int resY)

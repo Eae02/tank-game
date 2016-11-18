@@ -33,8 +33,6 @@ namespace TankGame
 		
 		void RunGame();
 		
-		void SetEnableVSync(bool enableVSync);
-		
 		void MakeFullscreen(int resX, int resY);
 		void MakeWindowed();
 		
@@ -50,12 +48,17 @@ namespace TankGame
 		void Initialize();
 		void InitializeConsole();
 		void RunFrame(float dt);
+		void SetIsCursorCaptured(bool shouldCapture);
 		
 		StackObject<LoadingScreen> m_loadingScreen;
 		
 		ArgumentData m_argumentData;
 		
 		GLFWwindow* m_window;
+		
+		bool m_isCursorCaptured = false;
+		
+		bool m_isFocused = true;
 		
 		int m_width, m_height;
 		
