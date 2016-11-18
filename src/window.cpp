@@ -2,10 +2,8 @@
 #include "window.h"
 
 #include "settings.h"
-#include "tanktextures.h"
 #include "graphics/quadmesh.h"
 #include "graphics/ui/font.h"
-#include "graphics/ui/drawbutton.h"
 #include "world/lights/pointlightentity.h"
 #include "world/particles/systems/smokeparticlesystem.h"
 #include "world/entities/playerentity.h"
@@ -97,35 +95,8 @@ namespace TankGame
 		{
 			ImGuiInterface::HandleCharEvent(codePoint);
 		});
-	}
-	
-	void Window::ResizeCallback(GLFWwindow* glfwWindow, int newWidth, int newHeight)
-	{
-		Window* window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 		
-		glViewport(0, 0, newWidth, newHeight);
-		Framebuffer::SetDefaultViewport(0, 0, newWidth, newHeight);
-		
-		window->m_width = newWidth;
-		window->m_height = newHeight;
-		
-		window->m_aspectRatio = static_cast<float>(newWidth) / newHeight;
-		
-		if (window->m_initialized)
-		{
-			window->m_menuManager->OnResize(newWidth, newHeight);
-			
-			window->m_deferredRenderer->OnResize(newWidth, newHeight);
-			window->m_shadowRenderer->OnResize(newWidth, newHeight);
-			window->m_gameManager->OnResize(newWidth, newHeight);
-			
-			UIRenderer::GetInstance().SetWindowDimensions(newWidth, newHeight);
-			
-			if (!window->m_editor.IsNull())
-				window->m_editor->OnResize(newWidth, newHeight);
-		}
-		
-		Settings::GetInstance().SetResolution({ newWidth, newHeight });
+		InitializeConsole();
 	}
 	
 	void Window::LoadLevel(const std::string& name)
@@ -152,66 +123,8 @@ namespace TankGame
 		m_gameManager->ExitLevel();
 	}
 	
-#ifndef NDEBUG
-	static void GLAPIENTRY OpenGLMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
-	                                             const GLchar* message, const void* userParam)
+	void Window::InitializeConsole()
 	{
-		if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
-			return;
-		
-		if (glVendorName == "NVIDIA Corporation")
-		{
-			if (id == 131204 || id == 131169)
-				return;
-		}
-		
-		if (glVendorName == "Intel Open Source Technology Center")
-		{
-			if (id == 5)
-				return;
-		}
-		
-		if (severity == GL_DEBUG_SEVERITY_HIGH)
-			throw std::runtime_error(message);
-		
-		if (severity == GL_DEBUG_SEVERITY_LOW || GL_DEBUG_SEVERITY_MEDIUM)
-			GetLogStream() << LOG_WARNING;
-		
-		GetLogStream() << "GL #" << id << ": " << message;
-		if (message[strlen(message) - 1] != '\n')
-			GetLogStream() << "\n";
-	}
-#endif
-	
-	void Window::Initialize()
-	{
-		m_menuManager.Construct();
-		m_menuManager->SetQuitCallback([this] { glfwSetWindowShouldClose(m_window, true); });
-		
-		m_menuManager->SetSettingsApplyCallback([this] (bool fullscreen, int resX, int resY)
-		{
-			if (fullscreen)
-				MakeFullscreen(resX, resY);
-			else
-				MakeWindowed();
-		});
-		
-		m_shadowRenderer.Construct();
-		
-		TileGridMaterial::SetInstance(std::make_unique<TileGridMaterial>(
-				TileGridMaterial::FromFile(GetResDirectory() / "tiles" / "tiles.json")));
-		
-		m_deferredRenderer.Construct();
-		m_gameManager.Construct(*m_deferredRenderer);
-		
-		m_gameManager->SetQuitCallback([this]
-		{
-			if (m_gameManager->IsTesting())
-				m_editor->StopTest();
-			else
-				m_menuManager->ShowMainMenu();
-		});
-		
 		m_console.AddCommand("heal", [&] (const std::string* argv, size_t argc)
 		{
 			if (m_gameManager->GetLevel() == nullptr)
@@ -268,13 +181,104 @@ namespace TankGame
 		{
 			GetLogStream() << "GL Renderer: " << glGetString(GL_RENDERER) << "\nGL Vendor: " << glVendorName << "\n";
 		});
+	}
+	
+	void Window::ResizeCallback(GLFWwindow* glfwWindow, int newWidth, int newHeight)
+	{
+		Window* window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
+		
+		glViewport(0, 0, newWidth, newHeight);
+		Framebuffer::SetDefaultViewport(0, 0, newWidth, newHeight);
+		
+		window->m_width = newWidth;
+		window->m_height = newHeight;
+		
+		window->m_aspectRatio = static_cast<float>(newWidth) / newHeight;
+		
+		if (!window->m_loadingScreen.IsNull())
+			window->m_loadingScreen->SetWindowSize(newWidth, newHeight);
+		
+		UIRenderer::SetSingletonWindowDimensions(newWidth, newHeight);
+		
+		if (window->m_initialized)
+		{
+			window->m_menuManager->OnResize(newWidth, newHeight);
+			
+			window->m_deferredRenderer->OnResize(newWidth, newHeight);
+			window->m_shadowRenderer->OnResize(newWidth, newHeight);
+			window->m_gameManager->OnResize(newWidth, newHeight);
+			
+			if (!window->m_editor.IsNull())
+				window->m_editor->OnResize(newWidth, newHeight);
+		}
+		
+		Settings::GetInstance().SetResolution({ newWidth, newHeight });
+	}
+	
+#ifndef NDEBUG
+	static void GLAPIENTRY OpenGLMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+	                                             const GLchar* message, const void* userParam)
+	{
+		if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
+			return;
+		
+		if (glVendorName == "NVIDIA Corporation")
+		{
+			if (id == 131204 || id == 131169)
+				return;
+		}
+		
+		if (glVendorName == "Intel Open Source Technology Center")
+		{
+			if (id == 5 || id == 56 || id == 57)
+				return;
+		}
+		
+		if (severity == GL_DEBUG_SEVERITY_HIGH)
+			throw std::runtime_error(message);
+		
+		if (severity == GL_DEBUG_SEVERITY_LOW || GL_DEBUG_SEVERITY_MEDIUM)
+			GetLogStream() << LOG_WARNING;
+		
+		GetLogStream() << "GL #" << id << ": " << message;
+		if (message[strlen(message) - 1] != '\n')
+			GetLogStream() << "\n";
+	}
+#endif
+	
+	void Window::Initialize()
+	{
+		m_menuManager.Construct();
+		m_menuManager->SetQuitCallback([this] { glfwSetWindowShouldClose(m_window, true); });
+		
+		m_menuManager->SetSettingsApplyCallback([this] (bool fullscreen, int resX, int resY)
+		{
+			if (fullscreen)
+				MakeFullscreen(resX, resY);
+			else
+				MakeWindowed();
+		});
+		
+		m_shadowRenderer.Construct();
+		
+		m_deferredRenderer.Construct();
+		m_gameManager.Construct(*m_deferredRenderer);
+		
+		m_gameManager->SetQuitCallback([this]
+		{
+			if (m_gameManager->IsTesting())
+				m_editor->StopTest();
+			else
+				m_menuManager->ShowMainMenu();
+		});
 		
 		m_menuManager->SetBackground("Level1_0");
+		
 		m_menuManager->ShowMainMenu();
 		
-		UIRenderer::SetInstance(std::make_unique<UIRenderer>());
-		
 		ImGuiInterface::Init(m_window);
+		
+		m_initialized = true;
 	}
 	
 	void Window::RunFrame(float dt)
@@ -375,6 +379,13 @@ namespace TankGame
 	void Window::RunGame()
 	{
 		glfwShowWindow(m_window);
+		
+		if (!m_isFullscreen)
+		{
+			const GLFWvidmode* videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+			glfwSetWindowPos(m_window, (videoMode->width - m_width) / 2, (videoMode->height - m_height) / 2);
+		}
+		
 		glfwMakeContextCurrent(m_window);
 		
 		glewExperimental = GL_TRUE;
@@ -403,14 +414,13 @@ namespace TankGame
 		
 		BufferAllocator::SetInstance(std::make_unique<BufferAllocator>());
 		QuadMesh::SetInstance(std::make_unique<QuadMesh>());
-		TankTextures::SetInstance(std::make_unique<TankTextures>());
 		
 		PropsManager::SetInstance(std::make_unique<PropsManager>());
-		PropsManager::GetInstance().LoadPropClasses(GetResDirectory() / "props");
 		
-		Initialize();
+		UIRenderer::SetInstance(std::make_unique<UIRenderer>());
 		
-		m_initialized = true;
+		m_loadingScreen.Construct();
+		m_loadingScreen->Initialize();
 		
 		int width, height;
 		glfwGetWindowSize(m_window, &width, &height);
@@ -440,7 +450,26 @@ namespace TankGame
 			
 			glfwPollEvents();
 			
-			RunFrame(elapsedTime);
+			if (!m_loadingScreen.IsNull())
+			{
+				m_loadingScreen->RunFrame();
+				
+				if (m_loadingScreen->IsLoadingDone())
+				{
+					m_loadingScreen.Destroy();
+					
+					double beforeInitialize = glfwGetTime();
+					
+					Initialize();
+					glfwGetWindowSize(m_window, &width, &height);
+					ResizeCallback(m_window, width, height);
+					
+					GetLogStream() << "Initializing took " << (glfwGetTime() - beforeInitialize) << "s\n";
+				}
+			}
+			
+			if (m_loadingScreen.IsNull())
+				RunFrame(elapsedTime);
 			
 			m_keyboard.OnFrameEnd();
 			m_mouse.OnFrameEnd();
@@ -450,7 +479,7 @@ namespace TankGame
 			glfwSwapBuffers(m_window);
 			
 			//Caps the FPS to 60Hz in menu screens
-			if (m_menuManager->Visible())
+			if (m_loadingScreen.IsNull() && m_menuManager->Visible())
 			{
 				const int MENU_FPS = 60;
 				double frameTime = glfwGetTime() - currentTime;
@@ -475,7 +504,6 @@ namespace TankGame
 		OnClose();
 		
 		PropsManager::SetInstance(nullptr);
-		TankTextures::SetInstance(nullptr);
 		QuadMesh::SetInstance(nullptr);
 		BufferAllocator::SetInstance(nullptr);
 		

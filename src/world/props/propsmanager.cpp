@@ -1,4 +1,5 @@
 #include "propsmanager.h"
+#include "propclassloadoperation.h"
 #include "../../utils/filesystem.h"
 #include "../../utils/utils.h"
 
@@ -10,52 +11,29 @@ namespace TankGame
 {
 	std::unique_ptr<PropsManager> PropsManager::s_instance;
 	
-	std::shared_ptr<Texture2D> PropsManager::GetTexture(const std::string& path)
+	const Texture2D* PropsManager::GetTexture(const std::string& path)
 	{
 		auto texturePos = m_textures.find(path);
 		bool found = texturePos != m_textures.end();
 		
 		if (found)
-		{
-			std::shared_ptr<Texture2D> sharedPtr = texturePos->second.lock();
-			if (sharedPtr != nullptr)
-				return sharedPtr;
-		}
+			return texturePos->second.get();
 		
-		auto sharedPtr = std::make_shared<Texture2D>(Texture2D::FromFile(path));
+		GetLogStream() << LOG_WARNING << "Loading prop texture lazily (path: '" << path << "'\n";
 		
-		sharedPtr->SetWrapMode(GL_CLAMP_TO_EDGE);
+		std::unique_ptr<Texture2D> texture = std::make_unique<Texture2D>(Texture2D::FromFile(path));
+		texture->SetWrapMode(GL_CLAMP_TO_EDGE);
 		
-		if (found)
-			texturePos->second = sharedPtr;
-		else
-			m_textures.emplace(path, sharedPtr);
+		const Texture2D* result = texture.get();
 		
-		return sharedPtr;
+		m_textures.emplace(path, std::move(texture));
+		
+		return result;
 	}
 	
-	void PropsManager::LoadPropClasses(const fs::path& directoryPath)
+	std::unique_ptr<IASyncOperation> PropsManager::LoadPropClasses(const fs::path& directoryPath)
 	{
-		for (const fs::directory_entry& entry : fs::recursive_directory_iterator(directoryPath))
-		{
-			if (fs::is_regular_file(entry.path()) && entry.path().extension() == ".json")
-			{
-				try
-				{
-					m_propClasses.emplace_back(std::make_unique<PropClass>(PropClass::FromJSON(entry.path(), *this)));
-				}
-				catch (const std::exception& error)
-				{
-					GetLogStream() << LOG_ERROR << "Error loading prop from " << entry.path() << ": "
-					               << error.what() << ".\n" << std::endl;
-				}
-			}
-		}
-		
-		std::sort(m_propClasses.begin(), m_propClasses.end(), [] (const auto& a, const auto& b)
-		{
-			return std::less<std::string>()(a->GetName(), b->GetName());
-		});
+		return std::make_unique<PropClassLoadOperation>(*this, directoryPath);
 	}
 	
 	bool PropsManager::RenderPropClassSeletor(const char* label, const PropClass** propClass) const
@@ -80,6 +58,14 @@ namespace TankGame
 			*propClass = m_propClasses[currentIndex].get();
 		
 		return changed;
+	}
+	
+	void PropsManager::SortPropClasses()
+	{
+		std::sort(m_propClasses.begin(), m_propClasses.end(), [] (const auto& a, const auto& b)
+		{
+			return std::less<std::string>()(a->GetName(), b->GetName());
+		});
 	}
 	
 	const PropClass* PropsManager::GetPropClassByName(const std::string& name) const

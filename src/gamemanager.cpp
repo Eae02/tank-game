@@ -35,23 +35,28 @@ namespace TankGame
 		
 		m_hudManager.Update(updateInfo);
 		if (!m_hudManager.IsPaused() && !m_level.IsNull())
-			m_level->Update(updateInfo);
-		m_ambiencePlayer.Update();
-		
-		float targetInteractButtonOpacity = 0.0f;
-		m_level->GetGameWorld().IterateIntersectingEntities(m_level->GetPlayerEntity().GetInteractRectangle(),
-		                                                    [&] (const Entity& entity)
 		{
-			if (entity.CanInteract())
+			float targetInteractButtonOpacity = 0.0f;
+			m_level->GetGameWorld().IterateIntersectingEntities(m_level->GetPlayerEntity().GetInteractRectangle(),
+																[&] (const Entity& entity)
 			{
-				targetInteractButtonOpacity = 1.0f;
-				m_interactButtonPos = updateInfo.m_viewInfo.WorldToScreen(entity.GetTransform().GetPosition());
-			}
-		});
+				if (entity.CanInteract())
+				{
+					targetInteractButtonOpacity = 1.0f;
+					m_interactButtonPos = updateInfo.m_viewInfo.WorldToScreen(entity.GetTransform().GetPosition());
+				}
+			});
+			
+			float deltaInteractButtonOpacity = targetInteractButtonOpacity - m_interactButtonOpacity;
+			m_interactButtonOpacity += glm::min(updateInfo.m_dt * 5.0f, glm::abs(deltaInteractButtonOpacity)) *
+									   glm::sign(deltaInteractButtonOpacity);
+			
+			m_level->Update(updateInfo);
+		}
+		else
+			m_interactButtonOpacity = 0.0f;
 		
-		float deltaInteractButtonOpacity = targetInteractButtonOpacity - m_interactButtonOpacity;
-		m_interactButtonOpacity += glm::min(updateInfo.m_dt * 5.0f, glm::abs(deltaInteractButtonOpacity)) *
-		                           glm::sign(deltaInteractButtonOpacity);
+		m_ambiencePlayer.Update();
 	}
 	
 	void GameManager::DrawUI()

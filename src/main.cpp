@@ -55,7 +55,6 @@ int main(int argc, const char** argv)
 		throw std::runtime_error("Error initializing freetype.");
 	
 	InitOpenAL();
-	SoundsManager::SetInstance(std::make_unique<SoundsManager>(GetResDirectory() / "audio" / "audio.json"));
 	
 	fs::path settingsPath(GetDataDirectory() / "settings.json");
 	if (fs::exists(settingsPath))

@@ -106,6 +106,12 @@ namespace TankGame
 		m_windowHeight = height;
 	}
 	
+	void UIRenderer::SetSingletonWindowDimensions(int newWidth, int newHeight)
+	{
+		if (s_instance != nullptr)
+			s_instance->SetWindowDimensions(newWidth, newHeight);
+	}
+	
 	void UIRenderer::DrawRectangle(const Rectangle& rectangle, const glm::vec4& color) const
 	{
 		DrawQuad(MapNDCToRectangle(rectangle), color);

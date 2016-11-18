@@ -13,6 +13,8 @@ namespace TankGame
 {
 	class TileGridMaterial
 	{
+		friend class TileGridMaterialLoadOperation;
+		
 	public:
 		static TileGridMaterial FromFile(const fs::path& path);
 		
@@ -38,6 +40,9 @@ namespace TankGame
 		static inline void SetInstance(std::unique_ptr<TileGridMaterial>&& instance)
 		{ s_instance = std::move(instance); }
 		
+		static constexpr GLsizei WIDTH = 512;
+		static constexpr GLsizei HEIGHT = 512;
+		
 	private:
 		struct MaterialSettings
 		{
@@ -46,8 +51,6 @@ namespace TankGame
 			float m_specularExponent = 20.0f;
 		};
 		
-		static constexpr GLsizei WIDTH = 1024;
-		static constexpr GLsizei HEIGHT = 1024;
 		static const int MIPMAP_COUNT;
 		
 		static std::unique_ptr<TileGridMaterial> s_instance;

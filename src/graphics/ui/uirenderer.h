@@ -54,6 +54,7 @@ namespace TankGame
 		{ return *s_instance; }
 		inline static void SetInstance(std::unique_ptr<UIRenderer>&& instance)
 		{ s_instance = std::move(instance); }
+		static void SetSingletonWindowDimensions(int newWidth, int newHeight);
 		
 	private:
 		static void LoadSpriteShader();

@@ -58,8 +58,8 @@ namespace TankGame
 			explicit Background(const nlohmann::json& element);
 		};
 		
-		int m_screenWidth;
-		int m_screenHeight;
+		int m_screenWidth = 1;
+		int m_screenHeight = 1;
 		
 		ViewInfo m_viewInfo;
 		

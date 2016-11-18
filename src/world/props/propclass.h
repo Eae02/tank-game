@@ -1,16 +1,18 @@
 #pragma once
 
-#include <memory>
 #include "../../graphics/gl/texture2d.h"
 #include "../../graphics/spritematerial.h"
 #include "../../utils/filesystem.h"
+
+#include <json.hpp>
 
 namespace TankGame
 {
 	class PropClass
 	{
 	public:
-		static PropClass FromJSON(const fs::path& path, class PropsManager& propsManager);
+		static PropClass FromJSON(const nlohmann::json& json, const fs::path& parentPath,
+		                          class PropsManager& propsManager);
 		
 		inline const std::string& GetName() const
 		{ return m_name; }
@@ -19,9 +21,9 @@ namespace TankGame
 		{ return m_isDecal; }
 		
 		inline GLsizei GetTextureWidth() const
-		{ return m_diffuse->GetWidth(); }
+		{ return m_textureWidth; }
 		inline GLsizei GetTextureHeight() const
-		{ return m_diffuse->GetHeight(); }
+		{ return m_textureHeight; }
 		
 		inline const SpriteMaterial& GetMaterial() const
 		{ return m_material; }
@@ -32,8 +34,8 @@ namespace TankGame
 		
 		bool m_isDecal = false;
 		
-		std::shared_ptr<Texture2D> m_diffuse;
-		std::shared_ptr<Texture2D> m_normalMap;
+		GLsizei m_textureWidth;
+		GLsizei m_textureHeight;
 		
 		SpriteMaterial m_material;
 		

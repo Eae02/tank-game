@@ -16,7 +16,9 @@
 #include "level.h"
 #include "argumentdata.h"
 #include "console.h"
+#include "loadingscreen.h"
 #include "utils/memory/stackobject.h"
+#include "asyncworklist.h"
 
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -46,7 +48,10 @@ namespace TankGame
 		void EditLevel(const std::string& name);
 		
 		void Initialize();
+		void InitializeConsole();
 		void RunFrame(float dt);
+		
+		StackObject<LoadingScreen> m_loadingScreen;
 		
 		ArgumentData m_argumentData;
 		
