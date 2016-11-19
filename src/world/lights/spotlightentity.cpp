@@ -15,7 +15,7 @@ namespace TankGame
 	
 	SpotLightEntity::SpotLightEntity(glm::vec3 color, float intensity, float cutoffAngle,
 	                                 Attenuation attenuation, float height)
-	    : LightSourceEntity(color, intensity, attenuation, height, sizeof(float) * 7)
+	    : LightSourceEntity(color, intensity, attenuation, height, sizeof(float) * 9)
 	{
 		SetCutoffAngle(cutoffAngle);
 	}
@@ -50,7 +50,7 @@ namespace TankGame
 	void SpotLightEntity::UpdateUniformBuffer(void* memory) const
 	{
 		LightSourceEntity::UpdateUniformBuffer(memory);
-		reinterpret_cast<float*>(memory)[6] = m_cutoff;
+		reinterpret_cast<float*>(memory)[8] = m_cutoff;
 	}
 	
 	void SpotLightEntity::SetCutoffAngle(float cutoffAngle)

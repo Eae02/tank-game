@@ -5,6 +5,8 @@
 #include "../../graphics/gl/shadermodule.h"
 
 #include <algorithm>
+#include <random>
+#include <glm/gtc/constants.hpp>
 
 namespace TankGame
 {
@@ -35,5 +37,12 @@ namespace TankGame
 		float c = attenuation.GetExponent() - 8 * maxChannel * intensity;
 		
 		return (-b + std::sqrt(b * b - 4 * a * c)) / (2.0f * a);
+	}
+	
+	static std::uniform_real_distribution<float> flickerOffsetGen(0.0f, glm::two_pi<float>());
+	
+	float ILightSource::GenerateFlickerOffset()
+	{
+		return flickerOffsetGen(randomGen);
 	}
 }

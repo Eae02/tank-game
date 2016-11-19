@@ -94,7 +94,7 @@ namespace TankGame
 			m_optionsMenu.Update(updateInfo);
 	}
 	
-	void MenuManager::Draw(DeferredRenderer& deferredRenderer) const
+	void MenuManager::Draw(DeferredRenderer& deferredRenderer, float gameTime) const
 	{
 		if (m_backgroundWorld == nullptr)
 		{
@@ -105,7 +105,7 @@ namespace TankGame
 		{
 			deferredRenderer.SetBlurAmount(1);
 			
-			m_worldRenderer.Prepare(m_viewInfo);
+			m_worldRenderer.Prepare(m_viewInfo, gameTime);
 			deferredRenderer.Draw(m_worldRenderer, m_viewInfo);
 		}
 		

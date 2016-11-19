@@ -1,11 +1,14 @@
 #include "pointlightentity.h"
+#include "../gameworld.h"
 #include "../../utils/ioutils.h"
 #include "../../utils/utils.h"
 #include "../../utils/mathutils.h"
 #include "../../graphics/gl/shadermodule.h"
+#include "../../updateinfo.h"
 
 #include <glm/gtc/color_space.hpp>
 #include <imgui.h>
+#include <random>
 
 namespace TankGame
 {
@@ -14,7 +17,10 @@ namespace TankGame
 	int PointLightEntity::s_worldTransformUniformLocation;
 	
 	PointLightEntity::PointLightEntity(glm::vec3 color, float intensity, Attenuation attenuation, float height)
-	    : LightSourceEntity(color, intensity, attenuation, height, 6 * sizeof(float)) { }
+	    : LightSourceEntity(color, intensity, attenuation, height, 8 * sizeof(float))
+	{
+		
+	}
 	
 	const ShaderProgram& PointLightEntity::GetShader() const
 	{

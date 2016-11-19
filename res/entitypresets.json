@@ -3,7 +3,8 @@
 		"class": "PointLight",
 		"intensity": 4,
 		"color": "FFFFFF",
-		"shadows": "static"
+		"shadows": "static",
+		"flickers": true
 	},
 	"Enemy Tank": {
 		"class": "EnemyTank",

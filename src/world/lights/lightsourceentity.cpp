@@ -2,14 +2,16 @@
 #include "../../utils/mathutils.h"
 #include "../../utils/utils.h"
 
-#include <imgui.h>
 #include <glm/gtc/color_space.hpp>
+#include <imgui.h>
 #include <cstdio>
+#include <random>
 
 namespace TankGame
 {
 	LightSourceEntity::LightSourceEntity(glm::vec3 color, float intensity, Attenuation attenuation, float height, size_t ubSize)
-	    : m_ubSize(ubSize), m_uniformBuffer(BufferAllocator::GetInstance().AllocateUnique(ubSize, GL_MAP_WRITE_BIT)),
+	    : m_ubSize(ubSize), m_flickerOffset(GenerateFlickerOffset()),
+	      m_uniformBuffer(BufferAllocator::GetInstance().AllocateUnique(ubSize, GL_MAP_WRITE_BIT)),
 	      m_color(color), m_intensity(intensity), m_attenuation(attenuation), m_height(height),
 	      m_range(GetRange(color, intensity, attenuation))
 	{
@@ -25,8 +27,7 @@ namespace TankGame
 	{
 		if (m_uniformBufferOutOfDate)
 		{
-			void* bufferMemory = glMapNamedBufferRange(*m_uniformBuffer, 0, m_ubSize,
-			                                           GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+			void* bufferMemory = glMapNamedBuffer(*m_uniformBuffer, GL_WRITE_ONLY);
 			
 			UpdateUniformBuffer(bufferMemory);
 			
@@ -59,6 +60,8 @@ namespace TankGame
 		floatMem[3] = m_intensity;
 		floatMem[4] = m_attenuation.GetLinear();
 		floatMem[5] = m_attenuation.GetExponent();
+		floatMem[6] = m_flickers ? 0.12f : 0.0f;
+		floatMem[7] = m_flickerOffset;
 	}
 	
 	LightInfo LightSourceEntity::GetLightInfo() const
@@ -85,6 +88,12 @@ namespace TankGame
 		m_attenuation = attenuation;
 		InvalidateUniformBuffer();
 		m_range = GetRange(m_color, m_intensity, m_attenuation);
+	}
+	
+	void LightSourceEntity::SetFlickers(bool flickers)
+	{
+		m_flickers = flickers;
+		InvalidateUniformBuffer();
 	}
 	
 	ShadowMap* LightSourceEntity::GetShadowMap() const
@@ -126,6 +135,9 @@ namespace TankGame
 		nlohmann::json json = Entity::Serialize();
 		
 		json["intensity"] = m_intensity;
+		
+		if (m_flickers)
+			json["flickers"] = m_flickers;
 		
 		uint32_t hexColor = RgbColorToSRGBHex(m_color);
 		char hexColorStr[7];
@@ -180,6 +192,9 @@ namespace TankGame
 			m_attenuation.SetExponent(glm::max(attenExp, 0.0f));
 			m_uniformBufferOutOfDate = true;
 		}
+		
+		if (ImGui::Checkbox("Flickers", &m_flickers))
+			m_uniformBufferOutOfDate = true;
 		
 		glm::vec3 colorSrgb = glm::convertLinearToSRGB(m_color);
 		if (ImGui::ColorEdit3("Color", reinterpret_cast<float*>(&colorSrgb)))

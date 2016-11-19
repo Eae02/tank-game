@@ -6,7 +6,10 @@ layout(std140, binding=1) uniform LightUB
 {
 	vec3 color;
 	float intensity;
-	Attenuation attenuation;
+	float attenLin;
+	float attenExp;
+	float flickerIntensity;
+	float flickerOffset;
 	float cutoff;
 } light;
 
@@ -31,11 +34,12 @@ void main()
 	if (spotFactor > light.cutoff)
 	{
 		vec3 color = phong(light.intensity, lightIn, eyePosition, worldPos_in, data) * light.color;
-		float attenuation = 1.0 + (light.attenuation.linear * dist) + (light.attenuation.exponent * dist * dist);
+		float attenuation = 1.0 + (light.attenLin * dist) + (light.attenExp * dist * dist);
 		
 		lighting_out = (color / attenuation) * (1.0 - ((1.0 - spotFactor) / (1.0 - light.cutoff)));
 		
 		lighting_out *= getShadowFactor(worldPos_in);
+		lighting_out *= getFlickerFactor(light.flickerOffset, light.flickerIntensity);
 	}
 	else
 	{

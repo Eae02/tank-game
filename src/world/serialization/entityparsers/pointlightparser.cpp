@@ -13,6 +13,10 @@ namespace TankGame
 		if (intensityIt != json.end())
 			entity->SetIntensity(intensityIt->get<float>());
 		
+		auto flickersIt = json.find("flickers");
+		if (flickersIt != json.end())
+			entity->SetFlickers(flickersIt->get<bool>());
+		
 		auto shadowsIt = json.find("shadows");
 		if (shadowsIt != json.end())
 		{

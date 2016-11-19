@@ -42,6 +42,8 @@ namespace TankGame
 		inline float GetLength() const
 		{ return m_length; }
 		
+		void SetFlickerIntensity(float flickerIntensity);
+		
 		virtual const ShaderProgram& GetShader() const override;
 		virtual void Bind() const override;
 		virtual LightInfo GetLightInfo() const override;
@@ -63,6 +65,9 @@ namespace TankGame
 		
 		BufferAllocator::UniquePtr m_uniformBuffer;
 		mutable bool m_uniformBufferOutOfDate = true;
+		
+		float m_flickerOffset;
+		float m_flickerIntensity = 0.0f;
 		
 		float m_height;
 		

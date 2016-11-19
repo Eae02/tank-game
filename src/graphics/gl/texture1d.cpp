@@ -13,5 +13,7 @@ namespace TankGame
 		
 		SetMinFilter(GL_LINEAR);
 		SetMagFilter(GL_LINEAR);
+		
+		SetWrapS(GL_REPEAT);
 	}
 }

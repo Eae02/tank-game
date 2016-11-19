@@ -21,7 +21,7 @@ namespace TankGame
 	
 	PostProcessor::PostProcessor()
 	    : m_hexagonTexture(Texture2D::FromFile(GetResDirectory() / "hex.png")),
-	      m_noiseTexture(NOISE_TEXTURE_RES, 1, GL_R32F),
+	      m_noiseTexture(NOISE_TEXTURE_RES, -1.0f, 1.0f),
 	      m_bloomHBlurShader(LoadShader(fs::path("bloom") / "hblur.fs.glsl")),
 	      m_bloomVBlurShader(LoadShader(fs::path("bloom") / "vblur.fs.glsl")),
 	      m_postProcessShader(LoadShader("post.fs.glsl")),
@@ -29,18 +29,6 @@ namespace TankGame
 	      m_postSettingsUB(BufferAllocator::GetInstance().AllocateUnique(sizeof(float) * 8, GL_MAP_WRITE_BIT))
 	{
 		m_hexagonTexture.SetWrapMode(GL_REPEAT);
-		
-		std::mt19937 random;
-		std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
-		
-		float noise[NOISE_TEXTURE_RES];
-		for (int i = 0; i < NOISE_TEXTURE_RES; i++)
-			noise[i] = dist(random);
-		
-		glTextureSubImage1D(m_noiseTexture.GetID(), 0, 0, NOISE_TEXTURE_RES, GL_RED, GL_FLOAT, noise);
-		m_noiseTexture.SetupMipmapping(false);
-		m_noiseTexture.SetMagFilter(GL_LINEAR);
-		m_noiseTexture.SetMinFilter(GL_LINEAR);
 	}
 	
 	void PostProcessor::DoPostProcessing(const Texture2D& inputTexture, const Texture2D& distortionsTexture) const

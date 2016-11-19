@@ -12,13 +12,13 @@
 
 namespace TankGame
 {
-	void WorldRenderer::Prepare(const class ViewInfo& viewInfo) const
+	void WorldRenderer::Prepare(const class ViewInfo& viewInfo, float gameTime) const
 	{
 		if (m_gameWorld == nullptr)
 			throw InvalidStateException("Game world not set.");
 		
 		glm::vec2 centerPos = viewInfo.GetViewRectangle().Center();
-		m_renderSettings.Update(viewInfo, glm::vec3(centerPos.x, 5, centerPos.y));
+		m_renderSettings.Update(viewInfo, glm::vec3(centerPos.x, 5, centerPos.y), gameTime);
 		m_renderSettings.Bind();
 		
 		const TileGrid* tileGrid = m_gameWorld->GetTileGrid();

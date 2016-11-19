@@ -2,9 +2,9 @@
 
 #include "gl/bufferallocator.h"
 #include "gl/texture2d.h"
-#include "gl/texture1d.h"
 #include "gl/framebuffer.h"
 #include "gl/shaderprogram.h"
+#include "noisetexture.h"
 #include "blurpostprocess.h"
 #include "../utils/memory/stackobject.h"
 #include "../utils/filesystem.h"
@@ -41,7 +41,7 @@ namespace TankGame
 		float m_pixelWidth = 0;
 		
 		Texture2D m_hexagonTexture;
-		Texture1D m_noiseTexture;
+		NoiseTexture m_noiseTexture;
 		
 		StackObject<Texture2D> m_bloomHBlurOutput;
 		StackObject<Texture2D> m_bloomVBlurOutput;

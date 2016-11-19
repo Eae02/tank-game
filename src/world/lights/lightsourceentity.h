@@ -39,6 +39,8 @@ namespace TankGame
 		inline void SetHeight(float height)
 		{ m_height = height; }
 		
+		void SetFlickers(bool flickers);
+		
 		virtual ShadowMap* GetShadowMap() const override;
 		void SetShadowMode(EntityShadowModes mode);
 		inline EntityShadowModes GetShadowMode() const
@@ -68,14 +70,22 @@ namespace TankGame
 		
 		void RenderLightSourceProperties();
 		
+		inline float GetFlickerOffset() const
+		{ return m_flickerOffset; }
+		
 	private:
 		size_t m_ubSize;
+		
+		bool m_flickers = false;
+		float m_flickerOffset;
 		
 		mutable StackObject<ShadowMap> m_shadowMap;
 		EntityShadowModes m_shadowMode = EntityShadowModes::None;
 		
 		BufferAllocator::UniquePtr m_uniformBuffer;
 		mutable bool m_uniformBufferOutOfDate = true;
+		
+		BufferAllocator::UniquePtr m_flickerUniformBuffer;
 		
 		glm::vec3 m_color;
 		float m_intensity;

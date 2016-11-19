@@ -6,7 +6,10 @@ layout(std140, binding=1) uniform LightUB
 {
 	vec3 color;
 	float intensity;
-	Attenuation attenuation;
+	float attenLin;
+	float attenExp;
+	float flickerIntensity;
+	float flickerOffset;
 } light;
 
 uniform vec2 position;
@@ -39,7 +42,7 @@ void main()
 	
 	lighting_out = phong(light.intensity, lightIn / dist, eyePosition, worldPos_in, data) * light.color;
 	
-	lighting_out /= 1.0 + (light.attenuation.linear * dist) + (light.attenuation.exponent * dist * dist);
+	lighting_out /= 1.0 + (light.attenLin * dist) + (light.attenExp * dist * dist);
 	
-	//lighting_out *= getShadowFactor(worldPos_in);
+	lighting_out *= getFlickerFactor(light.flickerOffset, light.flickerIntensity);
 }

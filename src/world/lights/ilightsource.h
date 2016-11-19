@@ -29,5 +29,7 @@ namespace TankGame
 		static const class ShaderModule& GetVertexShader();
 		
 		static float GetRange(glm::vec3 color, float intensity, Attenuation attenuation);
+		
+		static float GenerateFlickerOffset();
 	};
 }

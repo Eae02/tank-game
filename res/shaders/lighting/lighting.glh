@@ -11,12 +11,6 @@ layout(std140, binding=2) uniform ShadowRenderSettingsUB
 	mat3 shadowViewMatrix;
 };
 
-struct Attenuation
-{
-	float linear;
-	float exponent;
-};
-
 struct GBufferData
 {
 	vec3 normal;
@@ -35,6 +29,11 @@ float getShadowFactor(vec2 worldPos)
 	if (samplePos.x < 0 || samplePos.y < 0 || samplePos.x > 1 || samplePos.y > 1)
 		return 0.0;
 	return 1.0 - texture(shadowSampler, samplePos).r;
+}
+
+float getFlickerFactor(float offset, float intensity)
+{
+	return 1.0 - (sin(time * 40 + offset) + 1) * 0.5 * intensity;
 }
 
 GBufferData getGBufferData(vec2 texCoord)

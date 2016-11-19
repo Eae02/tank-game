@@ -11,7 +11,7 @@ namespace TankGame
 	public:
 		RenderSettingsBuffer();
 		
-		void Update(const class ViewInfo& viewInfo, glm::vec3 eyePosition);
+		void Update(const class ViewInfo& viewInfo, glm::vec3 eyePosition, float time);
 		
 		inline void Bind() const
 		{

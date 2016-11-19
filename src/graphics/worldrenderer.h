@@ -18,7 +18,7 @@ namespace TankGame
 		
 		void DrawShadowMaps(const class ShadowRenderer& shadowRenderer, const class ViewInfo& viewInfo) const;
 		
-		void Prepare(const class ViewInfo& viewInfo) const;
+		void Prepare(const class ViewInfo& viewInfo, float gameTime) const;
 		
 		virtual void DrawGeometry(const class ViewInfo& viewInfo) const override;
 		virtual void DrawTranslucentGeometry(const class ViewInfo& viewInfo) const override;

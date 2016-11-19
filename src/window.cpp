@@ -55,6 +55,7 @@ namespace TankGame
 		
 #ifndef NDEBUG
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+		glfwWindowHint(GLFW_CONTEXT_ROBUSTNESS, GLFW_LOSE_CONTEXT_ON_RESET);
 #endif
 		
 		m_width = Settings::GetInstance().GetResolution().x;
@@ -340,7 +341,7 @@ namespace TankGame
 		{
 			AudioSource::SetViewInfo(m_viewInfo);
 			
-			worldRenderer->Prepare(m_viewInfo);
+			worldRenderer->Prepare(m_viewInfo, gameTime);
 			worldRenderer->DrawShadowMaps(*m_shadowRenderer, m_viewInfo);
 			m_deferredRenderer->Draw(*worldRenderer, m_viewInfo);
 			
@@ -355,7 +356,7 @@ namespace TankGame
 		}
 		
 		if (m_menuManager->Visible())
-			m_menuManager->Draw(*m_deferredRenderer);
+			m_menuManager->Draw(*m_deferredRenderer, gameTime);
 		
 		glEnable(GL_BLEND);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);

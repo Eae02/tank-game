@@ -32,6 +32,8 @@ namespace TankGame
 	{
 		const float CANNON_SIZE = 0.3f;
 		
+		SetFlickerIntensity(0.65f);
+		
 		float cannonAR = m_cannonPropClass.GetTextureWidth() / static_cast<float>(m_cannonPropClass.GetTextureHeight());
 		
 		GetTransform().SetScale({ CANNON_SIZE, CANNON_SIZE / cannonAR });
@@ -77,8 +79,6 @@ namespace TankGame
 	
 	void RocketTurret::Update(const UpdateInfo& updateInfo)
 	{
-		SetIntensity(std::sin(updateInfo.m_gameTime * 40) * 3 + 8);
-		
 		const float FIRE_PREPERATION_TIME = 0.4f;
 		const int PREP_BLINK_TIMES = 2;
 		
