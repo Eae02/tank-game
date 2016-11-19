@@ -26,6 +26,8 @@ namespace TankGame
 		inline const class PlayerEntity& GetPlayerEntity() const
 		{ return *m_playerEntity; }
 		
+		const class CheckpointEntity* GetCheckpointFromIndex(int index) const;
+		
 		virtual void Update(const class UpdateInfo& updateInfo);
 		
 		static const fs::path& GetLevelsPath();

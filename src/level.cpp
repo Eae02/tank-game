@@ -1,5 +1,6 @@
 #include "level.h"
 #include "world/entities/playerentity.h"
+#include "world/entities/checkpointentity.h"
 #include "world/serialization/deserializeworld.h"
 #include "audio/almanager.h"
 #include "utils/ioutils.h"
@@ -53,6 +54,20 @@ namespace TankGame
 			throw std::runtime_error("Error opening file for reading: '" + fullPathString + "'.");
 		
 		return Level(stream);
+	}
+	
+	const CheckpointEntity* Level::GetCheckpointFromIndex(int index) const
+	{
+		const CheckpointEntity* checkpoint = nullptr;
+		
+		m_gameWorld->IterateEntities([&] (const Entity& entity)
+		{
+			const CheckpointEntity* checkpointEntity = dynamic_cast<const CheckpointEntity*>(&entity);
+			if (checkpointEntity != nullptr && checkpointEntity->GetCheckpointIndex() == index)
+				checkpoint = checkpointEntity;
+		});
+		
+		return checkpoint;
 	}
 	
 	void Level::Update(const class UpdateInfo& updateInfo)

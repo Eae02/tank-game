@@ -32,8 +32,7 @@ namespace TankGame
 		if (m_playerEntity == nullptr || m_activated)
 			return;
 		
-		glm::vec2 forward = GetTransform().GetForward();
-		glm::vec2 center = GetTransform().GetPosition() + forward * GetLength() * 0.5f;
+		glm::vec2 center = GetCenterPos();
 		
 		OrientedRectangle rectangle(center, glm::vec2(0.5f, GetLength()), GetTransform().GetRotation());
 		
@@ -115,5 +114,10 @@ namespace TankGame
 		json["index"] = m_checkpointIndex;
 		
 		return json;
+	}
+	
+	glm::vec2 CheckpointEntity::GetCenterPos() const
+	{
+		return GetTransform().GetPosition() + GetTransform().GetForward() * GetLength() * 0.5f;
 	}
 }

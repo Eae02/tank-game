@@ -7,6 +7,7 @@
 #include "world/lights/pointlightentity.h"
 #include "world/particles/systems/smokeparticlesystem.h"
 #include "world/entities/playerentity.h"
+#include "world/entities/checkpointentity.h"
 #include "world/pathfinder.h"
 #include "audio/almanager.h"
 #include "utils/ioutils.h"
@@ -147,6 +148,19 @@ namespace TankGame
 				player.SetHp(player.GetMaxHp());
 			else
 				player.SetHp(player.GetHp() + std::stof(argv[0]));
+		});
+		
+		m_console.AddCommand("checkpoint", [&] (const std::string* argv, size_t argc)
+		{
+			if (m_gameManager->GetLevel() == nullptr)
+				throw std::runtime_error("No level loaded.");
+			
+			const CheckpointEntity* checkpoint = m_gameManager->GetLevel()->GetCheckpointFromIndex(std::stoi(argv[0]));
+			if (checkpoint == nullptr)
+				throw std::runtime_error("Checkpoint not found.");
+			
+			PlayerEntity& player = m_gameManager->GetLevel()->GetPlayerEntity();
+			player.GetTransform().SetPosition(checkpoint->GetCenterPos());
 		});
 		
 		m_console.AddCommand("event", [&] (const std::string* argv, size_t argc)

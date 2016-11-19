@@ -29,6 +29,8 @@ namespace TankGame
 		inline void SetCheckpointIndex(int checkpointIndex)
 		{ m_checkpointIndex = checkpointIndex; }
 		
+		glm::vec2 GetCenterPos() const;
+		
 	private:
 		int m_checkpointIndex = 0;
 		
