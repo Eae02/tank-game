@@ -15,6 +15,75 @@ namespace TankGame
 		m_inputBuffer[0] = '\0';
 	}
 	
+	void Console::TextInputCallback(ImGuiTextEditCallbackData* data)
+	{
+		if (data->EventFlag == ImGuiInputTextFlags_CallbackHistory)
+		{
+			const long oldHistoryPosition = m_historyPosition;
+			
+			if (data->EventKey == ImGuiKey_UpArrow)
+			{
+				if (m_historyPosition == -1)
+					m_historyPosition = static_cast<long>(m_history.size()) - 1;
+				else if (m_historyPosition > 0)
+					m_historyPosition--;
+			}
+			else if (data->EventKey == ImGuiKey_DownArrow)
+			{
+				if (m_historyPosition != -1)
+				{
+					if (++m_historyPosition >= static_cast<long>(m_history.size()))
+						m_historyPosition = -1;
+				}
+			}
+			
+			if (oldHistoryPosition != m_historyPosition)
+			{
+				const char* text = (m_historyPosition >= 0) ? m_history[m_historyPosition].c_str() : "";
+				
+				data->CursorPos = data->SelectionStart = data->SelectionEnd = data->BufTextLen = 
+				        static_cast<int>(snprintf(data->Buf, static_cast<size_t>(data->BufSize), "%s", text));
+				data->BufDirty = true;
+			}
+		}
+	}
+	
+	void Console::RunCommand(const std::string& command)
+	{
+		m_history.push_back(command);
+		m_historyPosition = -1;
+		
+		std::vector<std::string> tokens = Split(command, " ", true);
+		
+		if (!tokens.empty())
+		{
+			logStream << "> " << command << "\n";
+			
+			auto commandPos = m_commands.find(tokens[0]);
+			
+			if (commandPos == m_commands.end())
+			{
+				logStream << LOG_ERROR << "Command not found\n";
+			}
+			else if (static_cast<int>(tokens.size()) - 1 < commandPos->second.m_minArguments)
+			{
+				logStream << LOG_ERROR << "Not enough arguments passed. The command takes at least " << 
+				          commandPos->second.m_minArguments << " arguments.\n";
+			}
+			else
+			{
+				try
+				{
+					commandPos->second.m_callback(tokens.data() + 1, tokens.size() - 1);
+				}
+				catch (const std::exception& exception)
+				{
+					logStream << LOG_ERROR << exception.what() << "\n";
+				}
+			}
+		}
+	}
+	
 	void Console::Render()
 	{
 		if (!m_isOpen)
@@ -51,7 +120,12 @@ namespace TankGame
 			ImGui::Separator();
 			
 			bool invoke = ImGui::InputText("##ConsoleInput", m_inputBuffer.data(), m_inputBuffer.size(),
-			                               ImGuiInputTextFlags_EnterReturnsTrue);
+			                               ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory,
+			                               [] (ImGuiTextEditCallbackData* data)
+			{
+				reinterpret_cast<Console*>(data->UserData)->TextInputCallback(data);
+				return 0;
+			}, reinterpret_cast<void*>(this));
 			
 			if (ImGui::IsItemHovered() || (ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
 				ImGui::SetKeyboardFocusHere(-1);
@@ -63,35 +137,7 @@ namespace TankGame
 			
 			if (invoke)
 			{
-				std::vector<std::string> tokens = Split(m_inputBuffer.data(), " ", true);
-				if (!tokens.empty())
-				{
-					logStream << "> " << m_inputBuffer.data() << "\n";
-					
-					auto commandPos = m_commands.find(tokens[0]);
-					
-					if (commandPos == m_commands.end())
-					{
-						logStream << LOG_ERROR << "Command not found\n";
-					}
-					else if (static_cast<int>(tokens.size()) - 1 < commandPos->second.m_minArguments)
-					{
-						logStream << LOG_ERROR << "Not enough arguments passed. The command takes at least " << 
-						          commandPos->second.m_minArguments << " arguments.\n";
-					}
-					else
-					{
-						try
-						{
-							commandPos->second.m_callback(tokens.data() + 1, tokens.size() - 1);
-						}
-						catch (const std::exception& exception)
-						{
-							logStream << LOG_ERROR << exception.what() << "\n";
-						}
-					}
-				}
-				
+				RunCommand(m_inputBuffer.data());
 				m_inputBuffer[0] = '\0';
 			}
 			

@@ -3,7 +3,10 @@
 #include <array>
 #include <string>
 #include <functional>
+#include <vector>
 #include <unordered_map>
+
+class ImGuiTextEditCallbackData;
 
 namespace TankGame
 {
@@ -23,6 +26,9 @@ namespace TankGame
 		{ m_isOpen = true; }
 		
 	private:
+		void TextInputCallback(ImGuiTextEditCallbackData* data);
+		void RunCommand(const std::__cxx11::string& command);
+		
 		struct CommandEntry
 		{
 			CommandCallback m_callback;
@@ -35,6 +41,9 @@ namespace TankGame
 		std::unordered_map<std::string, CommandEntry> m_commands;
 		
 		std::array<char, 256> m_inputBuffer;
+		
+		std::vector<std::string> m_history;
+		long m_historyPosition = -1;
 		
 		bool m_isOpen = false;
 	};
