@@ -99,8 +99,8 @@ namespace TankGame
 				
 				SetColor(SCAN_COLOR);
 				
-				auto rocket = std::make_unique<RocketEntity>(GetGameWorld()->GetParticlesManager(), GetTeamID(),
-				                                             rocketDamageDist(randomGen));
+				auto rocket = std::make_unique<RocketEntity>(GetGameWorld()->GetParticlesManager(), NeutralTeamID,
+				                                             this, rocketDamageDist(randomGen));
 				
 				rocket->GetTransform().SetPosition(GetTransform().GetPosition());
 				rocket->GetTransform().SetRotation(GetTransform().GetRotation());

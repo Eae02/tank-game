@@ -83,7 +83,7 @@ namespace TankGame
 	
 	void TankEntity::FirePlasmaGun(glm::vec3 bulletColor, float damage, float gameTime, float rotationOffset)
 	{
-		Fire(std::make_unique<PlasmaBulletEntity>(bulletColor, m_teamID, damage), gameTime, rotationOffset);
+		Fire(std::make_unique<PlasmaBulletEntity>(bulletColor, m_teamID, this, damage), gameTime, rotationOffset);
 		
 		m_audioSource.SetBuffer(SoundsManager::GetInstance().GetSound("PlasmaGun"));
 		m_audioSource.Play(1, pitchDist(randomGen));
@@ -93,7 +93,7 @@ namespace TankGame
 	
 	void TankEntity::FireRocket(float damage, float gameTime)
 	{
-		Fire(std::make_unique<RocketEntity>(GetGameWorld()->GetParticlesManager(), m_teamID, damage), gameTime, 0.0f);
+		Fire(std::make_unique<RocketEntity>(GetGameWorld()->GetParticlesManager(), m_teamID, this, damage), gameTime, 0.0f);
 		
 		m_fireCooldown = 1.5f;
 	}

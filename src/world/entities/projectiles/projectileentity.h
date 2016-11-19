@@ -18,7 +18,7 @@ namespace TankGame
 		{ return m_damage; }
 		
 	protected:
-		ProjectileEntity(int teamID, float speed, float damage, float damageStandardDist);
+		ProjectileEntity(int teamID, const Entity* sourceEntity, float speed, float damage, float damageStandardDist);
 		
 		virtual void OnImpact() { }
 		
@@ -27,6 +27,8 @@ namespace TankGame
 		
 	private:
 		int m_teamID;
+		const Entity* m_sourceEntity;
+		
 		float m_speed;
 		float m_damage;
 		

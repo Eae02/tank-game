@@ -16,9 +16,9 @@ namespace TankGame
 {
 	static SoundEffectPlayer impactEffectPlayer{ "BulletImpact" };
 	
-	PlasmaBulletEntity::PlasmaBulletEntity(glm::vec3 color, int teamID, float damage)
+	PlasmaBulletEntity::PlasmaBulletEntity(glm::vec3 color, int teamID, const Entity* sourceEntity, float damage)
 	    : PointLightEntity(color, 4, Attenuation(0, 1.5f), 0.1f),
-	      ProjectileEntity(teamID, 18, damage, 0.5f)
+	      ProjectileEntity(teamID, sourceEntity, 18, damage, 0.5f)
 	{
 		
 	}
@@ -85,7 +85,7 @@ namespace TankGame
 	
 	std::unique_ptr<Entity> PlasmaBulletEntity::Clone() const
 	{
-		auto clone = std::make_unique<PlasmaBulletEntity>(GetColor(), GetTeamID(), GetDamage());
+		auto clone = std::make_unique<PlasmaBulletEntity>(GetColor(), GetTeamID(), this, GetDamage());
 		clone->GetTransform() = GetTransform();
 		return clone;
 	}

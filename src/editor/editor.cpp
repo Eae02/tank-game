@@ -223,16 +223,7 @@ namespace TankGame
 					m_viewWidth = glm::clamp(m_viewWidth, 1.0f, 100.0f);
 				
 				if (ImGui::MenuItem("Update Shadows"))
-				{
-					m_gameWorld->UpdateTileShadowCasters();
-					
-					m_gameWorld->IterateEntities([&] (Entity& entity)
-					{
-						if (entity.AsLightSource() != nullptr)
-							if (IShadowLightSource* shadowLightSource = dynamic_cast<IShadowLightSource*>(&entity))
-								shadowLightSource->InvalidateShadowMap();
-					});
-				}
+					UpdateShadows();
 				
 				ImGui::MenuItem("Quad Tree", nullptr, &m_drawQuadTree);
 				
@@ -307,6 +298,18 @@ namespace TankGame
 	{
 		m_pathEditTool.SetPathProvider(&provider);
 		m_currentToolIndex = 2;
+	}
+	
+	void Editor::UpdateShadows()
+	{
+		m_gameWorld->UpdateTileShadowCasters();
+		
+		m_gameWorld->IterateEntities([&] (Entity& entity)
+		{
+			if (entity.AsLightSource() != nullptr)
+				if (IShadowLightSource* shadowLightSource = dynamic_cast<IShadowLightSource*>(&entity))
+					shadowLightSource->InvalidateShadowMap();
+		});
 	}
 	
 	void Editor::Save()

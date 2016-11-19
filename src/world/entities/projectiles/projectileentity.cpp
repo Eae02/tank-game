@@ -11,12 +11,9 @@
 
 namespace TankGame
 {
-	ProjectileEntity::ProjectileEntity(int teamID, float speed, float damage, float damageStandardDist)
-	    : m_teamID(teamID), m_speed(speed),
-	      m_damage(std::normal_distribution<float>(damage, damageStandardDist)(randomGen))
-	{
-		
-	}
+	ProjectileEntity::ProjectileEntity(int teamID, const Entity* sourceEntity, float speed, float damage, float damageStandardDist)
+	    : m_teamID(teamID), m_sourceEntity(sourceEntity), m_speed(speed),
+	      m_damage(std::normal_distribution<float>(damage, damageStandardDist)(randomGen)) { }
 	
 	bool ProjectileEntity::ShouldDeflect(const class DeflectionFieldEntity& deflectionField) const
 	{
@@ -99,6 +96,9 @@ namespace TankGame
 		//Checks for intersections with hittable entities
 		GetGameWorld()->IterateIntersectingEntities(circle.GetBoundingRectangle(), [&] (Entity& entity)
 		{
+			if (&entity == m_sourceEntity)
+				return;
+			
 			Hittable* hittable = entity.AsHittable();
 			
 			if (hittable != nullptr && (hittable->GetTeamID() != m_teamID || m_hasDeflected) &&

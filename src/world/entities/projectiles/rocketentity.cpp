@@ -16,9 +16,10 @@ namespace TankGame
 	StackObject<Texture2D> RocketEntity::s_normalMap;
 	StackObject<SpriteMaterial> RocketEntity::s_material;
 	
-	RocketEntity::RocketEntity(ParticlesManager& particlesManager, int teamID, float damage)
+	RocketEntity::RocketEntity(ParticlesManager& particlesManager, int teamID, const Entity* sourceEntity, float damage)
 	    : PointLightEntity(ParseColorHexCodeSRGB(0xff6c33), 4.0f, Attenuation(0, 0.5f)),
-	      ProjectileEntity(teamID, 10, damage, 0.5f), ParticleSystemEntity(SmokeParticleSystem(particlesManager)),
+	      ProjectileEntity(teamID, sourceEntity, 10, damage, 0.5f),
+	      ParticleSystemEntity(SmokeParticleSystem(particlesManager)),
 	      m_audioSource(AudioSource::VolumeModes::Effect)
 	{
 		if (s_material.IsNull())

@@ -1,4 +1,5 @@
 #include "tilestool.h"
+#include "../editor.h"
 #include "../../graphics/ui/uirenderer.h"
 #include "../../graphics/tilegridmaterial.h"
 #include "../../world/gameworld.h"
@@ -62,8 +63,17 @@ namespace TankGame
 		{
 			if (updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
 			{
-				grid->SetTileID(m_selectedTile.x, m_selectedTile.y, m_currentTileID);
-				grid->UploadGridData(m_selectedTile.x, m_selectedTile.y, 1, 1);
+				if (grid->GetTileID(m_selectedTile.x, m_selectedTile.y) != m_currentTileID)
+				{
+					grid->SetTileID(m_selectedTile.x, m_selectedTile.y, m_currentTileID);
+					grid->UploadGridData(m_selectedTile.x, m_selectedTile.y, 1, 1);
+					m_tileGridChanged = true;
+				}
+			}
+			else if (updateInfo.m_mouse.WasButtonPressed(GLFW_MOUSE_BUTTON_LEFT) && m_tileGridChanged)
+			{
+				GetEditor().UpdateShadows();
+				m_tileGridChanged = false;
 			}
 		}
 	}

@@ -96,7 +96,12 @@ namespace TankGame
 				path[currentPathLen] = glm::vec2(currentNode) + glm::vec2(0.5f);
 				
 				auto sourceNodeIterator = m_nodes.find(lowestCostNodeIterator->second.m_source);
-				assert(sourceNodeIterator != m_nodes.end());
+				
+				if (sourceNodeIterator == m_nodes.end())
+				{
+					GetLogStream() << "[error] Pathfinder error. Source node does not exist.\n";
+					return false;
+				}
 				
 				long index = currentPathLen - 1;
 				

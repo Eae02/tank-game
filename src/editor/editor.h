@@ -51,6 +51,8 @@ namespace TankGame
 		
 		void EditPath(class IEditablePathProvider& provider);
 		
+		void UpdateShadows();
+		
 	private:
 		void Save();
 		void SaveAs();

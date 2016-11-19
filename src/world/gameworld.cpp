@@ -180,6 +180,8 @@ namespace TankGame
 			return true;
 		}
 		
+		Rectangle searchArea = Rectangle::FromMinMax(start, end);
+		
 		return false;
 	}
 	

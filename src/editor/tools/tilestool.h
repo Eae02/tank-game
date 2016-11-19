@@ -27,6 +27,7 @@ namespace TankGame
 		bool m_isMouseCaptured = false;
 		
 		bool m_drawGrid = true;
+		bool m_tileGridChanged = false;
 		
 		struct TileMaterial
 		{

@@ -8,7 +8,7 @@ namespace TankGame
 	class PlasmaBulletEntity : public PointLightEntity, public ProjectileEntity
 	{
 	public:
-		explicit PlasmaBulletEntity(glm::vec3 color, int teamID, float damage);
+		explicit PlasmaBulletEntity(glm::vec3 color, int teamID, const Entity* sourceEntity, float damage);
 		
 		virtual void Update(const class UpdateInfo& updateInfo) override;
 		

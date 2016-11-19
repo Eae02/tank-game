@@ -181,10 +181,7 @@ namespace TankGame
 	
 	bool EnemyAI::IsPointVisible(glm::vec2 point) const
 	{
-		const TileGrid& tileGrid = *m_gameWorld->GetTileGrid();
-		const class TileGridMaterial& tileGridMaterial = *m_gameWorld->GetTileGridMaterial();
-		
-		return !tileGrid.IsRayObstructed(tileGridMaterial, point, m_entity.GetTransform().GetPosition());
+		return !m_gameWorld->IsRayObstructed(point, m_entity.GetTransform().GetPosition());
 	}
 	
 	void EnemyAI::WalkPath(float dt, const Path& path, float& progress, bool modulate)

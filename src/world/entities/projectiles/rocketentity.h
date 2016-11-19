@@ -15,7 +15,7 @@ namespace TankGame
 	        public ParticleSystemEntity<SmokeParticleSystem>, public Entity::ISpriteDrawable
 	{
 	public:
-		RocketEntity(ParticlesManager& particlesManager, int teamID, float damage);
+		RocketEntity(ParticlesManager& particlesManager, int teamID, const Entity* sourceEntity, float damage);
 		
 		virtual void Draw(class SpriteRenderList& spriteRenderList) const override;
 		
