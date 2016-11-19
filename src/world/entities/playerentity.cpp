@@ -16,11 +16,15 @@
 
 namespace TankGame
 {
+	constexpr float PlayerEntity::MAX_ENERGY;
+	
 	bool PlayerEntity::s_areTexturesLoaded = false;
 	
 	StackObject<Texture2D> PlayerEntity::s_cannonTexture;
 	StackObject<Texture2D> PlayerEntity::s_cannonNormalMap;
 	StackObject<SpriteMaterial> PlayerEntity::s_cannonMaterial;
+	
+	static std::uniform_real_distribution<float> s_energyUsageDist(4.0f, 8.0f);
 	
 	const TankEntity::TextureInfo textureInfo =
 	{
@@ -147,10 +151,34 @@ namespace TankGame
 		
 		if (updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT) && CanFire(updateInfo.m_gameTime))
 		{
-			//FireRocket(75, updateInfo.m_gameTime);
+			float fireCost = s_energyUsageDist(randomGen);
+			bool hasEnoughEnergy = true;
 			
-			FirePlasmaGun(ParseColorHexCodeSRGB(0x50FF4A), 10, updateInfo.m_gameTime,
-			              m_dist(randomGen) * glm::length(m_velocity) * 0.03f);
+			if (fireCost > m_energy)
+			{
+				if (m_energy > s_energyUsageDist.min())
+					fireCost = m_energy;
+				else
+					hasEnoughEnergy = false;
+			}
+			
+			if (hasEnoughEnergy)
+			{
+				FirePlasmaGun(ParseColorHexCodeSRGB(0x50FF4A), 10, updateInfo.m_gameTime,
+				              m_dist(randomGen) * glm::length(m_velocity) * 0.03f);
+				
+				m_energy -= fireCost;
+				m_energyRegenTime = 0;
+			}
+		}
+		else
+		{
+			m_energyRegenTime += updateInfo.m_dt;
+			if (m_energyRegenTime > 2)
+			{
+				m_energyRegenTime = 2;
+				m_energy = glm::min(m_energy + updateInfo.m_dt * 15, 100.0f);
+			}
 		}
 		
 		TankEntity::Update(updateInfo);
@@ -187,6 +215,8 @@ namespace TankGame
 	
 	void PlayerEntity::OnKilled()
 	{
+		m_energy = MAX_ENERGY;
+		
 		auto explosion = std::make_unique<ExplosionEntity>(GetGameWorld()->GetParticlesManager());
 		explosion->GetTransform().SetPosition(GetTransform().GetPosition());
 		GetGameWorld()->Spawn(std::move(explosion));
@@ -203,5 +233,11 @@ namespace TankGame
 	const char* PlayerEntity::GetObjectName() const
 	{
 		return "Player";
+	}
+	
+	void PlayerEntity::GiveEnergy()
+	{
+		std::uniform_real_distribution<float> dist(30.0f, 50.0f);
+		m_energy = glm::min(m_energy + dist(randomGen), MAX_ENERGY);
 	}
 }

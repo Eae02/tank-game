@@ -167,6 +167,7 @@ namespace TankGame
 			}
 			else if (GetHp() == 0)
 			{
+				m_player->GiveEnergy();
 				if (m_player != nullptr && m_player->GetHp() < m_player->GetMaxHp())
 					HpPickupEntity::SpawnEntities(*GetGameWorld(), GetTransform().GetPosition(), 15.0f);
 			}

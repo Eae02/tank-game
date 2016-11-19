@@ -49,9 +49,12 @@ namespace TankGame
 			
 			Texture2D m_hpBarFull;
 			Texture2D m_hpBarEmpty;
+			Texture2D m_energyBarFull;
+			Texture2D m_energyBarEmpty;
 		};
 		
 		float m_hp;
+		float m_energy;
 		
 		float m_blurAmount = 0;
 		
@@ -66,6 +69,7 @@ namespace TankGame
 		PauseMenu m_pauseMenu;
 		
 		Rectangle m_hpBarRectangle;
+		Rectangle m_energyBarRectangle;
 		
 		StackObject<Framebuffer> m_framebuffer;
 		StackObject<Texture2D> m_fbTexture;

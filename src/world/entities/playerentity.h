@@ -32,6 +32,13 @@ namespace TankGame
 		
 		virtual const char* GetObjectName() const override;
 		
+		inline float GetEnergy() const
+		{ return m_energy; }
+		
+		void GiveEnergy();
+		
+		static constexpr float MAX_ENERGY = 100.0f;
+		
 	protected:
 		virtual const class SpriteMaterial& GetBaseMaterial(int frame) const override;
 		virtual const class SpriteMaterial& GetCannonMaterial() const override;
@@ -43,6 +50,9 @@ namespace TankGame
 		static StackObject<Texture2D> s_cannonTexture;
 		static StackObject<Texture2D> s_cannonNormalMap;
 		static StackObject<SpriteMaterial> s_cannonMaterial;
+		
+		float m_energy = MAX_ENERGY;
+		float m_energyRegenTime = 0;
 		
 		float m_rotationVelocity = 0;
 		glm::vec2 m_velocity;

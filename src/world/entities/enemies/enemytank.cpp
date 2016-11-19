@@ -131,9 +131,13 @@ namespace TankGame
 		explosion->GetTransform().SetPosition(GetTransform().GetPosition());
 		GetGameWorld()->Spawn(std::move(explosion));
 		
-		const PlayerEntity* player = dynamic_cast<const PlayerEntity*>(GetGameWorld()->GetEntityByName("player"));
-		if (player != nullptr && player->GetHp() < player->GetMaxHp())
-			HpPickupEntity::SpawnEntities(*GetGameWorld(), GetTransform().GetPosition(), 20.0f);
+		PlayerEntity* player = dynamic_cast<PlayerEntity*>(GetGameWorld()->GetEntityByName("player"));
+		if (player != nullptr)
+		{
+			player->GiveEnergy();
+			if (player->GetHp() < player->GetMaxHp())
+				HpPickupEntity::SpawnEntities(*GetGameWorld(), GetTransform().GetPosition(), 20.0f);
+		}
 		
 		Despawn();
 	}

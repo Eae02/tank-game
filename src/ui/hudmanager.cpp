@@ -107,6 +107,9 @@ namespace TankGame
 		{
 			float deltaHp = m_playerEntity->GetHp() - m_hp;
 			m_hp += deltaHp * glm::min(updateInfo.m_dt * 5, 1.0f);
+			
+			float deltaEnergy = m_playerEntity->GetEnergy() - m_energy;
+			m_energy += deltaEnergy * glm::min(updateInfo.m_dt * 10, 1.0f);
 		}
 		
 		float blurAmountTarget = m_pauseMenu.IsShown() ? 1.0f : 0.0f;
@@ -123,11 +126,18 @@ namespace TankGame
 		Rectangle contentsRect(padding, padding, screenWidth - 2 * padding, screenHeight - 2 * padding);
 		
 		float hpBarAspectRatio = m_textures.m_hpBarFull.GetHeight() / static_cast<float>(m_textures.m_hpBarFull.GetWidth());
+		float energyBarAspectRatio = m_textures.m_energyBarFull.GetHeight() / static_cast<float>(m_textures.m_energyBarFull.GetWidth());
 		
 		m_hpBarRectangle.x = contentsRect.x;
 		m_hpBarRectangle.y = contentsRect.y;
 		m_hpBarRectangle.w = HP_BAR_WIDTH * screenWidth;
 		m_hpBarRectangle.h = hpBarAspectRatio * m_hpBarRectangle.w;
+		
+		m_energyBarRectangle.x = contentsRect.x;
+		m_energyBarRectangle.y = m_hpBarRectangle.FarY();
+		m_energyBarRectangle.w = m_hpBarRectangle.w * (m_textures.m_energyBarFull.GetWidth() /
+		                                               static_cast<float>(m_textures.m_hpBarFull.GetWidth()));
+		m_energyBarRectangle.h = energyBarAspectRatio * m_energyBarRectangle.w;
 	}
 	
 	void HUDManager::DrawHUD()
@@ -155,23 +165,26 @@ namespace TankGame
 	{
 		m_playerEntity = playerEntity;
 		m_hp = playerEntity->GetHp();
+		m_energy = playerEntity->GetEnergy();
 	}
 	
 	void HUDManager::DrawHUDElements()
 	{
-		const int FULL_HP_BAR_MARGIN_L = 29;
-		const int FULL_HP_BAR_MARGIN_R = 37;
-		int fullHpBarWidth = m_textures.m_hpBarFull.GetWidth() - FULL_HP_BAR_MARGIN_L - FULL_HP_BAR_MARGIN_R;
+		const int BAR_MARGIN_L = 29;
+		const int BAR_MARGIN_R = 37;
+		int fullHpBarWidth = m_textures.m_hpBarFull.GetWidth() - BAR_MARGIN_L - BAR_MARGIN_R;
 		
-		float hpMul = m_hp / m_playerEntity->GetMaxHp();
+		float hpPercent = m_hp / m_playerEntity->GetMaxHp();
 		
-		Rectangle fullHpBarSampleRect(0, 0, FULL_HP_BAR_MARGIN_L + fullHpBarWidth * hpMul,
+		Rectangle fullHpBarSampleRect(0, 0, BAR_MARGIN_L + fullHpBarWidth * hpPercent,
 		                              m_textures.m_hpBarFull.GetHeight());
 		Rectangle emptyHpBarSampleRect(fullHpBarSampleRect.w, 0, m_textures.m_hpBarEmpty.GetWidth() -
 		                               fullHpBarSampleRect.w, m_textures.m_hpBarFull.GetHeight());
 		
-		Rectangle fullHpBarTargetRect(m_hpBarRectangle.x, m_hpBarRectangle.y, m_hpBarRectangle.w * hpMul, m_hpBarRectangle.h);
-		Rectangle emptyHpBarTargetRect(fullHpBarTargetRect.FarX(), m_hpBarRectangle.y, m_hpBarRectangle.w - fullHpBarTargetRect.w, m_hpBarRectangle.h);
+		Rectangle fullHpBarTargetRect(m_hpBarRectangle.x, m_hpBarRectangle.y,
+		                              m_hpBarRectangle.w * hpPercent, m_hpBarRectangle.h);
+		Rectangle emptyHpBarTargetRect(fullHpBarTargetRect.FarX(), m_hpBarRectangle.y,
+		                               m_hpBarRectangle.w - fullHpBarTargetRect.w, m_hpBarRectangle.h);
 		
 		if (emptyHpBarSampleRect.w > 1E-6)
 		{
@@ -188,11 +201,44 @@ namespace TankGame
 		std::string hpString = std::to_string(static_cast<int>(std::round(m_hp)));
 		UIRenderer::GetInstance().DrawString(Font::GetNamedFont(FontNames::HudFont), hpString, m_hpBarRectangle,
 		                                     Alignment::Left, Alignment::Center, glm::vec4(1.0f));
+		
+		
+		float energyPercent = m_energy / PlayerEntity::MAX_ENERGY;
+		int fullEnergyBarWidth = m_textures.m_energyBarFull.GetWidth() - BAR_MARGIN_L - BAR_MARGIN_R;
+		
+		Rectangle fullEnergyBarSampleRect(0, 0, BAR_MARGIN_L + fullEnergyBarWidth *
+		                                  energyPercent, m_textures.m_energyBarFull.GetHeight());
+		Rectangle emptyEnergyBarSampleRect(fullEnergyBarSampleRect.w, 0, m_textures.m_energyBarEmpty.GetWidth() -
+		                                   fullEnergyBarSampleRect.w,
+		                                   m_textures.m_energyBarEmpty.GetHeight());
+		
+		Rectangle fullEnergyBarTargetRect(m_energyBarRectangle.x, m_energyBarRectangle.y,
+		                                  m_energyBarRectangle.w * energyPercent, m_energyBarRectangle.h);
+		Rectangle emptyEnergyBarTargetRect(fullEnergyBarTargetRect.FarX(), m_energyBarRectangle.y,
+		                                   m_energyBarRectangle.w - fullEnergyBarTargetRect.w, m_energyBarRectangle.h);
+		
+		if (emptyEnergyBarSampleRect.w > 1E-6)
+		{
+			UIRenderer::GetInstance().DrawSprite(m_textures.m_energyBarEmpty, emptyEnergyBarTargetRect,
+			                                     emptyEnergyBarSampleRect, glm::vec4(1.0f));
+		}
+		
+		if (fullEnergyBarSampleRect.w > 1E-6)
+		{
+			UIRenderer::GetInstance().DrawSprite(m_textures.m_energyBarFull, fullEnergyBarTargetRect,
+			                                     fullEnergyBarSampleRect, glm::vec4(1.0f));
+		}
+		
+		std::string enegyString = std::to_string(static_cast<int>(std::round(m_energy)));
+		UIRenderer::GetInstance().DrawString(Font::GetNamedFont(FontNames::HudFont), enegyString, m_energyBarRectangle,
+		                                     Alignment::Left, Alignment::Center, glm::vec4(1.0f));
 	}
 	
 	HUDManager::Textures::Textures(const fs::path& dirPath)
 	    : m_hpBarFull(Texture2D::FromFile(dirPath / "hp-full.png")),
-	      m_hpBarEmpty(Texture2D::FromFile(dirPath / "hp-empty.png"))
+	      m_hpBarEmpty(Texture2D::FromFile(dirPath / "hp-empty.png")),
+	      m_energyBarFull(Texture2D::FromFile(dirPath / "energy-full.png")),
+	      m_energyBarEmpty(Texture2D::FromFile(dirPath / "energy-empty.png"))
 	{
 		
 	}
