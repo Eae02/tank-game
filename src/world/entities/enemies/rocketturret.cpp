@@ -168,7 +168,7 @@ namespace TankGame
 		
 		if (glm::dot(toPlayer, forward) < 0)
 			return false;
-		if (std::abs(glm::dot(toPlayer, left)) > m_playerEntity->GetHitCircle().GetRadius())
+		if (std::abs(glm::dot(toPlayer, left)) > m_playerEntity->GetHitCircle().GetRadius() * 0.6f)
 			return false;
 		
 		return true;
