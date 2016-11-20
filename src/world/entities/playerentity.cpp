@@ -1,6 +1,7 @@
 #include "playerentity.h"
 #include "explosionentity.h"
 #include "shieldentity.h"
+#include "conveyorbeltentity.h"
 #include "../spteams.h"
 #include "../gameworld.h"
 #include "../../tanktextures.h"
@@ -118,6 +119,15 @@ namespace TankGame
 		//Updates the tank's velocity
 		m_velocity += (force / MASS) * updateInfo.m_dt;
 		m_rotationVelocity += (rotForce / MASS) * updateInfo.m_dt;
+		
+		GetGameWorld()->IterateIntersectingEntities(Rectangle::CreateCentered(GetTransform().GetPosition(), 1, 1),
+		                                            [&] (const Entity& entity)
+		{
+			const ConveyorBeltEntity* conveyorBelt = dynamic_cast<const ConveyorBeltEntity*>(&entity);
+			
+			if (conveyorBelt != nullptr)
+				m_velocity += conveyorBelt->GetPushVector(GetTransform().GetPosition());
+		});
 		
 		//Caps the speed of the tank, this is to stop physics from breaking at low framerates
 		const float MAX_SPEED = 2.5f;

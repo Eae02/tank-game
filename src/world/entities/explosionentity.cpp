@@ -103,6 +103,7 @@ namespace TankGame
 		auto decal = std::make_unique<PropEntity>("ExplosionDecal", decalSizeDist(randomGen));
 		decal->GetTransform().SetPosition(GetTransform().GetPosition());
 		decal->GetTransform().SetRotation(decalRotDist(randomGen));
+		decal->SetZ(0.8f);
 		gameWorld.Spawn(std::move(decal));
 		
 		PointLightEntity::OnSpawned(gameWorld);

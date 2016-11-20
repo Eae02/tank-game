@@ -28,5 +28,5 @@ void main()
 	worldPos_out = transformLin * position_in + centerWorld;
 	
 	screenPos_out = (viewMatrix * vec3(worldPos_out, 1.0)).xy;
-	gl_Position = vec4(screenPos_out, 0.0, 1.0);
+	gl_Position = vec4(screenPos_out, 0.1, 1.0);
 }

@@ -2,6 +2,7 @@
 #include "updateinfo.h"
 #include "tanktextures.h"
 #include "world/props/propsmanager.h"
+#include "world/entities/conveyorbeltentity.h"
 #include "graphics/ui/uirenderer.h"
 #include "graphics/tilegridmaterial.h"
 #include "graphics/tilegridmaterialloadoperation.h"
@@ -37,6 +38,8 @@ namespace TankGame
 		{
 			TileGridMaterial::SetInstance(std::make_unique<TileGridMaterial>(std::move(material)));
 		}));
+		
+		ConveyorBeltEntity::LoadResources(m_workList);
 		
 		m_workList.BeginProcessing();
 	}

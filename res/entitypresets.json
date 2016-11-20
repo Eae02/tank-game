@@ -49,6 +49,9 @@
 	"Door": {
 		"class": "Door"
 	},
+	"Conveyor Belt": {
+		"class": "ConveyorBelt"
+	},
 	"Shield Pickup": {
 		"class": "ShieldPickup"
 	}

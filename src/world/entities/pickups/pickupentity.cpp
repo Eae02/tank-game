@@ -22,6 +22,7 @@ namespace TankGame
 	{
 		GetTransform().SetScale(glm::vec2(0.25f));
 		GetTransform().SetRotation(rotationDist(randomGen));
+		SetZ(0.7f);
 	}
 	
 	void PickupEntity::Update(const UpdateInfo& updateInfo)

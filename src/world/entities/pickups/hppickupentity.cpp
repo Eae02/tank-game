@@ -6,7 +6,7 @@
 
 namespace TankGame
 {
-	static SoundEffectPlayer soundEffectPlayer{ "HpPickup" };
+	static SoundEffectPlayer pickupEffectPlayer{ "HpPickup" };
 	
 	HpPickupEntity::HpPickupEntity(float healAmount)
 	    : PickupEntity("HpPickup", ParseColorHexCodeSRGB(0xE40500)), m_healAmount(healAmount)
@@ -16,7 +16,7 @@ namespace TankGame
 	
 	void HpPickupEntity::OnPickedUp(PlayerEntity& playerEntity)
 	{
-		soundEffectPlayer.Play(GetTransform().GetPosition(), 0.5f, 1.0f);
+		pickupEffectPlayer.Play(GetTransform().GetPosition(), 0.5f, 1.0f);
 		playerEntity.SetHp(playerEntity.GetHp() + m_healAmount);
 	}
 	

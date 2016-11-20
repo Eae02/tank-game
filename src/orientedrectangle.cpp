@@ -23,7 +23,20 @@ namespace TankGame
 		}
 	}
 	
-	IntersectInfo OrientedRectangle::GetIntersectInfo(const Circle& circle)
+	bool OrientedRectangle::Contains(glm::vec2 point) const
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			float distToPoint = glm::dot(point - m_edgePositions[i], m_edgeNormals[i]);
+			
+			if (distToPoint > 0)
+				return false;
+		}
+		
+		return true;
+	}
+	
+	IntersectInfo OrientedRectangle::GetIntersectInfo(const Circle& circle) const
 	{
 		IntersectInfo intersectInfo;
 		intersectInfo.m_intersects = true;

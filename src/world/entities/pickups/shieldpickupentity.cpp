@@ -4,7 +4,7 @@
 
 namespace TankGame
 {
-	static SoundEffectPlayer soundEffectPlayer{ "ShieldPickup" };
+	static SoundEffectPlayer pickupEffectPlayer{ "ShieldPickup" };
 	
 	ShieldPickupEntity::ShieldPickupEntity()
 	    : PickupEntity("ShieldPickup", ParseColorHexCodeSRGB(0x49BCE3)) { }
@@ -12,7 +12,7 @@ namespace TankGame
 	void ShieldPickupEntity::OnPickedUp(PlayerEntity& playerEntity)
 	{
 		playerEntity.SpawnShield(50);
-		soundEffectPlayer.Play(GetTransform().GetPosition(), 0.5f, 1.0f);
+		pickupEffectPlayer.Play(GetTransform().GetPosition(), 0.5f, 1.0f);
 	}
 	
 	const char* ShieldPickupEntity::GetObjectName() const
@@ -37,5 +37,10 @@ namespace TankGame
 		json["transform"] = GetTransform().Serialize(Transform::Properties::Position);
 		
 		return json;
+	}
+	
+	std::unique_ptr<Entity> ShieldPickupEntity::Clone() const
+	{
+		return std::make_unique<ShieldPickupEntity>();
 	}
 }

@@ -13,6 +13,7 @@
 #include "entityparsers/checkpointparser.h"
 #include "entityparsers/deflectionfieldparser.h"
 #include "entityparsers/nullentityparser.h"
+#include "entityparsers/conveyorbeltparser.h"
 
 #include "../entities/pickups/shieldpickupentity.h"
 
@@ -33,6 +34,7 @@ namespace TankGame
 	static CheckpointParser checkpointParser;
 	static PropParser propParser;
 	static DoorParser doorParser;
+	static ConveyorBeltParser conveyorBeltParser;
 	
 	static NullEntityParser<ShieldPickupEntity> shieldPickupParser;
 	
@@ -66,6 +68,8 @@ namespace TankGame
 			return &propParser;
 		if (className == "Door")
 			return &doorParser;
+		if (className == "ConveyorBelt")
+			return &conveyorBeltParser;
 		
 		if (className == "ShieldPickup")
 			return &shieldPickupParser;

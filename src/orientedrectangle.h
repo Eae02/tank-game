@@ -18,7 +18,9 @@ namespace TankGame
 			return { transform.GetPosition(), transform.GetScale(), transform.GetRotation() };
 		}
 		
-		IntersectInfo GetIntersectInfo(const class Circle& circle);
+		IntersectInfo GetIntersectInfo(const class Circle& circle) const;
+		
+		bool Contains(glm::vec2 point) const;
 		
 	private:
 		glm::vec2 m_edgeNormals[4];
