@@ -198,31 +198,11 @@ namespace TankGame
 		                                                     GetTransform().GetForward()));
 		
 		RayLightEntity::OnSpawned(gameWorld);
-		
-		if (m_hasShield)
-			SpawnShield();
 	}
 	
 	Circle RocketTurret::GetHitCircle() const
 	{
 		return GetTransform().GetBoundingCircle();
-	}
-	
-	void RocketTurret::SetHasShield(bool hasShield)
-	{
-		if (hasShield == m_hasShield)
-			return;
-		m_hasShield = hasShield;
-		
-		if (!hasShield)
-		{
-			m_shieldEntity->Despawn();
-			m_shieldEntity = { };
-		}
-		else if (GetGameWorld() != nullptr)
-		{
-			SpawnShield();
-		}
 	}
 	
 	void RocketTurret::HandleEvent(const std::string& event, Entity* sender)
@@ -232,9 +212,6 @@ namespace TankGame
 			SetLength(GetGameWorld()->GetTileGrid()->GetDistanceToWall(*GetGameWorld()->GetTileGridMaterial(),
 			                                                           GetTransform().GetPosition(),
 			                                                           GetTransform().GetForward()));
-			
-			if (Entity* shield = m_shieldEntity.Get())
-				shield->GetTransform().SetPosition(GetTransform().GetPosition());
 		}
 	}
 	
@@ -245,15 +222,6 @@ namespace TankGame
 		GetGameWorld()->Spawn(std::move(explosion));
 		
 		Despawn();
-	}
-	
-	void RocketTurret::SpawnShield()
-	{
-		std::unique_ptr<ShieldEntity> shield = std::make_unique<ShieldEntity>();
-		shield->GetTransform().SetPosition(GetTransform().GetPosition());
-		shield->SetEditorVisible(false);
-		shield->SetRadius(0.75f);
-		m_shieldEntity = GetGameWorld()->Spawn(std::move(shield));
 	}
 	
 	void RocketTurret::RenderProperties()
@@ -280,10 +248,6 @@ namespace TankGame
 		
 		if (ImGui::InputFloat("Fire Delay (s)", &m_fireDelay))
 			m_fireDelay = glm::max(m_fireDelay, 0.0f);
-		
-		bool hasShield = m_shieldEntity.IsAlive();
-		if (ImGui::Checkbox("Has Shield", &hasShield))
-			SetHasShield(hasShield);
 	}
 	
 	const char* RocketTurret::GetObjectName() const
@@ -303,8 +267,6 @@ namespace TankGame
 		json["rotation_max"] = glm::degrees(m_maxRotationAngle);
 		json["rotation_speed"] = m_rotationSpeed;
 		json["fire_delay"] = m_fireDelay;
-		
-		json["has_shield"] = m_hasShield;
 		
 		return json;
 	}

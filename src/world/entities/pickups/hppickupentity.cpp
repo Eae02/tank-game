@@ -1,8 +1,8 @@
 #include "hppickupentity.h"
-#include "playerentity.h"
-#include "../gameworld.h"
-#include "../../utils/utils.h"
-#include "../../audio/soundeffectplayer.h"
+#include "../playerentity.h"
+#include "../../gameworld.h"
+#include "../../../utils/utils.h"
+#include "../../../audio/soundeffectplayer.h"
 
 namespace TankGame
 {

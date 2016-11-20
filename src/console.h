@@ -13,6 +13,19 @@ namespace TankGame
 	class Console
 	{
 	public:
+		class CommandException
+		{
+		public:
+			inline explicit CommandException(std::string message)
+			    : m_message(message) { }
+			
+			inline const std::string& GetMessage() const
+			{ return m_message; }
+			
+		private:
+			std::string m_message;
+		};
+		
 		using CommandCallback = std::function<void(const std::string* argv, size_t argc)>;
 		
 		Console();

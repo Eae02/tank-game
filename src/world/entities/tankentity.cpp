@@ -1,7 +1,9 @@
 ﻿#include "tankentity.h"
 #include "projectiles/plasmabulletentity.h"
 #include "projectiles/rocketentity.h"
+#include "shieldentity.h"
 #include "../gameworld.h"
+#include "../../exceptions/invalidstateexception.h"
 #include "../../settings.h"
 #include "../../audio/soundsmanager.h"
 #include "../../graphics/spriterenderlist.h"
@@ -31,6 +33,12 @@ namespace TankGame
 			SetShadowMode(EntityShadowModes::Dynamic);
 		else
 			SetShadowMode(EntityShadowModes::None);
+	}
+	
+	void TankEntity::OnKilled()
+	{
+		if (m_shieldHandle.IsAlive())
+			m_shieldHandle->Despawn();
 	}
 	
 	Transform TankEntity::GetBaseCannonTransform(const TankEntity::TextureInfo& textureInfo)
@@ -66,6 +74,15 @@ namespace TankGame
 		m_cannonOffset = std::max(m_cannonOffset, 0.0f);
 		
 		m_audioSource.SetPosition(GetTransform().GetPosition());
+		
+		if (m_shieldHandle.IsAlive())
+			m_shieldHandle->GetTransform().SetPosition(GetTransform().GetPosition());
+	}
+	
+	void TankEntity::OnDespawning()
+	{
+		if (m_shieldHandle.IsAlive())
+			m_shieldHandle->Despawn();
 	}
 	
 	void TankEntity::Fire(std::unique_ptr<Entity>&& bullet, float gameTime, float rotationOffset)
@@ -96,6 +113,17 @@ namespace TankGame
 		Fire(std::make_unique<RocketEntity>(GetGameWorld()->GetParticlesManager(), m_teamID, this, damage), gameTime, 0.0f);
 		
 		m_fireCooldown = 1.5f;
+	}
+	
+	void TankEntity::SpawnShield(float hp)
+	{
+		if (GetGameWorld() == nullptr)
+			throw InvalidStateException("SpawnShield called before OnSpawned.");
+		if (m_shieldHandle.IsAlive())
+			m_shieldHandle->Despawn();
+		
+		float shieldRadius = GetTransform().GetBoundingCircle().GetRadius() * 1.3f;
+		m_shieldHandle = GetGameWorld()->Spawn(std::make_unique<ShieldEntity>(hp, GetTeamID(), shieldRadius));
 	}
 	
 	nlohmann::json TankEntity::Serialize() const

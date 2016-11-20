@@ -22,6 +22,10 @@ namespace TankGame
 		if (rocketTankIt != json.end())
 			enemyTank->SetIsRocketTank(rocketTankIt->get<bool>());
 		
+		auto hasShieldIt = json.find("has_shield");
+		if (hasShieldIt != json.end())
+			enemyTank->SetHasShield(hasShieldIt->get<bool>());
+		
 		return enemyTank;
 	}
 }

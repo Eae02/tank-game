@@ -40,13 +40,20 @@ namespace TankGame
 		}
 	}
 	
-	void PlasmaBulletEntity::OnImpact()
+	void PlasmaBulletEntity::OnImpact(ImpactFlags flags)
 	{
-		impactEffectPlayer.Play(GetTransform().GetPosition(), 0.7f, 1.0f);
+		if (flags & ShieldImpact)
+		{
+			OnDeflected(GetTransform().GetPosition());
+			Despawn();
+			return;
+		}
 		
 		m_isFading = true;
 		SetColor(ParseColorHexCodeSRGB(0xF5CB42));
 		SetIntensity(10);
+		
+		impactEffectPlayer.Play(GetTransform().GetPosition(), 0.7f, 1.0f);
 		
 		SparkParticleSystem particleSystem(GetGameWorld()->GetParticlesManager());
 		

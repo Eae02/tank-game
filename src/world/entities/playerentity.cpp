@@ -1,5 +1,6 @@
 #include "playerentity.h"
 #include "explosionentity.h"
+#include "shieldentity.h"
 #include "../spteams.h"
 #include "../gameworld.h"
 #include "../../tanktextures.h"
@@ -215,6 +216,8 @@ namespace TankGame
 	
 	void PlayerEntity::OnKilled()
 	{
+		TankEntity::OnKilled();
+		
 		m_energy = MAX_ENERGY;
 		
 		auto explosion = std::make_unique<ExplosionEntity>(GetGameWorld()->GetParticlesManager());

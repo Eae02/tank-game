@@ -76,9 +76,9 @@ namespace TankGame
 				{
 					commandPos->second.m_callback(tokens.data() + 1, tokens.size() - 1);
 				}
-				catch (const std::exception& exception)
+				catch (const CommandException& exception)
 				{
-					logStream << LOG_ERROR << exception.what() << "\n";
+					logStream << LOG_ERROR << exception.GetMessage() << "\n";
 				}
 			}
 		}

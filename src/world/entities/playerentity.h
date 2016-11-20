@@ -2,6 +2,7 @@
 
 #include "tankentity.h"
 #include "hittable.h"
+#include "../entityhandle.h"
 #include "../lights/spotlightentity.h"
 #include "../../graphics/gl/texture2d.h"
 #include "../../graphics/spritematerial.h"

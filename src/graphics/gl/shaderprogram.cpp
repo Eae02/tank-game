@@ -32,7 +32,10 @@ namespace TankGame
 	
 	int ShaderProgram::GetUniformLocation(const std::string& name) const
 	{
-		return glGetUniformLocation(GetID(), name.c_str());
+		int location = glGetUniformLocation(GetID(), name.c_str());
+		if (location == -1)
+			throw std::runtime_error("Uniform not found: '" + name + "'.");
+		return location;
 	}
 	
 	int ShaderProgram::GetUniformBlockIndex(const std::string& name) const

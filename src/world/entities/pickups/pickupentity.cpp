@@ -1,10 +1,10 @@
 #include "pickupentity.h"
-#include "playerentity.h"
-#include "../gameworld.h"
-#include "../../utils/mathutils.h"
-#include "../../utils/utils.h"
-#include "../../updateinfo.h"
-#include "../../graphics/spriterenderlist.h"
+#include "../playerentity.h"
+#include "../../gameworld.h"
+#include "../../../utils/mathutils.h"
+#include "../../../utils/utils.h"
+#include "../../../updateinfo.h"
+#include "../../../graphics/spriterenderlist.h"
 
 #include <glm/gtc/constants.hpp>
 #include <random>

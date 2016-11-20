@@ -31,10 +31,6 @@ namespace TankGame
 		
 		auto entity = std::make_unique<RocketTurret>(minRotation, maxRotation, rotationSpeed, fireDelay);
 		
-		auto hasShieldIt = json.find("has_shield");
-		if (hasShieldIt != json.end() && hasShieldIt->get<bool>())
-			entity->SetHasShield(true);
-		
 		return entity;
 	}
 }

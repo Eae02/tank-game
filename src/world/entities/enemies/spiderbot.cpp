@@ -1,7 +1,7 @@
 #include "spiderbot.h"
 #include "../playerentity.h"
 #include "../explosionentity.h"
-#include "../hppickupentity.h"
+#include "../pickups/hppickupentity.h"
 #include "../../props/propclass.h"
 #include "../../props/propsmanager.h"
 #include "../../pathfinder.h"

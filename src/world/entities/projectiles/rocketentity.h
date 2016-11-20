@@ -31,7 +31,7 @@ namespace TankGame
 		virtual std::unique_ptr<Entity> Clone() const override;
 		
 	protected:
-		virtual void OnImpact() override;
+		virtual void OnImpact(ImpactFlags flags) override;
 		
 	private:
 		static StackObject<Texture2D> s_diffuse;

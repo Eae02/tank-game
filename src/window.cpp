@@ -153,11 +153,11 @@ namespace TankGame
 		m_console.AddCommand("checkpoint", [&] (const std::string* argv, size_t argc)
 		{
 			if (m_gameManager->GetLevel() == nullptr)
-				throw std::runtime_error("No level loaded.");
+				throw Console::CommandException("No level loaded.");
 			
 			const CheckpointEntity* checkpoint = m_gameManager->GetLevel()->GetCheckpointFromIndex(std::stoi(argv[0]));
 			if (checkpoint == nullptr)
-				throw std::runtime_error("Checkpoint not found.");
+				throw Console::CommandException("Checkpoint not found.");
 			
 			PlayerEntity& player = m_gameManager->GetLevel()->GetPlayerEntity();
 			player.GetTransform().SetPosition(checkpoint->GetCenterPos());
@@ -166,7 +166,7 @@ namespace TankGame
 		m_console.AddCommand("event", [&] (const std::string* argv, size_t argc)
 		{
 			if (m_gameManager->GetLevel() == nullptr)
-				throw std::runtime_error("No level loaded.");
+				throw Console::CommandException("No level loaded.");
 			m_gameManager->GetLevel()->GetGameWorld().SendEvent(argv[0], nullptr);
 		}, 1);
 		
@@ -180,11 +180,11 @@ namespace TankGame
 			int height = std::stoi(argv[2]);
 			
 			if (width < 10 || height < 10)
-				throw std::runtime_error("Level size must be at least 10x10.");
+				throw Console::CommandException("Level size must be at least 10x10.");
 			
 			fs::path path = Level::GetLevelsPath() / argv[0];
 			if (fs::exists(path))
-				throw std::runtime_error("The level aready exists.");
+				throw Console::CommandException("The level aready exists.");
 			
 			std::ofstream stream(path.string(), std::ios::binary);
 			WriteEmptyWorld(argv[0], width, height, stream);

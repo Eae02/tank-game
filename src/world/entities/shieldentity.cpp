@@ -1,6 +1,7 @@
 #include "shieldentity.h"
 #include "../gameworld.h"
 #include "../../updateinfo.h"
+#include "../../graphics/gl/specializationinfo.h"
 #include "../../graphics/quadmesh.h"
 #include "../../graphics/gl/shadermodule.h"
 #include "../../graphics/spriterenderlist.h"
@@ -12,10 +13,13 @@
 namespace TankGame
 {
 	StackObject<ShaderProgram> ShieldEntity::s_distortionShader;
+	StackObject<ShaderProgram> ShieldEntity::s_spriteShader;
 	
 	StackObject<Buffer> ShieldEntity::s_vertexBuffer;
 	StackObject<VertexArray> ShieldEntity::s_vertexArray;
 	GLsizei ShieldEntity::s_numVertices;
+	
+	constexpr float ShieldEntity::RIPPLE_TIME;
 	
 	constexpr int DIVISIONS = 16;
 	const float INTENSITY = 20;
@@ -65,21 +69,31 @@ namespace TankGame
 		glVertexArrayAttribBinding(s_vertexArray->GetID(), 1, 1);
 	}
 	
-	ShieldEntity::ShieldEntity()
-	    : m_settingsBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(float) * 13, GL_MAP_WRITE_BIT))
+	ShieldEntity::ShieldEntity(float hp, int teamID, float radius)
+	    : Hittable(hp, teamID),
+	      m_settingsBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(float) * 17, GL_MAP_WRITE_BIT)),
+	      m_radius(radius)
 	{
 		if (s_distortionShader.IsNull())
 		{
 			auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "shield.vs.glsl", GL_VERTEX_SHADER);
-			auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "shield.fs.glsl", GL_FRAGMENT_SHADER);
+			auto distFs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "shield-dist.fs.glsl", GL_FRAGMENT_SHADER);
+			auto spriteFs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "shield-sprite.fs.glsl", GL_FRAGMENT_SHADER);
 			
-			s_distortionShader.Construct<std::initializer_list<const ShaderModule*>>({ &vs, &fs });
+			s_distortionShader.Construct<std::initializer_list<const ShaderModule*>>({ &vs, &distFs });
+			s_spriteShader.Construct<std::initializer_list<const ShaderModule*>>({ &vs, &spriteFs });
 			
-			CallOnClose([] { s_distortionShader.Destroy(); });
+			glm::vec3 color = ParseColorHexCodeSRGB(0x90C3D4) * 3.0f;
+			glProgramUniform3fv(s_spriteShader->GetID(), s_spriteShader->GetUniformLocation("color"), 1,
+			                    reinterpret_cast<GLfloat*>(&color));
+			
+			CallOnClose([] { s_distortionShader.Destroy(); s_spriteShader.Destroy(); });
 		}
 		
 		if (s_vertexBuffer.IsNull())
 			CreateVertexBuffer();
+		
+		SetEditorVisible(false);
 	}
 	
 	Circle ShieldEntity::GetBoundingCircle() const
@@ -87,14 +101,23 @@ namespace TankGame
 		return Circle(GetTransform().GetPosition(), m_radius * OUTER_VERTEX_DIST);
 	}
 	
+	Circle ShieldEntity::GetHitCircle() const
+	{
+		return Circle(GetTransform().GetPosition(), m_radius);
+	}
+	
 	void ShieldEntity::Update(const UpdateInfo& updateInfo)
 	{
-		void* settingsMemory = glMapNamedBufferRange(*m_settingsBuffer, 0, sizeof(float) * 13,
-		                                             GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+		m_rippleProgress += updateInfo.m_dt * 12;
+		m_intensity = glm::min(m_intensity + updateInfo.m_dt * 2, 1.0f);
+		
+		void* settingsMemory = glMapNamedBuffer(*m_settingsBuffer, GL_WRITE_ONLY);
 		
 		float rotation = 0;
 		float sinR = std::sin(rotation);
 		float cosR = std::cos(rotation) * m_radius;
+		
+		glm::vec2 centerView = updateInfo.m_viewInfo.WorldToScreen(GetTransform().GetPosition());
 		
 		reinterpret_cast<float*>(settingsMemory)[0] = cosR;
 		reinterpret_cast<float*>(settingsMemory)[1] = sinR;
@@ -102,16 +125,25 @@ namespace TankGame
 		reinterpret_cast<float*>(settingsMemory)[5] = cosR;
 		reinterpret_cast<float*>(settingsMemory)[8] = GetTransform().GetPosition().x;
 		reinterpret_cast<float*>(settingsMemory)[9] = GetTransform().GetPosition().y;
-		reinterpret_cast<float*>(settingsMemory)[10] = m_radius;
-		reinterpret_cast<float*>(settingsMemory)[11] = 0.0f;
-		reinterpret_cast<float*>(settingsMemory)[12] = 0.0f;
+		reinterpret_cast<float*>(settingsMemory)[10] = centerView.x * 2.0f - 1.0f;
+		reinterpret_cast<float*>(settingsMemory)[11] = centerView.y * 2.0f - 1.0f;
+		reinterpret_cast<float*>(settingsMemory)[12] = m_radius;
+		reinterpret_cast<float*>(settingsMemory)[13] = m_intensity;
+		reinterpret_cast<float*>(settingsMemory)[14] = m_rippleAngle;
+		reinterpret_cast<float*>(settingsMemory)[15] = m_rippleProgress;
+		reinterpret_cast<float*>(settingsMemory)[16] = glm::pi<float>() / m_rippleProgress;
 		
 		glUnmapNamedBuffer(*m_settingsBuffer);
 	}
 	
-	void ShieldEntity::Draw(SpriteRenderList& spriteRenderList) const
+	void ShieldEntity::DrawTranslucent(SpriteRenderList& spriteRenderList) const
 	{
+		s_spriteShader->Use();
+		
 		glBindBufferBase(GL_UNIFORM_BUFFER, 1, *m_settingsBuffer);
+		
+		s_vertexArray->Bind();
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, s_numVertices);
 	}
 	
 	void ShieldEntity::DrawDistortions() const
@@ -121,12 +153,17 @@ namespace TankGame
 		glBindBufferBase(GL_UNIFORM_BUFFER, 1, *m_settingsBuffer);
 		
 		s_vertexArray->Bind();
-		
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, s_numVertices);
 	}
 	
-	void ShieldEntity::OnSpawned(GameWorld& gameWorld)
+	void ShieldEntity::Ripple(float originAngle)
 	{
-		Entity::OnSpawned(gameWorld);
+		m_rippleAngle = originAngle;
+		m_rippleProgress = 1E-6f;
+	}
+	
+	void ShieldEntity::OnKilled()
+	{
+		Despawn();
 	}
 }

@@ -3,6 +3,7 @@
 #include "hittable.h"
 #include "../lights/spotlightentity.h"
 #include "../entity.h"
+#include "../entityhandle.h"
 #include "../../audio/audiosource.h"
 
 namespace TankGame
@@ -24,6 +25,8 @@ namespace TankGame
 		
 		virtual void Update(const class UpdateInfo& updateInfo) override;
 		
+		virtual void OnDespawning() override;
+		
 		inline void SetCannonRotation(float rotation)
 		{ m_cannonTransform.SetRotation(rotation); }
 		
@@ -33,6 +36,8 @@ namespace TankGame
 		
 		inline void AdvanceFrame(float delta)
 		{ m_frame += delta; }
+		
+		void SpawnShield(float hp);
 		
 		virtual Entity::IUpdateable* AsUpdatable() final override
 		{ return this; }
@@ -56,6 +61,8 @@ namespace TankGame
 		inline void SetFireCooldown(float fireCooldown)
 		{ m_fireCooldown = fireCooldown; }
 		
+		virtual void OnKilled() override;
+		
 		static Transform GetBaseCannonTransform(const TextureInfo& textureInfo);
 		
 	private:
@@ -64,6 +71,8 @@ namespace TankGame
 		AudioSource m_audioSource;
 		
 		TextureInfo m_textureInfo;
+		
+		EntityHandle m_shieldHandle;
 		
 		int m_teamID;
 		

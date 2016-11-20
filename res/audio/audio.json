@@ -36,6 +36,10 @@
 		"src": "hp_pickup.ogg"
 	},
 	{
+		"name": "ShieldPickup",
+		"src": "shield_pickup.ogg"
+	},
+	{
 		"name": "BulletImpact",
 		"src": "bullet_impact.ogg"
 	},

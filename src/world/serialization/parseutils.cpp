@@ -12,6 +12,9 @@
 #include "entityparsers/doorparser.h"
 #include "entityparsers/checkpointparser.h"
 #include "entityparsers/deflectionfieldparser.h"
+#include "entityparsers/nullentityparser.h"
+
+#include "../entities/pickups/shieldpickupentity.h"
 
 namespace TankGame
 {
@@ -30,6 +33,8 @@ namespace TankGame
 	static CheckpointParser checkpointParser;
 	static PropParser propParser;
 	static DoorParser doorParser;
+	
+	static NullEntityParser<ShieldPickupEntity> shieldPickupParser;
 	
 	const EntityParser* GetEntityParser(const std::string& className)
 	{
@@ -61,6 +66,9 @@ namespace TankGame
 			return &propParser;
 		if (className == "Door")
 			return &doorParser;
+		
+		if (className == "ShieldPickup")
+			return &shieldPickupParser;
 		
 		return nullptr;
 	}

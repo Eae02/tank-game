@@ -31,6 +31,8 @@ namespace TankGame
 		
 		virtual void OnSpawned(class GameWorld& gameWorld) override;
 		
+		virtual void OnDespawning() override;
+		
 		void SetColor(glm::vec3 color);
 		inline glm::vec3 GetColor() const
 		{ return m_color; }

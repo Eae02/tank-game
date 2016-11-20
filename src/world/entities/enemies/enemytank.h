@@ -51,6 +51,11 @@ namespace TankGame
 		inline const std::string& GetDetectPlayerEventName() const
 		{ return m_detectPlayerEventName; }
 		
+		inline bool HasShield() const
+		{ return m_hasShield; }
+		inline void SetHasShield(bool hasShield)
+		{ m_hasShield = hasShield; }
+		
 	protected:
 		virtual const class SpriteMaterial& GetBaseMaterial(int frame) const override;
 		virtual const class SpriteMaterial& GetCannonMaterial() const override;
@@ -64,6 +69,7 @@ namespace TankGame
 		static StackObject<SpriteMaterial> s_cannonMaterial;
 		
 		bool m_isRocketTank = false;
+		bool m_hasShield = false;
 		
 		std::string m_detectPlayerEventName;
 		

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../lights/pointlightentity.h"
-#include "propentity.h"
+#include "../propentity.h"
+#include "../../lights/pointlightentity.h"
 
 namespace TankGame
 {

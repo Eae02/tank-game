@@ -118,6 +118,8 @@ namespace TankGame
 	
 	void EntitiesManager::DespawnAtIndex(size_t index)
 	{
+		m_entities[index].m_entity->OnDespawning();
+		
 		MaybeRemoveFromEntityList(m_entities[index].m_entity->AsUpdatable(), m_updateableEntities);
 		MaybeRemoveFromEntityList(dynamic_cast<const ParticleSystemEntityBase*>(m_entities[index].m_entity.get()),
 		                          m_particleSystemEntities);

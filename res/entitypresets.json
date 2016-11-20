@@ -48,5 +48,8 @@
 	},
 	"Door": {
 		"class": "Door"
+	},
+	"Shield Pickup": {
+		"class": "ShieldPickup"
 	}
 }

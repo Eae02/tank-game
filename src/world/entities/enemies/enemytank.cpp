@@ -1,7 +1,8 @@
 #include "enemytank.h"
 #include "../playerentity.h"
 #include "../explosionentity.h"
-#include "../hppickupentity.h"
+#include "../pickups/hppickupentity.h"
+#include "../pickups/shieldpickupentity.h"
 #include "../../spteams.h"
 #include "../../gameworld.h"
 #include "../../../tanktextures.h"
@@ -32,7 +33,7 @@ namespace TankGame
 	
 	EnemyTank::EnemyTank(const Path& idlePath)
 	    : TankEntity(glm::vec3(1.0f), textureInfo, EnemyTeamID, 50),
-	      m_ai(*this, { 2.0f, GetTransform().GetBoundingCircle().GetRadius() }, idlePath)
+	      m_ai(*this, { 2.0f, GetTransform().GetBoundingCircle().GetRadius() * 0.7f }, idlePath)
 	{
 		SetIsRocketTank(false);
 		
@@ -112,7 +113,11 @@ namespace TankGame
 			gameWorld.ListenForEvent(m_detectPlayerEventName, *this);
 		m_ai.SetGameWorld(&gameWorld);
 		m_oldPosition = GetTransform().GetPosition();
-		SpotLightEntity::OnSpawned(gameWorld);
+		
+		TankEntity::OnSpawned(gameWorld);
+		
+		if (m_hasShield && gameWorld.GetWorldType() != GameWorld::Types::Editor)
+			SpawnShield(50);
 	}
 	
 	Circle EnemyTank::GetHitCircle() const
@@ -127,6 +132,8 @@ namespace TankGame
 	
 	void EnemyTank::OnKilled()
 	{
+		TankEntity::OnKilled();
+		
 		auto explosion = std::make_unique<ExplosionEntity>(GetGameWorld()->GetParticlesManager());
 		explosion->GetTransform().SetPosition(GetTransform().GetPosition());
 		GetGameWorld()->Spawn(std::move(explosion));
@@ -137,6 +144,14 @@ namespace TankGame
 			player->GiveEnergy();
 			if (player->GetHp() < player->GetMaxHp())
 				HpPickupEntity::SpawnEntities(*GetGameWorld(), GetTransform().GetPosition(), 20.0f);
+			
+			if (m_hasShield)
+			{
+				std::unique_ptr<ShieldPickupEntity> shieldPickup = std::make_unique<ShieldPickupEntity>();
+				shieldPickup->GetTransform().SetPosition(GetTransform().GetPosition());
+				
+				GetGameWorld()->Spawn(std::move(shieldPickup));
+			}
 		}
 		
 		Despawn();
@@ -174,6 +189,8 @@ namespace TankGame
 		
 		if (m_isRocketTank)
 			json["rocket_tank"] = true;
+		if (m_hasShield)
+			json["has_shield"] = true;
 		
 		if (!m_detectPlayerEventName.empty())
 			json["detect_event"] = m_detectPlayerEventName;
@@ -235,6 +252,8 @@ namespace TankGame
 		bool isRocketTank = m_isRocketTank;
 		if (ImGui::Checkbox("Rocket Tank", &isRocketTank))
 			SetIsRocketTank(isRocketTank);
+		
+		ImGui::Checkbox("Has Shield", &m_hasShield);
 		
 		std::array<char, 256> inputBuffer;
 		inputBuffer.back() = '\0';

@@ -72,7 +72,7 @@ namespace TankGame
 		
 		s_shaderProgram->Use();
 		
-		glProgramUniform1i(s_shaderProgram->GetID(), s_translucentUniformLocation, isTranslucent ? true : false);
+		glUniform1i(s_translucentUniformLocation, isTranslucent ? 1 : 0);
 		
 		glm::mat3* matricesMemory;
 		float* zValuesMemory;

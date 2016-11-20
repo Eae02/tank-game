@@ -33,8 +33,6 @@ namespace TankGame
 		
 		virtual Circle GetHitCircle() const override;
 		
-		void SetHasShield(bool hasShield);
-		
 		virtual void HandleEvent(const std::string &event, Entity *sender) override;
 		
 		virtual void RenderProperties() override;
@@ -49,13 +47,9 @@ namespace TankGame
 		virtual void OnKilled() override;
 		
 	private:
-		void SpawnShield();
 		bool ShouldFire() const;
 		
 		void RotateTowardsPlayer(float dt);
-		
-		bool m_hasShield = false;
-		EntityHandle m_shieldEntity;
 		
 		float m_minRotationAngle;
 		float m_maxRotationAngle;

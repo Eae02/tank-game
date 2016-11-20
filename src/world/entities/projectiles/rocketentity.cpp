@@ -66,7 +66,7 @@ namespace TankGame
 		ParticleSystemEntity::OnSpawned(gameWorld);
 	}
 	
-	void RocketEntity::OnImpact()
+	void RocketEntity::OnImpact(ImpactFlags flags)
 	{
 		auto explosion = std::make_unique<ExplosionEntity>(GetGameWorld()->GetParticlesManager());
 		explosion->GetTransform().SetPosition(GetTransform().GetPosition() - GetTransform().GetForward() * 0.1f);

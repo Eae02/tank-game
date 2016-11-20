@@ -31,7 +31,7 @@ namespace TankGame
 		
 		if (intersectInfo.m_intersects)
 		{
-			intersectInfo.m_penetration = (1.0f - radiiSum / std::sqrt(distSq)) * toCenterOther; 
+			intersectInfo.m_penetration = (radiiSum / std::sqrt(distSq) - 1.0f) * toCenterOther; 
 		}
 		
 		return intersectInfo;

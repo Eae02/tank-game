@@ -237,6 +237,12 @@ namespace TankGame
 			gameWorld.ListenForEvent(m_activateEvent, *this);
 	}
 	
+	void LightStripEntity::OnDespawning()
+	{
+		for (RayLightEntity* lightEntity : m_lights)
+			lightEntity->Despawn();
+	}
+	
 	void LightStripEntity::SetColor(glm::vec3 color)
 	{
 		m_color = color;

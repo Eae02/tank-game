@@ -2,8 +2,10 @@
 #include "../particlesystementity.h"
 #include "../hittable.h"
 #include "../deflectionfieldentity.h"
+#include "../shieldentity.h"
 #include "../../gameworld.h"
 #include "../../../updateinfo.h"
+#include "../../../utils/mathutils.h"
 #include "../../../utils/utils.h"
 
 #include <random>
@@ -90,8 +92,12 @@ namespace TankGame
 		if (intersectInfo.m_intersects)
 		{
 			GetTransform().Translate(-intersectInfo.m_penetration + move * CIRCLE_RADIUS);
-			OnImpact();
+			OnImpact(DefaultImpact);
 		}
+		
+		Hittable* hitEntity = nullptr;
+		glm::vec2 hitEntityPenetration;
+		float hitEntityPenetrationLenSquared = 0;
 		
 		//Checks for intersections with hittable entities
 		GetGameWorld()->IterateIntersectingEntities(circle.GetBoundingRectangle(), [&] (Entity& entity)
@@ -100,13 +106,41 @@ namespace TankGame
 				return;
 			
 			Hittable* hittable = entity.AsHittable();
+			if (hittable == nullptr || (hittable->GetTeamID() == m_teamID && !m_hasDeflected))
+				return;
 			
-			if (hittable != nullptr && (hittable->GetTeamID() != m_teamID || m_hasDeflected) &&
-			    circle.Intersects(hittable->GetHitCircle()))
+			IntersectInfo intersectInfo = circle.GetIntersectInfo(hittable->GetHitCircle());
+			if (!intersectInfo.m_intersects)
+				return;
+			
+			float penetrationLenSquared = LengthSquared(intersectInfo.m_penetration);
+			
+			if (penetrationLenSquared > hitEntityPenetrationLenSquared)
 			{
-				hittable->SetHp(hittable->GetHp() - m_damage);
-				OnImpact();
+				hitEntity = hittable;
+				hitEntityPenetrationLenSquared = penetrationLenSquared;
+				hitEntityPenetration = intersectInfo.m_penetration;
 			}
 		});
+		
+		if (hitEntity != nullptr)
+		{
+			hitEntity->SetHp(hitEntity->GetHp() - m_damage);
+			GetTransform().Translate(-hitEntityPenetration);
+			
+			ImpactFlags flags = EntityImpact;
+			
+			ShieldEntity* shieldEntity = dynamic_cast<ShieldEntity*>(hitEntity);
+			if (shieldEntity != nullptr)
+			{
+				glm::vec2 toCenterShield = shieldEntity->GetTransform().GetPosition() - GetTransform().GetPosition();
+				shieldEntity->Ripple(std::atan2(-toCenterShield.y, -toCenterShield.x));
+				
+				flags = static_cast<ImpactFlags>(flags | ShieldImpact);
+			}
+			
+			OnImpact(flags);
+			
+		}
 	}
 }

@@ -5,30 +5,33 @@
 #include "../../graphics/gl/bufferallocator.h"
 #include "../../graphics/gl/vertexarray.h"
 #include "../entity.h"
+#include "hittable.h"
 
 namespace TankGame
 {
-	class ShieldEntity : public Entity, public Entity::ISpriteDrawable,
+	class ShieldEntity : public Entity, public Hittable, public Entity::ITranslucentSpriteDrawable,
 	        public Entity::IDistortionDrawable, public Entity::IUpdateable
 	{
 	public:
-		ShieldEntity();
+		ShieldEntity(float hp, int teamID, float radius);
 		
 		virtual Circle GetBoundingCircle() const override;
 		
+		virtual Circle GetHitCircle() const override;
+		
 		virtual void Update(const class UpdateInfo& updateInfo) override;
 		
-		virtual void Draw(class SpriteRenderList& spriteRenderList) const override;
+		virtual void DrawTranslucent(class SpriteRenderList& spriteRenderList) const override;
 		
 		virtual void DrawDistortions() const override;
 		
-		virtual void OnSpawned(class GameWorld& gameWorld) override;
-		
 		virtual const Entity::IDistortionDrawable* AsDistortionDrawable() const final override
 		{ return this; }
-		virtual const Entity::ISpriteDrawable*AsSpriteDrawable() const final override
+		virtual const Entity::ITranslucentSpriteDrawable* AsTranslucentSpriteDrawable() const final override
 		{ return this; }
 		virtual Entity::IUpdateable* AsUpdatable() final override
+		{ return this; }
+		virtual Hittable* AsHittable() final override
 		{ return this; }
 		
 		inline void SetRadius(float radius)
@@ -36,8 +39,14 @@ namespace TankGame
 		inline float GetRadius() const
 		{ return m_radius; }
 		
+		void Ripple(float originAngle);
+		
+	protected:
+		virtual void OnKilled() override;
+		
 	private:
 		static StackObject<ShaderProgram> s_distortionShader;
+		static StackObject<ShaderProgram> s_spriteShader;
 		
 		static StackObject<Buffer> s_vertexBuffer;
 		static StackObject<VertexArray> s_vertexArray;
@@ -46,6 +55,13 @@ namespace TankGame
 		static void CreateVertexBuffer();
 		
 		BufferAllocator::UniquePtr m_settingsBuffer;
+		
+		static constexpr float RIPPLE_TIME = 1;
+		
+		float m_rippleProgress = std::numeric_limits<float>::max();
+		float m_rippleAngle = 0;
+		
+		float m_intensity = 0;
 		
 		float m_radius = 1;
 	};

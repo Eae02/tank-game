@@ -18,9 +18,16 @@ namespace TankGame
 		{ return m_damage; }
 		
 	protected:
+		enum ImpactFlags
+		{
+			DefaultImpact = 0,
+			EntityImpact = 1,
+			ShieldImpact = 2
+		};
+		
 		ProjectileEntity(int teamID, const Entity* sourceEntity, float speed, float damage, float damageStandardDist);
 		
-		virtual void OnImpact() { }
+		virtual void OnImpact(ImpactFlags flags) { }
 		
 		virtual bool ShouldDeflect(const class DeflectionFieldEntity& deflectionField) const;
 		virtual void OnDeflected(glm::vec2 deflectionPos) { }

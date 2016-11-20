@@ -1,0 +1,47 @@
+#ifndef SHIELD_COMMON_H
+#define SHIELD_COMMON_H
+
+layout(location=0) in vec2 worldPos_in;
+layout(location=1) in vec2 screenPos_in;
+layout(location=2) in float angle_in;
+
+layout(std140, binding=1) uniform ShieldSettingsUB
+{
+	mat2 transformLin;
+	vec2 centerWorld;
+	vec2 centerView;
+	float radius;
+	float intensity;
+	
+	float rippleCenter;
+	float rippleDistance;
+	float rippleIntensity;
+};
+
+const float M_INNER = 5;
+const float M_OUTER = 30;
+const float PI = 3.141592653589793;
+
+float modulateRotation(float rot)
+{
+	return rot - floor(rot / (2 * PI)) * 2 * PI;
+}
+
+float rotationDifference(float a, float b)
+{
+	return modulateRotation(a - b + PI) - PI;
+}
+
+float getShieldIntensity()
+{
+	float distParam = distance(centerWorld, worldPos_in) / radius;
+	
+	float d = clamp((distParam > 1) ? (M_OUTER * (1 - distParam) + 1) : (1 - M_INNER * (1 - distParam)), 0.0, 1.0);
+	
+	float distToRippleCenter = abs(rotationDifference(angle_in, rippleCenter));
+	float r = 0.5 * rippleIntensity * (sin(clamp(rippleIntensity * (distToRippleCenter - rippleDistance), -PI, PI) + PI / 2.0) + 1) + 1;
+	
+	return d * r * intensity;
+}
+
+#endif

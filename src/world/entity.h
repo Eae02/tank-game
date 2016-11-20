@@ -70,6 +70,7 @@ namespace TankGame
 		virtual void OnInteract() { }
 		
 		virtual void OnSpawned(class GameWorld& gameWorld);
+		virtual void OnDespawning() { }
 		
 		virtual const ISpriteDrawable* AsSpriteDrawable() const
 		{ return nullptr; }
