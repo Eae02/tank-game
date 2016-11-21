@@ -55,6 +55,8 @@ namespace TankGame
 		
 		void SetPath(Path path);
 		
+		virtual std::unique_ptr<Entity> Clone() const override;
+		
 		virtual void HandleEvent(const std::string &event, Entity* sender) override;
 		
 		virtual void RenderProperties() override;

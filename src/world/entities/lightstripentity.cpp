@@ -77,6 +77,16 @@ namespace TankGame
 		PathChanged();
 	}
 	
+	std::unique_ptr<Entity> LightStripEntity::Clone() const
+	{
+		auto clone = std::make_unique<LightStripEntity>(m_color, m_glowStrength, m_radius, m_activateEvent, m_activatedColor);
+		
+		clone->GetTransform() = GetTransform();
+		clone->SetPath(m_path);
+		
+		return clone;
+	}
+	
 	void LightStripEntity::HandleEvent(const std::string& event, Entity* sender)
 	{
 		if (event == "EditorMoved")
