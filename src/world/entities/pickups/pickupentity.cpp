@@ -53,7 +53,9 @@ namespace TankGame
 			}
 		}
 		
-		GetTransform().Translate((m_velocity + oldVelocity) * 0.5f * updateInfo.m_dt);
+		glm::vec2 groundVelocity = GetGameWorld()->GetGroundVelocity(GetTransform().GetPosition());
+		
+		GetTransform().Translate(((m_velocity + oldVelocity) * 0.5f + groundVelocity) * updateInfo.m_dt);
 		
 		if (glm::dot(m_velocity, m_velocity) > 1E-6)
 		{

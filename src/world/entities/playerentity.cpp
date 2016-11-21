@@ -118,16 +118,7 @@ namespace TankGame
 		m_velocity += (force / MASS) * updateInfo.m_dt;
 		m_rotationVelocity += (rotForce / MASS) * updateInfo.m_dt;
 		
-		glm::vec2 groundVelocity;
 		
-		GetGameWorld()->IterateIntersectingEntities(Rectangle::CreateCentered(GetTransform().GetPosition(), 1, 1),
-		                                            [&] (const Entity& entity)
-		{
-			const ConveyorBeltEntity* conveyorBelt = dynamic_cast<const ConveyorBeltEntity*>(&entity);
-			
-			if (conveyorBelt != nullptr)
-				groundVelocity += conveyorBelt->GetPushVector(GetTransform().GetPosition());
-		});
 		
 		//Caps the speed of the tank, this is to stop physics from breaking at low framerates
 		const float MAX_SPEED = 2.5f;
@@ -138,6 +129,8 @@ namespace TankGame
 		float rotSpeed = glm::abs(m_rotationVelocity);
 		if (rotSpeed > MAX_ROT_SPEED)
 			m_rotationVelocity *= MAX_ROT_SPEED / rotSpeed;
+		
+		glm::vec2 groundVelocity = GetGameWorld()->GetGroundVelocity(GetTransform().GetPosition());
 		
 		//Updates the tank's position
 		GetTransform().Rotate((m_rotationVelocity + oldRotVelocity) * 0.5f * updateInfo.m_dt);

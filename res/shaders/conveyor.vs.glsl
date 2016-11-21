@@ -15,7 +15,7 @@ layout(std140, binding=1) uniform ConveyorSettingsUB
 
 void main()
 {
-	gl_Position = vec4((viewMatrix * transform * vec3(position_in, 1.0)).xy, 0.9, 1.0);
+	gl_Position = vec4((viewMatrix * transform * vec3(position_in, 1.0)).xy, 0.79 / 2, 1.0);
 	
 	texCoord_out = position_in * size + vec2(0.0, textureOffset);
 }

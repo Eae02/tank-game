@@ -37,7 +37,7 @@ namespace TankGame
 	void ConveyorBeltEntity::Update(const UpdateInfo& updateInfo)
 	{
 		if (m_enabled)
-			m_textureOffset += updateInfo.m_dt;
+			m_textureOffset += updateInfo.m_dt * m_speed;
 	}
 	
 	void ConveyorBeltEntity::Draw(SpriteRenderList& spriteRenderList) const

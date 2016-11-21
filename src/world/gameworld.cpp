@@ -1,5 +1,6 @@
 #include "gameworld.h"
 #include "particles/particleemitter.h"
+#include "entities/conveyorbeltentity.h"
 #include "../graphics/spriterenderlist.h"
 #include "../graphics/tilegridmaterial.h"
 #include "../updateinfo.h"
@@ -84,6 +85,21 @@ namespace TankGame
 	void GameWorld::ListenForEvent(std::string event, Entity& receiver)
 	{
 		m_eventListeners.emplace_back(std::move(event), receiver);
+	}
+	
+	glm::vec2 GameWorld::GetGroundVelocity(glm::vec2 position) const
+	{
+		glm::vec2 groundVelocity;
+		
+		IterateIntersectingEntities(Rectangle::CreateCentered(position, 1, 1), [&] (const Entity& entity)
+		{
+			const ConveyorBeltEntity* conveyorBelt = dynamic_cast<const ConveyorBeltEntity*>(&entity);
+			
+			if (conveyorBelt != nullptr)
+				groundVelocity += conveyorBelt->GetPushVector(position);
+		});
+		
+		return groundVelocity;
 	}
 	
 	ViewInfo GameWorld::GetViewInfo(float aspectRatio) const

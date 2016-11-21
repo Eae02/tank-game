@@ -59,6 +59,8 @@ namespace TankGame
 		inline void SetEventListener(IEventListener* eventListener)
 		{ m_eventListener = eventListener; }
 		
+		glm::vec2 GetGroundVelocity(glm::vec2 position) const;
+		
 		template <typename CallbackTp>
 		void IterateIntersectingEntities(const Rectangle& rectangle, CallbackTp callback) const
 		{
