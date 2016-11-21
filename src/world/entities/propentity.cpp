@@ -41,12 +41,16 @@ namespace TankGame
 		GetTransform().SetScale({ sizeX, sizeX * m_aspectRatio });
 	}
 	
-	IntersectInfo PropEntity::GetIntersectInfo(const Circle& circle) const
+	ColliderInfo PropEntity::GetColliderInfo() const
 	{
 		if (!m_isSolid)
 			return { };
-		OrientedRectangle orientedRectangle = OrientedRectangle::FromTransformedNDC(GetTransform());
-		return orientedRectangle.GetIntersectInfo(circle);
+		return OrientedRectangle::FromTransformedNDC(GetTransform());
+	}
+	
+	CollidableTypes PropEntity::GetCollidableType() const
+	{
+		return CollidableTypes::Object;
 	}
 	
 	const char* PropEntity::GetSerializeClassName() const

@@ -29,6 +29,8 @@ namespace TankGame
 		
 		Rectangle GetInteractRectangle() const;
 		
+		virtual CollidableTypes GetCollidableType() const override;
+		
 		virtual void SetHp(float hp) override;
 		
 		virtual const char* GetObjectName() const override;

@@ -39,11 +39,7 @@ namespace TankGame
 		
 		SetFireCooldown(0.5f);
 		
-		GetTransform().SetPosition(idlePath[0]);
-		
 		CannonMaterial();
-		
-		SetSolidType(SolidTypes::Npc);
 	}
 	
 	void EnemyTank::SetIsRocketTank(bool isRocketTank)
@@ -107,11 +103,25 @@ namespace TankGame
 		return TankEntity::GetBaseCannonTransform(textureInfo);
 	}
 	
+	CollidableTypes EnemyTank::GetCollidableType() const
+	{
+		return CollidableTypes::Npc;
+	}
+	
 	void EnemyTank::OnSpawned(GameWorld& gameWorld)
 	{
 		if (!m_detectPlayerEventName.empty())
 			gameWorld.ListenForEvent(m_detectPlayerEventName, *this);
 		m_ai.SetGameWorld(&gameWorld);
+		
+		if (gameWorld.GetWorldType() != GameWorld::Types::Editor)
+		{
+			GetTransform().SetPosition(m_ai.GetIdlePath()[0]);
+			
+			glm::vec2 forward = m_ai.GetIdlePath()[1] - m_ai.GetIdlePath()[0];
+			GetTransform().SetRotation(glm::half_pi<float>() + std::atan2(forward.y, forward.x));
+		}
+		
 		m_oldPosition = GetTransform().GetPosition();
 		
 		TankEntity::OnSpawned(gameWorld);

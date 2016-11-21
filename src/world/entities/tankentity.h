@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hittable.h"
+#include "../icollidable.h"
 #include "../lights/spotlightentity.h"
 #include "../entity.h"
 #include "../entityhandle.h"
@@ -8,7 +9,8 @@
 
 namespace TankGame
 {
-	class TankEntity : public SpotLightEntity, public Hittable, public Entity::IUpdateable, public Entity::ISpriteDrawable
+	class TankEntity : public SpotLightEntity, public Hittable, public ICollidable,
+	        public Entity::IUpdateable, public Entity::ISpriteDrawable
 	{
 	public:
 		struct TextureInfo
@@ -43,12 +45,15 @@ namespace TankGame
 		{ return this; }
 		virtual const Entity::ISpriteDrawable* AsSpriteDrawable() const final override
 		{ return this; }
+		virtual const ICollidable* AsCollidable() const final override
+		{ return this; }
 		
 		virtual const char* GetSerializeClassName() const override
 		{ return nullptr; }
 		virtual nlohmann::json Serialize() const override;
 		
-		virtual IntersectInfo GetIntersectInfo(const Circle& circle) const override;
+		virtual ColliderInfo GetColliderInfo() const override;
+		virtual CollidableTypes GetCollidableType() const override = 0;
 		
 		virtual void RenderProperties() override;
 		

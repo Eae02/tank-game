@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../hittable.h"
+#include "../../icollidable.h"
 #include "../../entityhandle.h"
 #include "../../lights/raylightentity.h"
 #include "../../../editor/ieditoruientity.h"
@@ -9,7 +10,7 @@
 
 namespace TankGame
 {
-	class RocketTurret : public RayLightEntity, public Entity::ISpriteDrawable, 
+	class RocketTurret : public RayLightEntity, public ICollidable, public Entity::ISpriteDrawable, 
 	        public Entity::IUpdateable, public Hittable, public IEditorUIEntity
 	{
 	public:
@@ -24,11 +25,16 @@ namespace TankGame
 		
 		virtual void OnSpawned(class GameWorld& gameWorld) override;
 		
+		virtual ColliderInfo GetColliderInfo() const override;
+		virtual CollidableTypes GetCollidableType() const override;
+		
 		virtual const Entity::ISpriteDrawable* AsSpriteDrawable() const final override
 		{ return this; }
 		virtual Entity::IUpdateable* AsUpdatable() final override
 		{ return this; }
 		virtual Hittable* AsHittable() final override
+		{ return this; }
+		virtual const ICollidable* AsCollidable() const final override
 		{ return this; }
 		
 		virtual Circle GetHitCircle() const override;
@@ -50,6 +56,8 @@ namespace TankGame
 		bool ShouldFire() const;
 		
 		void RotateTowardsPlayer(float dt);
+		
+		float CalcLength(const glm::vec2* forward) const;
 		
 		float m_minRotationAngle;
 		float m_maxRotationAngle;

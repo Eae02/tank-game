@@ -8,6 +8,7 @@
 #include "entities/particlesystementity.h"
 #include "entity.h"
 #include "entityhandle.h"
+#include "icollidable.h"
 
 namespace TankGame
 {
@@ -56,6 +57,13 @@ namespace TankGame
 			}
 		}
 		
+		template <typename CallbackTp>
+		void IterateCollidable(CallbackTp callback) const
+		{
+			for (const ICollidable* collidable : m_collidableEntities)
+				callback(*collidable);
+		}
+		
 	protected:
 		virtual void OnEntityDespawn(Entity& entity) { }
 		
@@ -84,6 +92,7 @@ namespace TankGame
 		std::vector<Entity*> m_entitiesToDespawn;
 		
 		std::vector<Entity::IUpdateable*> m_updateableEntities;
+		std::vector<const ICollidable*> m_collidableEntities;
 		std::vector<ParticleSystemEntityBase*> m_particleSystemEntities;
 	};
 }

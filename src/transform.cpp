@@ -1,4 +1,5 @@
 #include "transform.h"
+#include "utils/mathutils.h"
 
 #include <cmath>
 #include <algorithm>
@@ -70,12 +71,25 @@ namespace TankGame
 	
 	Circle Transform::GetBoundingCircle() const
 	{
-		glm::vec3 corner1 = GetMatrix() * glm::vec3(-1, -1, 1);
-		glm::vec3 corner2 = GetMatrix() * glm::vec3( 1,  1, 1);
+		glm::vec2 corner1(GetMatrix() * glm::vec3(-1, -1, 1));
+		glm::vec2 corner2(GetMatrix() * glm::vec3( 1,  1, 1));
 		
-		glm::vec2 center = (glm::vec2(corner1) + glm::vec2(corner2)) / 2.0f;
+		glm::vec2 center = (corner1 + corner2) / 2.0f;
 		
-		return Circle(center, glm::length(glm::vec2(corner1) - center));
+		return Circle(center, glm::length(corner1 - center));
+	}
+	
+	Circle Transform::GetInscribedCircle() const
+	{
+		glm::vec2 side1(GetMatrix() * glm::vec3(0, 1, 1));
+		glm::vec2 side2(GetMatrix() * glm::vec3(1, 0, 1));
+		
+		glm::vec2 corner1(GetMatrix() * glm::vec3(-1, -1, 1));
+		glm::vec2 corner2(GetMatrix() * glm::vec3( 1,  1, 1));
+		
+		glm::vec2 center = (corner1 + corner2) / 2.0f;
+		
+		return Circle(center, std::sqrt(glm::min(LengthSquared(side1 - center), LengthSquared(side2 - center))));
 	}
 	
 	nlohmann::json Transform::Serialize(Properties propertiesToSerialize) const

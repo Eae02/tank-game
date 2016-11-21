@@ -3,10 +3,11 @@
 #include <string>
 
 #include "../entity.h"
+#include "../icollidable.h"
 
 namespace TankGame
 {
-	class PropEntity : public virtual Entity, public Entity::ITranslucentSpriteDrawable,
+	class PropEntity : public virtual Entity, public ICollidable, public Entity::ITranslucentSpriteDrawable,
 	        public Entity::ISpriteDrawable
 	{
 	public:
@@ -33,8 +34,11 @@ namespace TankGame
 		{ return this; }
 		virtual const Entity::ISpriteDrawable* AsSpriteDrawable() const final override
 		{ return this; }
+		virtual const ICollidable* AsCollidable() const final override
+		{ return this; }
 		
-		virtual IntersectInfo GetIntersectInfo(const Circle& circle) const override;
+		virtual ColliderInfo GetColliderInfo() const override;
+		virtual CollidableTypes GetCollidableType() const override;
 		
 		virtual const char* GetSerializeClassName() const override;
 		virtual nlohmann::json Serialize() const override;

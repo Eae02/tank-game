@@ -44,8 +44,6 @@ namespace TankGame
 		
 		m_detectedSource.SetAttenuationSettings(0.5f, 1.0f);
 		m_detectedSource.SetBuffer(SoundsManager::GetInstance().GetSound("TurretDetected"));
-		
-		SetSolidType(SolidTypes::Npc);
 	}
 	
 	void RocketTurret::Draw(SpriteRenderList& spriteRenderList) const
@@ -65,8 +63,7 @@ namespace TankGame
 			
 			glm::vec2 forward = transform.GetForward();
 			
-			float distToWall = GetGameWorld()->GetTileGrid()->GetDistanceToWall(*GetGameWorld()->GetTileGridMaterial(),
-			                                                                    transform.GetPosition(), forward);
+			float distToWall = CalcLength(&forward);
 			
 			transform.Translate(forward * distToWall * 0.5f);
 			transform.SetScale({ 0.01f, distToWall * 0.5f });
@@ -143,8 +140,8 @@ namespace TankGame
 		}
 		
 		glm::vec2 cannonForward = GetTransform().GetForward();
-		SetLength(GetGameWorld()->GetTileGrid()->GetDistanceToWall(*GetGameWorld()->GetTileGridMaterial(),
-		                                                           GetTransform().GetPosition(), cannonForward));
+		
+		SetLength(CalcLength(&cannonForward));
 		
 		m_ambienceSource.SetPosition(GetTransform().GetPosition());
 		m_ambienceSource.SetDirection(cannonForward);
@@ -183,6 +180,16 @@ namespace TankGame
 		GetTransform().Rotate(-rotDiff * glm::min(dt * 5, 1.0f));
 	}
 	
+	float RocketTurret::CalcLength(const glm::vec2* forward) const
+	{
+		glm::vec2 f = forward == nullptr ? GetTransform().GetForward() : *forward;
+		
+		return GetGameWorld()->GetRayIntersectionDistance(GetTransform().GetPosition(), f, [] (const ICollidable& c)
+		{
+			return c.GetCollidableType() == CollidableTypes::Object;
+		});
+	}
+	
 	void RocketTurret::OnSpawned(GameWorld& gameWorld)
 	{
 		m_baseRotation = GetTransform().GetRotation();
@@ -193,11 +200,19 @@ namespace TankGame
 		if (gameWorld.GetWorldType() == GameWorld::Types::Game)
 			m_ambienceSource.Play(0.75f, 1.0f);
 		
-		SetLength(gameWorld.GetTileGrid()->GetDistanceToWall(*gameWorld.GetTileGridMaterial(),
-		                                                     GetTransform().GetPosition(),
-		                                                     GetTransform().GetForward()));
-		
 		RayLightEntity::OnSpawned(gameWorld);
+		
+		SetLength(CalcLength(nullptr));
+	}
+	
+	ColliderInfo RocketTurret::GetColliderInfo() const
+	{
+		return GetTransform().GetInscribedCircle();
+	}
+	
+	CollidableTypes RocketTurret::GetCollidableType() const
+	{
+		return CollidableTypes::Npc;
 	}
 	
 	Circle RocketTurret::GetHitCircle() const
@@ -208,11 +223,7 @@ namespace TankGame
 	void RocketTurret::HandleEvent(const std::string& event, Entity* sender)
 	{
 		if (event == "EditorMoved")
-		{
-			SetLength(GetGameWorld()->GetTileGrid()->GetDistanceToWall(*GetGameWorld()->GetTileGridMaterial(),
-			                                                           GetTransform().GetPosition(),
-			                                                           GetTransform().GetForward()));
-		}
+			SetLength(CalcLength(nullptr));
 	}
 	
 	void RocketTurret::OnKilled()

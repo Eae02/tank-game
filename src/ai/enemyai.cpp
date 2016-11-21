@@ -181,7 +181,7 @@ namespace TankGame
 	
 	bool EnemyAI::IsPointVisible(glm::vec2 point) const
 	{
-		return !m_gameWorld->IsRayObstructed(point, m_entity.GetTransform().GetPosition());
+		return !m_gameWorld->IsRayObstructed(point, m_entity.GetTransform().GetPosition(), ICollidable::IsObject);
 	}
 	
 	void EnemyAI::WalkPath(float dt, const Path& path, float& progress, bool modulate)

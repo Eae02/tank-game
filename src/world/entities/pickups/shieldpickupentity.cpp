@@ -1,6 +1,7 @@
 #include "shieldpickupentity.h"
 #include "../playerentity.h"
 #include "../../../audio/soundeffectplayer.h"
+#include "../../../utils/utils.h"
 
 namespace TankGame
 {

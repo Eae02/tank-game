@@ -131,9 +131,9 @@ namespace TankGame
 		return Entity::Serialize();
 	}
 	
-	IntersectInfo TankEntity::GetIntersectInfo(const Circle& circle) const
+	ColliderInfo TankEntity::GetColliderInfo() const
 	{
-		return GetTransform().GetBoundingCircle().GetIntersectInfo(circle);
+		return GetTransform().GetBoundingCircle();
 	}
 	
 	void TankEntity::RenderProperties()

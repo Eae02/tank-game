@@ -55,6 +55,7 @@ namespace TankGame
 	std::unique_ptr<Entity> PointLightEntity::Clone() const
 	{
 		auto clone = std::make_unique<PointLightEntity>(GetColor(), GetIntensity(), GetAttenuation(), GetHeight());
+		clone->SetFlickers(Flickers());
 		clone->GetTransform() = GetTransform();
 		clone->SetShadowMode(GetShadowMode());
 		return clone;

@@ -1,5 +1,8 @@
 #include "circle.h"
+#include "utils/mathutils.h"
+
 #include <cmath>
+#include <limits>
 
 namespace TankGame
 {
@@ -35,5 +38,31 @@ namespace TankGame
 		}
 		
 		return intersectInfo;
+	}
+	
+	float Circle::GetRayIntersectionDistance(glm::vec2 start, glm::vec2 direction) const
+	{
+		glm::vec2 toCenter = start - m_center;
+		
+		float a = LengthSquared(direction);
+		float b = 2 * glm::dot(direction, toCenter);
+		float c = LengthSquared(toCenter) - m_radius * m_radius;
+		
+		float det = b * b - 4 * a * c;
+		if (det < 0)
+			return std::numeric_limits<float>::quiet_NaN();
+		
+		float dist1 = (-b + std::sqrt(det)) / (2 * a);
+		float dist2 = (-b - std::sqrt(det)) / (2 * a);
+		
+		if (dist1 < 0 && dist2 < 0)
+			return std::numeric_limits<float>::quiet_NaN();
+		
+		if (dist1 < 0)
+			return dist2;
+		if (dist2 < 0)
+			return dist1;
+		
+		return glm::min(dist1, dist2);
 	}
 }

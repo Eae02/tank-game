@@ -34,6 +34,12 @@ namespace TankGame
 		
 		IntersectInfo GetIntersectInfo(const Circle& other) const;
 		
+		/*
+			Returns the distance along the ray to the first intersection
+			with the circle, or NaN if there is no intersection.
+		*/
+		float GetRayIntersectionDistance(glm::vec2 start, glm::vec2 direction) const;
+		
 	private:
 		glm::vec2 m_center;
 		float m_radius;

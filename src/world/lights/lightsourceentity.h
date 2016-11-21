@@ -40,6 +40,8 @@ namespace TankGame
 		{ m_height = height; }
 		
 		void SetFlickers(bool flickers);
+		inline bool Flickers() const
+		{ return m_flickers; }
 		
 		virtual ShadowMap* GetShadowMap() const override;
 		void SetShadowMode(EntityShadowModes mode);

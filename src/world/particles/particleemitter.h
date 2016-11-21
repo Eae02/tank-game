@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <random>
+#include <limits>
 
 namespace TankGame
 {
@@ -91,7 +92,7 @@ namespace TankGame
 		const Texture2DArray* m_textureArray = nullptr;
 		std::uniform_int_distribution<int> m_layerDist;
 		
-		double m_lastEmissionTime = std::nan("");
+		double m_lastEmissionTime = std::numeric_limits<float>::quiet_NaN();
 		
 		float m_emissionRate = 10; //The number of particles to spawn per second.
 		

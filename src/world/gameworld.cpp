@@ -7,8 +7,9 @@
 #include "../utils/utils.h"
 
 #include <glm/gtc/constants.hpp>
-#include <algorithm>
 #include <GLFW/glfw3.h>
+#include <algorithm>
+#include <limits>
 
 namespace TankGame
 {
@@ -110,23 +111,33 @@ namespace TankGame
 		return { };
 	}
 	
-	void GameWorld::CheckEntityIntersection(const Circle& circle, const Entity& entity, IntersectInfo& intersectInfo) const
+	float GameWorld::GetTileRayIntersectionDistance(glm::vec2 start, glm::vec2 direction) const
 	{
-		IntersectInfo entityIntersectInfo = entity.GetIntersectInfo(circle);
-		if (entityIntersectInfo.m_intersects)
+		if (m_tileGrid == nullptr || m_tileGridMaterial == nullptr)
+			return std::numeric_limits<float>::quiet_NaN();
+		return m_tileGrid->GetDistanceToWall(*m_tileGridMaterial, start, direction);
+	}
+	
+	void GameWorld::CheckIntersection(const ICollidable& collidable, const Circle& circle,
+	                                  IntersectInfo& intersectInfo) const
+	{
+		IntersectInfo collidableIntersectInfo = collidable.GetColliderInfo().GetIntersectInfo(circle);
+		
+		if (collidableIntersectInfo.m_intersects)
 		{
 			if (intersectInfo.m_intersects)
-				intersectInfo.m_penetration += entityIntersectInfo.m_penetration;
+				intersectInfo.m_penetration += collidableIntersectInfo.m_penetration;
 			else
-				intersectInfo = entityIntersectInfo;
+				intersectInfo = collidableIntersectInfo;
 		}
 	}
 	
-	float GameWorld::GetRayIntersectionDistance(glm::vec2 start, glm::vec2 end) const
+	void GameWorld::CheckRayIntersection(const ICollidable& collidable, glm::vec2 start, glm::vec2 dir,
+	                                     float& dist) const
 	{
-		if (m_tileGrid != nullptr && m_tileGridMaterial != nullptr)
-			return m_tileGrid->GetRayIntersectionDistance(*m_tileGridMaterial, start, end);
-		return 0;
+		float intersectDist = collidable.GetColliderInfo().GetRayIntersectionDistance(start, dir);
+		if (!std::isnan(intersectDist) && (std::isnan(dist) || intersectDist < dist))
+			dist = intersectDist;
 	}
 	
 	void GameWorld::ShakeCamera(double time, float amount)
@@ -170,19 +181,6 @@ namespace TankGame
 			m_tileShadowCastersBuffer.Construct(TileShadowCastersBuffer(*m_tileGrid, *m_tileGridMaterial));
 		else
 			m_tileShadowCastersBuffer.Destroy();
-	}
-	
-	bool GameWorld::IsRayObstructed(glm::vec2 start, glm::vec2 end) const
-	{
-		if (m_tileGrid != nullptr && m_tileGridMaterial != nullptr &&
-		    m_tileGrid->IsRayObstructed(*m_tileGridMaterial, start, end))
-		{
-			return true;
-		}
-		
-		Rectangle searchArea = Rectangle::FromMinMax(start, end);
-		
-		return false;
 	}
 	
 	nlohmann::json GameWorld::Serialize() const

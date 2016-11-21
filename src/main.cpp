@@ -5,6 +5,8 @@
 #include "utils/ioutils.h"
 #include "graphics/ui/font.h"
 
+#include "orientedrectangle.h"
+
 #include <cstring>
 #include <iostream>
 

@@ -39,8 +39,6 @@ namespace TankGame
 			SetShadowMode(EntityShadowModes::Dynamic);
 		else
 			SetShadowMode(EntityShadowModes::None);
-		
-		SetSolidType(SolidTypes::Npc);
 	}
 	
 	void SpiderBot::Draw(SpriteRenderList& spriteRenderList) const
@@ -132,7 +130,8 @@ namespace TankGame
 			glm::vec2 toPlayer = m_player->GetTransform().GetPosition() - GetTransform().GetPosition();
 			
 			if (LengthSquared(toPlayer) < DETECT_DISTANCE * DETECT_DISTANCE &&
-			    !GetGameWorld()->IsRayObstructed(GetTransform().GetPosition(), m_player->GetTransform().GetPosition()))
+			    !GetGameWorld()->IsRayObstructed(GetTransform().GetPosition(), m_player->GetTransform().GetPosition(),
+			                                     ICollidable::IsObject))
 			{
 				m_isAwake = true;
 				soundEffectPlayer.Play(GetTransform().GetPosition(), 1.0f, 1.0f, 0.2f);

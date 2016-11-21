@@ -83,10 +83,10 @@ namespace TankGame
 		const float CIRCLE_RADIUS = 0.1f;
 		Circle circle(GetTransform().GetPosition(), CIRCLE_RADIUS);
 		
-		//Checks for intersections with tiles and object type entities
-		IntersectInfo intersectInfo = GetGameWorld()->GetIntersectInfo(circle, [] (const Entity& entity)
+		//Checks for intersections with tiles and object type collidable entities
+		IntersectInfo intersectInfo = GetGameWorld()->GetIntersectInfo(circle, [] (const ICollidable& collidable)
 		{
-			return entity.GetSolidType() == SolidTypes::Object;
+			return collidable.GetCollidableType() == CollidableTypes::Object;
 		});
 		
 		if (intersectInfo.m_intersects)

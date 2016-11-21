@@ -1,5 +1,6 @@
 #include "pickupentity.h"
 #include "../playerentity.h"
+#include "../../icollidable.h"
 #include "../../gameworld.h"
 #include "../../../utils/mathutils.h"
 #include "../../../utils/utils.h"
@@ -57,10 +58,10 @@ namespace TankGame
 		if (glm::dot(m_velocity, m_velocity) > 1E-6)
 		{
 			IntersectInfo intersectInfo = GetGameWorld()->GetIntersectInfo(GetTransform().GetBoundingCircle(),
-			                                                               [] (const Entity& entity)
+			                                                               [] (const ICollidable& collidable)
 			{
-				//The pickup should only collide with object type entities
-				return entity.GetSolidType() == Entity::SolidTypes::Object;
+				//The pickup should only collide with object collidables
+				return collidable.GetCollidableType() == CollidableTypes::Object;
 			});
 			
 			if (intersectInfo.m_intersects)

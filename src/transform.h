@@ -32,6 +32,7 @@ namespace TankGame
 		{ return m_scale; }
 		
 		Circle GetBoundingCircle() const;
+		Circle GetInscribedCircle() const;
 		
 		void SetRotation(float rotation);
 		void SetPosition(glm::vec2 position);

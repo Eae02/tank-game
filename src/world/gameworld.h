@@ -3,6 +3,7 @@
 #include "entity.h"
 #include "quadtree/quadtree.h"
 #include "tilegrid.h"
+#include "icollidable.h"
 #include "intersectinfo.h"
 #include "entitiesmanager.h"
 #include "particles/particlesmanager.h"
@@ -88,30 +89,59 @@ namespace TankGame
 		void UpdateTileShadowCasters();
 		
 		// ** Intersections and collision detection **
-		bool IsRayObstructed(glm::vec2 start, glm::vec2 end) const;
+		inline bool IsRayObstructed(glm::vec2 start, glm::vec2 end)
+		{ return IsRayObstructed(start, end, [] (const ICollidable&) { return true; }); }
+		
+		template <typename IgnoreCBType>
+		bool IsRayObstructed(glm::vec2 start, glm::vec2 end, IgnoreCBType ignoreCB) const
+		{
+			float dist = glm::distance(start, end);
+			float intersectDist = GetRayIntersectionDistance(start, (end - start) / dist, ignoreCB);
+			return !std::isnan(intersectDist) && intersectDist < dist;
+		}
 		
 		IntersectInfo GetTileIntersectInfo(const Circle& circle) const;
 		
 		inline IntersectInfo GetIntersectInfo(const Circle& circle)
 		{
-			return GetIntersectInfo(circle, [] (const Entity&) { return false; });
+			return GetIntersectInfo(circle, [] (const ICollidable&) { return true; });
 		}
 		
 		template <typename IgnoreCBType>
-		IntersectInfo GetIntersectInfo(const Circle& circle, IgnoreCBType includeCB) const
+		IntersectInfo GetIntersectInfo(const Circle& circle, IgnoreCBType ignoreCB) const
 		{
 			IntersectInfo intersectInfo = GetTileIntersectInfo(circle);
 			
 			IterateIntersectingEntities(circle.GetBoundingRectangle(), [&] (const Entity& entity)
 			{
-				if (includeCB(entity))
-					CheckEntityIntersection(circle, entity, intersectInfo);
+				const ICollidable* collidable = entity.AsCollidable();
+				if (collidable != nullptr && ignoreCB(*collidable))
+					CheckIntersection(*collidable, circle, intersectInfo);
 			});
 			
 			return intersectInfo;
 		}
 		
-		float GetRayIntersectionDistance(glm::vec2 start, glm::vec2 end) const;
+		float GetTileRayIntersectionDistance(glm::vec2 start, glm::vec2 direction) const;
+		
+		inline float GetRayIntersectionDistance(glm::vec2 start, glm::vec2 direction) const
+		{
+			return GetRayIntersectionDistance(start, direction, [] (const ICollidable&) { return true; });
+		}
+		
+		template <typename IgnoreCBType>
+		float GetRayIntersectionDistance(glm::vec2 start, glm::vec2 direction, IgnoreCBType includeCB) const
+		{
+			float dist = GetTileRayIntersectionDistance(start, direction);
+			
+			IterateCollidable([&] (const ICollidable& collidable)
+			{
+				if (includeCB(collidable))
+					CheckRayIntersection(collidable, start, direction, dist);
+			});
+			
+			return dist;
+		}
 		
 		inline const TileShadowCastersBuffer* GetTileShadowCastersBuffer() const
 		{ return m_tileShadowCastersBuffer.Get(); }
@@ -151,7 +181,10 @@ namespace TankGame
 		
 	private:
 		//Helper function to detemplatize GetIntersectInfo
-		void CheckEntityIntersection(const Circle& circle, const Entity& entity, IntersectInfo& intersectInfo) const;
+		void CheckIntersection(const ICollidable& collidable, const Circle& circle, IntersectInfo& intersectInfo) const;
+		
+		//Helper functions to detemplatize GetRayIntersectionDistance
+		void CheckRayIntersection(const ICollidable& collidable, glm::vec2 start, glm::vec2 dir, float& dist) const;
 		
 		struct EventListenerEntry
 		{

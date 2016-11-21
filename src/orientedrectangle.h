@@ -22,6 +22,12 @@ namespace TankGame
 		
 		bool Contains(glm::vec2 point) const;
 		
+		/*
+			Returns the distance along the ray to the first intersection
+			with the rectangle, or NaN if there is no intersection.
+		*/
+		float GetRayIntersectionDistance(glm::vec2 start, glm::vec2 direction) const;
+		
 	private:
 		glm::vec2 m_edgeNormals[4];
 		glm::vec2 m_edgePositions[4];

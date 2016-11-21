@@ -34,7 +34,7 @@ namespace TankGame
 		
 		glm::vec2 center = GetCenterPos();
 		
-		OrientedRectangle rectangle(center, glm::vec2(0.5f, GetLength()), GetTransform().GetRotation());
+		OrientedRectangle rectangle(center, glm::vec2(0.5f, GetLength() / 2.0f), GetTransform().GetRotation());
 		
 		if (rectangle.GetIntersectInfo(m_playerEntity->GetHitCircle()).m_intersects)
 		{

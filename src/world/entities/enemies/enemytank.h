@@ -31,6 +31,8 @@ namespace TankGame
 		
 		static Transform GetBaseCannonTransform();
 		
+		virtual CollidableTypes GetCollidableType() const override;
+		
 		virtual std::unique_ptr<Entity> Clone() const override;
 		
 		virtual const char* GetSerializeClassName() const override;

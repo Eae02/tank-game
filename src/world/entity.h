@@ -6,6 +6,7 @@
 #include "../editor/properties/ipropertiesobject.h"
 #include "../transform.h"
 #include "../utils/abstract.h"
+#include "../colliderinfo.h"
 
 #include <json.hpp>
 #include <glm/glm.hpp>
@@ -15,13 +16,6 @@ namespace TankGame
 	class Entity : public IQuadTreeEntry, public ITransformationProvider, public IPropertiesObject
 	{
 	public:
-		enum class SolidTypes
-		{
-			Object,
-			Npc,
-			Player
-		};
-		
 		class IUpdateable : public Abstract
 		{
 		public:
@@ -52,9 +46,6 @@ namespace TankGame
 		
 		void Despawn();
 		
-		inline SolidTypes GetSolidType() const
-		{ return m_solidType; }
-		
 		virtual const Transform& GetTransform() const final override
 		{ return m_transform; }
 		inline Transform& GetTransform()
@@ -78,6 +69,8 @@ namespace TankGame
 		{ return nullptr; }
 		virtual const IDistortionDrawable* AsDistortionDrawable() const
 		{ return nullptr; }
+		virtual const class ICollidable* AsCollidable() const
+		{ return nullptr; }
 		virtual IUpdateable* AsUpdatable()
 		{ return nullptr; }
 		
@@ -85,9 +78,6 @@ namespace TankGame
 		{ return nullptr; }
 		virtual class Hittable* AsHittable()
 		{ return nullptr; }
-		
-		virtual IntersectInfo GetIntersectInfo(const Circle& circle) const
-		{ return { }; }
 		
 		inline void SetEditorVisible(bool editorVisible)
 		{ m_editorVisible = editorVisible; }
@@ -106,16 +96,11 @@ namespace TankGame
 		virtual const char* GetObjectName() const override;
 		
 	protected:
-		inline void SetSolidType(SolidTypes solidType)
-		{ m_solidType = solidType; }
-		
 		inline void RenderTransformProperty()
 		{ RenderTransformProperty(Transform::Properties::All); }
 		void RenderTransformProperty(Transform::Properties propertiesToShow);
 		
 	private:
-		SolidTypes m_solidType = SolidTypes::Object;
-		
 		class GameWorld* m_world = nullptr;
 		
 		Transform m_transform;

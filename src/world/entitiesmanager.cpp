@@ -10,6 +10,8 @@ namespace TankGame
 	{
 		if (Entity::IUpdateable* updateable = entity->AsUpdatable())
 			m_updateableEntities.push_back(updateable);
+		if (const ICollidable* collidable = entity->AsCollidable())
+			m_collidableEntities.push_back(collidable);
 		if (ParticleSystemEntityBase* psEntity = dynamic_cast<ParticleSystemEntityBase*>(entity.get()))
 			m_particleSystemEntities.push_back(psEntity);
 		
@@ -101,7 +103,7 @@ namespace TankGame
 	}
 	
 	template <typename Tp>
-	static void MaybeRemoveFromEntityList(const Tp* entity, std::vector<Tp*>& vec)
+	static void MaybeRemoveFromEntityList(Tp* entity, std::vector<Tp*>& vec)
 	{
 		if (entity == nullptr)
 			return;
@@ -121,7 +123,8 @@ namespace TankGame
 		m_entities[index].m_entity->OnDespawning();
 		
 		MaybeRemoveFromEntityList(m_entities[index].m_entity->AsUpdatable(), m_updateableEntities);
-		MaybeRemoveFromEntityList(dynamic_cast<const ParticleSystemEntityBase*>(m_entities[index].m_entity.get()),
+		MaybeRemoveFromEntityList(m_entities[index].m_entity->AsCollidable(), m_collidableEntities);
+		MaybeRemoveFromEntityList(dynamic_cast<ParticleSystemEntityBase*>(m_entities[index].m_entity.get()),
 		                          m_particleSystemEntities);
 		
 		OnEntityDespawn(*m_entities[index].m_entity);

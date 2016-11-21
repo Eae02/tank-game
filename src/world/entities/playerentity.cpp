@@ -64,8 +64,6 @@ namespace TankGame
 			
 			s_areTexturesLoaded = true;
 		}
-		
-		SetSolidType(SolidTypes::Player);
 	}
 	
 	void PlayerEntity::Update(const UpdateInfo& updateInfo)
@@ -120,13 +118,15 @@ namespace TankGame
 		m_velocity += (force / MASS) * updateInfo.m_dt;
 		m_rotationVelocity += (rotForce / MASS) * updateInfo.m_dt;
 		
+		glm::vec2 groundVelocity;
+		
 		GetGameWorld()->IterateIntersectingEntities(Rectangle::CreateCentered(GetTransform().GetPosition(), 1, 1),
 		                                            [&] (const Entity& entity)
 		{
 			const ConveyorBeltEntity* conveyorBelt = dynamic_cast<const ConveyorBeltEntity*>(&entity);
 			
 			if (conveyorBelt != nullptr)
-				m_velocity += conveyorBelt->GetPushVector(GetTransform().GetPosition());
+				groundVelocity += conveyorBelt->GetPushVector(GetTransform().GetPosition());
 		});
 		
 		//Caps the speed of the tank, this is to stop physics from breaking at low framerates
@@ -141,14 +141,14 @@ namespace TankGame
 		
 		//Updates the tank's position
 		GetTransform().Rotate((m_rotationVelocity + oldRotVelocity) * 0.5f * updateInfo.m_dt);
-		GetTransform().Translate((m_velocity + oldVelocity) * 0.5f * updateInfo.m_dt);
+		GetTransform().Translate(((m_velocity + oldVelocity) * 0.5f + groundVelocity) * updateInfo.m_dt);
 		
 		//Collision correction
 		Circle circle = GetTransform().GetBoundingCircle();
 		circle.SetRadius(circle.GetRadius() * 0.8f);
-		IntersectInfo intersectInfo = GetGameWorld()->GetIntersectInfo(circle, [] (const Entity& entity)
+		IntersectInfo intersectInfo = GetGameWorld()->GetIntersectInfo(circle, [] (const ICollidable& collidable)
 		{
-			return entity.GetSolidType() != SolidTypes::Player;
+			return collidable.GetCollidableType() != CollidableTypes::Player;
 		});
 		if (intersectInfo.m_intersects)
 			GetTransform().Translate(-intersectInfo.m_penetration);
@@ -241,6 +241,11 @@ namespace TankGame
 	{
 		const float INTERACT_DIST = 0.5f;
 		return Rectangle::CreateCentered(GetTransform().GetPosition(), INTERACT_DIST, INTERACT_DIST);
+	}
+	
+	CollidableTypes PlayerEntity::GetCollidableType() const
+	{
+		return CollidableTypes::Player;
 	}
 	
 	const char* PlayerEntity::GetObjectName() const
