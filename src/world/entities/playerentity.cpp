@@ -68,6 +68,8 @@ namespace TankGame
 	
 	void PlayerEntity::Update(const UpdateInfo& updateInfo)
 	{
+		m_powerUpState.Update(updateInfo.m_dt);
+		
 		glm::vec2 forward = GetTransform().GetForward();
 		
 		glm::vec2 force(0.0f);
@@ -168,8 +170,12 @@ namespace TankGame
 			
 			if (hasEnoughEnergy)
 			{
-				FirePlasmaGun(ParseColorHexCodeSRGB(0x50FF4A), 10, updateInfo.m_gameTime,
-				              m_dist(randomGen) * glm::length(m_velocity) * 0.03f);
+				FireParameters fireParams;
+				
+				fireParams.m_rotationOffset = m_dist(randomGen) * glm::length(m_velocity) * 0.03f;
+				fireParams.m_homing = HasPowerUp(PowerUps::HomingBullets);
+				
+				FirePlasmaGun(ParseColorHexCodeSRGB(0x50FF4A), 10, updateInfo.m_gameTime, fireParams);
 				
 				m_energy -= fireCost;
 				m_energyRegenTime = 0;

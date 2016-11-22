@@ -32,9 +32,15 @@ namespace TankGame
 		inline void SetCannonRotation(float rotation)
 		{ m_cannonTransform.SetRotation(rotation); }
 		
+		struct FireParameters
+		{
+			float m_rotationOffset = 0;
+			bool m_homing = false;
+		};
+		
 		bool CanFire(float gameTime) const;
-		void FirePlasmaGun(glm::vec3 bulletColor, float damage, float gameTime, float rotationOffset = 0.0f);
-		void FireRocket(float damage, float gameTime);
+		void FirePlasmaGun(glm::vec3 bulletColor, float damage, float gameTime, const FireParameters& params);
+		void FireRocket(float damage, float gameTime, const FireParameters& params);
 		
 		inline void AdvanceFrame(float delta)
 		{ m_frame += delta; }

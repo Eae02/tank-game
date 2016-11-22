@@ -113,12 +113,22 @@ namespace TankGame
 	
 	void Window::LoadLevel(const std::string& name)
 	{
+		m_gameManager->SetLevel([&] {
+			try
+			{
+				return Level::FromName(name);
+			}
+			catch (const std::exception& ex)
+			{
+				throw Console::CommandException(ex.what());
+			}
+		}());
+		
 		m_menuManager->Hide();
 		if (!m_editor.IsNull())
 			m_editor->Close();
 		
 		m_gameTime = 0;
-		m_gameManager->SetLevel(Level::FromName(name));
 	}
 	
 	void Window::EditLevel(const std::string& name)
@@ -168,6 +178,18 @@ namespace TankGame
 			if (m_gameManager->GetLevel() == nullptr)
 				throw Console::CommandException("No level loaded.");
 			m_gameManager->GetLevel()->GetGameWorld().SendEvent(argv[0], nullptr);
+		}, 1);
+		
+		m_console.AddCommand("powerup", [&] (const std::string* argv, size_t argc)
+		{
+			if (m_gameManager->GetLevel() == nullptr)
+				throw Console::CommandException("No level loaded.");
+			
+			int powerUpID = std::stoi(argv[0]);
+			if (powerUpID < 0 || powerUpID >= POWER_UP_COUNT)
+				throw Console::CommandException("Invalid power up id: " + argv[0] + ".");
+			
+			m_gameManager->GetLevel()->GetPlayerEntity().GivePowerUp(static_cast<PowerUps>(powerUpID));
 		}, 1);
 		
 		m_console.AddCommand("edit", [&] (const std::string* argv, size_t argc) { EditLevel(argv[0]); }, 1);
@@ -400,10 +422,10 @@ namespace TankGame
 		
 		glDisable(GL_BLEND);
 	}
-
+	
 	void Window::SetIsCursorCaptured(bool shouldCapture)
 	{
-		if (shouldCapture == m_isCursorCaptured)
+		if (shouldCapture == m_isCursorCaptured || m_argumentData.m_noCursorGrab)
 			return;
 		m_isCursorCaptured = shouldCapture;
 		
@@ -504,17 +526,17 @@ namespace TankGame
 			if (!m_loadingScreen.IsNull())
 			{
 				m_loadingScreen->RunFrame();
-
+				
 				if (m_loadingScreen->IsLoadingDone())
 				{
 					m_loadingScreen.Destroy();
-
+					
 					double beforeInitialize = glfwGetTime();
-
+					
 					Initialize();
 					glfwGetWindowSize(m_window, &width, &height);
 					ResizeCallback(m_window, width, height);
-
+					
 					GetLogStream() << "Initializing took " << (glfwGetTime() - beforeInitialize) << "s\n";
 				}
 			}

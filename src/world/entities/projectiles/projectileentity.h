@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../entity.h"
+#include "../../entityhandle.h"
 
 namespace TankGame
 {
@@ -16,6 +17,11 @@ namespace TankGame
 		{ return m_teamID; }
 		inline float GetDamage() const
 		{ return m_damage; }
+		
+		inline void SetIsHoming(bool isHoming)
+		{ m_isHoming = isHoming; }
+		inline bool IsHoming() const
+		{ return m_isHoming; }
 		
 	protected:
 		enum ImpactFlags
@@ -33,6 +39,11 @@ namespace TankGame
 		virtual void OnDeflected(glm::vec2 deflectionPos) { }
 		
 	private:
+		bool SearchForHomeTarget();
+		
+		bool m_isHoming = false;
+		EntityHandle m_homeTarget;
+		
 		int m_teamID;
 		const Entity* m_sourceEntity;
 		

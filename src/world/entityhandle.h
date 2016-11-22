@@ -11,6 +11,8 @@ namespace TankGame
 	public:
 		inline EntityHandle() : m_manager(nullptr) { }
 		
+		EntityHandle(class EntitiesManager& manager, const class Entity& entity);
+		
 		inline bool IsNull() const
 		{ return m_manager == nullptr; }
 		

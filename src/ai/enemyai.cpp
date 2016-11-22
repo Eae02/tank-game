@@ -67,9 +67,9 @@ namespace TankGame
 				if (m_entity.CanFire(updateInfo.m_gameTime))
 				{
 					if (m_entity.IsRocketTank())
-						m_entity.FireRocket(35, updateInfo.m_gameTime);
+						m_entity.FireRocket(35, updateInfo.m_gameTime, { });
 					else
-						m_entity.FirePlasmaGun(ParseColorHexCodeSRGB(0xFF564A), 5, updateInfo.m_gameTime);
+						m_entity.FirePlasmaGun(ParseColorHexCodeSRGB(0xFF564A), 5, updateInfo.m_gameTime, { });
 				}
 				
 				double time = glfwGetTime();

@@ -20,11 +20,14 @@ static ArgumentData ParseArguments(int argc, const char** argv)
 {
 	ArgumentData argumentData;
 	argumentData.m_profiling = false;
+	argumentData.m_noCursorGrab = false;
 	
 	for (int i = 1; i < argc; i++)
 	{
 		if (strcmp(argv[i], "-prof") == 0)
 			argumentData.m_profiling = true;
+		if (strcmp(argv[i], "-nocursorgrab") == 0)
+			argumentData.m_noCursorGrab = true;
 	}
 	
 	return argumentData;

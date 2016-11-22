@@ -22,6 +22,45 @@ namespace TankGame
 		return false;
 	}
 	
+	bool ProjectileEntity::SearchForHomeTarget()
+	{
+		const float TARGET_MAX_DISTANCE = 10;
+		Rectangle targetSearchArea = Rectangle::CreateCentered(GetTransform().GetPosition() +
+		                                                       GetTransform().GetForward() * TARGET_MAX_DISTANCE * 0.5f,
+		                                                       TARGET_MAX_DISTANCE, TARGET_MAX_DISTANCE);
+		
+		Entity* homeTarget = nullptr;
+		float distToHomeTargetSq;
+		
+		GetGameWorld()->IterateIntersectingEntities(targetSearchArea, [&] (Entity& entity)
+		{
+			const Hittable* hittable = entity.AsHittable();
+			if (hittable == nullptr || hittable->GetTeamID() == m_teamID || &entity == m_sourceEntity)
+				return;
+			
+			float distToTargetSq = LengthSquared(entity.GetTransform().GetPosition() - GetTransform().GetPosition());
+			
+			if (homeTarget == nullptr || distToHomeTargetSq < distToTargetSq)
+			{
+				//Checks that there are no walls between the target and the projectile.
+				if (!GetGameWorld()->IsRayObstructed(GetTransform().GetPosition(), entity.GetTransform().GetPosition(),
+				                                     ICollidable::IsObject))
+				{
+					homeTarget = &entity;
+					distToHomeTargetSq = distToTargetSq;
+				}
+			}
+		});
+		
+		if (homeTarget != nullptr)
+		{
+			m_homeTarget = { *GetGameWorld(), *homeTarget };
+			return true;
+		}
+		
+		return false;
+	}
+	
 	void ProjectileEntity::Update(const UpdateInfo& updateInfo)
 	{
 		glm::vec2 oldPos = GetTransform().GetPosition();
@@ -78,6 +117,18 @@ namespace TankGame
 			m_hasDeflected = true;
 			m_damage *= 0.5f;
 			return;
+		}
+		
+		if (m_isHoming && (m_homeTarget.IsAlive() || SearchForHomeTarget()))
+		{
+			const float HOME_FACTOR = 20;
+			
+			glm::vec2 toTarget = m_homeTarget->GetTransform().GetPosition() - GetTransform().GetPosition();
+			float targetRotation = glm::half_pi<float>() + std::atan2(toTarget.y, toTarget.x);
+			
+			float rotation = GetTransform().GetRotation();
+			UpdateTransition(rotation, targetRotation, HOME_FACTOR * updateInfo.m_dt / glm::length(toTarget));
+			GetTransform().SetRotation(rotation);
 		}
 		
 		const float CIRCLE_RADIUS = 0.1f;

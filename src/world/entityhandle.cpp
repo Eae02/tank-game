@@ -3,6 +3,24 @@
 
 namespace TankGame
 {
+	EntityHandle::EntityHandle(EntitiesManager& manager, const Entity& entity)
+	{
+		auto pos = std::find_if(manager.m_entities.begin(), manager.m_entities.end(), [&] (const auto& e)
+		{
+			return e.m_entity.get() == &entity;
+		});
+		
+		if (pos == manager.m_entities.end())
+		{
+			m_manager = nullptr;
+			return;
+		}
+		
+		m_manager = &manager;
+		m_id = pos->m_id;
+		m_lastIndex = pos - manager.m_entities.begin();
+	}
+	
 	Entity* EntityHandle::Get() const
 	{
 		if (m_manager == nullptr)

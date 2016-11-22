@@ -98,9 +98,12 @@ namespace TankGame
 	
 	static std::uniform_real_distribution<float> pitchDist(1.0f, 1.0f);
 	
-	void TankEntity::FirePlasmaGun(glm::vec3 bulletColor, float damage, float gameTime, float rotationOffset)
+	void TankEntity::FirePlasmaGun(glm::vec3 bulletColor, float damage, float gameTime, const FireParameters& params)
 	{
-		Fire(std::make_unique<PlasmaBulletEntity>(bulletColor, m_teamID, this, damage), gameTime, rotationOffset);
+		auto projectile = std::make_unique<PlasmaBulletEntity>(bulletColor, m_teamID, this, damage);
+		projectile->SetIsHoming(params.m_homing);
+		
+		Fire(std::move(projectile), gameTime, params.m_rotationOffset);
 		
 		m_audioSource.SetBuffer(SoundsManager::GetInstance().GetSound("PlasmaGun"));
 		m_audioSource.Play(1, pitchDist(randomGen));
@@ -108,9 +111,12 @@ namespace TankGame
 		m_fireCooldown = 0.25f;
 	}
 	
-	void TankEntity::FireRocket(float damage, float gameTime)
+	void TankEntity::FireRocket(float damage, float gameTime, const FireParameters& params)
 	{
-		Fire(std::make_unique<RocketEntity>(GetGameWorld()->GetParticlesManager(), m_teamID, this, damage), gameTime, 0.0f);
+		auto projectile = std::make_unique<RocketEntity>(GetGameWorld()->GetParticlesManager(), m_teamID, this, damage);
+		projectile->SetIsHoming(params.m_homing);
+		
+		Fire(std::move(projectile), gameTime, params.m_rotationOffset);
 		
 		m_fireCooldown = 1.5f;
 	}
