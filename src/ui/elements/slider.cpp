@@ -20,6 +20,9 @@ namespace TankGame
 	StackObject<Texture2D> Slider::s_knobTexture;
 	StackObject<Texture2D> Slider::s_labelTexture;
 	
+	float Slider::s_labelTextureAR;
+	float Slider::s_labelStringAR;
+	
 	Slider::Slider(float min, float max, float snap)
 	    : m_min(min), m_max(max), m_snap(snap / (max - min))
 	{
@@ -33,6 +36,9 @@ namespace TankGame
 		{
 			s_labelTexture.Construct(Texture2D::FromFile(GetResDirectory() / "ui" / "slider-label.png"));
 			CallOnClose([] { s_labelTexture.Destroy(); });
+			
+			s_labelTextureAR = s_labelTexture->GetHeight() / static_cast<float>(s_labelTexture->GetWidth());;
+			s_labelStringAR = (s_labelTexture->GetHeight() - 16.0f) / static_cast<float>(s_labelTexture->GetWidth());
 		}
 	}
 	
@@ -50,7 +56,7 @@ namespace TankGame
 		if (!updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
 			m_isMoving = false;
 		
-		UpdateTransition(m_labelOpacity, m_isMoving ? 1.0f : 0.0f, updateInfo.m_dt * 10.0f);
+		UpdateTransition(m_grabbedTProgress, m_isMoving ? 1.0f : 0.0f, updateInfo.m_dt * 10.0f);
 		
 		if (m_isMoving)
 		{
@@ -82,27 +88,29 @@ namespace TankGame
 	{
 		uiRenderer.DrawRectangle(m_rectangle, glm::vec4(glm::vec4(ParseColorHexCodeSRGB(0x242424), 0.6f)));
 		
-		Rectangle knobRectangle = Rectangle::CreateCentered(m_rectangle.x + WIDTH * m_position,
-		                                                    m_rectangle.CenterY(), KNOB_SIZE, KNOB_SIZE);
-		
-		glm::vec3 selectionColor = ParseColorHexCodeSRGB(0xED7F09);
-		
+		const glm::vec3 selectionColor = ParseColorHexCodeSRGB(0xED7F09);
 		uiRenderer.DrawRectangle(Rectangle(m_rectangle.NearPos(), WIDTH * m_position, m_rectangle.h),
 		                         glm::vec4(selectionColor, 1.0f));
 		
-		if (m_labelOpacity < 1.0f - 1E-6f)
-			uiRenderer.DrawSprite(*s_knobTexture, knobRectangle, glm::vec4(selectionColor, 1.0f - m_labelOpacity));
+		float knobSize = KNOB_SIZE * (1.0f - m_grabbedTProgress);
+		Rectangle knobRectangle = Rectangle::CreateCentered(m_rectangle.x + WIDTH * m_position,
+		                                                    m_rectangle.CenterY(), knobSize, knobSize);
 		
-		if (m_labelOpacity > 1E-6)
+		if (m_grabbedTProgress < 1.0f - 1E-6f)
+			uiRenderer.DrawSprite(*s_knobTexture, knobRectangle, glm::vec4(selectionColor, 1.0f - m_grabbedTProgress));
+		
+		if (m_grabbedTProgress > 1E-6)
 		{
 			Rectangle labelRectangle(knobRectangle.CenterX() - LABEL_SIZE / 2.0f, m_rectangle.FarY() + 2,
-			                         LABEL_SIZE, LABEL_SIZE * (s_labelTexture->GetHeight() / static_cast<float>(s_labelTexture->GetWidth())));
+			                         LABEL_SIZE, LABEL_SIZE * s_labelTextureAR);
 			
-			uiRenderer.DrawSprite(*s_labelTexture, labelRectangle, glm::vec4(selectionColor, m_labelOpacity));
+			uiRenderer.DrawSprite(*s_labelTexture, labelRectangle, glm::vec4(selectionColor, m_grabbedTProgress));
 			
 			std::string valueString = std::to_string(static_cast<int>(glm::mix(m_min, m_max, m_position)));
 			
-			Rectangle labelStringRect(labelRectangle.x, labelRectangle.FarY() - LABEL_SIZE, LABEL_SIZE, LABEL_SIZE);
+			float labelStringH = s_labelStringAR * LABEL_SIZE;
+			
+			Rectangle labelStringRect(labelRectangle.x, labelRectangle.FarY() - labelStringH, LABEL_SIZE, labelStringH);
 			uiRenderer.DrawString(Font::GetNamedFont(FontNames::StandardUI), valueString, labelStringRect,
 			                      Alignment::Center, Alignment::Center, glm::vec4(1));
 		}

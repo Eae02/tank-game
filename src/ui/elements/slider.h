@@ -22,8 +22,11 @@ namespace TankGame
 		static StackObject<Texture2D> s_knobTexture;
 		static StackObject<Texture2D> s_labelTexture;
 		
+		static float s_labelTextureAR;
+		static float s_labelStringAR;
+		
 		bool m_isMoving = false;
-		float m_labelOpacity = 0.0f;
+		float m_grabbedTProgress = 0.0f;
 		
 		Rectangle m_rectangle;
 		
