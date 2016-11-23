@@ -22,10 +22,10 @@ You will also need CMake and GCC version 5.3 or later to build the game.
 1. `mkdir PROJECT_ROOT/.build`
 2. `cd PROJECT_ROOT/.build`
 3. `cmake -DCMAKE_BUILD_TYPE=Release ..`
-4. `make`
-5. `cp -R ../res ../bin`
+4. `cmake --build .`
+5. `cp -R ../res ../bin/Release`
 
-The binary will be put in **PROJECT_ROOT**/bin.
+The binary will be put in PROJECT_ROOT/bin/Release.
 
 ## Compiling from source on Windows
 To set up the build system, you will need to install [vcpkg](https://github.com/Microsoft/vcpkg) and the project's runtime dependencies. You will also need to have cmake installed and available on the command line.
