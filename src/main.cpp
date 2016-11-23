@@ -50,14 +50,28 @@ Settings GetDefaultSettings()
 
 int main(int argc, const char** argv)
 {
+	if (!fs::exists(GetResDirectory()))
+	{
+		std::cerr << "res directory not found. Needs to be in the same directory as the executable!\n";
+		return 1;
+	}
+	
 	if (!glfwInit())
-		throw std::runtime_error("Error initializing GLFW.");
+	{
+		std::cerr << "Error initializing GLFW.\n";
+		return 1;
+	}
+	
 	glfwSetErrorCallback(GLFWErrorCallback);
 	
 	Settings::DetectVideoModes();
 	
 	if (FT_Init_FreeType(&TankGame::theFTLibrary) != 0)
-		throw std::runtime_error("Error initializing freetype.");
+	{
+		std::cerr << "Error initializing freetype.\n";
+		glfwTerminate();
+		return 1;
+	}
 	
 	InitOpenAL();
 	
