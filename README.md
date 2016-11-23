@@ -3,7 +3,7 @@ A tank shooter written in modern C++ and OpenGL. You will need at least OpenGL 4
 The game is still very early in development. The play button is not currently hooked up but you can load the first level by pressing tilde (the button under escape) and typing `level level_1` in the console.
 
 ## Windows binaries
-Precompiled windows binaries are available [here](https://www.dropbox.com/s/aevhdaysm028ur9/tankgame_win32.zip?dl=1). You may also need to install the visual C++ 2015 and OpenAL redistributables. Which you can get [here](https://www.microsoft.com/en-us/download/details.aspx?id=48145) and [here](https://www.openal.org/downloads/oalinst.zip).
+Precompiled windows binaries are available [here](https://www.dropbox.com/s/aevhdaysm028ur9/tankgame_win32.zip?dl=1). You may also need to install the visual C++ 2015 redistributable, which you can get [here](https://www.microsoft.com/en-us/download/details.aspx?id=48145).
 
 ## Compiling from source on Linux
 First, make sure you have all the runtime dependencies installed. These are:
