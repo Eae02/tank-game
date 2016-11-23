@@ -40,7 +40,7 @@ namespace TankGame
 		
 	private:
 		void TextInputCallback(ImGuiTextEditCallbackData* data);
-		void RunCommand(const std::__cxx11::string& command);
+		void RunCommand(const std::string& command);
 		
 		struct CommandEntry
 		{

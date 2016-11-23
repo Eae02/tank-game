@@ -44,7 +44,7 @@ namespace TankGame
 		inline void GivePowerUp(PowerUps powerUp)
 		{ m_powerUpState.GivePowerUp(powerUp); }
 		inline bool HasPowerUp(PowerUps powerUp) const
-		{ m_powerUpState.HasPowerUp(powerUp); }
+		{ return m_powerUpState.HasPowerUp(powerUp); }
 		
 		static constexpr float MAX_ENERGY = 100.0f;
 		
