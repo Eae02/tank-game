@@ -45,7 +45,7 @@ namespace TankGame
 	
 	void ShaderProgram::Use() const
 	{
-		if (s_currentShaderProgram == GetID())
+		if (s_currentShaderProgram == static_cast<GLint>(GetID()))
 			return;
 		s_currentShaderProgram = GetID();
 		glUseProgram(GetID());

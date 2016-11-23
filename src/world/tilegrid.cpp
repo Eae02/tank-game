@@ -117,8 +117,6 @@ namespace TankGame
 	
 	IntersectInfo TileGrid::GetIntersectInfo(const TileGridMaterial& material, const Circle& circle) const
 	{
-		Rectangle rectangle = circle.GetBoundingRectangle();
-		
 		glm::ivec2 start(std::floor(circle.GetCenter().x - circle.GetRadius()),
 		                 std::floor(circle.GetCenter().y - circle.GetRadius()));
 		glm::ivec2 end(std::floor(circle.GetCenter().x + circle.GetRadius()),

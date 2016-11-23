@@ -4,7 +4,7 @@
 namespace TankGame
 {
 	TextureLoadOperation::TextureLoadOperation(std::string path, TextureLoadOperation::DoneCallback doneCallback)
-	    : m_path(std::move(path)), m_doneCallback(doneCallback), m_data(nullptr, &STBIDataDeleter) { }
+	    : m_doneCallback(doneCallback), m_path(std::move(path)), m_data(nullptr, &STBIDataDeleter) { }
 	
 	TextureLoadOperation::TextureLoadOperation(const fs::path& path, TextureLoadOperation::DoneCallback doneCallback)
 	    : TextureLoadOperation(path.string(), doneCallback) { }

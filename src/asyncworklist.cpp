@@ -46,6 +46,7 @@ namespace TankGame
 		lock.unlock();
 		
 		work->ProcessResult();
+		return true;
 	}
 	
 	bool ASyncWorkList::IsDone()

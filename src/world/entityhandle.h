@@ -32,9 +32,8 @@ namespace TankGame
 		
 		bool IsValid() const;
 		
-		uint64_t m_id;
 		class EntitiesManager* m_manager;
-		
+		uint64_t m_id;
 		mutable long m_lastIndex;
 	};
 }

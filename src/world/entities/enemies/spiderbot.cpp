@@ -60,7 +60,7 @@ namespace TankGame
 			glm::radians(270.0f + 40.0f)
 		};
 		
-		for (int i = 0; i < ArrayLength(legRotations); i++)
+		for (size_t i = 0; i < ArrayLength(legRotations); i++)
 		{
 			float legRotation = GetTransform().GetRotation() + legRotations[i];
 			glm::vec2 legDirection = RotateVector({ 0, -1 }, legRotation);

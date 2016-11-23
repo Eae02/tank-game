@@ -51,11 +51,11 @@ namespace TankGame
 		if (m_focusEntity == &entity)
 			m_focusEntity = nullptr;
 		
-		for (long i = m_eventListeners.size() - 1; i >= 0; i--)
+		for (long i = static_cast<long>(m_eventListeners.size()) - 1; i >= 0; i--)
 		{
 			if (m_eventListeners[i].m_receiver == &entity)
 			{
-				if (i != m_eventListeners.size() - 1)
+				if (i != static_cast<long>(m_eventListeners.size()) - 1)
 					m_eventListeners[i] = std::move(m_eventListeners.back());
 				m_eventListeners.pop_back();
 			}

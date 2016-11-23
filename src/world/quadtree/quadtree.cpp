@@ -16,8 +16,8 @@ namespace TankGame
 	}
 	
 	QuadTree::QuadTree(const Rectangle& area)
-	    : m_rootNode(*this, area, 0),
-	      m_nodePool(std::make_unique<ObjectPool<QuadTreeNode>>(GetMaxNodeCount(QuadTreeNode::MAX_DEPTH)))
+	    : m_nodePool(std::make_unique<ObjectPool<QuadTreeNode>>(GetMaxNodeCount(QuadTreeNode::MAX_DEPTH))),
+	      m_rootNode(*this, area, 0)
 	{
 		
 	}
@@ -33,7 +33,7 @@ namespace TankGame
 	}
 	
 	QuadTree::QuadTree(QuadTree&& other)
-	    : m_rootNode(std::move(other.m_rootNode)), m_nodePool(std::move(other.m_nodePool))
+	    : m_nodePool(std::move(other.m_nodePool)), m_rootNode(std::move(other.m_rootNode))
 	{
 		m_rootNode.SetTree(*this);
 	}

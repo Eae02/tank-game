@@ -30,7 +30,7 @@ namespace TankGame
 	struct ShadowCaster
 	{
 		ShadowCaster(glm::vec2 pos1, glm::vec2 pos2, glm::vec2 normal)
-			: m_position1(pos1), m_position2(pos2), m_normal1(normal), m_normal2(normal) { }
+			: m_position1(pos1), m_normal1(normal), m_position2(pos2), m_normal2(normal) { }
 		
 		glm::vec2 m_position1;
 		glm::vec2 m_normal1;

@@ -16,8 +16,8 @@ namespace TankGame
 	
 	RayLightEntity::RayLightEntity(glm::vec3 color, float intensity, Attenuation attenuation, float length, float height)
 	    : m_uniformBuffer(BufferAllocator::GetInstance().AllocateUnique(8 * sizeof(float), GL_MAP_WRITE_BIT)),
-	      m_flickerOffset(GenerateFlickerOffset()), m_color(color), m_intensity(intensity), m_attenuation(attenuation),
-	      m_length(length), m_height(height)
+	      m_flickerOffset(GenerateFlickerOffset()), m_height(height), m_length(length), m_color(color),
+	      m_intensity(intensity), m_attenuation(attenuation)
 	{
 		m_uniformBufferOutOfDate = true;
 		m_range = GetRange(m_color, m_intensity, m_attenuation);

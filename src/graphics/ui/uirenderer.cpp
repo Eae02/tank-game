@@ -141,12 +141,6 @@ namespace TankGame
 	
 	void UIRenderer::DrawQuadBorder(const glm::mat3& transform, const glm::vec4& color) const
 	{
-		glm::mat3 fullTransform = glm::transpose(glm::mat3(
-				2.0f / m_windowWidth, 0.0f, -1.0f,
-				0.0f, 2.0f / m_windowHeight, -1.0f,
-				0.0f, 0.0f, 1.0f
-		)) * transform;
-		
 		glm::vec2 quadVertices[4] = { { -1, -1 }, { -1, 1 }, { 1, 1 }, { 1, -1 } };
 		
 		for (int i = 0; i < 4; i++)

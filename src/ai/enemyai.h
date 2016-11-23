@@ -23,8 +23,7 @@ namespace TankGame
 			Idle,
 			Searching,
 			ReturningToIdle,
-			Chasing,
-			Combat
+			Chasing
 		};
 		
 		inline EnemyAI(class EnemyTank& entity, AIParameters parameters, Path idlePath)

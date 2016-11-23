@@ -91,7 +91,7 @@ namespace TankGame
 			lineNumber++;
 			
 			lineEnd = source.find('\n', i);
-			if (lineEnd == -1)
+			if (lineEnd == std::string::npos)
 				lineEnd = source.length();
 			
 			const char* line = source.data() + i;

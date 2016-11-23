@@ -9,8 +9,8 @@ namespace TankGame
 	std::mt19937 ParticleEmitter::s_random;
 	
 	ParticleEmitter::ParticleEmitter(ParticlesManager& particlesManager)
-	    : m_particlesManager(particlesManager),
-	      m_emitterSettingsBuffer(BufferAllocator::GetInstance().AllocateUnique(8, GL_MAP_WRITE_BIT))
+	    : m_emitterSettingsBuffer(BufferAllocator::GetInstance().AllocateUnique(8, GL_MAP_WRITE_BIT)),
+	      m_particlesManager(particlesManager)
 	{
 		SetBeginOpacity(1.0f, 1.0f);
 		SetEndOpacity(1.0f, 1.0f);

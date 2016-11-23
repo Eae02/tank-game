@@ -85,7 +85,7 @@ namespace TankGame
 			while (m_firstAvailableIndex != -1 && m_objectsAllocated[m_firstAvailableIndex])
 			{
 				m_firstAvailableIndex++;
-				if (m_firstAvailableIndex >= m_objectsAllocated.size())
+				if (m_firstAvailableIndex >= static_cast<long>(m_objectsAllocated.size()))
 					m_firstAvailableIndex = -1;
 			}
 			

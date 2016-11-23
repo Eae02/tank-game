@@ -36,8 +36,8 @@ namespace TankGame
 	LightStripEntity::LightStripEntity(glm::vec3 color, float glowStrength, float radius,
 	                                   std::string activateEventName, glm::vec3 activatedColor)
 	    : m_uniformBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(float) * 4, GL_MAP_WRITE_BIT)),
-	      m_color(color), m_glowStrength(glowStrength), m_radius(radius), m_activateEvent(std::move(activateEventName)),
-	      m_activatedColor(activatedColor)
+	      m_radius(radius), m_activateEvent(std::move(activateEventName)),
+	      m_activatedColor(activatedColor), m_color(color), m_glowStrength(glowStrength)
 	{
 		glEnableVertexArrayAttrib(m_vertexArray.GetID(), 0);
 		glVertexArrayAttribFormat(m_vertexArray.GetID(), 0, 2, GL_FLOAT, GL_FALSE, 0);
@@ -112,11 +112,13 @@ namespace TankGame
 	
 	void LightStripEntity::SpawnLights(const Path& path)
 	{
+		assert(path.GetNodeCount() != 0);
+		
 		for (RayLightEntity* light : m_lights)
 			light->Despawn();
 		m_lights.resize(path.GetNodeCount() - 1);
 		
-		for (long i = 0; i < path.GetNodeCount() - 1; i++)
+		for (size_t i = 0; i < path.GetNodeCount() - 1; i++)
 		{
 			glm::vec2 toNext = path[i + 1] - path[i];
 			
@@ -155,7 +157,7 @@ namespace TankGame
 		
 		glm::vec2 preToVertex;
 		
-		for (long i = 0; i < m_path.GetNodeCount(); i++)
+		for (size_t i = 0; i < m_path.GetNodeCount(); i++)
 		{
 			glm::vec2 toPrev, toNext;
 			

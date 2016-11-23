@@ -80,7 +80,7 @@ namespace TankGame
 		GLuint currentLocation = 0;
 		long currentDrawBuffer = -1;
 		
-		for (int i = 0; i < m_materialBatches.size(); i++)
+		for (size_t i = 0; i < m_materialBatches.size(); i++)
 		{
 			if (currentLocation > s_elementsPerDrawBuffer || currentDrawBuffer == -1)
 			{
@@ -93,7 +93,7 @@ namespace TankGame
 				currentLocation = 0;
 				currentDrawBuffer++;
 				
-				if (currentDrawBuffer >= m_drawBuffers.size())
+				if (currentDrawBuffer >= static_cast<long>(m_drawBuffers.size()))
 					m_drawBuffers.emplace_back();
 				const DrawBuffer& drawBuffer = m_drawBuffers[currentDrawBuffer];
 				
@@ -119,7 +119,7 @@ namespace TankGame
 		
 		long currentVertexArray = -1;
 		
-		for (int i = 0; i < m_materialBatches.size(); i++)
+		for (size_t i = 0; i < m_materialBatches.size(); i++)
 		{
 			long batchVertexArray = static_cast<long>(m_materialBatches[i].m_drawBufferIndex);
 			if (currentVertexArray != batchVertexArray)

@@ -10,7 +10,7 @@ namespace TankGame
 	SpriteMaterial::SpriteMaterial(const Texture2D& diffuse, const Texture2D& normalMap,
 	                               float specIntensity, float specExponent, const glm::vec4& shade)
 	    : m_uniformBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(float) * 3, GL_MAP_WRITE_BIT)),
-	      m_specularIntensity(specIntensity), m_specularExponent(specExponent), m_shade(shade),
+	      m_shade(shade), m_specularIntensity(specIntensity), m_specularExponent(specExponent),
 	      m_diffuse(diffuse), m_normalMap(normalMap) { }
 	
 	void SpriteMaterial::Bind() const

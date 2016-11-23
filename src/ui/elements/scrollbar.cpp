@@ -17,6 +17,7 @@ namespace TankGame
 			return false;
 		
 		m_scrollBarPosition = scroll / (m_contentsHeight - m_paneHeight);
+		return true;
 	}
 	
 	void ScrollBar::Draw(const UIRenderer& uiRenderer) const
