@@ -22,18 +22,25 @@ find_package(OpenAL REQUIRED)
 find_package(OGG REQUIRED)
 find_package(Vorbis REQUIRED)
 find_package(VorbisFile REQUIRED)
-find_package(GLFW REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(Threads REQUIRED)
+
+find_path(GLFW_INCLUDE_DIR GLFW/glfw3.h ${HEADER_SEARCH_PATH})
+find_library(GLFW_LIBRARIES NAMES glfw glfw3dll ${LIBRARY_SEARCH_PATH})
 
 if (CMAKE_COMPILER_IS_GNUCXX)
 	set(LIBS ${LIBS} stdc++fs X11)
 endif()
 
+if (${MSVC})
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4250 /D_CRT_SECURE_NO_WARNINGS")
+endif()
+
 #Sets link libraries for all projects
 link_libraries(
-	${OPENGL_LIBRARIES}
+	${OPENGL_LIBRARY}
 	${OPENAL_LIBRARY}
 	${OGG_LIBRARY}
 	${VORBIS_LIBRARY}
@@ -42,17 +49,18 @@ link_libraries(
 	${GLEW_LIBRARIES}
 	${FREETYPE_LIBRARIES}
 	${ZLIB_LIBRARIES}
+	${CMAKE_THREAD_LIBS_INIT}
 	${LIBS}
 )
 
 #Sets include directories for all projects
 include_directories(
-	${OPENGL_INCLUDE_DIRS}
+	${OPENGL_INCLUDE_DIR}
 	${OPENAL_INCLUDE_DIR}
 	${OGG_INCLUDE_DIR}
 	${VORBIS_INCLUDE_DIR}
 	${VORBISFILE_INCLUDE_DIR}
-	${GLFW_INCLUDE_DIRS}
+	${GLFW_INCLUDE_DIR}
 	${GLEW_INCLUDE_DIRS}
 	${FREETYPE_INCLUDE_DIRS}
 	${ZLIB_INCLUDE_DIRS}
