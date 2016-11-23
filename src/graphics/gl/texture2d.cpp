@@ -30,6 +30,15 @@ namespace TankGame
 		glTextureSubImage2D(texture.GetID(), 0, 0, 0, width, height, FORMATS[components - 1],
 		                    GL_UNSIGNED_BYTE, data.get());
 		
+		if (components == 1)
+		{
+			glTextureParameteri(texture.GetID(), GL_TEXTURE_SWIZZLE_G, GL_RED);
+			glTextureParameteri(texture.GetID(), GL_TEXTURE_SWIZZLE_B, GL_RED);
+		}
+		
+		if (components < 4)
+			glTextureParameteri(texture.GetID(), GL_TEXTURE_SWIZZLE_A, GL_ONE);
+		
 		texture.SetupMipmapping(true);
 		
 		texture.SetWrapMode(GL_CLAMP_TO_EDGE);
