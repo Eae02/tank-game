@@ -1,57 +1,11 @@
 #include "serializeworld.h"
+#include "sections.h"
 #include "../gameworld.h"
 
-#include <zlib.h>
 #include <json.hpp>
 
 namespace TankGame
 {
-	void DeflateAndWrite(const char* data, size_t dataSize, std::ostream& output)
-	{
-		z_stream deflateStream = { };
-		
-		deflateStream.avail_in = dataSize;
-		deflateStream.next_in = reinterpret_cast<const Bytef*>(data);
-		
-		if (deflateInit(&deflateStream, Z_DEFAULT_COMPRESSION) != Z_OK)
-			throw std::runtime_error("Error initializing ZLIB.");
-		
-		char outBuffer[256];
-		int status;
-		
-		//Deflates and writes the data 256 bytes at a time
-		do
-		{
-			deflateStream.avail_out = sizeof(outBuffer);
-			deflateStream.next_out = reinterpret_cast<Bytef*>(outBuffer);
-			
-			status = deflate(&deflateStream, Z_FINISH);
-			assert(status != Z_STREAM_ERROR);
-			
-			int bytesDecompressed = sizeof(outBuffer) - deflateStream.avail_out;
-			output.write(outBuffer, bytesDecompressed);
-		} while (deflateStream.avail_out == 0);
-		
-		deflateEnd(&deflateStream);
-	}
-	
-	void WriteSection(const char* data, size_t dataSize, std::ostream& stream)
-	{
-		uint64_t payloads[2] = { dataSize, 0 };
-		stream.write(reinterpret_cast<const char*>(payloads), sizeof(payloads));
-		
-		auto dataBeginPos = stream.tellp();
-		
-		DeflateAndWrite(data, dataSize, stream);
-		
-		auto dataEndPos = stream.tellp();
-		uint64_t compressedSize = dataEndPos - dataBeginPos;
-		
-		stream.seekp(dataBeginPos - static_cast<std::ostream::pos_type>(sizeof(uint64_t)));
-		stream.write(reinterpret_cast<const char*>(&compressedSize), sizeof(compressedSize));
-		stream.seekp(dataEndPos);
-	}
-	
 	void SerializeWorld(const GameWorld& gameWorld, std::ostream& stream)
 	{
 		stream.write("lvl0", 4);

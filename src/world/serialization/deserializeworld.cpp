@@ -1,10 +1,10 @@
 #include "deserializeworld.h"
 #include "parseutils.h"
+#include "sections.h"
 #include "entityparsers/entityparser.h"
 #include "../entities/playerentity.h"
 #include "../../utils/jsonparseutils.h"
 
-#include <zlib.h>
 #include <algorithm>
 #include <iostream>
 
@@ -29,68 +29,6 @@ namespace TankGame
 			else
 				gameWorld.Spawn(std::move(entity));
 		}
-	}
-	
-	static std::vector<char> ReadSection(std::istream& input)
-	{
-		uint64_t sectionSize;
-		uint64_t compressedSectionSize;
-		
-		input.read(reinterpret_cast<char*>(&sectionSize), sizeof(sectionSize));
-		input.read(reinterpret_cast<char*>(&compressedSectionSize), sizeof(compressedSectionSize));
-		
-		std::vector<char> output;
-		output.reserve(sectionSize);
-		
-		z_stream inflateStream = { };
-		inflateInit(&inflateStream);
-		
-		int status;
-		char outBuffer[256];
-		char inBuffer[256];
-		
-		long bytesLeft = compressedSectionSize;
-		
-		//Inflates the data 256 bytes at a time
-		do
-		{
-			long bytesToRead = std::min<long>(sizeof(inBuffer), bytesLeft);
-			input.read(inBuffer, bytesToRead);
-			
-			assert(input.gcount() == bytesToRead);
-			
-			bytesLeft -= bytesToRead;
-			
-			inflateStream.avail_in = bytesToRead;
-			inflateStream.next_in = reinterpret_cast<Bytef*>(inBuffer);
-			
-			if (inflateStream.avail_in == 0)
-				break;
-			
-			do
-			{
-				inflateStream.avail_out = sizeof(outBuffer);
-				inflateStream.next_out = reinterpret_cast<Bytef*>(outBuffer);
-				
-				status = inflate(&inflateStream, Z_NO_FLUSH);
-				assert(status != Z_STREAM_ERROR);
-				
-				if (status == Z_MEM_ERROR)
-					throw std::bad_alloc();
-				if (status == Z_DATA_ERROR || status == Z_NEED_DICT)
-					throw std::runtime_error("Invalid deflate stream.");
-				
-				int bytesCompressed = static_cast<int>(sizeof(outBuffer)) - inflateStream.avail_out;
-				for (int i = 0; i < bytesCompressed; i++)
-					output.push_back(outBuffer[i]);
-			}
-			while (inflateStream.avail_out == 0);
-		}
-		while (status != Z_STREAM_END && bytesLeft > 0);
-		
-		inflateEnd(&inflateStream);
-		
-		return output;
 	}
 	
 	std::unique_ptr<GameWorld> DeserializeWorld(std::istream& stream, GameWorld::Types type)
