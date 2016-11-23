@@ -548,9 +548,23 @@ namespace TankGame
 #ifdef _WIN32
 			if (m_isCursorCaptured)
 			{
-				RECT clipRectangle;
-				GetWindowRect(glfwGetWin32Window(m_window), &clipRectangle);
-				ClipCursor(&clipRectangle);
+				HWND hwnd = glfwGetWin32Window(m_window);
+				
+				POINT clientUL, clientLR;
+				
+				RECT clientRectangle;
+				GetClientRect(hwnd, &clientRectangle); 
+				clientUL.x = clientRectangle.left; 
+				clientUL.y = clientRectangle.top; 
+				
+				clientLR.x = clientRectangle.right; 
+				clientLR.y = clientRectangle.bottom; 
+				ClientToScreen(hwnd, &clientUL); 
+				ClientToScreen(hwnd, &clientLR);
+				
+				SetRect(&clientRectangle, clientUL.x, clientUL.y, clientLR.x, clientLR.y); 
+				
+				ClipCursor(&clientRectangle);
 			}
 #endif
 			
