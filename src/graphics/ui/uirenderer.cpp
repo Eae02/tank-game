@@ -207,7 +207,7 @@ namespace TankGame
 				glyph->m_texture->Bind(0);
 				
 				glm::vec2 bearingOffset(glyph->m_bearing.x, glyph->m_bearing.y - glyph->m_texture->GetHeight());
-				glm::vec2 offset = ((position + bearingOffset * scale) / halfScreenSize) - glm::vec2(1.0f);
+				glm::vec2 offset = (glm::floor(position + bearingOffset * scale) / halfScreenSize) - glm::vec2(1.0f);
 				glm::vec2 size =
 					(glm::vec2(glyph->m_texture->GetWidth(), glyph->m_texture->GetHeight()) * scale) / halfScreenSize;
 				
