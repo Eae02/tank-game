@@ -39,16 +39,6 @@ static void GLFWErrorCallback(int error, const char* description)
 	throw std::runtime_error(std::to_string(error) + " " + description);
 }
 
-Settings GetDefaultSettings()
-{
-	Settings settings;
-	
-	const GLFWvidmode* videoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-	settings.SetResolution({ static_cast<int>(videoMode->width * 0.8), static_cast<int>(videoMode->height * 0.8) });
-	
-	return settings;
-}
-
 int main(int argc, const char** argv)
 {
 	if (!fs::exists(GetResDirectory()))
@@ -84,7 +74,7 @@ int main(int argc, const char** argv)
 	if (fs::exists(settingsPath))
 		Settings::SetInstance(Settings(settingsPath));
 	else
-		Settings::SetInstance(GetDefaultSettings());
+		Settings::SetInstance(Settings());
 	
 	{
 		Window window(ParseArguments(argc, argv));

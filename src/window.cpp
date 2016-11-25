@@ -651,6 +651,13 @@ namespace TankGame
 			return;
 		m_isFullscreen = false;
 		Settings::GetInstance().SetIsFullscreen(false);
+		
+		const GLFWvidmode* defaultVideoMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		
+		m_width = defaultVideoMode->width * 0.8;
+		m_height = defaultVideoMode->height * 0.8;
+		
 		glfwSetWindowMonitor(m_window, nullptr, 0, 0, m_width, m_height, GLFW_DONT_CARE);
+		glfwSetWindowPos(m_window, (defaultVideoMode->width - m_width) / 2, (defaultVideoMode->height - m_height) / 2);
 	}
 }

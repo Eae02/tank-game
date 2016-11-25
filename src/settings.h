@@ -157,7 +157,7 @@ namespace TankGame
 		float m_sfxVolume = 1;
 		
 		glm::ivec2 m_resolution{ 800, 500 };
-		bool m_isFullscreen = false;
+		bool m_isFullscreen = true;
 		
 		bool m_enableVSync = true;
 		
