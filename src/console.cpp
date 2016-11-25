@@ -48,12 +48,40 @@ namespace TankGame
 		}
 	}
 	
+	static std::vector<std::string> SplitCommand(const std::string& command)
+	{
+		std::vector<std::string> result;
+		
+		size_t partBeginPos = 0;
+		for (size_t i = 0; i <= command.size(); i++)
+		{
+			bool isLastChar = i == command.size();
+			
+			if (command[partBeginPos] == '"')
+			{
+				if (i != partBeginPos && (isLastChar || command[i] == '"'))
+				{
+					result.push_back(command.substr(partBeginPos + 1, i - partBeginPos - 1));
+					partBeginPos = i + 1;
+				}
+			}
+			else if (isLastChar || command[i] == ' ')
+			{
+				if (i != partBeginPos)
+					result.push_back(command.substr(partBeginPos, i - partBeginPos));
+				partBeginPos = i + 1;
+			}
+		}
+		
+		return result;
+	}
+	
 	void Console::RunCommand(const std::string& command)
 	{
 		m_history.push_back(command);
 		m_historyPosition = -1;
 		
-		std::vector<std::string> tokens = Split(command, " ", true);
+		std::vector<std::string> tokens = SplitCommand(command);
 		
 		if (!tokens.empty())
 		{

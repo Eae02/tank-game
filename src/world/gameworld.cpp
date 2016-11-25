@@ -6,6 +6,7 @@
 #include "../updateinfo.h"
 #include "../utils/mathutils.h"
 #include "../utils/utils.h"
+#include "../progress.h"
 
 #include <glm/gtc/constants.hpp>
 #include <GLFW/glfw3.h>
@@ -162,14 +163,19 @@ namespace TankGame
 		m_cameraShakeMagnitude = amount / time;
 	}
 	
-	void GameWorld::SetCheckpoint(int index, glm::vec2 position, float rotation)
+	bool GameWorld::SetCheckpoint(int index, glm::vec2 position, float rotation)
 	{
 		if (m_currentCheckpointIndex > index)
-			return;
+			return false;
 		m_currentCheckpointIndex = index;
+		
+		if (!m_progressLevelName.empty())
+			Progress::GetInstance().UpdateLevelProgress(m_progressLevelName, index);
 		
 		m_respawnPosition = position;
 		m_respawnRotation = rotation;
+		
+		return true;
 	}
 	
 	void GameWorld::SetFocusEntity(const Entity* entity)

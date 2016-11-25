@@ -1,5 +1,6 @@
 #include "window.h"
 #include "settings.h"
+#include "progress.h"
 #include "audio/almanager.h"
 #include "audio/soundsmanager.h"
 #include "utils/ioutils.h"
@@ -75,6 +76,10 @@ int main(int argc, const char** argv)
 	
 	InitOpenAL();
 	
+	fs::path progressPath(GetDataDirectory() / "progress.json");
+	if (fs::exists(progressPath))
+		Progress::SetInstance({ progressPath });
+	
 	fs::path settingsPath(GetDataDirectory() / "settings.json");
 	if (fs::exists(settingsPath))
 		Settings::SetInstance(Settings(settingsPath));
@@ -87,6 +92,7 @@ int main(int argc, const char** argv)
 	}
 	
 	Settings::GetInstance().Save(settingsPath);
+	Progress::GetInstance().Save(progressPath);
 	
 	SoundsManager::SetInstance(nullptr);
 	CloseOpenAL();

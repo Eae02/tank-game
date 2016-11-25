@@ -2,6 +2,7 @@
 #include "window.h"
 
 #include "settings.h"
+#include "progress.h"
 #include "graphics/quadmesh.h"
 #include "graphics/ui/font.h"
 #include "world/lights/pointlightentity.h"
@@ -13,9 +14,11 @@
 #include "utils/ioutils.h"
 #include "utils/mathutils.h"
 #include "utils/utils.h"
+#include "ui/levelslist.h"
 #include "world/props/propsmanager.h"
 #include "world/serialization/serializeworld.h"
 #include "imguiinterface.h"
+#include "levelmenuinfo.h"
 
 #if defined(__linux__)
 #define GLFW_EXPOSE_NATIVE_X11
@@ -111,18 +114,22 @@ namespace TankGame
 		InitializeConsole();
 	}
 	
+	static Level CommandCallbackLevelFromName(const std::string& name,
+	                                          GameWorld::Types worldType = GameWorld::Types::Game)
+	{
+		try
+		{
+			return Level::FromName(name, worldType);
+		}
+		catch (const std::exception& ex)
+		{
+			throw Console::CommandException(ex.what());
+		}
+	}
+	
 	void Window::LoadLevel(const std::string& name)
 	{
-		m_gameManager->SetLevel([&] {
-			try
-			{
-				return Level::FromName(name);
-			}
-			catch (const std::exception& ex)
-			{
-				throw Console::CommandException(ex.what());
-			}
-		}());
+		m_gameManager->SetLevel(CommandCallbackLevelFromName(name));
 		
 		m_menuManager->Hide();
 		if (!m_editor.IsNull())
@@ -164,14 +171,16 @@ namespace TankGame
 		{
 			if (m_gameManager->GetLevel() == nullptr)
 				throw Console::CommandException("No level loaded.");
-			
-			const CheckpointEntity* checkpoint = m_gameManager->GetLevel()->GetCheckpointFromIndex(std::stoi(argv[0]));
-			if (checkpoint == nullptr)
+			if (!m_gameManager->GetLevel()->TryJumpToCheckpoint(std::stoi(argv[0])))
 				throw Console::CommandException("Checkpoint not found.");
-			
-			PlayerEntity& player = m_gameManager->GetLevel()->GetPlayerEntity();
-			player.GetTransform().SetPosition(checkpoint->GetCenterPos());
 		});
+		
+		m_console.AddCommand("setprogress", [&] (const std::string* argv, size_t argc)
+		{
+			if (!fs::exists(Level::GetLevelsPath() / argv[0]))
+				throw Console::CommandException("Level not found: '" + argv[0] + "'.");
+			Progress::GetInstance().UpdateLevelProgress(argv[0], std::stoi(argv[1]));
+		}, 2);
 		
 		m_console.AddCommand("event", [&] (const std::string* argv, size_t argc)
 		{
@@ -211,6 +220,14 @@ namespace TankGame
 			std::ofstream stream(path.string(), std::ios::binary);
 			WriteEmptyWorld(argv[0], width, height, stream);
 		}, 3);
+		
+		m_console.AddCommand("makemi", [&] (const std::string* argv, size_t argc)
+		{
+			Level level = CommandCallbackLevelFromName(argv[0], GameWorld::Types::ScreenShot);
+			
+			std::ofstream stream(Level::GetLevelsPath() / (argv[0] + "_mi"), std::ios::binary);
+			LevelMenuInfo::WriteMenuInfo(level, argv[1], stream);
+		}, 2);
 		
 		m_console.AddCommand("menu", [this] (const std::string* argv, size_t argc)
 		{
@@ -295,8 +312,17 @@ namespace TankGame
 	
 	void Window::Initialize()
 	{
+		LevelsList::LoadLevelMenuInfos();
+		
 		m_menuManager.Construct();
 		m_menuManager->SetQuitCallback([this] { glfwSetWindowShouldClose(m_window, true); });
+		
+		m_menuManager->SetLoadLevelCallback([this] (const std::string& name, int checkpoint)
+		{
+			LoadLevel(name);
+			m_gameManager->GetLevel()->GetGameWorld().SetProgressLevelName(name);
+			m_gameManager->GetLevel()->TryJumpToCheckpoint(checkpoint);
+		});
 		
 		m_menuManager->SetSettingsApplyCallback([this] (bool fullscreen, int resX, int resY)
 		{

@@ -30,6 +30,8 @@ namespace TankGame
 		
 		static Rectangle CreateCentered(float x, float y, float w, float h);
 		
+		static Rectangle Mix(const Rectangle& a, const Rectangle& b, float x);
+		
 		inline float FarX() const { return x + w; }
 		inline float FarY() const { return y + h; }
 		

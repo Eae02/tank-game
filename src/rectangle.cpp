@@ -52,6 +52,11 @@ namespace TankGame
 		return Rectangle(x - (w / 2.0f), y - (h / 2.0f), w, h);
 	}
 	
+	Rectangle Rectangle::Mix(const Rectangle& a, const Rectangle& b, float x)
+	{
+		return { glm::mix(a.x, b.x, x), glm::mix(a.y, b.y, x), glm::mix(a.w, b.w, x), glm::mix(a.h, b.h, x) };
+	}
+	
 	void Rectangle::Inflate(float amount)
 	{
 		x -= amount;

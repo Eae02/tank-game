@@ -11,12 +11,12 @@ namespace TankGame
 	class Level : private GameWorld::IEventListener
 	{
 	public:
-		explicit Level(std::istream& stream);
+		explicit Level(std::istream& stream, GameWorld::Types worldType = GameWorld::Types::Game);
 		
 		Level(Level&& other);
 		Level& operator=(Level&& other);
 		
-		static Level FromName(const std::string& name);
+		static Level FromName(const std::string& name, GameWorld::Types worldType = GameWorld::Types::Game);
 		
 		inline GameWorld& GetGameWorld() const
 		{ return *m_gameWorld; }
@@ -27,6 +27,7 @@ namespace TankGame
 		{ return *m_playerEntity; }
 		
 		const class CheckpointEntity* GetCheckpointFromIndex(int index) const;
+		bool TryJumpToCheckpoint(int index);
 		
 		virtual void Update(const class UpdateInfo& updateInfo);
 		

@@ -27,8 +27,11 @@ namespace TankGame
 			}
 		}
 		
-		m_optionsMenu.SetBackCallback([this] { SetCurrentMenu(MenuScreens::MainMenu); });
+		auto backCallback = [this] { SetCurrentMenu(MenuScreens::MainMenu); };
+		m_optionsMenu.SetBackCallback(backCallback);
+		m_playMenu.SetBackCallback(backCallback);
 		
+		m_mainMenu.SetPlayCallback([this] { SetCurrentMenu(MenuScreens::Play); });
 		m_mainMenu.SetOptionsCallback([this] { SetCurrentMenu(MenuScreens::Options); });
 	}
 	
@@ -61,6 +64,7 @@ namespace TankGame
 		
 		m_mainMenu.OnResize(newWidth, newHeight);
 		m_optionsMenu.OnResize(newWidth, newHeight);
+		m_playMenu.OnResize(newWidth, newHeight);
 	}
 	
 	MenuManager::Background::Background(const nlohmann::json& element)
@@ -92,6 +96,8 @@ namespace TankGame
 			m_mainMenu.Update(updateInfo);
 		else if (m_currentMenu == MenuScreens::Options)
 			m_optionsMenu.Update(updateInfo);
+		else if (m_currentMenu == MenuScreens::Play)
+			m_playMenu.Update(updateInfo);
 	}
 	
 	void MenuManager::Draw(DeferredRenderer& deferredRenderer, float gameTime) const
@@ -116,6 +122,8 @@ namespace TankGame
 			m_mainMenu.Draw(UIRenderer::GetInstance());
 		else if (m_currentMenu == MenuScreens::Options)
 			m_optionsMenu.Draw(UIRenderer::GetInstance());
+		else if (m_currentMenu == MenuScreens::Play)
+			m_playMenu.Draw(UIRenderer::GetInstance());
 		
 		glDisable(GL_BLEND);
 	}
@@ -141,6 +149,9 @@ namespace TankGame
 			break;
 		case MenuScreens::Options:
 			m_optionsMenu.OnOpen();
+			break;
+		case MenuScreens::Play:
+			m_playMenu.OnOpen();
 			break;
 		}
 		

@@ -35,7 +35,8 @@ namespace TankGame
 		{
 			Game,
 			Editor,
-			MenuBackground
+			MenuBackground,
+			ScreenShot
 		};
 		
 		GameWorld(int width, int height, Types type);
@@ -161,7 +162,10 @@ namespace TankGame
 		
 		void ShakeCamera(double time, float amount);
 		
-		void SetCheckpoint(int index, glm::vec2 position, float rotation);
+		bool SetCheckpoint(int index, glm::vec2 position, float rotation);
+		
+		inline void SetProgressLevelName(std::string levelName)
+		{ m_progressLevelName = std::move(levelName); }
 		
 		inline glm::vec2 GetRespawnPosition() const
 		{ return m_respawnPosition; }
@@ -198,6 +202,8 @@ namespace TankGame
 		};
 		
 		void DespawnAtIndex(size_t index);
+		
+		std::string m_progressLevelName;
 		
 		int m_width;
 		int m_height;

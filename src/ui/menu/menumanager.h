@@ -2,6 +2,7 @@
 
 #include "mainmenu.h"
 #include "optionsmenu.h"
+#include "playmenu.h"
 #include "../../world/gameworld.h"
 #include "../../utils/filesystem.h"
 #include "../../graphics/worldrenderer.h"
@@ -14,7 +15,8 @@ namespace TankGame
 	enum class MenuScreens
 	{
 		MainMenu,
-		Options
+		Options,
+		Play
 	};
 	
 	class MenuManager
@@ -40,6 +42,9 @@ namespace TankGame
 		
 		inline void SetQuitCallback(std::function<void()> quitCallback)
 		{ m_mainMenu.SetQuitCallback(std::move(quitCallback)); }
+		
+		inline void SetLoadLevelCallback(LevelsList::LoadLevelCallback loadLevelCallback)
+		{ m_playMenu.SetLoadLevelCallback(loadLevelCallback); }
 		
 	private:
 		void LoadBackgroundWorld();
@@ -76,5 +81,6 @@ namespace TankGame
 		
 		MainMenu m_mainMenu;
 		OptionsMenu m_optionsMenu;
+		PlayMenu m_playMenu;
 	};
 }

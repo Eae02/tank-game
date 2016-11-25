@@ -18,8 +18,8 @@ namespace TankGame
 		return theLevelsPath;
 	}
 	
-	Level::Level(std::istream& stream)
-	    : m_gameWorld(DeserializeWorld(stream)),
+	Level::Level(std::istream& stream, GameWorld::Types worldType)
+	    : m_gameWorld(DeserializeWorld(stream, worldType)),
 	      m_playerEntity(dynamic_cast<PlayerEntity*>(m_gameWorld->GetEntityByName("player")))
 	{
 		m_gameWorld->SetEventListener(this);
@@ -41,7 +41,7 @@ namespace TankGame
 		return *this;
 	}
 	
-	Level Level::FromName(const std::string& name)
+	Level Level::FromName(const std::string& name, GameWorld::Types worldType)
 	{
 		fs::path fullPath = Level::GetLevelsPath() / name;
 		if (!fs::exists(fullPath))
@@ -53,7 +53,7 @@ namespace TankGame
 		if (!stream)
 			throw std::runtime_error("Error opening file for reading: '" + fullPathString + "'.");
 		
-		return Level(stream);
+		return Level(stream, worldType);
 	}
 	
 	const CheckpointEntity* Level::GetCheckpointFromIndex(int index) const
@@ -68,6 +68,19 @@ namespace TankGame
 		});
 		
 		return checkpoint;
+	}
+	
+	bool Level::TryJumpToCheckpoint(int index)
+	{
+		const CheckpointEntity* checkpoint = GetCheckpointFromIndex(index);
+		if (checkpoint == nullptr)
+			return false;
+		
+		glm::vec2 pos = checkpoint->GetCenterPos();
+		m_playerEntity->GetTransform().SetPosition(pos);
+		m_gameWorld->SetCheckpoint(index, pos, 0.0f);
+		
+		return true;
 	}
 	
 	void Level::Update(const class UpdateInfo& updateInfo)

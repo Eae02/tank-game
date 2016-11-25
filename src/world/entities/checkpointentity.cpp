@@ -41,9 +41,8 @@ namespace TankGame
 			m_activated = true;
 			SetColor(ACTIVATED_COLOR);
 			
-			activatedEffectPlayer.Play(center, 1.0f, 1.0f);
-			
-			GetGameWorld()->SetCheckpoint(m_checkpointIndex, center, m_playerEntity->GetTransform().GetRotation());
+			if (GetGameWorld()->SetCheckpoint(m_checkpointIndex, center, m_playerEntity->GetTransform().GetRotation()))
+				activatedEffectPlayer.Play(center, 1.0f, 1.0f);
 		}
 	}
 	
