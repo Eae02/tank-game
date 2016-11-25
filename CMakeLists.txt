@@ -6,9 +6,7 @@ set(CMAKE_MODULE_PATH "${TankGame_SOURCE_DIR}/cmake")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TankGame_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${TankGame_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 
-message(${CMAKE_BUILD_TYPE})
-
-add_definitions(-DGLM_FORCE_RADIANS -DZLIB_CONST -Wall)
+add_definitions(-DGLM_FORCE_RADIANS -DZLIB_CONST)
 
 file(GLOB_RECURSE SOURCE_FILES
 		${TankGame_SOURCE_DIR}/src/*.cpp
@@ -34,6 +32,7 @@ find_library(GLFW_LIBRARIES NAMES glfw glfw3dll ${LIBRARY_SEARCH_PATH})
 
 if (CMAKE_COMPILER_IS_GNUCXX)
 	set(LIBS ${LIBS} stdc++fs X11)
+	add_definitions(-Wall)
 endif()
 
 if (${MSVC})
