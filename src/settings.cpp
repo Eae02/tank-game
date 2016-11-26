@@ -57,6 +57,14 @@ namespace TankGame
 		m_postProcessingQuality = ParseQualityString(qualityEl["post"].get<std::string>(), m_postProcessingQuality);
 		
 		m_enableBloom = qualityEl["bloom"].get<bool>();
+		
+		auto audioIt = settingsDocument.find("audio");
+		if (audioIt != settingsDocument.end())
+		{
+			m_masterVolume = (*audioIt)["masterVol"].get<float>();
+			m_musicVolume = (*audioIt)["musicVol"].get<float>();
+			m_sfxVolume = (*audioIt)["sfxVol"].get<float>();
+		}
 	}
 	
 	void Settings::Save(const fs::path& jsonPath) const
@@ -86,6 +94,12 @@ namespace TankGame
 		buttonsEl["interact"] = GetButtonString(m_interactButton);
 		buttonsEl["fire"] = GetButtonString(m_fireButton);
 		json["buttons"] = buttonsEl;
+		
+		nlohmann::json audioEl;
+		audioEl["masterVol"] = m_masterVolume;
+		audioEl["musicVol"] = m_musicVolume;
+		audioEl["sfxVol"] = m_sfxVolume;
+		json["audio"] = audioEl;
 		
 		std::ofstream stream(jsonPath);
 		stream << std::setw(4) << json;
