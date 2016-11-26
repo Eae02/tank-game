@@ -26,8 +26,7 @@ namespace TankGame
 			Chasing
 		};
 		
-		inline EnemyAI(class EnemyTank& entity, AIParameters parameters, Path idlePath)
-		    : m_entity(entity), m_parameters(std::move(parameters)), m_idlePath(std::move(idlePath)) { }
+		EnemyAI(class EnemyTank& entity, AIParameters parameters, Path idlePath);
 		
 		void Update(glm::vec2 playerPosition, const class UpdateInfo& updateInfo);
 		
@@ -40,6 +39,9 @@ namespace TankGame
 		{ return m_idlePath; }
 		inline Path& GetIdlePath()
 		{ return m_idlePath; }
+		
+		inline void SetIdlePathProgress(float progress)
+		{ m_idlePathProgress = progress; }
 		
 		void SetIdlePath(Path idlePath);
 		

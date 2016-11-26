@@ -116,10 +116,15 @@ namespace TankGame
 		
 		if (gameWorld.GetWorldType() != GameWorld::Types::Editor)
 		{
-			GetTransform().SetPosition(m_ai.GetIdlePath()[0]);
+			std::uniform_real_distribution<float> idlePathProgressDist(0.0f, m_ai.GetIdlePath().GetTotalLength());
+			float idlePathProgress = idlePathProgressDist(randomGen);
 			
-			glm::vec2 forward = m_ai.GetIdlePath()[1] - m_ai.GetIdlePath()[0];
-			GetTransform().SetRotation(glm::half_pi<float>() + std::atan2(forward.y, forward.x));
+			m_ai.SetIdlePathProgress(idlePathProgress);
+			
+			auto pathPos = m_ai.GetIdlePath().GetPositionFromProgress(idlePathProgress);
+			
+			GetTransform().SetPosition(pathPos.m_position);
+			GetTransform().SetRotation(glm::half_pi<float>() + std::atan2(pathPos.m_forward.y, pathPos.m_forward.x));
 		}
 		
 		m_oldPosition = GetTransform().GetPosition();

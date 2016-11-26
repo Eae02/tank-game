@@ -32,6 +32,9 @@ namespace TankGame
 		return false;
 	}
 	
+	EnemyAI::EnemyAI(EnemyTank& entity, AIParameters parameters, Path idlePath)
+	    : m_entity(entity), m_parameters(std::move(parameters)), m_idlePath(std::move(idlePath)) { }
+	
 	void EnemyAI::Update(glm::vec2 playerPosition, const UpdateInfo& updateInfo)
 	{
 		glm::vec2 toPlayer = playerPosition - m_entity.GetTransform().GetPosition();
