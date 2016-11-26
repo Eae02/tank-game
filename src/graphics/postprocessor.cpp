@@ -121,6 +121,12 @@ namespace TankGame
 		m_blurAmount = glm::clamp(blurAmount, 0.0f, 1.0f);
 	}
 	
+	void PostProcessor::SetGamma(float gamma)
+	{
+		m_gamma = gamma;
+		m_postSettingsNeedUpload = true;
+	}
+	
 	void PostProcessor::OnResize(GLsizei newWidth, GLsizei newHeight)
 	{
 		m_blurInputFramebuffer.Construct();

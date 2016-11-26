@@ -24,6 +24,10 @@ namespace TankGame
 		
 		void SetBlurAmount(float blurAmount);
 		
+		void SetGamma(float gamma);
+		inline float GetGamma() const
+		{ return m_gamma; }
+		
 	private:
 		static ShaderProgram LoadShader(const fs::path& path);
 		

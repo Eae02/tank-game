@@ -24,7 +24,7 @@ namespace TankGame
 	float Slider::s_labelStringAR;
 	
 	Slider::Slider(float min, float max, float snap)
-	    : m_min(min), m_max(max), m_snap(snap / (max - min))
+	    : m_min(min), m_max(max), m_snap(snap / (max - min)), m_roundExp(FloatEqual(snap, 0.0f) ? 1.0f : snap)
 	{
 		if (s_knobTexture.IsNull())
 		{
@@ -76,12 +76,13 @@ namespace TankGame
 	
 	void Slider::SetPosition(glm::vec2 position)
 	{
-		m_rectangle = Rectangle::CreateCentered(position, WIDTH, HEIGHT);
+		m_rectangle = Rectangle::CreateCentered(position, WIDTH, HEIGHT + 10.0f);
+		m_rectangle.h -= 10.0f;
 	}
 	
 	glm::vec2 Slider::GetSize() const
 	{
-		return { WIDTH, glm::max(HEIGHT, KNOB_SIZE) };
+		return { WIDTH, glm::max(HEIGHT, KNOB_SIZE) + 10.0f };
 	}
 	
 	void Slider::Draw(const UIRenderer& uiRenderer) const
@@ -106,12 +107,13 @@ namespace TankGame
 			
 			uiRenderer.DrawSprite(*s_labelTexture, labelRectangle, glm::vec4(selectionColor, m_grabbedTProgress));
 			
-			std::string valueString = std::to_string(static_cast<int>(glm::mix(m_min, m_max, m_position)));
+			std::ostringstream valueSS;
+			valueSS << std::round(glm::mix(m_min, m_max, m_position) / m_roundExp) * m_roundExp;
 			
 			float labelStringH = s_labelStringAR * LABEL_SIZE;
 			
 			Rectangle labelStringRect(labelRectangle.x, labelRectangle.FarY() - labelStringH, LABEL_SIZE, labelStringH);
-			uiRenderer.DrawString(Font::GetNamedFont(FontNames::StandardUI), valueString, labelStringRect,
+			uiRenderer.DrawString(Font::GetNamedFont(FontNames::StandardUI), valueSS.str(), labelStringRect,
 			                      Alignment::Center, Alignment::Center, glm::vec4(1));
 		}
 	}

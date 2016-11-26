@@ -69,6 +69,11 @@ namespace TankGame
 		static inline int GetDefaultResolutionIndex()
 		{ return s_defaultResolutionIndex; }
 		
+		inline float GetGamma() const
+		{ return m_gamma; }
+		inline void SetGamma(float gamma)
+		{ m_gamma = gamma; }
+		
 		inline float GetMasterVolume() const
 		{ return m_masterVolume; }
 		inline float GetMusicVolume() const
@@ -146,6 +151,8 @@ namespace TankGame
 		static int s_defaultResolutionIndex;
 		
 		int m_videoModeIndex;
+		
+		float m_gamma = 1.0f;
 		
 		int m_forwardButton = GLFW_KEY_W;
 		int m_backButton = GLFW_KEY_S;

@@ -30,6 +30,11 @@ namespace TankGame
 		virtual void SetBlurAmount(float blurAmount) final override
 		{ m_postProcessor.SetBlurAmount(blurAmount); }
 		
+		inline void SetGamma(float gamma)
+		{ m_postProcessor.SetGamma(gamma); }
+		inline float GetGamma() const
+		{ return m_postProcessor.GetGamma(); }
+		
 	private:
 		static constexpr GLenum COLOR_FORMAT = GL_RGBA16F;
 		static constexpr GLenum NORMALS_AND_SPECULAR_FORMAT = GL_RGBA16F;

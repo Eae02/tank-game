@@ -46,6 +46,10 @@ namespace TankGame
 		
 		m_enableVSync = videoEl["vsync"].get<bool>();
 		
+		auto gammaIt = videoEl.find("gamma");
+		if (gammaIt != videoEl.end())
+			m_gamma = gammaIt->get<float>();
+		
 		const nlohmann::json& qualityEl = videoEl["quality"];
 		
 		m_lightingQuality = ParseQualityString(qualityEl["lighting"].get<std::string>(), m_lightingQuality);
@@ -63,6 +67,7 @@ namespace TankGame
 		videoEl["fullscreen"] = m_isFullscreen;
 		videoEl["resolution"] = { m_resolution.x, m_resolution.y };
 		videoEl["vsync"] = m_enableVSync;
+		videoEl["gamma"] = m_gamma;
 		
 		nlohmann::json qualityEl;
 		qualityEl["lighting"] = GetQualityString(m_lightingQuality);

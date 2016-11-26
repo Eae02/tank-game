@@ -32,5 +32,7 @@ namespace TankGame
 		
 		float m_min, m_max, m_snap;
 		float m_position = 0;
+		
+		float m_roundExp;
 	};
 }

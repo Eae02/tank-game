@@ -30,14 +30,14 @@ namespace TankGame
 	
 	OptionsMenu::OptionsMenu()
 	    : m_settingLabels{
-	          Label(U"Display Mode"), Label(U"Fullscreen Resolution"), Label(U"V-Sync"),
+	          Label(U"Display Mode"), Label(U"Fullscreen Resolution"), Label(U"V-Sync"), Label(U"Gamma"),
 	          Label(U"Lighting"), Label(U"Particles"), Label(U"Post Processing"), Label(U"Bloom"),
 	          Label(U"Master Volume"), Label(U"Music Volume"), Label(U"SFX Volume")
 	      },
 	      m_backButton(U"Back"), m_applyButton(U"Apply"), m_displayModeComboBox{ U"Fullscreen", U"Windowed" },
-	      m_vSyncComboBox(CreateBoolComboBox()), m_lightingQualityComboBox(CreateQualityComboBox()),
-	      m_particlesQualityComboBox(CreateQualityComboBox()), m_postQualityComboBox(CreateQualityComboBox()),
-	      m_bloomComboBox(CreateBoolComboBox()),
+	      m_vSyncComboBox(CreateBoolComboBox()), m_gammaSlider(0.5f, 1.5f, 0.05f),
+	      m_lightingQualityComboBox(CreateQualityComboBox()), m_particlesQualityComboBox(CreateQualityComboBox()),
+	      m_postQualityComboBox(CreateQualityComboBox()), m_bloomComboBox(CreateBoolComboBox()),
 	      m_masterVolumeSlider(0, 100, 5), m_musicVolumeSlider(0, 100, 5), m_sfxVolumeSlider(0, 100, 5)
 	{
 		for (int i = 0; i < Settings::GetResolutionsCount(); i++)
@@ -111,6 +111,13 @@ namespace TankGame
 			long vSyncEnabled = Settings::GetInstance().EnableVSync();
 			if (m_vSyncComboBox.Update(updateInfo, vSyncEnabled))
 				Settings::GetInstance().SetEnableVSync(vSyncEnabled);
+		}
+		
+		if (!anyDropDownShown)
+		{
+			float gamma = Settings::GetInstance().GetGamma();
+			if (m_gammaSlider.Update(updateInfo, gamma))
+				Settings::GetInstance().SetGamma(gamma);
 		}
 		
 		if (!anyDropDownShown || m_lightingQualityComboBox.IsDropDownShown())
@@ -196,6 +203,7 @@ namespace TankGame
 		m_postQualityComboBox.Draw(uiRenderer);
 		m_particlesQualityComboBox.Draw(uiRenderer);
 		m_lightingQualityComboBox.Draw(uiRenderer);
+		m_gammaSlider.Draw(uiRenderer);
 		m_vSyncComboBox.Draw(uiRenderer);
 		m_resolutionsComboBox.Draw(uiRenderer);
 		m_displayModeComboBox.Draw(uiRenderer);
@@ -212,6 +220,7 @@ namespace TankGame
 			&m_displayModeComboBox,
 			&m_resolutionsComboBox,
 			&m_vSyncComboBox,
+			&m_gammaSlider,
 			nullptr,
 			&m_lightingQualityComboBox,
 			&m_particlesQualityComboBox,

@@ -545,6 +545,12 @@ namespace TankGame
 				glfwSwapInterval(isVSyncEnabled ? 1 : 0);
 			}
 			
+			if (!m_deferredRenderer.IsNull() &&
+			    !FloatEqual(m_deferredRenderer->GetGamma(), Settings::GetInstance().GetGamma()))
+			{
+				m_deferredRenderer->SetGamma(Settings::GetInstance().GetGamma());
+			}
+			
 			glfwPollEvents();
 			
 			bool shouldCaptureCursor = false;

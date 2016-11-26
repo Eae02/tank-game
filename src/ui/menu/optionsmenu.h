@@ -33,7 +33,7 @@ namespace TankGame
 		static constexpr size_t NUM_SECTIONS = 3;
 		static const std::array<std::u32string, NUM_SECTIONS> SECTION_TITLES;
 		
-		static constexpr float CONTENTS_HEIGHT = 600;
+		static constexpr float CONTENTS_HEIGHT = 620;
 		
 		void LayoutContentWidgets();
 		
@@ -46,7 +46,7 @@ namespace TankGame
 			    : m_string(string + U":") { }
 		};
 		
-		std::array<Label, 10> m_settingLabels;
+		std::array<Label, 11> m_settingLabels;
 		
 		std::array<Rectangle, NUM_SECTIONS> m_sectionTitleRectangles;
 		
@@ -71,6 +71,8 @@ namespace TankGame
 		ComboBox m_resolutionsComboBox;
 		
 		ComboBox m_vSyncComboBox;
+		
+		Slider m_gammaSlider;
 		
 		ComboBox m_lightingQualityComboBox;
 		ComboBox m_particlesQualityComboBox;
