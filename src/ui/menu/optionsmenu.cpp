@@ -15,6 +15,11 @@ namespace TankGame
 		return ComboBox{ U"Low", U"Medium", U"High" };
 	}
 	
+	static ComboBox CreateBoolComboBox()
+	{
+		return ComboBox{ U"Disabled", U"Enabled" };
+	}
+	
 	const std::array<std::u32string, OptionsMenu::NUM_SECTIONS> OptionsMenu::SECTION_TITLES = 
 	{
 		U"Display",
@@ -24,13 +29,14 @@ namespace TankGame
 	
 	OptionsMenu::OptionsMenu()
 	    : m_settingLabels{
-	          Label(U"Display Mode"), Label(U"Fullscreen Resolution"),
-	          Label(U"Lighting"), Label(U"Particles"), Label(U"Post Processing"),
+	          Label(U"Display Mode"), Label(U"Fullscreen Resolution"), Label(U"V-Sync"),
+	          Label(U"Lighting"), Label(U"Particles"), Label(U"Post Processing"), Label(U"Bloom"),
 	          Label(U"Master Volume"), Label(U"Music Volume"), Label(U"SFX Volume")
 	      },
 	      m_backButton(U"Back"), m_applyButton(U"Apply"), m_displayModeComboBox{ U"Fullscreen", U"Windowed" },
-	      m_lightingQualityComboBox(CreateQualityComboBox()), m_particlesQualityComboBox(CreateQualityComboBox()),
-	      m_postQualityComboBox(CreateQualityComboBox()),
+	      m_vSyncComboBox(CreateBoolComboBox()), m_lightingQualityComboBox(CreateQualityComboBox()),
+	      m_particlesQualityComboBox(CreateQualityComboBox()), m_postQualityComboBox(CreateQualityComboBox()),
+	      m_bloomComboBox(CreateBoolComboBox()),
 	      m_masterVolumeSlider(0, 100, 5), m_musicVolumeSlider(0, 100, 5), m_sfxVolumeSlider(0, 100, 5)
 	{
 		for (int i = 0; i < Settings::GetResolutionsCount(); i++)
@@ -44,7 +50,6 @@ namespace TankGame
 		}
 		
 		m_displayModeIndex = Settings::GetInstance().IsFullscreen() ? 0 : 1;
-		
 		m_currentResolutionIndex = Settings::GetDefaultResolutionIndex();
 	}
 	
@@ -74,9 +79,11 @@ namespace TankGame
 		
 		bool anyDropDownShown = m_resolutionsComboBox.IsDropDownShown() ||
 		        m_displayModeComboBox.IsDropDownShown() ||
+		        m_vSyncComboBox.IsDropDownShown() ||
 		        m_lightingQualityComboBox.IsDropDownShown() ||
 		        m_particlesQualityComboBox.IsDropDownShown() ||
-		        m_postQualityComboBox.IsDropDownShown();
+		        m_postQualityComboBox.IsDropDownShown() ||
+		        m_bloomComboBox.IsDropDownShown();
 		
 		if (!anyDropDownShown || m_resolutionsComboBox.IsDropDownShown())
 		{
@@ -86,6 +93,13 @@ namespace TankGame
 		if (!anyDropDownShown || m_displayModeComboBox.IsDropDownShown())
 		{
 			m_displayModeComboBox.Update(updateInfo, m_displayModeIndex);
+		}
+		
+		if (!anyDropDownShown || m_vSyncComboBox.IsDropDownShown())
+		{
+			long vSyncEnabled = Settings::GetInstance().EnableVSync();
+			if (m_vSyncComboBox.Update(updateInfo, vSyncEnabled))
+				Settings::GetInstance().SetEnableVSync(vSyncEnabled);
 		}
 		
 		if (!anyDropDownShown || m_lightingQualityComboBox.IsDropDownShown())
@@ -107,6 +121,13 @@ namespace TankGame
 			long postQuality = static_cast<long>(Settings::GetInstance().GetPostProcessingQuality());
 			if (m_postQualityComboBox.Update(updateInfo, postQuality))
 				Settings::GetInstance().SetPostProcessingQuality(static_cast<QualitySettings>(postQuality));
+		}
+		
+		if (!anyDropDownShown || m_bloomComboBox.IsDropDownShown())
+		{
+			long bloomEnabled = Settings::GetInstance().EnableBloom();
+			if (m_bloomComboBox.Update(updateInfo, bloomEnabled))
+				Settings::GetInstance().SetEnableBloom(bloomEnabled);
 		}
 		
 		if (!anyDropDownShown)
@@ -157,14 +178,16 @@ namespace TankGame
 		}
 		
 		//It is important to draw elements in reverse order!
+		m_sfxVolumeSlider.Draw(uiRenderer);
+		m_musicVolumeSlider.Draw(uiRenderer);
+		m_masterVolumeSlider.Draw(uiRenderer);
+		m_bloomComboBox.Draw(uiRenderer);
 		m_postQualityComboBox.Draw(uiRenderer);
 		m_particlesQualityComboBox.Draw(uiRenderer);
 		m_lightingQualityComboBox.Draw(uiRenderer);
+		m_vSyncComboBox.Draw(uiRenderer);
 		m_resolutionsComboBox.Draw(uiRenderer);
 		m_displayModeComboBox.Draw(uiRenderer);
-		m_masterVolumeSlider.Draw(uiRenderer);
-		m_musicVolumeSlider.Draw(uiRenderer);
-		m_sfxVolumeSlider.Draw(uiRenderer);
 		
 		PopScissorRect();
 	}
@@ -177,10 +200,12 @@ namespace TankGame
 			nullptr,
 			&m_displayModeComboBox,
 			&m_resolutionsComboBox,
+			&m_vSyncComboBox,
 			nullptr,
 			&m_lightingQualityComboBox,
 			&m_particlesQualityComboBox,
 			&m_postQualityComboBox,
+			&m_bloomComboBox,
 			nullptr,
 			&m_masterVolumeSlider,
 			&m_musicVolumeSlider,

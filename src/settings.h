@@ -129,6 +129,8 @@ namespace TankGame
 		{ m_particlesQuality = particleQuality; }
 		inline void SetPostProcessingQuality(QualitySettings postProcessingQuality)
 		{ m_postProcessingQuality = postProcessingQuality; }
+		inline void SetEnableBloom(bool enableBloom)
+		{ m_enableBloom = enableBloom; }
 		
 	private:
 		static void MaybeParseButtonFromJSON(const nlohmann::json& json, const std::string& elementName, int& out);
