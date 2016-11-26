@@ -33,6 +33,8 @@ namespace TankGame
 		static constexpr size_t NUM_SECTIONS = 3;
 		static const std::array<std::u32string, NUM_SECTIONS> SECTION_TITLES;
 		
+		static constexpr float CONTENTS_HEIGHT = 600;
+		
 		void LayoutContentWidgets();
 		
 		struct Label
@@ -52,6 +54,9 @@ namespace TankGame
 		ApplyCallback m_applyCallback;
 		
 		Rectangle m_scissorArea;
+		
+		float m_scroll = 0;
+		float m_maxScroll = 0;
 		
 		float m_contentsBeginY = 0;
 		float m_contentsBeginX = 0;

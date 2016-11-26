@@ -49,8 +49,8 @@ namespace TankGame
 			x = glm::max(x, currentRect.m_x);
 			y = glm::max(y, currentRect.m_y);
 			
-			w = glm::min(x + w, currentRect.m_x + currentRect.m_width) - x;
-			h = glm::min(y + h, currentRect.m_y + currentRect.m_height) - y;
+			w = glm::max(glm::min(x + w, currentRect.m_x + currentRect.m_width) - x, 0);
+			h = glm::max(glm::min(y + h, currentRect.m_y + currentRect.m_height) - y, 0);
 		}
 		
 		scissorRectStack.emplace(x, y, w, h);

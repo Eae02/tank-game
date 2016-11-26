@@ -4,6 +4,7 @@
 #include "../../graphics/ui/font.h"
 #include "../../graphics/scissor.h"
 #include "../../settings.h"
+#include "../../mouse.h"
 #include "../../utils/utils.h"
 
 #include <sstream>
@@ -63,6 +64,10 @@ namespace TankGame
 		
 		m_scissorArea = { 0, 120, static_cast<float>(newWidth), m_contentsBeginY - 120 };
 		
+		m_maxScroll = glm::max(CONTENTS_HEIGHT - m_scissorArea.h, 0.0f);
+		if (m_scroll > m_maxScroll)
+			m_scroll = m_maxScroll;
+		
 		LayoutContentWidgets();
 	}
 	
@@ -84,6 +89,12 @@ namespace TankGame
 		        m_particlesQualityComboBox.IsDropDownShown() ||
 		        m_postQualityComboBox.IsDropDownShown() ||
 		        m_bloomComboBox.IsDropDownShown();
+		
+		if (!anyDropDownShown && std::abs(updateInfo.m_mouse.GetDeltaScroll()) > 1E-6f)
+		{
+			m_scroll = glm::clamp(m_scroll - updateInfo.m_mouse.GetDeltaScroll() * 20, 0.0f, m_maxScroll);
+			LayoutContentWidgets();
+		}
 		
 		if (!anyDropDownShown || m_resolutionsComboBox.IsDropDownShown())
 		{
@@ -212,7 +223,7 @@ namespace TankGame
 			&m_sfxVolumeSlider
 		};
 		
-		float y = m_contentsBeginY;
+		float y = m_contentsBeginY + m_scroll;
 		int nextSectionTitle = 0;
 		int nextSettingLabel = 0;
 		
