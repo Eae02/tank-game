@@ -4,8 +4,9 @@
 #include "audio/almanager.h"
 #include "audio/soundsmanager.h"
 #include "utils/ioutils.h"
+#include "exceptions/fatalexception.h"
 #include "graphics/ui/font.h"
-
+#include "messagebox.h"
 #include "orientedrectangle.h"
 
 #include <cstring>
@@ -36,58 +37,56 @@ static ArgumentData ParseArguments(int argc, const char** argv)
 
 static void GLFWErrorCallback(int error, const char* description)
 {
-	throw std::runtime_error(std::to_string(error) + " " + description);
+	throw FatalException(std::to_string(error) + " " + description);
 }
 
 int main(int argc, const char** argv)
 {
-	if (!fs::exists(GetResDirectory()))
+	try
 	{
-		std::cerr << "res directory not found. Needs to be in the same directory as the executable!\n";
-		return 1;
-	}
-	
-	if (!glfwInit())
-	{
-		std::cerr << "Error initializing GLFW.\n";
-		return 1;
-	}
-	
-	glfwSetErrorCallback(GLFWErrorCallback);
-	
-	Settings::DetectVideoModes();
-	
-	if (FT_Init_FreeType(&TankGame::theFTLibrary) != 0)
-	{
-		std::cerr << "Error initializing freetype.\n";
+		if (!fs::exists(GetResDirectory()))
+			throw FatalException("res directory not found. Needs to be in the same directory as the executable!");
+		
+		if (!glfwInit())
+			throw FatalException("Error initializing GLFW.");
+		
+		glfwSetErrorCallback(GLFWErrorCallback);
+		
+		Settings::DetectVideoModes();
+		
+		if (FT_Init_FreeType(&TankGame::theFTLibrary) != 0)
+			throw FatalException("Error initializing freetype.");
+		
+		InitOpenAL();
+		
+		fs::path progressPath(GetDataDirectory() / "progress.json");
+		if (fs::exists(progressPath))
+			Progress::SetInstance({ progressPath });
+		
+		fs::path settingsPath(GetDataDirectory() / "settings.json");
+		if (fs::exists(settingsPath))
+			Settings::SetInstance(Settings(settingsPath));
+		else
+			Settings::SetInstance(Settings());
+		
+		{
+			Window window(ParseArguments(argc, argv));
+			window.RunGame();
+		}
+		
+		Settings::GetInstance().Save(settingsPath);
+		Progress::GetInstance().Save(progressPath);
+		
+		SoundsManager::SetInstance(nullptr);
+		CloseOpenAL();
+		
+		FT_Done_FreeType(TankGame::theFTLibrary);
+		
 		glfwTerminate();
+	}
+	catch (const FatalException& exception)
+	{
+		ShowErrorMessage(exception.what(), "Error");
 		return 1;
 	}
-	
-	InitOpenAL();
-	
-	fs::path progressPath(GetDataDirectory() / "progress.json");
-	if (fs::exists(progressPath))
-		Progress::SetInstance({ progressPath });
-	
-	fs::path settingsPath(GetDataDirectory() / "settings.json");
-	if (fs::exists(settingsPath))
-		Settings::SetInstance(Settings(settingsPath));
-	else
-		Settings::SetInstance(Settings());
-	
-	{
-		Window window(ParseArguments(argc, argv));
-		window.RunGame();
-	}
-	
-	Settings::GetInstance().Save(settingsPath);
-	Progress::GetInstance().Save(progressPath);
-	
-	SoundsManager::SetInstance(nullptr);
-	CloseOpenAL();
-	
-	FT_Done_FreeType(TankGame::theFTLibrary);
-	
-	glfwTerminate();
 }

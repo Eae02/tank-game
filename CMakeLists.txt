@@ -31,8 +31,16 @@ find_path(GLFW_INCLUDE_DIR GLFW/glfw3.h ${HEADER_SEARCH_PATH})
 find_library(GLFW_LIBRARIES NAMES glfw glfw3dll ${LIBRARY_SEARCH_PATH})
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-	set(LIBS ${LIBS} stdc++fs X11)
 	add_definitions(-Wall)
+	
+	find_package(PkgConfig REQUIRED)
+	pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+	
+	include_directories(${GTK3_INCLUDE_DIRS})
+	link_directories(${GTK3_LIBRARY_DIRS})
+	add_definitions(${GTK3_CFLAGS_OTHER})
+	
+	set(LIBS ${LIBS} stdc++fs X11 ${GTK3_LIBRARIES})
 endif()
 
 if (${MSVC})
