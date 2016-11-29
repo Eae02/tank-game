@@ -54,7 +54,7 @@ namespace TankGame
 		for (uint32_t y = 0; y < height; y++)
 		{
 			for (uint32_t x = 0; x < width; x++)
-				tileGrid->SetTileID(x, y, tileIds[x + y * width]);
+				tileGrid->SetTileID({ x, y }, tileIds[x + y * width]);
 		}
 		tileGrid->UploadGridData();
 		gameWorld->SetTileGrid(std::move(tileGrid));

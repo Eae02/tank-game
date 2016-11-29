@@ -5,7 +5,7 @@
 #include "../../utils/ioutils.h"
 #include "../../utils/mathutils.h"
 #include "../../utils/lazy.h"
-#include "../../world/path.h"
+#include "../../world/path/path.h"
 #include "../../mouse.h"
 #include "../../keyboard.h"
 

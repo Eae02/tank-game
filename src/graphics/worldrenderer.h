@@ -6,7 +6,7 @@
 #include "irenderer.h"
 #include "shadowrenderer.h"
 #include "../world/entity.h"
-#include "../world/path.h"
+#include "../world/path/path.h"
 
 namespace TankGame
 {

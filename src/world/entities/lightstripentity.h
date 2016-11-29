@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../entity.h"
-#include "../path.h"
+#include "../path/path.h"
 #include "../../utils/memory/stackobject.h"
 #include "../../graphics/gl/buffer.h"
 #include "../../graphics/gl/shaderprogram.h"

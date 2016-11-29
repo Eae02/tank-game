@@ -1,5 +1,5 @@
 #include "lightstripparser.h"
-#include "../../path.h"
+#include "../../path/path.h"
 #include "../../entities/lightstripentity.h"
 #include "../../../utils/jsonparseutils.h"
 

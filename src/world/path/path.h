@@ -3,7 +3,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 
-#include "../graphics/gl/buffer.h"
+#include "../../graphics/gl/buffer.h"
 
 namespace TankGame
 {

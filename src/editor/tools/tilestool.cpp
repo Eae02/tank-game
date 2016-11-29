@@ -53,7 +53,7 @@ namespace TankGame
 		TileGrid* grid = GetGameWorld().GetTileGrid();
 		
 		glm::vec2 worldMouseCoords = GetNewWorldMouseCoords(updateInfo);
-		m_selectedTile = {std::floor(worldMouseCoords.x), std::floor(worldMouseCoords.y)};
+		m_selectedTile = { std::floor(worldMouseCoords.x), std::floor(worldMouseCoords.y) };
 		if (m_selectedTile.x < 0 || m_selectedTile.y < 0 || m_selectedTile.x >= grid->GetWidth() ||
 		    m_selectedTile.y >= grid->GetHeight())
 		{
@@ -63,9 +63,9 @@ namespace TankGame
 		{
 			if (updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
 			{
-				if (grid->GetTileID(m_selectedTile.x, m_selectedTile.y) != m_currentTileID)
+				if (grid->GetTileID(m_selectedTile) != m_currentTileID)
 				{
-					grid->SetTileID(m_selectedTile.x, m_selectedTile.y, m_currentTileID);
+					grid->SetTileID(m_selectedTile, m_currentTileID);
 					grid->UploadGridData(m_selectedTile.x, m_selectedTile.y, 1, 1);
 					m_tileGridChanged = true;
 				}

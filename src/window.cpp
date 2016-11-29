@@ -9,7 +9,6 @@
 #include "world/particles/systems/smokeparticlesystem.h"
 #include "world/entities/playerentity.h"
 #include "world/entities/checkpointentity.h"
-#include "world/pathfinder.h"
 #include "audio/almanager.h"
 #include "utils/ioutils.h"
 #include "utils/mathutils.h"

@@ -224,6 +224,9 @@ namespace TankGame
 		m_moveBeginMousePosWs = mouseCoordsWS;
 	}
 	
+	extern std::vector<glm::ivec2> lastPath;
+	extern std::vector<std::array<glm::vec2, 2>> lastPathPortals;
+	
 	void EntityTool::DrawUI(const ViewInfo& viewInfo, UIRenderer& uiRenderer)
 	{
 		m_spawnMenu.Render();

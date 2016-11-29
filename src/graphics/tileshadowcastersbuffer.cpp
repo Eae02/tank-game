@@ -50,7 +50,7 @@ namespace TankGame
 		{
 			for (int x = 0; x < tileGrid.GetWidth(); x++)
 			{
-				uint8_t tileID = tileGrid.GetTileID(x, y);
+				uint8_t tileID = tileGrid.GetTileID({ x, y });
 				if (!material.IsSolid(tileID))
 					continue;
 				
@@ -63,7 +63,7 @@ namespace TankGame
 						continue;
 					}
 					
-					if (material.IsSolid(tileGrid.GetTileID(forwardTilePos.x, forwardTilePos.y)))
+					if (material.IsSolid(tileGrid.GetTileID(forwardTilePos)))
 						continue;
 					
 					glm::vec2 left(faceNormals[f].y, -faceNormals[f].x);

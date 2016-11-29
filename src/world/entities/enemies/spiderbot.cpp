@@ -4,7 +4,7 @@
 #include "../pickups/hppickupentity.h"
 #include "../../props/propclass.h"
 #include "../../props/propsmanager.h"
-#include "../../pathfinder.h"
+#include "../../path/pathfinder.h"
 #include "../../gameworld.h"
 #include "../../spteams.h"
 #include "../../../settings.h"
@@ -104,9 +104,8 @@ namespace TankGame
 			{
 				m_pathToPlayer = Path();
 				
-				if (!PathFinder::GetInstance().FindPath(*GetGameWorld(), GetTransform().GetPosition(), 
-				                                        m_player->GetTransform().GetPosition(), m_pathToPlayer,
-				                                        CIRCLE_RADIUS))
+				if (!FindPath(*GetGameWorld(), GetTransform().GetPosition(),  m_player->GetTransform().GetPosition(),
+				              m_pathToPlayer, CIRCLE_RADIUS))
 				{
 					OnKilled();
 					return;

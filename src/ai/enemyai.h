@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-#include "../world/path.h"
+#include "../world/path/path.h"
 
 namespace TankGame
 {

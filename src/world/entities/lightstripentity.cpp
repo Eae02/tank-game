@@ -1,5 +1,5 @@
 #include "lightstripentity.h"
-#include "../path.h"
+#include "../path/path.h"
 #include "../gameworld.h"
 #include "../lights/raylightentity.h"
 #include "../../graphics/gl/shadermodule.h"

@@ -2,7 +2,7 @@
 #include "aiutils.h"
 #include "../world/entities/enemies/enemytank.h"
 #include "../world/gameworld.h"
-#include "../world/pathfinder.h"
+#include "../world/path/pathfinder.h"
 #include "../world/spteams.h"
 #include "../utils/mathutils.h"
 #include "../utils/lazy.h"
@@ -19,8 +19,8 @@ namespace TankGame
 	{
 		Path newPath;
 		
-		if (PathFinder::GetInstance().FindPath(*m_gameWorld, m_entity.GetTransform().GetPosition(),
-		                                       playerPosition, newPath, m_parameters.m_circleRadius))
+		if (FindPath(*m_gameWorld, m_entity.GetTransform().GetPosition(),
+		             playerPosition, newPath, m_parameters.m_circleRadius))
 		{
 			m_chasePathProgress = 0.0f;
 			m_lastPathUpdateTime = glfwGetTime();
@@ -83,8 +83,8 @@ namespace TankGame
 					
 					Path newPath;
 					
-					if (PathFinder::GetInstance().FindPath(*m_gameWorld, m_entity.GetTransform().GetPosition(),
-					                                       playerPosition, newPath, m_parameters.m_circleRadius))
+					if (FindPath(*m_gameWorld, m_entity.GetTransform().GetPosition(),
+					             playerPosition, newPath, m_parameters.m_circleRadius))
 					{
 						m_path = std::move(newPath);
 					}
@@ -114,9 +114,8 @@ namespace TankGame
 					
 					auto returnPoint = m_idlePath.GetClosestPointOnPath(m_entity.GetTransform().GetPosition());
 					
-					if (!PathFinder::GetInstance().FindPath(*m_gameWorld, m_entity.GetTransform().GetPosition(),
-					                                        returnPoint.m_position, newPath,
-					                                        m_parameters.m_circleRadius))
+					if (!FindPath(*m_gameWorld, m_entity.GetTransform().GetPosition(), returnPoint.m_position, newPath,
+					              m_parameters.m_circleRadius))
 					{
 						//This shouldn't happen, but if it does the entity is moved back to the start of the idle path.
 						GetLogStream() << "[error] AI panic: No return path found\n";
@@ -157,8 +156,8 @@ namespace TankGame
 		{
 			Path path;
 			
-			if (PathFinder::GetInstance().FindPath(*m_gameWorld, m_entity.GetTransform().GetPosition(),
-			                                       playerPosition, path, m_parameters.m_circleRadius))
+			if (FindPath(*m_gameWorld, m_entity.GetTransform().GetPosition(), playerPosition, path,
+			             m_parameters.m_circleRadius))
 			{
 				m_path = std::move(path);
 				m_chasePathProgress = 0;

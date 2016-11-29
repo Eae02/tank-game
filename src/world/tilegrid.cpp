@@ -29,26 +29,26 @@ namespace TankGame
 		m_rotationsTexture.SetMagFilter(GL_NEAREST);
 	}
 	
-	void TileGrid::SetTileID(int x, int y, uint8_t tileID)
+	void TileGrid::SetTileID(glm::ivec2 pos, uint8_t tileID)
 	{
-		if (x >= m_width || y >= m_height || x < 0 || y < 0)
+		if (pos.x >= m_width || pos.y >= m_height || pos.x < 0 || pos.y < 0)
 			throw std::runtime_error("Tile index out of range.");
-		m_gridData[x + y * m_width] = tileID;
+		m_gridData[pos.x + pos.y * m_width] = tileID;
 	}
 	
-	void TileGrid::SetTileRotation(int x, int y, float rotation)
+	void TileGrid::SetTileRotation(glm::ivec2 pos, float rotation)
 	{
-		if (x >= m_width || y >= m_height || x < 0 || y < 0)
+		if (pos.x >= m_width || pos.y >= m_height || pos.x < 0 || pos.y < 0)
 			throw std::runtime_error("Tile index out of range.");
 		
-		m_rotationData[x + y * m_width] = { std::cos(rotation), std::sin(rotation) };
+		m_rotationData[pos.x + pos.y * m_width] = { std::cos(rotation), std::sin(rotation) };
 	}
 	
-	uint8_t TileGrid::GetTileID(int x, int y) const
+	uint8_t TileGrid::GetTileID(glm::ivec2 pos) const
 	{
-		if (x > m_width || y > m_height)
+		if (pos.x > m_width || pos.y > m_height || pos.x < 0 || pos.y < 0)
 			throw std::runtime_error("Tile index out of range.");
-		return m_gridData[x + y * m_width];
+		return m_gridData[pos.x + pos.y * m_width];
 	}
 	
 	void TileGrid::PrepareForRendering(const class ViewInfo& viewInfo) const
@@ -135,7 +135,7 @@ namespace TankGame
 		{
 			for (int x = start.x; x <= end.x; x++)
 			{
-				if (!material.IsSolid(GetTileID(x, y)))
+				if (!material.IsSolid(GetTileID({ x, y })))
 					continue;
 				
 				if (circle.GetCenter().x > x && circle.GetCenter().y > y &&
@@ -216,7 +216,7 @@ namespace TankGame
 			
 			for (int col = firstVlCross - 1; col <= lastVlCross; col++)
 			{
-				if (col < 0 || col >= m_width || !material.IsSolid(GetTileID(col, row)))
+				if (col < 0 || col >= m_width || !material.IsSolid(GetTileID({ col, row })))
 					continue;
 				
 				int thisVlX = col;
@@ -272,7 +272,7 @@ namespace TankGame
 			
 			for (int col = firstVlCross - 1; col <= lastVlCross; col++)
 			{
-				if (col >= 0 && col < m_width && material.IsSolid(GetTileID(col, row)))
+				if (col >= 0 && col < m_width && material.IsSolid(GetTileID({ col, row })))
 					return true;
 			}
 		}
@@ -302,7 +302,7 @@ namespace TankGame
 		
 		while (true)
 		{
-			bool solid = InRange(coords) && material.IsSolid(GetTileID(coords.x, coords.y));
+			bool solid = InRange(coords) && material.IsSolid(GetTileID(coords));
 			
 			if ((solid && enterStepDir == 1) || (step.y > 0 ? coords.y >= m_height : coords.y < 0))
 			{

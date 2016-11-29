@@ -4,7 +4,7 @@
 #include <glm/vec2.hpp>
 
 #include "intersectinfo.h"
-#include "path.h"
+#include "path/path.h"
 #include "../graphics/gl/texture2d.h"
 #include "../graphics/gl/bufferallocator.h"
 #include "../graphics/gl/vertexarray.h"
@@ -19,10 +19,10 @@ namespace TankGame
 	public:
 		TileGrid(int width, int height);
 		
-		void SetTileID(int x, int y, uint8_t tileID);
-		void SetTileRotation(int x, int y, float rotation);
+		void SetTileID(glm::ivec2 pos, uint8_t tileID);
+		void SetTileRotation(glm::ivec2 pos, float rotation);
 		
-		uint8_t GetTileID(int x, int y) const;
+		uint8_t GetTileID(glm::ivec2 pos) const;
 		
 		void UploadGridData();
 		void UploadGridData(int x, int y, int width, int height);

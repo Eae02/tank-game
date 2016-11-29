@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../world/path.h"
+#include "../world/path/path.h"
 #include "../transform.h"
 
 namespace TankGame

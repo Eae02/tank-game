@@ -5,6 +5,7 @@
 #include "../../updateinfo.h"
 #include "../../graphics/viewinfo.h"
 #include "../../graphics/ui/uirenderer.h"
+#include "../../world/path/path.h"
 
 #include <vector>
 

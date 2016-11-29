@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "../../lights/pointlightentity.h"
-#include "../../path.h"
+#include "../../path/path.h"
 #include "../hittable.h"
 
 namespace TankGame
