@@ -201,6 +201,18 @@ namespace TankGame
 			m_gameManager->GetLevel()->GetPlayerEntity().GivePowerUp(static_cast<PowerUps>(powerUpID));
 		}, 1);
 		
+		m_console.AddCommand("ammo", [&] (const std::string* argv, size_t argc)
+		{
+			if (m_gameManager->GetLevel() == nullptr)
+				throw Console::CommandException("No level loaded.");
+			
+			int weaponID = std::stoi(argv[0]);
+			if (weaponID < 0 || weaponID >= SPECIAL_WEAPONS_COUNT)
+				throw Console::CommandException("Invalid weapon id: " + argv[0] + ".");
+			
+			m_gameManager->GetLevel()->GetPlayerEntity().GetWeaponState().GiveAmmo(static_cast<SpecialWeapons>(weaponID), std::stoi(argv[1]));
+		}, 2);
+		
 		m_console.AddCommand("edit", [&] (const std::string* argv, size_t argc) { EditLevel(argv[0]); }, 1);
 		
 		m_console.AddCommand("level", [&] (const std::string* argv, size_t argc) { LoadLevel(argv[0]); }, 1);

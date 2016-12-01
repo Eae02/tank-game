@@ -5,6 +5,7 @@
 #include "../spteams.h"
 #include "../gameworld.h"
 #include "../../tanktextures.h"
+#include "../../audio/soundsmanager.h"
 #include "../../updateinfo.h"
 #include "../../graphics/spriterenderlist.h"
 #include "../../graphics/imainrenderer.h"
@@ -13,6 +14,7 @@
 #include "../../utils/mathutils.h"
 #include "../../utils/utils.h"
 #include "../../utils/ioutils.h"
+#include "../../gamemanager.h"
 
 #include <glm/gtc/color_space.hpp>
 
@@ -64,11 +66,18 @@ namespace TankGame
 			
 			s_areTexturesLoaded = true;
 		}
+		
+		m_noAmmoAudioSource.SetBuffer(SoundsManager::GetInstance().GetSound("NoAmmo"));
 	}
 	
 	void PlayerEntity::Update(const UpdateInfo& updateInfo)
 	{
 		m_powerUpState.Update(updateInfo.m_dt);
+		
+		if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_1))
+			m_weaponState.SelectPlasmaGun();
+		else if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_2))
+			m_weaponState.SelectSpecialWeapon(SpecialWeapons::RocketLauncher);
 		
 		glm::vec2 forward = GetTransform().GetForward();
 		
@@ -155,7 +164,26 @@ namespace TankGame
 		glm::vec2 pos = GetTransform().GetPosition();
 		SetCannonRotation(glm::half_pi<float>() + std::atan2(mouseWorldPos.y - pos.y, mouseWorldPos.x - pos.x));
 		
+		//Regenerates energy
+		m_energyRegenTime += updateInfo.m_dt;
+		if (m_energyRegenTime > 2)
+		{
+			m_energyRegenTime = 2;
+			m_energy = glm::min(m_energy + updateInfo.m_dt * 15, 100.0f);
+		}
+		
 		if (updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT) && CanFire(updateInfo.m_gameTime))
+			FireSelectedWeapon(updateInfo.m_gameTime);
+		
+		TankEntity::Update(updateInfo);
+	}
+	
+	void PlayerEntity::FireSelectedWeapon(float gameTime)
+	{
+		FireParameters fireParams;
+		fireParams.m_homing = HasPowerUp(PowerUps::HomingBullets);
+		
+		if (m_weaponState.IsUsingPlasmaGun())
 		{
 			float fireCost = s_energyUsageDist(randomGen);
 			bool hasEnoughEnergy = true;
@@ -170,12 +198,9 @@ namespace TankGame
 			
 			if (hasEnoughEnergy)
 			{
-				FireParameters fireParams;
-				
 				fireParams.m_rotationOffset = m_dist(randomGen) * glm::length(m_velocity) * 0.03f;
-				fireParams.m_homing = HasPowerUp(PowerUps::HomingBullets);
 				
-				FirePlasmaGun(ParseColorHexCodeSRGB(0x50FF4A), 10, updateInfo.m_gameTime, fireParams);
+				FirePlasmaGun(ParseColorHexCodeSRGB(0x50FF4A), 10, gameTime, fireParams);
 				
 				m_energy -= fireCost;
 				m_energyRegenTime = 0;
@@ -183,15 +208,25 @@ namespace TankGame
 		}
 		else
 		{
-			m_energyRegenTime += updateInfo.m_dt;
-			if (m_energyRegenTime > 2)
+			if (m_weaponState.GetAmmoCount(m_weaponState.GetCurrentSpecialWeapon()) == 0)
 			{
-				m_energyRegenTime = 2;
-				m_energy = glm::min(m_energy + updateInfo.m_dt * 15, 100.0f);
+				GetGameWorld()->GetGameManager()->ShowNoAmmoText();
+				
+				if (!m_noAmmoAudioSource.IsPlaying())
+					m_noAmmoAudioSource.Play(0.7f, 1.0f);
+			}
+			else
+			{
+				switch (m_weaponState.GetCurrentSpecialWeapon())
+				{
+				case SpecialWeapons::RocketLauncher:
+					FireRocket(50, gameTime, fireParams);
+					break;
+				}
+				
+				m_weaponState.GiveAmmo(m_weaponState.GetCurrentSpecialWeapon(), -1);
 			}
 		}
-		
-		TankEntity::Update(updateInfo);
 	}
 	
 	Circle PlayerEntity::GetHitCircle() const

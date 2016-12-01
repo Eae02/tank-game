@@ -41,6 +41,9 @@ namespace TankGame
 		inline WorldRenderer& GetRenderer()
 		{ return m_renderer; }
 		
+		inline void ShowNoAmmoText()
+		{ m_hudManager.ShowNoAmmoText(); }
+		
 		inline void SetQuitCallback(std::function<void()> quitCallback)
 		{ m_quitCallback = std::move(quitCallback); }
 		

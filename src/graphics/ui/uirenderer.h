@@ -30,11 +30,11 @@ namespace TankGame
 		void DrawSprite(const Texture2D& texture, const Rectangle& targetRectangle, const Rectangle& sampleRectangle,
 		                const glm::vec4& shade) const;
 		
-		void DrawString(const class Font& font, const std::string& string, Rectangle rectangle, Alignment alignX,
-		                Alignment alignY, const glm::vec4& color, float scale = 1) const;
+		glm::vec2 DrawString(const class Font& font, const std::string& string, Rectangle rectangle,
+		                     Alignment alignX, Alignment alignY, const glm::vec4& color, float scale = 1) const;
 		
-		void DrawString(const class Font& font, const std::u32string& string, Rectangle rectangle, Alignment alignX,
-		                Alignment alignY, const glm::vec4& color, float scale = 1) const;
+		glm::vec2 DrawString(const class Font& font, const std::u32string& string, Rectangle rectangle,
+		                     Alignment alignX, Alignment alignY, const glm::vec4& color, float scale = 1) const;
 		
 		void DrawRectangle(const Rectangle& rectangle, const glm::vec4& color) const;
 		void DrawQuad(const glm::mat3& transform, const glm::vec4& color) const;

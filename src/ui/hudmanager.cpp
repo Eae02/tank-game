@@ -1,4 +1,4 @@
-#include "hudmanager.h"
+﻿#include "hudmanager.h"
 #include "../utils/ioutils.h"
 #include "../utils/utils.h"
 #include "../world/entities/playerentity.h"
@@ -18,6 +18,9 @@ namespace TankGame
 	
 	const float HP_BAR_WIDTH = 20 PERCENT;
 	const float CHECKPOINT_REACHED_WIDTH = 40 PERCENT;
+	
+	const float WEAPON_ICON_WIDTH = 4 PERCENT;
+	const float WEAPON_ICON_PADDING = 1 PERCENT;
 	
 	static ShaderProgram LoadShader()
 	{
@@ -67,9 +70,12 @@ namespace TankGame
 	
 	HUDManager::HUDManager(IMainRenderer& mainRenderer)
 	    : m_mainRenderer(mainRenderer),
+	      m_weaponIcons{ WeaponIcon(0), WeaponIcon(1) },
 	      m_vertexBuffer(CreateVertexBuffer(m_vertexCount)),
 	      m_textures(GetResDirectory() / "ui"), m_shader(LoadShader())
 	{
+		WeaponIcon::MaybeLoadIcons();
+		
 		int attribSizes[] = { 3, 2 };
 		int offset = 0;
 		for (GLuint i = 0; i < ArrayLength(attribSizes); i++)
@@ -116,28 +122,55 @@ namespace TankGame
 		m_blurAmount = glm::clamp(m_blurAmount + glm::sign(blurAmountTarget - m_blurAmount) * updateInfo.m_dt * 5, 0.0f, 1.0f);
 		m_mainRenderer.SetBlurAmount(m_blurAmount);
 		
+		if (m_noAmmoOpacity > 0)
+			m_noAmmoOpacity = glm::max(m_noAmmoOpacity - updateInfo.m_dt, 0.0f);
+		
 		m_pauseMenu.Update(updateInfo);
+		
+		for (WeaponIcon& weaponIcon : m_weaponIcons)
+			weaponIcon.Update(updateInfo);
 	}
 	
 	void HUDManager::LayoutElements(GLsizei screenWidth, GLsizei screenHeight)
 	{
 		float padding = PADDING * screenWidth;
 		
-		Rectangle contentsRect(padding, padding, screenWidth - 2 * padding, screenHeight - 2 * padding);
+		m_contentsRect = Rectangle(padding, padding, screenWidth - 2 * padding, screenHeight - 2 * padding);
 		
 		float hpBarAspectRatio = m_textures.m_hpBarFull.GetHeight() / static_cast<float>(m_textures.m_hpBarFull.GetWidth());
 		float energyBarAspectRatio = m_textures.m_energyBarFull.GetHeight() / static_cast<float>(m_textures.m_energyBarFull.GetWidth());
 		
-		m_hpBarRectangle.x = contentsRect.x;
-		m_hpBarRectangle.y = contentsRect.y;
+		m_hpBarRectangle.x = m_contentsRect.x;
+		m_hpBarRectangle.y = m_contentsRect.y;
 		m_hpBarRectangle.w = HP_BAR_WIDTH * screenWidth;
 		m_hpBarRectangle.h = hpBarAspectRatio * m_hpBarRectangle.w;
 		
-		m_energyBarRectangle.x = contentsRect.x;
+		m_energyBarRectangle.x = m_contentsRect.x;
 		m_energyBarRectangle.y = m_hpBarRectangle.FarY();
 		m_energyBarRectangle.w = m_hpBarRectangle.w * (m_textures.m_energyBarFull.GetWidth() /
 		                                               static_cast<float>(m_textures.m_hpBarFull.GetWidth()));
 		m_energyBarRectangle.h = energyBarAspectRatio * m_energyBarRectangle.w;
+		
+		float weaponIconW = WEAPON_ICON_WIDTH * screenWidth;
+		float weaponIconH = WEAPON_ICON_WIDTH * screenWidth;
+		float weaponIconPadding = WEAPON_ICON_PADDING * screenWidth;
+		
+		m_weaponInfoRectangle = { m_contentsRect.x, m_contentsRect.y, m_contentsRect.w,
+		                          static_cast<float>(Font::GetNamedFont(FontNames::HudFont).GetSize()) };
+		
+		float weaponIconsW = weaponIconW * m_weaponIcons.size() + weaponIconPadding * (m_weaponIcons.size() - 1);
+		m_weaponIconsLineRectangle = Rectangle::CreateCentered(m_contentsRect.CenterX(), m_weaponInfoRectangle.FarY(),
+		                                                       weaponIconsW * 1.5f, 1);
+		
+		float weaponIconX = m_contentsRect.CenterX() - weaponIconsW / 2.0f;
+		for (size_t i = 0; i < m_weaponIcons.size(); i++)
+		{
+			m_weaponIcons[i].SetRectangle({ weaponIconX, m_weaponInfoRectangle.FarY(), weaponIconW, weaponIconH });
+			weaponIconX += weaponIconW + weaponIconPadding;
+		}
+		
+		m_noAmmoRectangle = Rectangle::CreateCentered(m_contentsRect.CenterX(), m_weaponInfoRectangle.FarY() + weaponIconH + 40,
+		                                              m_textures.m_noAmmo.GetWidth(), m_textures.m_noAmmo.GetHeight());
 	}
 	
 	void HUDManager::DrawHUD()
@@ -166,10 +199,26 @@ namespace TankGame
 		m_playerEntity = playerEntity;
 		m_hp = playerEntity->GetHp();
 		m_energy = playerEntity->GetEnergy();
+		
+		m_noAmmoOpacity = 0;
+		
+		for (WeaponIcon& weaponIcon : m_weaponIcons)
+			weaponIcon.SetWeaponState(playerEntity->GetWeaponState());
+	}
+	
+	int HUDManager::GetWeaponIndex(const PlayerWeaponState& weaponState)
+	{
+		if (weaponState.IsUsingPlasmaGun())
+			return 0;
+		return static_cast<int>(weaponState.GetCurrentSpecialWeapon()) + 1;
 	}
 	
 	void HUDManager::DrawHUDElements()
 	{
+		const Font& hudFont = Font::GetNamedFont(FontNames::HudFont);
+		const Font& bigHudFont = Font::GetNamedFont(FontNames::BigHudFont);
+		
+		// ** Draws the HP bar **
 		const int BAR_MARGIN_L = 29;
 		const int BAR_MARGIN_R = 37;
 		int fullHpBarWidth = m_textures.m_hpBarFull.GetWidth() - BAR_MARGIN_L - BAR_MARGIN_R;
@@ -199,10 +248,10 @@ namespace TankGame
 		}
 		
 		std::string hpString = std::to_string(static_cast<int>(std::round(m_hp)));
-		UIRenderer::GetInstance().DrawString(Font::GetNamedFont(FontNames::HudFont), hpString, m_hpBarRectangle,
+		UIRenderer::GetInstance().DrawString(hudFont, hpString, m_hpBarRectangle,
 		                                     Alignment::Left, Alignment::Center, glm::vec4(1.0f));
 		
-		
+		// ** Draws the energy bar **
 		float energyPercent = m_energy / PlayerEntity::MAX_ENERGY;
 		int fullEnergyBarWidth = m_textures.m_energyBarFull.GetWidth() - BAR_MARGIN_L - BAR_MARGIN_R;
 		
@@ -230,15 +279,32 @@ namespace TankGame
 		}
 		
 		std::string enegyString = std::to_string(static_cast<int>(std::round(m_energy)));
-		UIRenderer::GetInstance().DrawString(Font::GetNamedFont(FontNames::HudFont), enegyString, m_energyBarRectangle,
+		UIRenderer::GetInstance().DrawString(hudFont, enegyString, m_energyBarRectangle,
 		                                     Alignment::Left, Alignment::Center, glm::vec4(1.0f));
+		
+		// ** Draws weapon icons **
+		for (const WeaponIcon& weaponIcon : m_weaponIcons)
+			weaponIcon.Draw(UIRenderer::GetInstance());
+		
+		std::string weaponInfoString = m_weaponIcons[GetWeaponIndex(m_playerEntity->GetWeaponState())].GetInfoString();
+		UIRenderer::GetInstance().DrawString(hudFont, weaponInfoString, m_weaponInfoRectangle,
+		                                     Alignment::Center, Alignment::Center, glm::vec4(1.0f));
+		
+		UIRenderer::GetInstance().DrawRectangle(m_weaponIconsLineRectangle, glm::vec4(1.0f));
+		
+		if (m_noAmmoOpacity > 0)
+		{
+			glm::vec4 color(1, 1, 1, glm::min(m_noAmmoOpacity, 1.0f));
+			UIRenderer::GetInstance().DrawSprite(m_textures.m_noAmmo, m_noAmmoRectangle, color);
+		}
 	}
 	
 	HUDManager::Textures::Textures(const fs::path& dirPath)
 	    : m_hpBarFull(Texture2D::FromFile(dirPath / "hp-full.png")),
 	      m_hpBarEmpty(Texture2D::FromFile(dirPath / "hp-empty.png")),
 	      m_energyBarFull(Texture2D::FromFile(dirPath / "energy-full.png")),
-	      m_energyBarEmpty(Texture2D::FromFile(dirPath / "energy-empty.png"))
+	      m_energyBarEmpty(Texture2D::FromFile(dirPath / "energy-empty.png")),
+	      m_noAmmo(Texture2D::FromFile(dirPath / "no-ammo.png"))
 	{
 		
 	}

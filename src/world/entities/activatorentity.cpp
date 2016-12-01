@@ -13,7 +13,7 @@ namespace TankGame
 		SetSizeX(0.5f);
 	}
 	
-	bool ActivatorEntity::CanInteract() const
+	bool ActivatorEntity::CanInteract()
 	{
 		return !((m_singleUse && m_hasActivated) || m_onActivateEvent.empty());
 	}

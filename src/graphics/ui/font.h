@@ -20,8 +20,9 @@ namespace TankGame
 	{
 		StandardUI = 0,
 		MenuTitle = 1,
-		HudFont = 2,
 		MenuButtonFont = 2,
+		HudFont = 2,
+		BigHudFont = 3,
 		ButtonFont = 3
 	};
 	

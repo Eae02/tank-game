@@ -177,6 +177,11 @@ namespace TankGame
 		inline class IMainRenderer* GetRenderer() const
 		{ return m_renderer; }
 		
+		inline void SetGameManager(class GameManager* gameManager)
+		{ m_gameManager = gameManager; }
+		inline class GameManager* GetGameManager() const
+		{ return m_gameManager; }
+		
 		inline const QuadTree& GetQuadTree()
 		{ return m_quadTree; }
 		
@@ -223,6 +228,7 @@ namespace TankGame
 		float m_cameraShakeMagnitude = 0;
 		
 		class IMainRenderer* m_renderer = nullptr;
+		class GameManager* m_gameManager = nullptr;
 		
 		IEventListener* m_eventListener = nullptr;
 		

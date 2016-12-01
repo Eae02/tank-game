@@ -169,14 +169,14 @@ namespace TankGame
 		glDrawArrays(GL_LINES, 0, 2);
 	}
 	
-	void UIRenderer::DrawString(const class Font& font, const std::string& string, Rectangle rectangle,
-	                            Alignment alignX, Alignment alignY, const glm::vec4& color, float scale) const
+	glm::vec2 UIRenderer::DrawString(const class Font& font, const std::string& string, Rectangle rectangle,
+	                                 Alignment alignX, Alignment alignY, const glm::vec4& color, float scale) const
 	{
-		DrawString(font, UTF8ToUTF32(string), rectangle, alignX, alignY, color, scale);
+		return DrawString(font, UTF8ToUTF32(string), rectangle, alignX, alignY, color, scale);
 	}
 	
-	void UIRenderer::DrawString(const Font& font, const std::u32string& string, Rectangle rectangle,
-	                            Alignment alignX, Alignment alignY, const glm::vec4& color, float scale) const
+	glm::vec2 UIRenderer::DrawString(const Font& font, const std::u32string& string, Rectangle rectangle,
+	                                 Alignment alignX, Alignment alignY, const glm::vec4& color, float scale) const
 	{
 		if (s_textShader.m_shader.IsNull())
 			LoadTextShader();
@@ -219,5 +219,7 @@ namespace TankGame
 			
 			position.x += glyph->m_advance * scale;
 		}
+		
+		return size;
 	}
 }

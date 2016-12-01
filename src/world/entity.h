@@ -56,7 +56,7 @@ namespace TankGame
 		inline const class GameWorld* GetGameWorld() const
 		{ return m_world; }
 		
-		virtual bool CanInteract() const
+		virtual bool CanInteract()
 		{ return false; }
 		virtual void OnInteract() { }
 		

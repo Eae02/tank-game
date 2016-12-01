@@ -118,7 +118,7 @@ namespace TankGame
 		
 		Fire(std::move(projectile), gameTime, params.m_rotationOffset);
 		
-		m_fireCooldown = 1.5f;
+		m_fireCooldown = 1.0f;
 	}
 	
 	void TankEntity::SpawnShield(float hp)

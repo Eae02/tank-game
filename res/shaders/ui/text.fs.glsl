@@ -10,5 +10,5 @@ uniform vec4 color;
 void main()
 {
 	color_out = color;
-	color_out.a = texture(glyph, texCoord_in).r;
+	color_out.a *= texture(glyph, texCoord_in).r;
 }

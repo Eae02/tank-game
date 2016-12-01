@@ -7,6 +7,8 @@
 #include "../graphics/gl/vertexarray.h"
 #include "../utils/memory/stackobject.h"
 #include "../utils/filesystem.h"
+#include "../world/entities/playerweaponstate.h"
+#include "weaponicon.h"
 #include "pausemenu.h"
 
 namespace TankGame
@@ -36,6 +38,11 @@ namespace TankGame
 		inline void SetQuitCallback(std::function<void()> callback)
 		{ m_pauseMenu.SetQuitCallback(std::move(callback)); }
 		
+		inline void ShowNoAmmoText()
+		{ m_noAmmoOpacity = 1.5f; }
+		
+		static int GetWeaponIndex(const class PlayerWeaponState& weaponState);
+		
 	private:
 		void LayoutElements(GLsizei screenWidth, GLsizei screenHeight);
 		void DrawHUDElements();
@@ -51,6 +58,7 @@ namespace TankGame
 			Texture2D m_hpBarEmpty;
 			Texture2D m_energyBarFull;
 			Texture2D m_energyBarEmpty;
+			Texture2D m_noAmmo;
 		};
 		
 		float m_hp;
@@ -58,7 +66,13 @@ namespace TankGame
 		
 		float m_blurAmount = 0;
 		
+		float m_noAmmoOpacity = 0;
+		
 		class IMainRenderer& m_mainRenderer;
+		
+		std::array<WeaponIcon, 2> m_weaponIcons;
+		Rectangle m_weaponIconsLineRectangle;
+		Rectangle m_weaponInfoRectangle;
 		
 		GLsizei m_vertexCount;
 		Buffer m_vertexBuffer;
@@ -68,6 +82,9 @@ namespace TankGame
 		
 		PauseMenu m_pauseMenu;
 		
+		Rectangle m_contentsRect;
+		
+		Rectangle m_noAmmoRectangle;
 		Rectangle m_hpBarRectangle;
 		Rectangle m_energyBarRectangle;
 		

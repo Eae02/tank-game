@@ -1,0 +1,9 @@
+{
+	"name": "AmmoBox",
+	"diffuse": "ammo-box.png",
+	"normalMap": "ammo-box-normals.png",
+	"specular": {
+		"intensity": 0.1,
+		"exponent": 20
+	}
+}

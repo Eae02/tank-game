@@ -38,7 +38,7 @@ namespace TankGame
 		{
 			float targetInteractButtonOpacity = 0.0f;
 			m_level->GetGameWorld().IterateIntersectingEntities(m_level->GetPlayerEntity().GetInteractRectangle(),
-																[&] (const Entity& entity)
+			                                                    [&] (Entity& entity)
 			{
 				if (entity.CanInteract())
 				{
@@ -78,6 +78,7 @@ namespace TankGame
 	{
 		m_level.Construct(std::move(level));
 		
+		m_level->GetGameWorld().SetGameManager(this);
 		m_level->GetGameWorld().SetRenderer(&m_mainRenderer);
 		
 		m_hudManager.SetPlayerEntity(&m_level->GetPlayerEntity());

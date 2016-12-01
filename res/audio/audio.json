@@ -8,6 +8,14 @@
 		"src": "door_open.ogg"
 	},
 	{
+		"name": "AmmoRefill",
+		"src": "ammo_refill.ogg"
+	},
+	{
+		"name": "NoAmmo",
+		"src": "no_ammo.ogg"
+	},
+	{
 		"name": "Beam",
 		"src": "beam.ogg"
 	},

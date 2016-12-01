@@ -3,6 +3,7 @@
 #include "tankentity.h"
 #include "hittable.h"
 #include "playerpowerupstate.h"
+#include "playerweaponstate.h"
 #include "../entityhandle.h"
 #include "../lights/spotlightentity.h"
 #include "../../graphics/gl/texture2d.h"
@@ -46,6 +47,11 @@ namespace TankGame
 		inline bool HasPowerUp(PowerUps powerUp) const
 		{ return m_powerUpState.HasPowerUp(powerUp); }
 		
+		inline const PlayerWeaponState& GetWeaponState() const
+		{ return m_weaponState; }
+		inline PlayerWeaponState& GetWeaponState()
+		{ return m_weaponState; }
+		
 		static constexpr float MAX_ENERGY = 100.0f;
 		
 	protected:
@@ -60,7 +66,12 @@ namespace TankGame
 		static StackObject<Texture2D> s_cannonNormalMap;
 		static StackObject<SpriteMaterial> s_cannonMaterial;
 		
+		void FireSelectedWeapon(float gameTime);
+		
+		AudioSource m_noAmmoAudioSource;
+		
 		PlayerPowerUpState m_powerUpState;
+		PlayerWeaponState m_weaponState;
 		
 		float m_energy = MAX_ENERGY;
 		float m_energyRegenTime = 0;

@@ -16,6 +16,9 @@
 	"Deflection Field": {
 		"class": "DeflectionField"
 	},
+	"Ammo Box": {
+		"class": "AmmoBox"
+	},
 	"Checkpoint": {
 		"class": "Checkpoint",
 		"index": 0,

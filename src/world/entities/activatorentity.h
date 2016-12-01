@@ -9,7 +9,7 @@ namespace TankGame
 	public:
 		ActivatorEntity(std::string onActivateEvent = "", bool singleUse = true);
 		
-		virtual bool CanInteract() const override;
+		virtual bool CanInteract() override;
 		virtual void OnInteract() override;
 		
 		virtual const char* GetObjectName() const override;
