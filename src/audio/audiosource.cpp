@@ -17,6 +17,9 @@ namespace TankGame
 		ALuint id;
 		alGenSources(1, &id);
 		SetID(id);
+		
+		alSourcef(GetID(), AL_GAIN, m_volume);
+		alSourcef(GetID(), AL_PITCH, m_pitch);
 	}
 	
 	void AudioSource::SetBuffer(const AudioBuffer& buffer)

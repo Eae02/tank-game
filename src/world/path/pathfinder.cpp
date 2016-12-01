@@ -1,9 +1,7 @@
 ﻿#include "pathfinder.h"
-#include "path.h"
 #include "../gameworld.h"
 #include "../tilegrid.h"
 #include "../../utils/mathutils.h"
-#include "../../graphics/tilegridmaterial.h"
 
 #include <unordered_map>
 
@@ -13,8 +11,7 @@ namespace std
 	{
 		size_t operator()(const glm::ivec2& v) const
 		{
-			static_assert(sizeof(size_t) == sizeof(v), "");
-			return *reinterpret_cast<const size_t*>(&v);
+			return (static_cast<size_t>(v.x) * 9973) + static_cast<size_t>(v.y);
 		}
 	};
 }
