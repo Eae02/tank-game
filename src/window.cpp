@@ -499,9 +499,6 @@ namespace TankGame
 		
 		LoadExtensions(m_argumentData.m_useDSAWrapper);
 		
-		if (!glfwExtensionSupported("GL_ARB_direct_state_access"))
-			throw FatalException("This graphics driver does not support GL_ARB_direct_state_access.");
-		
 		glVendorName = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
 		
 #ifndef NDEBUG
