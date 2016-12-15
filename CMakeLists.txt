@@ -22,7 +22,6 @@ find_package(OpenAL REQUIRED)
 find_package(OGG REQUIRED)
 find_package(Vorbis REQUIRED)
 find_package(VorbisFile REQUIRED)
-find_package(GLEW REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(Threads REQUIRED)
@@ -55,7 +54,6 @@ link_libraries(
 	${VORBIS_LIBRARY}
 	${VORBISFILE_LIBRARY}
 	${GLFW_LIBRARIES}
-	${GLEW_LIBRARIES}
 	${FREETYPE_LIBRARIES}
 	${ZLIB_LIBRARIES}
 	${CMAKE_THREAD_LIBS_INIT}
@@ -70,7 +68,6 @@ include_directories(
 	${VORBIS_INCLUDE_DIR}
 	${VORBISFILE_INCLUDE_DIR}
 	${GLFW_INCLUDE_DIR}
-	${GLEW_INCLUDE_DIRS}
 	${FREETYPE_INCLUDE_DIRS}
 	${ZLIB_INCLUDE_DIRS}
 	${TankGame_SOURCE_DIR}/inc

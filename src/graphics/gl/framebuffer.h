@@ -18,6 +18,9 @@ namespace TankGame
 		
 		static void SetDefaultViewport(int vpX, int vpY, int vpWidth, int vpHeight);
 		
+		inline static GLuint GetCurrentFramebufferID()
+		{ return s_currentFramebuffer.m_framebufferID; }
+		
 	private:
 		struct StackEntry
 		{

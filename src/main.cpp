@@ -30,6 +30,8 @@ static ArgumentData ParseArguments(int argc, const char** argv)
 			argumentData.m_profiling = true;
 		if (strcmp(argv[i], "-nocursorgrab") == 0)
 			argumentData.m_noCursorGrab = true;
+		if (strcmp(argv[i], "-dsawrapper") == 0)
+			argumentData.m_useDSAWrapper = true;
 	}
 	
 	return argumentData;

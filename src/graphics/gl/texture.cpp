@@ -1,4 +1,5 @@
 #include "texture.h"
+#include "dsawrapper.h"
 
 namespace TankGame
 {
@@ -18,6 +19,8 @@ namespace TankGame
 	
 	void DeleteTexture(GLuint id)
 	{
+		if (DSAWrapper::IsActive())
+			DSAWrapper::DeleteTexture(id);
 		glDeleteTextures(1, &id);
 	}
 }

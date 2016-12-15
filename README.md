@@ -1,5 +1,5 @@
 # Tank Game
-A tank shooter written in modern C++ and OpenGL. You will need at least OpenGL 4.2 with the GL_ARB_direct_state_access extension to run it. The game is still quite far from complete.
+A tank shooter written in modern C++ and OpenGL 4.4. The game is still quite far from complete.
 
 ## Windows binaries
 Precompiled windows binaries are available [here](https://www.dropbox.com/s/aevhdaysm028ur9/tankgame_win32.zip?dl=1). You may also need to install the visual C++ 2015 redistributable, which you can get [here](https://www.microsoft.com/en-us/download/details.aspx?id=48145).

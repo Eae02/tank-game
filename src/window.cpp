@@ -1,4 +1,4 @@
-#include <GL/glew.h>
+#include "graphics/gl/functions.h"
 #include "window.h"
 
 #include "settings.h"
@@ -497,16 +497,9 @@ namespace TankGame
 		
 		glfwMakeContextCurrent(m_window);
 		
-		glewExperimental = GL_TRUE;
+		LoadExtensions(m_argumentData.m_useDSAWrapper);
 		
-		GLenum glewStatus = glewInit();
-		if (glewStatus != GLEW_OK)
-		{
-			throw FatalException(std::string("Error initializing GLEW: ") +
-			                     reinterpret_cast<const char*>(glewGetErrorString(glewStatus)));
-		}
-		
-		if (!GLEW_ARB_direct_state_access)
+		if (!glfwExtensionSupported("GL_ARB_direct_state_access"))
 			throw FatalException("This graphics driver does not support GL_ARB_direct_state_access.");
 		
 		glVendorName = reinterpret_cast<const char*>(glGetString(GL_VENDOR));

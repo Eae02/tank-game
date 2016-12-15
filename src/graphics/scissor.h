@@ -2,7 +2,7 @@
 
 #include "../rectangle.h"
 
-#include <GL/glew.h>
+#include "gl/functions.h"
 
 namespace TankGame
 {

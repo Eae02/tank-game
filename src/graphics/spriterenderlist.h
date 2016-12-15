@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include <GL/glew.h>
+#include "gl/functions.h"
 #include <glm/glm.hpp>
 
 namespace TankGame

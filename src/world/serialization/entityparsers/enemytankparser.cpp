@@ -18,6 +18,10 @@ namespace TankGame
 		if (detectEventIt != json.end())
 			enemyTank->SetDetectPlayerEventName(detectEventIt->get<std::string>());
 		
+		auto killedEventIt = json.find("killed_event");
+		if (killedEventIt != json.end())
+			enemyTank->SetOnKilledEventName(killedEventIt->get<std::string>());
+		
 		auto rocketTankIt = json.find("rocket_tank");
 		if (rocketTankIt != json.end())
 			enemyTank->SetIsRocketTank(rocketTankIt->get<bool>());

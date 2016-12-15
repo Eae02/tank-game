@@ -216,7 +216,6 @@ namespace TankGame
 	void HUDManager::DrawHUDElements()
 	{
 		const Font& hudFont = Font::GetNamedFont(FontNames::HudFont);
-		const Font& bigHudFont = Font::GetNamedFont(FontNames::BigHudFont);
 		
 		// ** Draws the HP bar **
 		const int BAR_MARGIN_L = 29;

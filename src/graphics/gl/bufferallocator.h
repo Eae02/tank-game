@@ -1,9 +1,9 @@
 #pragma once
 
-#include <GL/glew.h>
 #include <vector>
 #include <memory>
 
+#include "functions.h"
 #include "buffer.h"
 
 namespace TankGame

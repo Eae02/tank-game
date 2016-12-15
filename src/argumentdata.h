@@ -6,5 +6,6 @@ namespace TankGame
 	{
 		bool m_profiling;
 		bool m_noCursorGrab;
+		bool m_useDSAWrapper;
 	};
 }

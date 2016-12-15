@@ -53,6 +53,11 @@ namespace TankGame
 		inline const std::string& GetDetectPlayerEventName() const
 		{ return m_detectPlayerEventName; }
 		
+		inline void SetOnKilledEventName(std::string eventName)
+		{ m_onKilledEventName = eventName; }
+		inline const std::string& GetOnKilledEventName() const
+		{ return m_onKilledEventName; }
+		
 		inline bool HasShield() const
 		{ return m_hasShield; }
 		inline void SetHasShield(bool hasShield)
@@ -73,6 +78,7 @@ namespace TankGame
 		bool m_isRocketTank = false;
 		bool m_hasShield = false;
 		
+		std::string m_onKilledEventName;
 		std::string m_detectPlayerEventName;
 		
 		EnemyAI m_ai;

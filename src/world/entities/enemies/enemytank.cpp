@@ -169,6 +169,9 @@ namespace TankGame
 			}
 		}
 		
+		if (!m_onKilledEventName.empty())
+			GetGameWorld()->SendEvent(m_onKilledEventName, this);
+		
 		Despawn();
 	}
 	
@@ -209,6 +212,8 @@ namespace TankGame
 		
 		if (!m_detectPlayerEventName.empty())
 			json["detect_event"] = m_detectPlayerEventName;
+		if (!m_onKilledEventName.empty())
+			json["killed_event"] = m_onKilledEventName;
 		
 		return json;
 	}
@@ -272,9 +277,13 @@ namespace TankGame
 		
 		std::array<char, 256> inputBuffer;
 		inputBuffer.back() = '\0';
-		strncpy(inputBuffer.data(), m_detectPlayerEventName.c_str(), inputBuffer.size() - 1);
 		
+		strncpy(inputBuffer.data(), m_detectPlayerEventName.c_str(), inputBuffer.size() - 1);
 		if (ImGui::InputText("Detect Event", inputBuffer.data(), inputBuffer.size()))
 			m_detectPlayerEventName = inputBuffer.data();
+		
+		strncpy(inputBuffer.data(), m_onKilledEventName.c_str(), inputBuffer.size() - 1);
+		if (ImGui::InputText("Killed Event", inputBuffer.data(), inputBuffer.size()))
+			m_onKilledEventName = inputBuffer.data();
 	}
 }
