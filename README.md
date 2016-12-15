@@ -9,7 +9,6 @@ First, make sure you have all the runtime dependencies installed. These are:
 * opengl
 * openal
 * glfw
-* glew
 * freetype
 * ogg
 * vorbis
