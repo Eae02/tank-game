@@ -28,7 +28,7 @@ The binary will be put in PROJECT_ROOT/bin/Release.
 
 ## Compiling from source on Windows
 To set up the build system, you will need to install [vcpkg](https://github.com/Microsoft/vcpkg) and the project's runtime dependencies. You will also need to have cmake installed and available on the command line.
-After you have installed vcpkg, cd into the install directory and run `.\vcpkg.exe install openal-soft glfw3 glew freetype libogg libvorbis zlib` to install the runtime dependencies.
+After you have installed vcpkg, cd into the install directory and run `.\vcpkg.exe install opengl openal-soft glfw3 freetype libogg libvorbis zlib` to install the runtime dependencies.
 
 1. `mkdir PROJECT_ROOT\.build`
 2. `cd PROJECT_ROOT\.build`
