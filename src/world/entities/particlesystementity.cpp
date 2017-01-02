@@ -7,7 +7,7 @@ namespace TankGame
 	void ParticleSystemEntityBase::UpdateLastFrameTransform()
 	{
 		m_lastFrameTransform = GetTransform();
-		m_hasLastFrameTransform;
+		m_hasLastFrameTransform = true;
 	}
 	
 	//The particle system reference cannot be used yet!
