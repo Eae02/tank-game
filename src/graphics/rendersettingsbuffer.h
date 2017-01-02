@@ -18,7 +18,10 @@ namespace TankGame
 			glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_uniformBuffer.GetID());
 		}
 		
+		void OnResize(int width, int height);
+		
 	private:
 		Buffer m_uniformBuffer;
+		int m_resWidth = 0, m_resHeight = 0;
 	};
 }

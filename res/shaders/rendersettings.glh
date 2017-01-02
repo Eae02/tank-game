@@ -6,8 +6,9 @@ layout(std140, binding=0) uniform RenderSettingsUB
 	mat3 viewMatrix;
 	vec3 eyePosition;
 	float time;
-	vec4 epAndTime;
 	mat3 inverseViewMatrix;
+	ivec2 resolution;
+	ivec2 renderResolution;
 };
 
 #endif

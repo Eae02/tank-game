@@ -16,6 +16,16 @@ namespace TankGame
 		High = 2,
 	};
 	
+	enum class ResolutionScales
+	{
+		_50 = 50,
+		_75 = 75,
+		_100 = 100,
+		_125 = 125,
+		_150 = 150,
+		_200 = 200
+	};
+	
 	inline bool operator >(QualitySettings a, QualitySettings b)
 	{
 		return static_cast<int>(a) > static_cast<int>(b);
@@ -119,6 +129,11 @@ namespace TankGame
 		inline void SetFireButton(int button)
 		{ m_fireButton = button; }
 		
+		inline ResolutionScales GetResolutionScale() const
+		{ return m_resolutionScale; }
+		inline void SetResolutionScale(ResolutionScales resScale)
+		{ m_resolutionScale = resScale; }
+		
 		inline QualitySettings GetLightingQuality() const
 		{ return m_lightingQuality; }
 		inline QualitySettings GetParticleQuality() const
@@ -169,6 +184,8 @@ namespace TankGame
 		bool m_isFullscreen = true;
 		
 		bool m_enableVSync = true;
+		
+		ResolutionScales m_resolutionScale = ResolutionScales::_100;
 		
 		QualitySettings m_lightingQuality = QualitySettings::High;
 		QualitySettings m_particlesQuality = QualitySettings::High;

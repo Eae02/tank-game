@@ -280,7 +280,7 @@ namespace TankGame
 		{
 			window->m_menuManager->OnResize(newWidth, newHeight);
 			
-			window->m_deferredRenderer->OnResize(newWidth, newHeight);
+			window->m_deferredRenderer->CreateFramebuffer(newWidth, newHeight);
 			window->m_shadowRenderer->OnResize(newWidth, newHeight);
 			window->m_gameManager->OnResize(newWidth, newHeight);
 			
@@ -410,6 +410,12 @@ namespace TankGame
 			worldRenderer = &m_gameManager->GetRenderer();
 			m_viewInfo = m_gameManager->GetLevel()->GetGameWorld().GetViewInfo(m_aspectRatio);
 		}
+		
+		if (worldRenderer != nullptr)
+			worldRenderer->UpdateResolution(m_width, m_height);
+		
+		if (!m_deferredRenderer.IsNull() && m_deferredRenderer->FramebufferOutOfDate())
+			m_deferredRenderer->CreateFramebuffer(m_width, m_height);
 		
 		if (worldRenderer != nullptr)
 		{

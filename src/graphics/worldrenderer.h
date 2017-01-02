@@ -30,11 +30,14 @@ namespace TankGame
 		inline size_t GetRenderedLights() const
 		{ return m_lightSources.size(); }
 		
+		void UpdateResolution(int width, int height) const;
+		
 	private:
 		virtual void DrawShadowCasters(glm::vec2 lightPos, const class ViewInfo& viewInfo) const override;
 		
 		const class GameWorld* m_gameWorld = nullptr;
 		
+		mutable glm::ivec2 m_resolution;
 		mutable RenderSettingsBuffer m_renderSettings;
 		
 		mutable SpriteRenderList m_spriteRenderList;

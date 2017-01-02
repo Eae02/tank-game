@@ -18,11 +18,6 @@ struct GBufferData
 	float specExponent;
 };
 
-vec2 getTexCoord()
-{
-	return gl_FragCoord.xy / vec2(textureSize(normalsAndSpecSampler, 0));
-}
-
 float getShadowFactor(vec2 worldPos)
 {
 	vec2 samplePos = (shadowViewMatrix * vec3(worldPos, 1.0)).xy / 2.0 + vec2(0.5);

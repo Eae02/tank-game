@@ -15,7 +15,7 @@ namespace TankGame
 		
 		m_worldRenderer.SetWorld(&gameWorld);
 		
-		m_deferredRenderer.OnResize(width, height);
+		m_deferredRenderer.CreateFramebuffer(width, height);
 		m_shadowRenderer.OnResize(width, height);
 	}
 	

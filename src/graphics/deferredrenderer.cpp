@@ -3,6 +3,7 @@
 #include "quadmesh.h"
 #include "gl/shadermodule.h"
 #include "../utils/ioutils.h"
+#include "../settings.h"
 
 namespace TankGame
 {
@@ -22,25 +23,33 @@ namespace TankGame
 	DeferredRenderer::DeferredRenderer()
 	    : m_compositionShader(LoadCompositionShader()) { }
 	
-	void DeferredRenderer::OnResize(int width, int height)
+	void DeferredRenderer::CreateFramebuffer(int width, int height)
 	{
+		m_resolutionScale = Settings::GetInstance().GetResolutionScale();
+		
+		double resScale = static_cast<double>(Settings::GetInstance().GetResolutionScale()) / 100.0;
+		int scaledW = static_cast<double>(width) * resScale;
+		int scaledH = static_cast<double>(height) * resScale;
+		
 		m_geometryFramebuffer.Construct();
 		
-		m_depthBuffer.Construct(width, height, GL_DEPTH_COMPONENT16);
+		m_depthBuffer.Construct(scaledW, scaledH, GL_DEPTH_COMPONENT16);
 		
-		m_colorBuffer.Construct(width, height, 1, COLOR_FORMAT);
+		m_colorBuffer.Construct(scaledW, scaledH, 1, COLOR_FORMAT);
 		m_colorBuffer->SetupMipmapping(false);
 		m_colorBuffer->SetWrapS(GL_CLAMP_TO_EDGE);
 		m_colorBuffer->SetWrapT(GL_CLAMP_TO_EDGE);
+		m_colorBuffer->SetMinFilter(GL_LINEAR);
+		m_colorBuffer->SetMagFilter(GL_LINEAR);
 		
-		m_normalsAndSpecBuffer.Construct(width, height, 1, NORMALS_AND_SPECULAR_FORMAT);
+		m_normalsAndSpecBuffer.Construct(scaledW, scaledH, 1, NORMALS_AND_SPECULAR_FORMAT);
 		m_normalsAndSpecBuffer->SetupMipmapping(false);
 		m_normalsAndSpecBuffer->SetWrapS(GL_CLAMP_TO_EDGE);
 		m_normalsAndSpecBuffer->SetWrapT(GL_CLAMP_TO_EDGE);
-		m_normalsAndSpecBuffer->SetMinFilter(GL_NEAREST);
-		m_normalsAndSpecBuffer->SetMagFilter(GL_NEAREST);
+		m_normalsAndSpecBuffer->SetMinFilter(GL_LINEAR);
+		m_normalsAndSpecBuffer->SetMagFilter(GL_LINEAR);
 		
-		m_distortionBuffer.Construct(width, height, 1, DISTORTION_BUFFER_FORMAT);
+		m_distortionBuffer.Construct(scaledW, scaledH, 1, DISTORTION_BUFFER_FORMAT);
 		m_distortionBuffer->SetupMipmapping(false);
 		m_distortionBuffer->SetWrapMode(GL_CLAMP_TO_EDGE);
 		m_distortionBuffer->SetMinFilter(GL_LINEAR);
@@ -55,18 +64,30 @@ namespace TankGame
 		
 		m_lightFramebuffer.Construct();
 		
-		m_lightAccBuffer.Construct(width, height, 1, LIGHT_ACC_FORMAT);
+		m_lightAccBuffer.Construct(scaledW, scaledH, 1, LIGHT_ACC_FORMAT);
 		m_lightAccBuffer->SetupMipmapping(false);
 		m_lightAccBuffer->SetWrapMode(GL_CLAMP_TO_EDGE);
+		m_lightAccBuffer->SetMinFilter(GL_LINEAR);
+		m_lightAccBuffer->SetMagFilter(GL_LINEAR);
+		
+		glNamedFramebufferTexture(m_lightFramebuffer->GetID(), GL_COLOR_ATTACHMENT0, m_lightAccBuffer->GetID(), 0);
+		glNamedFramebufferDrawBuffer(m_lightFramebuffer->GetID(), GL_COLOR_ATTACHMENT0);
+		
+		m_outputFramebuffer.Construct();
 		
 		m_outputBuffer.Construct(width, height, 1, LIGHT_ACC_FORMAT);
 		m_outputBuffer->SetupMipmapping(false);
 		m_outputBuffer->SetWrapMode(GL_CLAMP_TO_EDGE);
 		
-		glNamedFramebufferTexture(m_lightFramebuffer->GetID(), GL_COLOR_ATTACHMENT0, m_lightAccBuffer->GetID(), 0);
-		glNamedFramebufferTexture(m_lightFramebuffer->GetID(), GL_COLOR_ATTACHMENT1, m_outputBuffer->GetID(), 0);
+		glNamedFramebufferTexture(m_outputFramebuffer->GetID(), GL_COLOR_ATTACHMENT0, m_outputBuffer->GetID(), 0);
+		glNamedFramebufferDrawBuffer(m_outputFramebuffer->GetID(), GL_COLOR_ATTACHMENT0);
 		
 		m_postProcessor.OnResize(width, height);
+	}
+	
+	bool DeferredRenderer::FramebufferOutOfDate() const
+	{
+		return m_resolutionScale != Settings::GetInstance().GetResolutionScale();
 	}
 	
 	void DeferredRenderer::Draw(const IRenderer& renderer, const class ViewInfo& viewInfo) const
@@ -112,7 +133,6 @@ namespace TankGame
 		
 		// ** Light accumulation pass **
 		Framebuffer::Bind(*m_lightFramebuffer, 0, 0, m_lightAccBuffer->GetWidth(), m_lightAccBuffer->GetHeight());
-		glNamedFramebufferDrawBuffer(m_lightFramebuffer->GetID(), GL_COLOR_ATTACHMENT0);
 		
 		m_normalsAndSpecBuffer->Bind(0);
 		
@@ -122,7 +142,8 @@ namespace TankGame
 		
 		glDisablei(GL_BLEND, 0);
 		
-		glNamedFramebufferDrawBuffer(m_lightFramebuffer->GetID(), GL_COLOR_ATTACHMENT1);
+		// ** Composition pass **
+		Framebuffer::Bind(*m_outputFramebuffer, 0, 0, m_outputBuffer->GetWidth(), m_outputBuffer->GetHeight());
 		
 		m_colorBuffer->Bind(0);
 		m_lightAccBuffer->Bind(1);

@@ -9,6 +9,7 @@
 #include "particlerenderer.h"
 
 #include "../utils/memory/stackobject.h"
+#include "../settings.h"
 
 namespace TankGame
 {
@@ -17,7 +18,9 @@ namespace TankGame
 	public:
 		DeferredRenderer();
 		
-		void OnResize(int width, int height);
+		void CreateFramebuffer(int width, int height);
+		
+		bool FramebufferOutOfDate() const;
 		
 		void Draw(const class IRenderer& renderer, const class ViewInfo& viewInfo) const;
 		
@@ -51,7 +54,11 @@ namespace TankGame
 		
 		StackObject<Framebuffer> m_lightFramebuffer;
 		StackObject<Texture2D> m_lightAccBuffer;
+		
+		StackObject<Framebuffer> m_outputFramebuffer;
 		StackObject<Texture2D> m_outputBuffer;
+		
+		ResolutionScales m_resolutionScale = ResolutionScales::_100;
 		
 		PostProcessor m_postProcessor;
 		

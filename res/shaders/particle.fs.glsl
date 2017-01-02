@@ -1,5 +1,7 @@
 #version 420 core
 
+#include rendersettings.glh
+
 layout(location=0) out vec4 color_out;
 
 layout(location=0) in vec2 worldPos_in;
@@ -30,6 +32,6 @@ void main()
 		color_out.rgb *= color_out.a;
 	}
 	
-	vec2 screenSamplePos = gl_FragCoord.xy / vec2(textureSize(lightingSampler, 0));
+	vec2 screenSamplePos = gl_FragCoord.xy / vec2(resolution);
 	color_out.rgb *= texture(lightingSampler, screenSamplePos).rgb;
 }

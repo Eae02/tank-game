@@ -144,6 +144,14 @@ namespace TankGame
 		});
 	}
 	
+	void WorldRenderer::UpdateResolution(int width, int height) const
+	{
+		if (m_resolution.x == width && m_resolution.y == height)
+			return;
+		m_resolution = { width, height };
+		m_renderSettings.OnResize(width, height);
+	}
+	
 	void WorldRenderer::DrawShadowCasters(glm::vec2 lightPos, const class ViewInfo& viewInfo) const
 	{
 		if (m_gameWorld == nullptr)

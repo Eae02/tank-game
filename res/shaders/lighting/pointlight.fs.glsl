@@ -15,13 +15,13 @@ layout(std140, binding=1) uniform LightUB
 uniform vec3 position;
 
 layout(location=0) in vec2 worldPos_in;
+layout(location=1) in vec2 texCoord_in;
 
 layout(location=0) out vec3 lighting_out;
 
 void main()
 {
-	vec2 texCoord = getTexCoord();
-	GBufferData data = getGBufferData(texCoord);
+	GBufferData data = getGBufferData(texCoord_in);
 	
 	vec3 lightIn = vec3(worldPos_in.x, 0, worldPos_in.y) - position;
 	float dist = length(lightIn);

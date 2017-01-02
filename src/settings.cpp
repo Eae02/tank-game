@@ -56,6 +56,10 @@ namespace TankGame
 		m_particlesQuality = ParseQualityString(qualityEl["particles"].get<std::string>(), m_particlesQuality);
 		m_postProcessingQuality = ParseQualityString(qualityEl["post"].get<std::string>(), m_postProcessingQuality);
 		
+		auto resScaleIt = qualityEl.find("resScale");
+		if (resScaleIt != qualityEl.end())
+			m_resolutionScale = static_cast<ResolutionScales>(resScaleIt->get<int>());
+		
 		m_enableBloom = qualityEl["bloom"].get<bool>();
 		
 		auto audioIt = settingsDocument.find("audio");
@@ -81,6 +85,7 @@ namespace TankGame
 		qualityEl["lighting"] = GetQualityString(m_lightingQuality);
 		qualityEl["particles"] = GetQualityString(m_particlesQuality);
 		qualityEl["post"] = GetQualityString(m_postProcessingQuality);
+		qualityEl["resScale"] = static_cast<int>(m_resolutionScale);
 		qualityEl["bloom"] = m_enableBloom;
 		videoEl["quality"] = qualityEl;
 		

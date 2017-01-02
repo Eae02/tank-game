@@ -31,11 +31,12 @@ namespace TankGame
 	OptionsMenu::OptionsMenu()
 	    : m_settingLabels{
 	          Label(U"Display Mode"), Label(U"Fullscreen Resolution"), Label(U"V-Sync"), Label(U"Gamma"),
-	          Label(U"Lighting"), Label(U"Particles"), Label(U"Post Processing"), Label(U"Bloom"),
+	          Label(U"Resolution Scale"), Label(U"Lighting"), Label(U"Particles"), Label(U"Post Processing"), Label(U"Bloom"),
 	          Label(U"Master Volume"), Label(U"Music Volume"), Label(U"SFX Volume")
 	      },
 	      m_backButton(U"Back"), m_applyButton(U"Apply"), m_displayModeComboBox{ U"Fullscreen", U"Windowed" },
 	      m_vSyncComboBox(CreateBoolComboBox()), m_gammaSlider(0.5f, 1.5f, 0.05f),
+	      m_resolutionScaleComboBox{ U"50%", U"75%", U"100%", U"125%", U"150%", U"200%" },
 	      m_lightingQualityComboBox(CreateQualityComboBox()), m_particlesQualityComboBox(CreateQualityComboBox()),
 	      m_postQualityComboBox(CreateQualityComboBox()), m_bloomComboBox(CreateBoolComboBox()),
 	      m_masterVolumeSlider(0, 100, 5), m_musicVolumeSlider(0, 100, 5), m_sfxVolumeSlider(0, 100, 5)
@@ -85,6 +86,7 @@ namespace TankGame
 		bool anyDropDownShown = m_resolutionsComboBox.IsDropDownShown() ||
 		        m_displayModeComboBox.IsDropDownShown() ||
 		        m_vSyncComboBox.IsDropDownShown() ||
+		        m_resolutionScaleComboBox.IsDropDownShown() ||
 		        m_lightingQualityComboBox.IsDropDownShown() ||
 		        m_particlesQualityComboBox.IsDropDownShown() ||
 		        m_postQualityComboBox.IsDropDownShown() ||
@@ -118,6 +120,30 @@ namespace TankGame
 			float gamma = Settings::GetInstance().GetGamma();
 			if (m_gammaSlider.Update(updateInfo, gamma))
 				Settings::GetInstance().SetGamma(gamma);
+		}
+		
+		if (!anyDropDownShown || m_resolutionScaleComboBox.IsDropDownShown())
+		{
+			const std::array<ResolutionScales, 6> resScales =
+			{
+				ResolutionScales::_50,
+				ResolutionScales::_75,
+				ResolutionScales::_100,
+				ResolutionScales::_125,
+				ResolutionScales::_150,
+				ResolutionScales::_200
+			};
+			
+			auto resScaleIt = std::find(resScales.begin(), resScales.end(),
+			                            Settings::GetInstance().GetResolutionScale());
+			
+			if (resScaleIt == resScales.end())
+				resScaleIt = std::find(resScales.begin(), resScales.end(), ResolutionScales::_100);
+			
+			long resScaleIndex = resScaleIt - resScales.begin();
+			
+			if (m_resolutionScaleComboBox.Update(updateInfo, resScaleIndex))
+				Settings::GetInstance().SetResolutionScale(resScales[resScaleIndex]);
 		}
 		
 		if (!anyDropDownShown || m_lightingQualityComboBox.IsDropDownShown())
@@ -203,6 +229,7 @@ namespace TankGame
 		m_postQualityComboBox.Draw(uiRenderer);
 		m_particlesQualityComboBox.Draw(uiRenderer);
 		m_lightingQualityComboBox.Draw(uiRenderer);
+		m_resolutionScaleComboBox.Draw(uiRenderer);
 		m_gammaSlider.Draw(uiRenderer);
 		m_vSyncComboBox.Draw(uiRenderer);
 		m_resolutionsComboBox.Draw(uiRenderer);
@@ -222,6 +249,7 @@ namespace TankGame
 			&m_vSyncComboBox,
 			&m_gammaSlider,
 			nullptr,
+			&m_resolutionScaleComboBox,
 			&m_lightingQualityComboBox,
 			&m_particlesQualityComboBox,
 			&m_postQualityComboBox,

@@ -17,6 +17,7 @@ uniform vec2 direction;
 uniform float height;
 
 layout(location=0) in vec2 worldPos_in;
+layout(location=1) in vec2 texCoord_in;
 
 layout(location=0) out vec3 lighting_out;
 
@@ -33,8 +34,7 @@ vec2 getClosestPointOnLightLine(vec2 point)
 
 void main()
 {
-	vec2 texCoord = getTexCoord();
-	GBufferData data = getGBufferData(texCoord);
+	GBufferData data = getGBufferData(texCoord_in);
 	
 	vec2 lightIn2D = worldPos_in - getClosestPointOnLightLine(worldPos_in);
 	vec3 lightIn = vec3(lightIn2D.x, -height, lightIn2D.y);

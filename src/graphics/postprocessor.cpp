@@ -65,7 +65,7 @@ namespace TankGame
 		inputTexture.Bind(0);
 		distortionsTexture.Bind(2);
 		
-		if (Settings::GetInstance().EnableBloom())
+		if (!m_bloomHBlurOutput.IsNull())
 		{
 			glBindBufferBase(GL_UNIFORM_BUFFER, 1, *m_blurVectorsBuffer);
 			

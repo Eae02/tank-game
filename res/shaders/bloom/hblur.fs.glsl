@@ -1,7 +1,6 @@
 #version 420 core
 
 #include bloom.glh
-#include ../post.glh
 
 layout(location=0) in vec2 texCoord_in;
 layout(location=0) out vec3 color_out;
