@@ -5,7 +5,6 @@
 #include "../world/path/pathfinder.h"
 #include "../world/spteams.h"
 #include "../utils/mathutils.h"
-#include "../utils/lazy.h"
 #include "../utils/utils.h"
 #include "../updateinfo.h"
 

@@ -136,7 +136,7 @@ namespace TankGame
 		
 		m_gridVertexCount = bufferData.size() * 2;
 		
-		m_gridBuffer.Construct(bufferData.size() * sizeof(GridLine), bufferData.data(), 0);
+		m_gridBuffer = std::make_unique<Buffer>(bufferData.size() * sizeof(GridLine), bufferData.data(), 0);
 		glVertexArrayVertexBuffer(m_gridVAO.GetID(), 0, m_gridBuffer->GetID(), 0, sizeof(float) * 2);
 		
 		EditorTool::SetGameWorld(gameWorld);

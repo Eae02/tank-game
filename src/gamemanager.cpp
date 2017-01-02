@@ -30,11 +30,11 @@ namespace TankGame
 	
 	void GameManager::Update(const UpdateInfo& updateInfo)
 	{
-		if (m_level.IsNull())
+		if (m_level == nullptr)
 			return;
 		
 		m_hudManager.Update(updateInfo);
-		if (!m_hudManager.IsPaused() && !m_level.IsNull())
+		if (!m_hudManager.IsPaused() && m_level != nullptr)
 		{
 			float targetInteractButtonOpacity = 0.0f;
 			m_level->GetGameWorld().IterateIntersectingEntities(m_level->GetPlayerEntity().GetInteractRectangle(),
@@ -59,7 +59,7 @@ namespace TankGame
 	
 	void GameManager::DrawUI()
 	{
-		if (!m_level.IsNull())
+		if (m_level != nullptr)
 		{
 			m_hudManager.DrawHUD();
 			
@@ -76,7 +76,7 @@ namespace TankGame
 	
 	void GameManager::SetLevel(Level&& level, bool testing)
 	{
-		m_level.Construct(std::move(level));
+		m_level = std::make_unique<Level>(std::move(level));
 		
 		m_level->GetGameWorld().SetGameManager(this);
 		m_level->GetGameWorld().SetRenderer(&m_mainRenderer);
@@ -93,7 +93,7 @@ namespace TankGame
 	{
 		m_mainRenderer.SetBlurAmount(0);
 		
-		m_level.Destroy();
+		m_level = nullptr;
 		m_ambiencePlayer.Stop();
 	}
 	

@@ -21,8 +21,8 @@ namespace TankGame
 		auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "ui" / "uisprite.vs.glsl", GL_VERTEX_SHADER);
 		auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "ui" / "uisprite.fs.glsl", GL_FRAGMENT_SHADER);
 		
-		s_spriteShader.m_shader.Construct<std::initializer_list<const ShaderModule*>>({ &vs, &fs });
-		CallOnClose([] { s_spriteShader.m_shader.Destroy(); });
+		s_spriteShader.m_shader.reset(new ShaderProgram{ &vs, &fs });
+		CallOnClose([] { s_spriteShader.m_shader = nullptr; });
 		
 		s_spriteShader.m_sampleRectMinLocation = s_spriteShader.m_shader->GetUniformLocation("sampleRectMin");
 		s_spriteShader.m_sampleRectMaxLocation = s_spriteShader.m_shader->GetUniformLocation("sampleRectMax");
@@ -36,8 +36,8 @@ namespace TankGame
 		auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "ui" / "uiquad.vs.glsl", GL_VERTEX_SHADER);
 		auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "ui" / "uiquad.fs.glsl", GL_FRAGMENT_SHADER);
 		
-		s_quadShader.m_shader.Construct<std::initializer_list<const ShaderModule*>>({ &vs, &fs });
-		CallOnClose([] { s_quadShader.m_shader.Destroy(); });
+		s_quadShader.m_shader.reset(new ShaderProgram{ &vs, &fs });
+		CallOnClose([] { s_quadShader.m_shader = nullptr; });
 		
 		s_quadShader.m_colorLocation = s_quadShader.m_shader->GetUniformLocation("color");
 		s_quadShader.m_transformLocation = s_quadShader.m_shader->GetUniformLocation("transform");
@@ -48,8 +48,8 @@ namespace TankGame
 		auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "ui" / "uiline.vs.glsl", GL_VERTEX_SHADER);
 		auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "ui" / "uiquad.fs.glsl", GL_FRAGMENT_SHADER);
 		
-		s_lineShader.m_shader.Construct<std::initializer_list<const ShaderModule*>>({ &vs, &fs });
-		CallOnClose([] { s_lineShader.m_shader.Destroy(); });
+		s_lineShader.m_shader.reset(new ShaderProgram{ &vs, &fs });
+		CallOnClose([] { s_lineShader.m_shader = nullptr; });
 		
 		s_lineShader.m_vertex1Location = s_lineShader.m_shader->GetUniformLocation("vertices[0]");
 		s_lineShader.m_vertex2Location = s_lineShader.m_shader->GetUniformLocation("vertices[1]");
@@ -61,8 +61,8 @@ namespace TankGame
 		auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "ui" / "text.vs.glsl", GL_VERTEX_SHADER);
 		auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "ui" / "text.fs.glsl", GL_FRAGMENT_SHADER);
 		
-		s_textShader.m_shader.Construct<std::initializer_list<const ShaderModule*>>({ &vs, &fs });
-		CallOnClose([] { s_textShader.m_shader.Destroy(); });
+		s_textShader.m_shader.reset(new ShaderProgram{ &vs, &fs });
+		CallOnClose([] { s_textShader.m_shader = nullptr; });
 		
 		s_textShader.m_offsetLocation = s_textShader.m_shader->GetUniformLocation("offset");
 		s_textShader.m_sizeLocation = s_textShader.m_shader->GetUniformLocation("size");
@@ -72,7 +72,7 @@ namespace TankGame
 	void UIRenderer::DrawSprite(const Texture2D& texture, const Rectangle& targetRectangle,
 	                            const Rectangle& sampleRectangle, const glm::vec4& shade) const
 	{
-		if (s_spriteShader.m_shader.IsNull())
+		if (s_spriteShader.m_shader== nullptr)
 			LoadSpriteShader();
 		s_spriteShader.m_shader->Use();
 		
@@ -119,7 +119,7 @@ namespace TankGame
 	
 	void UIRenderer::DrawQuad(const glm::mat3& transform, const glm::vec4& color) const
 	{
-		if (s_quadShader.m_shader.IsNull())
+		if (s_quadShader.m_shader== nullptr)
 			LoadQuadShader();
 		s_quadShader.m_shader->Use();
 		
@@ -152,7 +152,7 @@ namespace TankGame
 	
 	void UIRenderer::DrawLine(const glm::vec2& a, const glm::vec2& b, const glm::vec4& color) const
 	{
-		if (s_lineShader.m_shader.IsNull())
+		if (s_lineShader.m_shader== nullptr)
 			LoadLineShader();
 		s_lineShader.m_shader->Use();
 		
@@ -178,7 +178,7 @@ namespace TankGame
 	glm::vec2 UIRenderer::DrawString(const Font& font, const std::u32string& string, Rectangle rectangle,
 	                                 Alignment alignX, Alignment alignY, const glm::vec4& color, float scale) const
 	{
-		if (s_textShader.m_shader.IsNull())
+		if (s_textShader.m_shader== nullptr)
 			LoadTextShader();
 		s_textShader.m_shader->Use();
 		
@@ -202,7 +202,7 @@ namespace TankGame
 			if (glyph == nullptr)
 				continue;
 			
-			if (!glyph->m_texture.IsNull())
+			if (glyph->m_texture != nullptr)
 			{
 				glyph->m_texture->Bind(0);
 				

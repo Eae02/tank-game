@@ -1,11 +1,12 @@
 #pragma once
 
-#include "../../utils/memory/stackobject.h"
 #include "../../graphics/gl/shaderprogram.h"
 #include "../../graphics/gl/bufferallocator.h"
 #include "../../graphics/gl/vertexarray.h"
 #include "../entity.h"
 #include "hittable.h"
+
+#include <memory>
 
 namespace TankGame
 {
@@ -45,11 +46,11 @@ namespace TankGame
 		virtual void OnKilled() override;
 		
 	private:
-		static StackObject<ShaderProgram> s_distortionShader;
-		static StackObject<ShaderProgram> s_spriteShader;
+		static std::unique_ptr<ShaderProgram> s_distortionShader;
+		static std::unique_ptr<ShaderProgram> s_spriteShader;
 		
-		static StackObject<Buffer> s_vertexBuffer;
-		static StackObject<VertexArray> s_vertexArray;
+		static std::unique_ptr<Buffer> s_vertexBuffer;
+		static std::unique_ptr<VertexArray> s_vertexArray;
 		static GLsizei s_numVertices;
 		
 		static void CreateVertexBuffer();

@@ -6,19 +6,19 @@
 
 namespace TankGame
 {
-	StackObject<Texture2DArray> FlameEmitter::s_flameTexture;
+	std::unique_ptr<Texture2DArray> FlameEmitter::s_flameTexture;
 	
 	FlameEmitter::FlameEmitter(ParticlesManager& particlesManager)
 	    : ParticleEmitter(particlesManager), m_positionGenerator(0, glm::two_pi<float>(), 0, 0.4f),
 	      m_velocityGenerator(0, glm::two_pi<float>(), 0, 1.0f)
 	{
-		if (s_flameTexture.IsNull())
+		if (s_flameTexture== nullptr)
 		{
-			s_flameTexture.Construct(512, 512, 1, Texture::GetMipmapCount(512), GL_RGBA8);
+			s_flameTexture = std::make_unique<Texture2DArray>(512, 512, 1, Texture::GetMipmapCount(512), GL_RGBA8);
 			s_flameTexture->LoadLayerFromFile(0, GetResDirectory() / "particles" / "flame.png");
 			s_flameTexture->SetupMipmapping(true);
 			
-			CallOnClose([] { s_flameTexture.Destroy(); });
+			CallOnClose([] { s_flameTexture = nullptr; });
 		}
 		
 		SetTextureArray(*s_flameTexture);

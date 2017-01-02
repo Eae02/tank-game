@@ -2,9 +2,9 @@
 
 #include "soundsmanager.h"
 #include "../iasyncoperation.h"
-#include "../utils/memory/stackobject.h"
 
 #include <functional>
+#include <memory>
 
 namespace TankGame
 {
@@ -22,6 +22,6 @@ namespace TankGame
 		fs::path m_jsonPath;
 		DoneCallback m_doneCallback;
 		
-		StackObject<SoundsManager> m_result;
+		std::unique_ptr<SoundsManager> m_result;
 	};
 }

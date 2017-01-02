@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "../entity.h"
 #include "ilightsource.h"
 #include "attenuation.h"
@@ -81,7 +83,7 @@ namespace TankGame
 		bool m_flickers = false;
 		float m_flickerOffset;
 		
-		mutable StackObject<ShadowMap> m_shadowMap;
+		mutable std::unique_ptr<ShadowMap> m_shadowMap;
 		EntityShadowModes m_shadowMode = EntityShadowModes::None;
 		
 		BufferAllocator::UniquePtr m_uniformBuffer;

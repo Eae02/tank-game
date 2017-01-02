@@ -3,10 +3,10 @@
 #include "gl/vertexarray.h"
 #include "gl/bufferallocator.h"
 #include "gl/shaderprogram.h"
-#include "../utils/memory/stackobject.h"
 
 #include <unordered_map>
 #include <vector>
+#include <memory>
 
 #include "gl/functions.h"
 #include <glm/glm.hpp>
@@ -26,7 +26,7 @@ namespace TankGame
 		void End(bool isTranslucent = false);
 		
 	private:
-		static StackObject<ShaderProgram> s_shaderProgram;
+		static std::unique_ptr<ShaderProgram> s_shaderProgram;
 		static int s_translucentUniformLocation;
 		
 		static GLint s_maxVertexRelativeOffset;

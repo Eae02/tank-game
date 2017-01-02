@@ -31,25 +31,25 @@ namespace TankGame
 		int scaledW = static_cast<double>(width) * resScale;
 		int scaledH = static_cast<double>(height) * resScale;
 		
-		m_geometryFramebuffer.Construct();
+		m_geometryFramebuffer = std::make_unique<Framebuffer>();
 		
-		m_depthBuffer.Construct(scaledW, scaledH, GL_DEPTH_COMPONENT16);
+		m_depthBuffer = std::make_unique<Renderbuffer>(scaledW, scaledH, GL_DEPTH_COMPONENT16);
 		
-		m_colorBuffer.Construct(scaledW, scaledH, 1, COLOR_FORMAT);
+		m_colorBuffer = std::make_unique<Texture2D>(scaledW, scaledH, 1, COLOR_FORMAT);
 		m_colorBuffer->SetupMipmapping(false);
 		m_colorBuffer->SetWrapS(GL_CLAMP_TO_EDGE);
 		m_colorBuffer->SetWrapT(GL_CLAMP_TO_EDGE);
 		m_colorBuffer->SetMinFilter(GL_LINEAR);
 		m_colorBuffer->SetMagFilter(GL_LINEAR);
 		
-		m_normalsAndSpecBuffer.Construct(scaledW, scaledH, 1, NORMALS_AND_SPECULAR_FORMAT);
+		m_normalsAndSpecBuffer = std::make_unique<Texture2D>(scaledW, scaledH, 1, NORMALS_AND_SPECULAR_FORMAT);
 		m_normalsAndSpecBuffer->SetupMipmapping(false);
 		m_normalsAndSpecBuffer->SetWrapS(GL_CLAMP_TO_EDGE);
 		m_normalsAndSpecBuffer->SetWrapT(GL_CLAMP_TO_EDGE);
 		m_normalsAndSpecBuffer->SetMinFilter(GL_LINEAR);
 		m_normalsAndSpecBuffer->SetMagFilter(GL_LINEAR);
 		
-		m_distortionBuffer.Construct(scaledW, scaledH, 1, DISTORTION_BUFFER_FORMAT);
+		m_distortionBuffer = std::make_unique<Texture2D>(scaledW, scaledH, 1, DISTORTION_BUFFER_FORMAT);
 		m_distortionBuffer->SetupMipmapping(false);
 		m_distortionBuffer->SetWrapMode(GL_CLAMP_TO_EDGE);
 		m_distortionBuffer->SetMinFilter(GL_LINEAR);
@@ -62,9 +62,9 @@ namespace TankGame
 		glNamedFramebufferRenderbuffer(m_geometryFramebuffer->GetID(), GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthBuffer->GetID());
 		
 		
-		m_lightFramebuffer.Construct();
+		m_lightFramebuffer = std::make_unique<Framebuffer>();
 		
-		m_lightAccBuffer.Construct(scaledW, scaledH, 1, LIGHT_ACC_FORMAT);
+		m_lightAccBuffer = std::make_unique<Texture2D>(scaledW, scaledH, 1, LIGHT_ACC_FORMAT);
 		m_lightAccBuffer->SetupMipmapping(false);
 		m_lightAccBuffer->SetWrapMode(GL_CLAMP_TO_EDGE);
 		m_lightAccBuffer->SetMinFilter(GL_LINEAR);
@@ -73,9 +73,9 @@ namespace TankGame
 		glNamedFramebufferTexture(m_lightFramebuffer->GetID(), GL_COLOR_ATTACHMENT0, m_lightAccBuffer->GetID(), 0);
 		glNamedFramebufferDrawBuffer(m_lightFramebuffer->GetID(), GL_COLOR_ATTACHMENT0);
 		
-		m_outputFramebuffer.Construct();
+		m_outputFramebuffer = std::make_unique<Framebuffer>();
 		
-		m_outputBuffer.Construct(width, height, 1, LIGHT_ACC_FORMAT);
+		m_outputBuffer = std::make_unique<Texture2D>(width, height, 1, LIGHT_ACC_FORMAT);
 		m_outputBuffer->SetupMipmapping(false);
 		m_outputBuffer->SetWrapMode(GL_CLAMP_TO_EDGE);
 		

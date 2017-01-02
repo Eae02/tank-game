@@ -5,11 +5,11 @@
 #include "../../graphics/ui/font.h"
 #include "../../utils/utils.h"
 #include "../../utils/ioutils.h"
-#include "../../utils/memory/stackobject.h"
 
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <sstream>
+#include <memory>
 
 namespace TankGame
 {
@@ -18,8 +18,8 @@ namespace TankGame
 	const float KNOB_SIZE = 20;
 	const float LABEL_SIZE = 35;
 	
-	StackObject<Texture2D> Slider::s_knobTexture;
-	StackObject<Texture2D> Slider::s_labelTexture;
+	std::unique_ptr<Texture2D> Slider::s_knobTexture;
+	std::unique_ptr<Texture2D> Slider::s_labelTexture;
 	
 	float Slider::s_labelTextureAR;
 	float Slider::s_labelStringAR;
@@ -27,16 +27,16 @@ namespace TankGame
 	Slider::Slider(float min, float max, float snap)
 	    : m_min(min), m_max(max), m_snap(snap / (max - min)), m_roundExp(FloatEqual(snap, 0.0f) ? 1.0f : snap)
 	{
-		if (s_knobTexture.IsNull())
+		if (s_knobTexture== nullptr)
 		{
-			s_knobTexture.Construct(Texture2D::FromFile(GetResDirectory() / "ui" / "slider-knob.png"));
-			CallOnClose([] { s_knobTexture.Destroy(); });
+			s_knobTexture = std::make_unique<Texture2D>(Texture2D::FromFile(GetResDirectory() / "ui" / "slider-knob.png"));
+			CallOnClose([] { s_knobTexture = nullptr; });
 		}
 		
-		if (s_labelTexture.IsNull())
+		if (s_labelTexture== nullptr)
 		{
-			s_labelTexture.Construct(Texture2D::FromFile(GetResDirectory() / "ui" / "slider-label.png"));
-			CallOnClose([] { s_labelTexture.Destroy(); });
+			s_labelTexture = std::make_unique<Texture2D>(Texture2D::FromFile(GetResDirectory() / "ui" / "slider-label.png"));
+			CallOnClose([] { s_labelTexture = nullptr; });
 			
 			s_labelTextureAR = s_labelTexture->GetHeight() / static_cast<float>(s_labelTexture->GetWidth());;
 			s_labelStringAR = (s_labelTexture->GetHeight() - 16.0f) / static_cast<float>(s_labelTexture->GetWidth());

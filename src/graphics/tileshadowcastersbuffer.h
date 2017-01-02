@@ -3,7 +3,8 @@
 #include "gl/buffer.h"
 #include "gl/vertexarray.h"
 #include "gl/shaderprogram.h"
-#include "../utils/memory/stackobject.h"
+
+#include <memory>
 
 namespace TankGame
 {
@@ -17,7 +18,7 @@ namespace TankGame
 		void Draw() const;
 		
 	private:
-		static StackObject<ShaderProgram> s_shadowShader;
+		static std::unique_ptr<ShaderProgram> s_shadowShader;
 		
 		GLuint m_numVertices;
 		

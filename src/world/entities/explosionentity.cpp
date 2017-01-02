@@ -16,7 +16,7 @@ namespace TankGame
 {
 	static SoundEffectPlayer explosionEffectPlayer("Explosion");
 	
-	StackObject<ShaderProgram> ExplosionEntity::s_distortionShader;
+	std::unique_ptr<ShaderProgram> ExplosionEntity::s_distortionShader;
 	
 	static const float LIFE_TIME = 0.4f;
 	static const float LIGHT_INTENSITY = 40.0f;
@@ -25,14 +25,14 @@ namespace TankGame
 	
 	void ExplosionEntity::BindShader()
 	{
-		if (s_distortionShader.IsNull())
+		if (s_distortionShader== nullptr)
 		{
 			auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "blastwave.vs.glsl", GL_VERTEX_SHADER);
 			auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "blastwave.fs.glsl", GL_FRAGMENT_SHADER);
 			
-			s_distortionShader.Construct<std::initializer_list<const ShaderModule*>>({ &vs, &fs });
+			s_distortionShader.reset(new ShaderProgram{ &vs, &fs });
 			
-			CallOnClose([] { s_distortionShader.Destroy(); });
+			CallOnClose([] { s_distortionShader = nullptr; });
 		}
 		
 		s_distortionShader->Use();

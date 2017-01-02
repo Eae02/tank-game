@@ -1,6 +1,5 @@
 #include "noisetexture.h"
 #include "../utils/utils.h"
-#include "../utils/memory/stackobject.h"
 
 #include <vector>
 #include <random>

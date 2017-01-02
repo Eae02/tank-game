@@ -4,8 +4,9 @@
 #include "gl/texture2d.h"
 #include "gl/framebuffer.h"
 #include "gl/bufferallocator.h"
-#include "../utils/memory/stackobject.h"
 #include "../world/lights/ilightsource.h"
+
+#include <memory>
 
 namespace TankGame
 {
@@ -46,16 +47,16 @@ namespace TankGame
 		{ m_staticQualityMultiplier = staticQualityMultiplier; }
 		
 	private:
-		static StackObject<Texture2D> s_defaultTexture;
-		static StackObject<Buffer> s_defaultRenderSettingsBuffer;
+		static std::unique_ptr<Texture2D> s_defaultTexture;
+		static std::unique_ptr<Buffer> s_defaultRenderSettingsBuffer;
 		
 		const class GameWorld* m_gameWorld;
 		
-		StackObject<Texture2D> m_shadowPassTexture;
-		StackObject<Framebuffer> m_shadowPassFramebuffer;
+		std::unique_ptr<Texture2D> m_shadowPassTexture;
+		std::unique_ptr<Framebuffer> m_shadowPassFramebuffer;
 		
-		StackObject<Texture2D> m_blurPassTexture;
-		StackObject<Framebuffer> m_blurPassFramebuffer;
+		std::unique_ptr<Texture2D> m_blurPassTexture;
+		std::unique_ptr<Framebuffer> m_blurPassFramebuffer;
 		
 		BufferAllocator::UniquePtr m_renderSettingsBuffer;
 		

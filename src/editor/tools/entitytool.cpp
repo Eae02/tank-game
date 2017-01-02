@@ -7,7 +7,6 @@
 #include "../../world/gameworld.h"
 #include "../../graphics/ui/font.h"
 #include "../../utils/ioutils.h"
-#include "../../utils/lazy.h"
 #include "../../mouse.h"
 #include "../../keyboard.h"
 #include "../../utils/utils.h"
@@ -240,26 +239,21 @@ namespace TankGame
 			uiRenderer.DrawRectangle(m_selectionRect, glm::vec4(glm::vec3(SELECTION_SHADE), 0.6f * m_selectionRectOpacity));
 		}
 		
-		auto viewMatrix = MakeLazy([&]
-		{
-			glm::mat3 W(
-					GetWindowWidth() / 2.0f, 0.0f, 0.0f,
-					0.0f, GetWindowHeight() / 2.0f, 0.0f,
-					GetWindowWidth() / 2.0f, GetWindowHeight() / 2.0f, 1.0f
-			);
-			
-			return W * viewInfo.GetViewMatrix();
-		});
-		
 		// ** Draws per entity icons **
 		if (m_drawEntityInterfaces || m_drawEntityIcons)
 		{
+			glm::mat3 viewMatrix = glm::mat3(
+					GetWindowWidth() / 2.0f, 0.0f, 0.0f,
+					0.0f, GetWindowHeight() / 2.0f, 0.0f,
+					GetWindowWidth() / 2.0f, GetWindowHeight() / 2.0f, 1.0f
+			) * viewInfo.GetViewMatrix();
+			
 			IterateEntities(*this, viewInfo, [&] (Entity& entity, const Rectangle& iconRect)
 			{
 				if (m_drawEntityInterfaces)
 				{
 					if (const IEditorUIEntity* uiEntity = dynamic_cast<const IEditorUIEntity*>(&entity))
-						uiEntity->DrawEditorUI(uiRenderer, viewMatrix());
+						uiEntity->DrawEditorUI(uiRenderer, viewMatrix);
 				}
 				
 				if (m_drawEntityIcons)

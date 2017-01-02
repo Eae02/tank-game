@@ -8,8 +8,8 @@
 #include "../lights/spotlightentity.h"
 #include "../../graphics/gl/texture2d.h"
 #include "../../graphics/spritematerial.h"
-#include "../../utils/memory/stackobject.h"
 
+#include <memory>
 #include <random>
 
 namespace TankGame
@@ -62,9 +62,9 @@ namespace TankGame
 		
 	private:
 		static bool s_areTexturesLoaded;
-		static StackObject<Texture2D> s_cannonTexture;
-		static StackObject<Texture2D> s_cannonNormalMap;
-		static StackObject<SpriteMaterial> s_cannonMaterial;
+		static std::unique_ptr<Texture2D> s_cannonTexture;
+		static std::unique_ptr<Texture2D> s_cannonNormalMap;
+		static std::unique_ptr<SpriteMaterial> s_cannonMaterial;
 		
 		void FireSelectedWeapon(float gameTime);
 		

@@ -11,20 +11,20 @@
 
 namespace TankGame
 {
-	StackObject<ShaderProgram> ZoneHiderEntity::s_shader;
+	std::unique_ptr<ShaderProgram> ZoneHiderEntity::s_shader;
 	int ZoneHiderEntity::s_transformUniformLocation;
 	
 	ZoneHiderEntity::ZoneHiderEntity(std::string name)
 	    : m_name(std::move(name))
 	{
-		if (s_shader.IsNull())
+		if (s_shader== nullptr)
 		{
 			auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "zonehider.vs.glsl", GL_VERTEX_SHADER);
 			auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "zonehider.fs.glsl", GL_FRAGMENT_SHADER);
 			
-			s_shader.Construct<std::initializer_list<const ShaderModule*>>({ &vs, &fs });
+			s_shader.reset(new ShaderProgram{ &vs, &fs });
 			
-			CallOnClose([] { s_shader.Destroy(); });
+			CallOnClose([] { s_shader = nullptr; });
 			
 			s_transformUniformLocation = s_shader->GetUniformLocation("transform");
 		}

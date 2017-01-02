@@ -2,11 +2,11 @@
 
 #include "gl/shadermodule.h"
 #include "gl/shaderprogram.h"
-#include "../utils/memory/stackobject.h"
 #include "../utils/abstract.h"
 #include "../world/lights/ilightsource.h"
 
 #include <glm/glm.hpp>
+#include <memory>
 
 namespace TankGame
 {
@@ -30,8 +30,8 @@ namespace TankGame
 		static const ShaderModule& GetFragmentShader();
 		
 	private:
-		static StackObject<ShaderModule> s_geometryShader;
-		static StackObject<ShaderModule> s_fragmentShader;
+		static std::unique_ptr<ShaderModule> s_geometryShader;
+		static std::unique_ptr<ShaderModule> s_fragmentShader;
 		
 		static ShaderProgram CreateBlurPassShader();
 		

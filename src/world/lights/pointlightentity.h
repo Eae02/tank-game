@@ -27,7 +27,7 @@ namespace TankGame
 		{ return s_worldTransformUniformLocation; }
 		
 	private:
-		static StackObject<ShaderProgram> s_shaderProgram;
+		static std::unique_ptr<ShaderProgram> s_shaderProgram;
 		
 		static int s_positionUniformLocation;
 		static int s_worldTransformUniformLocation;

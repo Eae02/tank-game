@@ -12,11 +12,11 @@
 
 namespace TankGame
 {
-	StackObject<ShaderProgram> ShieldEntity::s_distortionShader;
-	StackObject<ShaderProgram> ShieldEntity::s_spriteShader;
+	std::unique_ptr<ShaderProgram> ShieldEntity::s_distortionShader;
+	std::unique_ptr<ShaderProgram> ShieldEntity::s_spriteShader;
 	
-	StackObject<Buffer> ShieldEntity::s_vertexBuffer;
-	StackObject<VertexArray> ShieldEntity::s_vertexArray;
+	std::unique_ptr<Buffer> ShieldEntity::s_vertexBuffer;
+	std::unique_ptr<VertexArray> ShieldEntity::s_vertexArray;
 	GLsizei ShieldEntity::s_numVertices;
 	
 	constexpr float ShieldEntity::RIPPLE_TIME;
@@ -55,8 +55,8 @@ namespace TankGame
 			vertices[i * 2 + 1].m_position = vertexVec * OUTER_VERTEX_DIST;
 		}
 		
-		s_vertexBuffer.Construct(vertices.size() * sizeof(Vertex), vertices.data(), 0);
-		s_vertexArray.Construct();
+		s_vertexBuffer = std::make_unique<Buffer>(vertices.size() * sizeof(Vertex), vertices.data(), 0);
+		s_vertexArray = std::make_unique<VertexArray>();
 		
 		glEnableVertexArrayAttrib(s_vertexArray->GetID(), 0);
 		glVertexArrayVertexBuffer(s_vertexArray->GetID(), 0, s_vertexBuffer->GetID(), 0, sizeof(Vertex));
@@ -74,23 +74,23 @@ namespace TankGame
 	      m_settingsBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(float) * 17, GL_MAP_WRITE_BIT)),
 	      m_radius(radius)
 	{
-		if (s_distortionShader.IsNull())
+		if (s_distortionShader== nullptr)
 		{
 			auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "shield.vs.glsl", GL_VERTEX_SHADER);
 			auto distFs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "shield-dist.fs.glsl", GL_FRAGMENT_SHADER);
 			auto spriteFs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "shield-sprite.fs.glsl", GL_FRAGMENT_SHADER);
 			
-			s_distortionShader.Construct<std::initializer_list<const ShaderModule*>>({ &vs, &distFs });
-			s_spriteShader.Construct<std::initializer_list<const ShaderModule*>>({ &vs, &spriteFs });
+			s_distortionShader.reset(new ShaderProgram{ &vs, &distFs });
+			s_spriteShader.reset(new ShaderProgram{ &vs, &spriteFs });
 			
 			glm::vec3 color = ParseColorHexCodeSRGB(0x90C3D4) * 3.0f;
 			glProgramUniform3fv(s_spriteShader->GetID(), s_spriteShader->GetUniformLocation("color"), 1,
 			                    reinterpret_cast<GLfloat*>(&color));
 			
-			CallOnClose([] { s_distortionShader.Destroy(); s_spriteShader.Destroy(); });
+			CallOnClose([] { s_distortionShader = nullptr; s_spriteShader = nullptr; });
 		}
 		
-		if (s_vertexBuffer.IsNull())
+		if (s_vertexBuffer== nullptr)
 			CreateVertexBuffer();
 		
 		SetEditorVisible(false);

@@ -17,9 +17,9 @@ namespace TankGame
 {
 	bool EnemyTank::s_areTexturesLoaded = false;
 	
-	StackObject<Texture2D> EnemyTank::s_cannonTexture;
-	StackObject<Texture2D> EnemyTank::s_cannonNormalMap;
-	StackObject<SpriteMaterial> EnemyTank::s_cannonMaterial;
+	std::unique_ptr<Texture2D> EnemyTank::s_cannonTexture;
+	std::unique_ptr<Texture2D> EnemyTank::s_cannonNormalMap;
+	std::unique_ptr<SpriteMaterial> EnemyTank::s_cannonMaterial;
 	
 	static const TankEntity::TextureInfo textureInfo =
 	{
@@ -76,18 +76,18 @@ namespace TankGame
 		if (!s_areTexturesLoaded)
 		{
 			fs::path texturePath = GetResDirectory() / "tank" / "enemy";
-			s_cannonTexture.Construct(Texture2D::FromFile(texturePath / "cannon.png"));
-			s_cannonNormalMap.Construct(Texture2D::FromFile(texturePath / "cannon-normals.png"));
-			s_cannonMaterial.Construct(*s_cannonTexture, *s_cannonNormalMap, 1, 30);
+			s_cannonTexture = std::make_unique<Texture2D>(Texture2D::FromFile(texturePath / "cannon.png"));
+			s_cannonNormalMap = std::make_unique<Texture2D>(Texture2D::FromFile(texturePath / "cannon-normals.png"));
+			s_cannonMaterial = std::make_unique<SpriteMaterial>(*s_cannonTexture, *s_cannonNormalMap, 1, 30);
 			
 			s_cannonTexture->SetWrapMode(GL_CLAMP_TO_EDGE);
 			s_cannonNormalMap->SetWrapMode(GL_CLAMP_TO_EDGE);
 			
 			CallOnClose([]
 			{
-				s_cannonTexture.Destroy();
-				s_cannonNormalMap.Destroy();
-				s_cannonMaterial.Destroy();
+				s_cannonTexture = nullptr;
+				s_cannonNormalMap = nullptr;
+				s_cannonMaterial = nullptr;
 				
 				s_areTexturesLoaded = false;
 			});

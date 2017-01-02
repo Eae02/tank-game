@@ -15,8 +15,8 @@
 namespace TankGame
 {
 	std::vector<LevelsList::ListLevelMenuInfo> LevelsList::s_levelMenuInfos;
-	StackObject<Texture2D> LevelsList::s_playIcon;
-	StackObject<Texture2D> LevelsList::s_lockIcon;
+	std::unique_ptr<Texture2D> LevelsList::s_playIcon;
+	std::unique_ptr<Texture2D> LevelsList::s_lockIcon;
 	
 	LevelsList::LevelsList() : m_levelEntries(s_levelMenuInfos.size())
 	{
@@ -33,16 +33,16 @@ namespace TankGame
 			}
 		}
 		
-		if (s_playIcon.IsNull())
+		if (s_playIcon== nullptr)
 		{
-			s_playIcon.Construct(Texture2D::FromFile(GetResDirectory() / "ui" / "play.png"));
-			CallOnClose([] { s_playIcon.Destroy(); });
+			s_playIcon = std::make_unique<Texture2D>(Texture2D::FromFile(GetResDirectory() / "ui" / "play.png"));
+			CallOnClose([] { s_playIcon = nullptr; });
 		}
 		
-		if (s_lockIcon.IsNull())
+		if (s_lockIcon== nullptr)
 		{
-			s_lockIcon.Construct(Texture2D::FromFile(GetResDirectory() / "ui" / "lock.png"));
-			CallOnClose([] { s_lockIcon.Destroy(); });
+			s_lockIcon = std::make_unique<Texture2D>(Texture2D::FromFile(GetResDirectory() / "ui" / "lock.png"));
+			CallOnClose([] { s_lockIcon = nullptr; });
 		}
 	}
 	

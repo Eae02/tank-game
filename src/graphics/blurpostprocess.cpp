@@ -24,9 +24,9 @@ namespace TankGame
 	{
 		m_input = &inputTexture;
 		
-		m_framebuffer.Construct();
+		m_framebuffer = std::make_unique<Framebuffer>();
 		
-		m_intermidiateBuffer.Construct(inputTexture.GetWidth(), inputTexture.GetHeight(), 1, GL_RGBA16F);
+		m_intermidiateBuffer = std::make_unique<Texture2D>(inputTexture.GetWidth(), inputTexture.GetHeight(), 1, GL_RGBA16F);
 		glNamedFramebufferTexture(m_framebuffer->GetID(), GL_COLOR_ATTACHMENT0, m_intermidiateBuffer->GetID(), 0);
 		glNamedFramebufferDrawBuffer(m_framebuffer->GetID(), GL_COLOR_ATTACHMENT0);
 		

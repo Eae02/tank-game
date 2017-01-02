@@ -2,7 +2,6 @@
 
 #include "../entity.h"
 #include "../particles/systems/particlesystem.h"
-#include "../../utils/memory/stackobject.h"
 #include "../../utils/abstract.h"
 
 #include <limits>
@@ -16,10 +15,9 @@ namespace TankGame
 		{ return m_particleSystem; }
 		
 		virtual const Transform& GetLastFrameTransform() const final override
-		{ return m_lastFrameTransform.IsNull() ? GetTransform() : *m_lastFrameTransform; }
+		{ return m_hasLastFrameTransform ? m_lastFrameTransform : GetTransform(); }
 		
-		inline void UpdateLastFrameTransform()
-		{ m_lastFrameTransform.Construct(GetTransform()); }
+		void UpdateLastFrameTransform();
 		
 		inline double GetDeathTime() const
 		{ return m_deathTime; }
@@ -29,7 +27,9 @@ namespace TankGame
 		
 	private:
 		IParticleSystem& m_particleSystem;
-		StackObject<Transform> m_lastFrameTransform;
+		
+		bool m_hasLastFrameTransform = false;
+		Transform m_lastFrameTransform;
 		
 		double m_deathTime;
 	};

@@ -2,7 +2,8 @@
 
 #include "../particleemitter.h"
 #include "../spherevec2generator.h"
-#include "../../../utils/memory/stackobject.h"
+
+#include <memory>
 
 namespace TankGame
 {
@@ -18,7 +19,7 @@ namespace TankGame
 		virtual glm::vec2 GenerateVelocity(float subframeInterpolation) const override;
 		
 	private:
-		static StackObject<Texture2DArray> s_sparkTextureArray;
+		static std::unique_ptr<Texture2DArray> s_sparkTextureArray;
 		
 		SphereVec2Generator m_positionGenerator;
 		SphereVec2Generator m_velocityGenerator;

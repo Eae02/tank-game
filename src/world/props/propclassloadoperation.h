@@ -2,7 +2,6 @@
 
 #include "../../iasyncoperation.h"
 #include "../../utils/filesystem.h"
-#include "../../utils/memory/stackobject.h"
 #include "../../graphics/textureloadoperation.h"
 
 #include <json.hpp>

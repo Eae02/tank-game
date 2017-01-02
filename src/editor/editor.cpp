@@ -51,22 +51,7 @@ namespace TankGame
 			m_focusLocation.x -= updateInfo.m_dt * KEYBOARD_MOVE_SPEED;
 		if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_RIGHT))
 			m_focusLocation.x += updateInfo.m_dt * KEYBOARD_MOVE_SPEED;
-		/*
-		//Moves the camera when the mouse is close the the screen edge
-		if (!updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_MIDDLE))
-		{
-			float SCREEN_EDGE_SIZE = 0.1f;
-			float EDGE_PAN_SPEED = 5.0f;
-			if (updateInfo.m_mouse.GetX() < m_halfScreenSize.x * 2 * SCREEN_EDGE_SIZE)
-				m_focusLocation.x -= EDGE_PAN_SPEED * updateInfo.m_dt;
-			else if (updateInfo.m_mouse.GetX() > m_halfScreenSize.x * 2 * (1.0f - SCREEN_EDGE_SIZE))
-				m_focusLocation.x += EDGE_PAN_SPEED * updateInfo.m_dt;
-			if (updateInfo.m_mouse.GetY() < m_halfScreenSize.y * 2 * SCREEN_EDGE_SIZE)
-				m_focusLocation.y -= EDGE_PAN_SPEED * updateInfo.m_dt;
-			else if (updateInfo.m_mouse.GetY() > m_halfScreenSize.y * 2 * (1.0f - SCREEN_EDGE_SIZE))
-				m_focusLocation.y += EDGE_PAN_SPEED * updateInfo.m_dt;
-		}
-		*/
+		
 		if (updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_RIGHT) && 
 		    !updateInfo.m_mouse.WasButtonPressed(GLFW_MOUSE_BUTTON_RIGHT))
 		{
@@ -138,10 +123,8 @@ namespace TankGame
 		for (EditorTool* tool : m_tools)
 			tool->SetGameWorld(*m_gameWorld);
 		
-		if (!m_editorRenderer.IsNull())
-		{
+		if (m_editorRenderer != nullptr)
 			m_editorRenderer->SetWorld(m_gameWorld.get());
-		}
 	}
 	
 	void Editor::Close()
@@ -151,9 +134,9 @@ namespace TankGame
 	
 	const EditorRenderer& Editor::GetRenderer()
 	{
-		if (m_editorRenderer.IsNull())
+		if (m_editorRenderer == nullptr)
 		{
-			m_editorRenderer.Construct();
+			m_editorRenderer = std::make_unique<EditorRenderer>();
 			if (m_gameWorld != nullptr)
 				m_editorRenderer->SetWorld(m_gameWorld.get());
 		}

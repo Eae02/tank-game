@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../rectangle.h"
-#include "../../utils/memory/objectpool.h"
+#include "../../utils/objectpool.h"
 #include "iquadtreeentry.h"
 
 #include <memory>

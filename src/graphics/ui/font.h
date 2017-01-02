@@ -9,7 +9,6 @@
 #include <unordered_map>
 #include <glm/glm.hpp>
 
-#include "../../utils/memory/stackobject.h"
 #include "../gl/texture2d.h"
 
 namespace TankGame
@@ -43,7 +42,7 @@ namespace TankGame
 			float m_advance;
 			glm::ivec2 m_bearing;
 			
-			StackObject<Texture2D> m_texture;
+			std::unique_ptr<Texture2D> m_texture;
 		};
 		
 		Font(const fs::path& path, FT_UInt size);

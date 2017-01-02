@@ -92,13 +92,13 @@ namespace TankGame
 	
 	void HUDManager::OnResize(GLsizei width, GLsizei height)
 	{
-		if (!m_fbTexture.IsNull() && m_fbTexture->GetWidth() == width && m_fbTexture->GetHeight() == height)
+		if (m_fbTexture != nullptr && m_fbTexture->GetWidth() == width && m_fbTexture->GetHeight() == height)
 			return;
 		
-		m_fbTexture.Construct(width, height, 1, GL_RGBA8);
+		m_fbTexture = std::make_unique<Texture2D>(width, height, 1, GL_RGBA8);
 		m_fbTexture->SetWrapMode(GL_CLAMP_TO_EDGE);
 		
-		m_framebuffer.Construct();
+		m_framebuffer = std::make_unique<Framebuffer>();
 		glNamedFramebufferTexture(m_framebuffer->GetID(), GL_COLOR_ATTACHMENT0, m_fbTexture->GetID(), 0);
 		glNamedFramebufferDrawBuffer(m_framebuffer->GetID(), GL_COLOR_ATTACHMENT0);
 		

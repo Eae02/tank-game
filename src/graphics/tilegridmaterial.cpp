@@ -191,7 +191,7 @@ namespace TankGame
 				isSolidPacked[i / 32] |= 1 << (i % 32);
 		}
 		
-		material.m_isSolidBuffer.Construct(sizeof(isSolidPacked), isSolidPacked, 0);
+		material.m_isSolidBuffer = std::make_unique<Buffer>(sizeof(isSolidPacked), isSolidPacked, 0);
 		
 		material.m_diffuseTextureArray.SetupMipmapping(true);
 		material.m_normalMapTextureArray.SetupMipmapping(true);

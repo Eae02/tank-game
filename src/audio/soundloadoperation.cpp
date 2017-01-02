@@ -7,12 +7,12 @@ namespace TankGame
 	
 	void SoundLoadOperation::DoWork()
 	{
-		m_result.Construct(m_jsonPath);
+		m_result = std::make_unique<SoundsManager>(m_jsonPath);
 	}
 	
 	void SoundLoadOperation::ProcessResult()
 	{
 		m_doneCallback(std::move(*m_result));
-		m_result.Destroy();
+		m_result = nullptr;
 	}
 }

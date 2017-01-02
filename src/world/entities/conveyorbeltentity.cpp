@@ -13,24 +13,24 @@
 
 namespace TankGame
 {
-	StackObject<Texture2D> ConveyorBeltEntity::s_diffuseTexture;
-	StackObject<Texture2D> ConveyorBeltEntity::s_normalMap;
-	StackObject<Texture2D> ConveyorBeltEntity::s_specularTexture;
+	std::unique_ptr<Texture2D> ConveyorBeltEntity::s_diffuseTexture;
+	std::unique_ptr<Texture2D> ConveyorBeltEntity::s_normalMap;
+	std::unique_ptr<Texture2D> ConveyorBeltEntity::s_specularTexture;
 	
-	StackObject<ShaderProgram> ConveyorBeltEntity::s_shader;
+	std::unique_ptr<ShaderProgram> ConveyorBeltEntity::s_shader;
 	
 	ConveyorBeltEntity::ConveyorBeltEntity(float speed)
 	    : m_uniformBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(float) * 15, GL_MAP_WRITE_BIT)),
 	      m_speed(speed)
 	{
-		if (s_shader.IsNull())
+		if (s_shader == nullptr)
 		{
 			auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "conveyor.vs.glsl", GL_VERTEX_SHADER);
 			auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "conveyor.fs.glsl", GL_FRAGMENT_SHADER);
 			
-			s_shader.Construct<std::initializer_list<const ShaderModule*>>({ &vs, &fs });
+			s_shader.reset(new ShaderProgram{ &vs, &fs });
 			
-			CallOnClose([] { s_shader.Destroy(); });
+			CallOnClose([] { s_shader = nullptr; });
 		}
 	}
 	
@@ -119,24 +119,24 @@ namespace TankGame
 		workList.SubmitWork(std::make_unique<TextureLoadOperation>(GetResDirectory() / "conveyor-diffuse.png",
 		                                                           [] (Texture2D&& result)
 		{
-			s_diffuseTexture.Construct(std::move(result));
+			s_diffuseTexture = std::make_unique<Texture2D>(std::move(result));
 			s_diffuseTexture->SetWrapMode(GL_REPEAT);
 		}));
 		
 		workList.SubmitWork(std::make_unique<TextureLoadOperation>(GetResDirectory() / "conveyor-normals.png",
 		                                                           [] (Texture2D&& result)
 		{
-			s_normalMap.Construct(std::move(result));
+			s_normalMap = std::make_unique<Texture2D>(std::move(result));
 			s_normalMap->SetWrapMode(GL_REPEAT);
 		}));
 		
 		workList.SubmitWork(std::make_unique<TextureLoadOperation>(GetResDirectory() / "conveyor-specular.png",
 		                                                           [] (Texture2D&& result)
 		{
-			s_specularTexture.Construct(std::move(result));
+			s_specularTexture = std::make_unique<Texture2D>(std::move(result));
 			s_specularTexture->SetWrapMode(GL_REPEAT);
 		}));
 		
-		CallOnClose([] { s_diffuseTexture.Destroy(); s_normalMap.Destroy(); s_specularTexture.Destroy(); });
+		CallOnClose([] { s_diffuseTexture = nullptr; s_normalMap = nullptr; s_specularTexture = nullptr; });
 	}
 }

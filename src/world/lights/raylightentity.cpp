@@ -7,7 +7,7 @@
 
 namespace TankGame
 {
-	StackObject<ShaderProgram> RayLightEntity::s_shaderProgram;
+	std::unique_ptr<ShaderProgram> RayLightEntity::s_shaderProgram;
 	
 	int RayLightEntity::s_positionUniformLocation;
 	int RayLightEntity::s_directionUniformLocation;
@@ -62,12 +62,12 @@ namespace TankGame
 	
 	const ShaderProgram& RayLightEntity::GetShader() const
 	{
-		if (s_shaderProgram.IsNull())
+		if (s_shaderProgram== nullptr)
 		{
-			ShaderModule fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "lighting" / "raylight.fs.glsl",
-			                                         GL_FRAGMENT_SHADER);
+			const fs::path fsPath = GetResDirectory() / "shaders" / "lighting" / "raylight.fs.glsl";
+			const ShaderModule fs = ShaderModule::FromFile(fsPath, GL_FRAGMENT_SHADER);
 			
-			s_shaderProgram.Construct<std::initializer_list<const ShaderModule*>>({ &GetVertexShader(), &fs });
+			s_shaderProgram.reset(new ShaderProgram{ &GetVertexShader(), &fs });
 			
 			s_positionUniformLocation = s_shaderProgram->GetUniformLocation("position");
 			s_directionUniformLocation = s_shaderProgram->GetUniformLocation("direction");

@@ -133,14 +133,14 @@ namespace TankGame
 		}
 	}
 	
-	static StackObject<Texture2D> blankButtonTexture;
+	static std::unique_ptr<Texture2D> blankButtonTexture;
 	
 	void DrawButton(int button, UIRenderer& uiRenderer, glm::vec2 pos, float height, float opacity)
 	{
-		if (blankButtonTexture.IsNull())
+		if (blankButtonTexture== nullptr)
 		{
-			blankButtonTexture.Construct(Texture2D::FromFile(GetResDirectory() / "ui" / "key.png"));
-			CallOnClose([] { blankButtonTexture.Destroy(); });
+			blankButtonTexture = std::make_unique<Texture2D>(Texture2D::FromFile(GetResDirectory() / "ui" / "key.png"));
+			CallOnClose([] { blankButtonTexture = nullptr; });
 		}
 		
 		const float WIDTH = 1;

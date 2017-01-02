@@ -44,7 +44,7 @@ namespace TankGame
 		glm::mat3 worldTransform = MapNDCToRectangle(GetBoundingRectangle());
 		glUniformMatrix3fv(GetWorldTransformUniformLocation(), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&worldTransform));
 		
-		if (!m_shadowMap.IsNull())
+		if (m_shadowMap != nullptr)
 			m_shadowMap->Bind();
 		else
 			ShadowMap::BindDefault();
@@ -98,18 +98,18 @@ namespace TankGame
 	
 	ShadowMap* LightSourceEntity::GetShadowMap() const
 	{
-		return m_shadowMap.Get();
+		return m_shadowMap.get();
 	}
 	
 	void LightSourceEntity::SetShadowMode(EntityShadowModes mode)
 	{
 		if (mode == EntityShadowModes::None)
 		{
-			m_shadowMap.Destroy();
+			m_shadowMap = nullptr;
 		}
 		else
 		{
-			m_shadowMap.Construct(mode == EntityShadowModes::Static);
+			m_shadowMap = std::make_unique<ShadowMap>(mode == EntityShadowModes::Static);
 			if (GetGameWorld() != nullptr)
 				m_shadowMap->SetGameWorld(*GetGameWorld());
 		}
@@ -119,13 +119,13 @@ namespace TankGame
 	
 	void LightSourceEntity::InvalidateShadowMap()
 	{
-		if (!m_shadowMap.IsNull())
+		if (m_shadowMap != nullptr)
 			m_shadowMap->FlagForRedraw();
 	}
 	
 	void LightSourceEntity::OnSpawned(class GameWorld& gameWorld)
 	{
-		if (!m_shadowMap.IsNull())
+		if (m_shadowMap != nullptr)
 			m_shadowMap->SetGameWorld(gameWorld);
 		Entity::OnSpawned(gameWorld);
 	}

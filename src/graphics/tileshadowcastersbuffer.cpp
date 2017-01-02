@@ -9,19 +9,19 @@
 
 namespace TankGame
 {
-	StackObject<ShaderProgram> TileShadowCastersBuffer::s_shadowShader;
+	std::unique_ptr<ShaderProgram> TileShadowCastersBuffer::s_shadowShader;
 	
 	void TileShadowCastersBuffer::BindShadowShader()
 	{
-		if (s_shadowShader.IsNull())
+		if (s_shadowShader == nullptr)
 		{
 			auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "lighting" / "shadows" / "tileshadow.vs.glsl",
 			                                 GL_VERTEX_SHADER);
 			
-			s_shadowShader.Construct<std::initializer_list<const ShaderModule*>>(
-				{ &vs, &ShadowRenderer::GetGeometryShader(), &ShadowRenderer::GetFragmentShader() });
+			s_shadowShader.reset(new ShaderProgram{ &vs, &ShadowRenderer::GetGeometryShader(),
+			                                        &ShadowRenderer::GetFragmentShader() });
 			
-			CallOnClose([] { s_shadowShader.Destroy(); });
+			CallOnClose([] { s_shadowShader = nullptr; });
 		}
 		
 		s_shadowShader->Use();

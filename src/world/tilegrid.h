@@ -10,7 +10,6 @@
 #include "../graphics/gl/vertexarray.h"
 #include "../graphics/gl/shaderprogram.h"
 #include "../circle.h"
-#include "../utils/memory/stackobject.h"
 
 namespace TankGame
 {

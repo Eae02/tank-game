@@ -5,15 +5,16 @@
 namespace TankGame
 {
 	std::unique_ptr<QuadMesh> QuadMesh::s_instance;
-	StackObject<ShaderModule> QuadMesh::s_quadVertexShaderModule;
+	std::unique_ptr<ShaderModule> QuadMesh::s_quadVertexShaderModule;
 	
 	const ShaderModule& QuadMesh::GetVertexShader()
 	{
-		if (s_quadVertexShaderModule.IsNull())
+		if (s_quadVertexShaderModule == nullptr)
 		{
-			s_quadVertexShaderModule.Construct(
-				ShaderModule::FromFile(GetResDirectory() / "shaders" / "fullscreenquad.vs.glsl", GL_VERTEX_SHADER));
-			CallOnClose([] { s_quadVertexShaderModule.Destroy(); });
+			const fs::path vsPath = GetResDirectory() / "shaders" / "fullscreenquad.vs.glsl";
+			
+			s_quadVertexShaderModule = std::make_unique<ShaderModule>(ShaderModule::FromFile(vsPath, GL_VERTEX_SHADER));
+			CallOnClose([] { s_quadVertexShaderModule = nullptr; });
 		}
 		
 		return *s_quadVertexShaderModule;

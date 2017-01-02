@@ -5,8 +5,8 @@
 
 namespace TankGame
 {
-	StackObject<Texture2D> ShadowMap::s_defaultTexture;
-	StackObject<Buffer> ShadowMap::s_defaultRenderSettingsBuffer;
+	std::unique_ptr<Texture2D> ShadowMap::s_defaultTexture;
+	std::unique_ptr<Buffer> ShadowMap::s_defaultRenderSettingsBuffer;
 	
 	ShadowMap::ShadowMap(bool isStatic)
 	    : m_renderSettingsBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(float) * 16, GL_MAP_WRITE_BIT)),
@@ -26,21 +26,21 @@ namespace TankGame
 		GLsizei shadowPassTextureWidth = static_cast<GLsizei>(width * SHADOW_PASS_RESOLUTION_MUL);
 		GLsizei shadowPassTextureHeight = static_cast<GLsizei>(height * SHADOW_PASS_RESOLUTION_MUL);
 		
-		m_shadowPassTexture.Construct(shadowPassTextureWidth, shadowPassTextureHeight, 1, GL_R8);
+		m_shadowPassTexture = std::make_unique<Texture2D>(shadowPassTextureWidth, shadowPassTextureHeight, 1, GL_R8);
 		m_shadowPassTexture->SetWrapMode(GL_CLAMP_TO_EDGE);
 		m_shadowPassTexture->SetMagFilter(GL_LINEAR);
 		m_shadowPassTexture->SetMinFilter(GL_LINEAR);
 		
-		m_shadowPassFramebuffer.Construct();
+		m_shadowPassFramebuffer = std::make_unique<Framebuffer>();
 		glNamedFramebufferTexture(m_shadowPassFramebuffer->GetID(), GL_COLOR_ATTACHMENT0, m_shadowPassTexture->GetID(), 0);
 		glNamedFramebufferDrawBuffer(m_shadowPassFramebuffer->GetID(), GL_COLOR_ATTACHMENT0);
 		
-		m_blurPassTexture.Construct(width, height, 1, GL_R8);
+		m_blurPassTexture = std::make_unique<Texture2D>(width, height, 1, GL_R8);
 		m_blurPassTexture->SetWrapMode(GL_CLAMP_TO_EDGE);
 		m_blurPassTexture->SetMagFilter(GL_NEAREST);
 		m_blurPassTexture->SetMinFilter(GL_NEAREST);
 		
-		m_blurPassFramebuffer.Construct();
+		m_blurPassFramebuffer = std::make_unique<Framebuffer>();
 		glNamedFramebufferTexture(m_blurPassFramebuffer->GetID(), GL_COLOR_ATTACHMENT0, m_blurPassTexture->GetID(), 0);
 		glNamedFramebufferDrawBuffer(m_blurPassFramebuffer->GetID(), GL_COLOR_ATTACHMENT0);
 	}
@@ -125,18 +125,18 @@ namespace TankGame
 	
 	void ShadowMap::BindDefault()
 	{
-		if (s_defaultTexture.IsNull())
+		if (s_defaultTexture == nullptr)
 		{
-			s_defaultTexture.Construct(2, 2, 1, GL_R8);
+			s_defaultTexture = std::make_unique<Texture2D>(2, 2, 1, GL_R8);
 			
 			float COLOR = 0.0f;
 			glClearTexImage(s_defaultTexture->GetID(), 0, GL_RED, GL_FLOAT, &COLOR);
 			
 			float bufferContents[16];
 			std::fill(bufferContents, std::end(bufferContents), 0.0f);
-			s_defaultRenderSettingsBuffer.Construct(sizeof(bufferContents), bufferContents, 0);
+			s_defaultRenderSettingsBuffer = std::make_unique<Buffer>(sizeof(bufferContents), bufferContents, 0);
 			
-			CallOnClose([] { s_defaultTexture.Destroy(); s_defaultRenderSettingsBuffer.Destroy(); });
+			CallOnClose([] { s_defaultTexture = nullptr; s_defaultRenderSettingsBuffer = nullptr; });
 		}
 		
 		s_defaultTexture->Bind(1);
@@ -145,7 +145,7 @@ namespace TankGame
 	
 	void ShadowMap::Bind() const
 	{
-		if (m_blurPassTexture.IsNull())
+		if (m_blurPassTexture == nullptr)
 			BindDefault();
 		else
 		{

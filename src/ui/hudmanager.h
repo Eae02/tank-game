@@ -5,11 +5,12 @@
 #include "../graphics/gl/texture2d.h"
 #include "../graphics/gl/buffer.h"
 #include "../graphics/gl/vertexarray.h"
-#include "../utils/memory/stackobject.h"
 #include "../utils/filesystem.h"
 #include "../world/entities/playerweaponstate.h"
 #include "weaponicon.h"
 #include "pausemenu.h"
+
+#include <memory>
 
 namespace TankGame
 {
@@ -88,8 +89,8 @@ namespace TankGame
 		Rectangle m_hpBarRectangle;
 		Rectangle m_energyBarRectangle;
 		
-		StackObject<Framebuffer> m_framebuffer;
-		StackObject<Texture2D> m_fbTexture;
+		std::unique_ptr<Framebuffer> m_framebuffer;
+		std::unique_ptr<Texture2D> m_fbTexture;
 		
 		ShaderProgram m_shader;
 	};

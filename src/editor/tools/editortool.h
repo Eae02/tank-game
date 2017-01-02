@@ -4,7 +4,6 @@
 
 #include "../../updateinfo.h"
 #include "../../graphics/gl/texture2d.h"
-#include "../../utils/memory/stackobject.h"
 #include "../../utils/abstract.h"
 
 namespace TankGame

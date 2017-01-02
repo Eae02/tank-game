@@ -3,7 +3,6 @@
 #include "gl/texture2darray.h"
 #include "gl/bufferallocator.h"
 #include "gl/shaderprogram.h"
-#include "../utils/memory/stackobject.h"
 #include "../utils/filesystem.h"
 
 #include <glm/vec2.hpp>
@@ -69,7 +68,7 @@ namespace TankGame
 		
 		std::vector<std::string> m_materialNames;
 		
-		StackObject<Buffer> m_isSolidBuffer;
+		std::unique_ptr<Buffer> m_isSolidBuffer;
 		
 		BufferAllocator::UniquePtr m_parametersBuffer;
 		mutable bool m_parametersNeedUpload = true;

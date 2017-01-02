@@ -65,7 +65,7 @@ namespace TankGame
 		inputTexture.Bind(0);
 		distortionsTexture.Bind(2);
 		
-		if (!m_bloomHBlurOutput.IsNull())
+		if (m_bloomHBlurOutput != nullptr)
 		{
 			glBindBufferBase(GL_UNIFORM_BUFFER, 1, *m_blurVectorsBuffer);
 			
@@ -129,8 +129,8 @@ namespace TankGame
 	
 	void PostProcessor::OnResize(GLsizei newWidth, GLsizei newHeight)
 	{
-		m_blurInputFramebuffer.Construct();
-		m_blurInputBuffer.Construct(newWidth, newHeight, 1, GL_RGBA8);
+		m_blurInputFramebuffer = std::make_unique<Framebuffer>();
+		m_blurInputBuffer = std::make_unique<Texture2D>(newWidth, newHeight, 1, GL_RGBA8);
 		glNamedFramebufferTexture(m_blurInputFramebuffer->GetID(), GL_COLOR_ATTACHMENT0, m_blurInputBuffer->GetID(), 0);
 		glNamedFramebufferDrawBuffer(m_blurInputFramebuffer->GetID(), GL_COLOR_ATTACHMENT0);
 		m_blurInputBuffer->SetWrapMode(GL_CLAMP_TO_EDGE);
@@ -139,11 +139,11 @@ namespace TankGame
 		
 		if (!Settings::GetInstance().EnableBloom())
 		{
-			m_bloomHBlurOutput.Destroy();
-			m_bloomHBlurOutputFramebuffer.Destroy();
+			m_bloomHBlurOutput = nullptr;
+			m_bloomHBlurOutputFramebuffer = nullptr;
 			
-			m_bloomVBlurOutput.Destroy();
-			m_bloomVBlurOutputFramebuffer.Destroy();
+			m_bloomVBlurOutput = nullptr;
+			m_bloomVBlurOutputFramebuffer = nullptr;
 			
 			return;
 		}
@@ -158,15 +158,15 @@ namespace TankGame
 		
 		bool uploadBlurVectors = false;
 		
-		if (m_bloomHBlurOutput.IsNull() || hBlurWidth != m_bloomHBlurOutput->GetWidth() ||
+		if (m_bloomHBlurOutput == nullptr || hBlurWidth != m_bloomHBlurOutput->GetWidth() ||
 			hBlurHeight != m_bloomHBlurOutput->GetHeight())
 		{
-			m_bloomHBlurOutput.Construct(hBlurWidth, hBlurHeight, 1, GL_RGB16F);
+			m_bloomHBlurOutput = std::make_unique<Texture2D>(hBlurWidth, hBlurHeight, 1, GL_RGB16F);
 			m_bloomHBlurOutput->SetWrapMode(GL_CLAMP_TO_EDGE);
 			m_bloomHBlurOutput->SetMagFilter(GL_LINEAR);
 			m_bloomHBlurOutput->SetMinFilter(GL_LINEAR);
 			
-			m_bloomHBlurOutputFramebuffer.Construct();
+			m_bloomHBlurOutputFramebuffer = std::make_unique<Framebuffer>();
 			glNamedFramebufferTexture(m_bloomHBlurOutputFramebuffer->GetID(), GL_COLOR_ATTACHMENT0,
 			                          m_bloomHBlurOutput->GetID(), 0);
 			glNamedFramebufferDrawBuffer(m_bloomHBlurOutputFramebuffer->GetID(), GL_COLOR_ATTACHMENT0);
@@ -174,15 +174,15 @@ namespace TankGame
 			uploadBlurVectors = true;
 		}
 		
-		if (m_bloomVBlurOutput.IsNull() || newWidth != m_bloomVBlurOutput->GetWidth() ||
+		if (m_bloomVBlurOutput == nullptr || newWidth != m_bloomVBlurOutput->GetWidth() ||
 			newHeight != m_bloomVBlurOutput->GetHeight())
 		{
-			m_bloomVBlurOutput.Construct(newWidth, newHeight, 1, GL_RGB16F);
+			m_bloomVBlurOutput = std::make_unique<Texture2D>(newWidth, newHeight, 1, GL_RGB16F);
 			m_bloomVBlurOutput->SetWrapMode(GL_CLAMP_TO_EDGE);
 			m_bloomVBlurOutput->SetMagFilter(GL_LINEAR);
 			m_bloomVBlurOutput->SetMinFilter(GL_LINEAR);
 			
-			m_bloomVBlurOutputFramebuffer.Construct();
+			m_bloomVBlurOutputFramebuffer = std::make_unique<Framebuffer>();
 			glNamedFramebufferTexture(m_bloomVBlurOutputFramebuffer->GetID(), GL_COLOR_ATTACHMENT0,
 			                          m_bloomVBlurOutput->GetID(), 0);
 			glNamedFramebufferDrawBuffer(m_bloomVBlurOutputFramebuffer->GetID(), GL_COLOR_ATTACHMENT0);

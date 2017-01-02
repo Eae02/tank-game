@@ -32,9 +32,9 @@ namespace TankGame
 		{ return m_isTesting; }
 		
 		inline Level* GetLevel()
-		{ return m_level.Get(); }
+		{ return m_level.get(); }
 		inline const Level* GetLevel() const
-		{ return m_level.Get(); }
+		{ return m_level.get(); }
 		
 		inline const WorldRenderer& GetRenderer() const
 		{ return m_renderer; }
@@ -57,7 +57,7 @@ namespace TankGame
 		
 		bool m_isTesting = false;
 		
-		StackObject<Level> m_level;
+		std::unique_ptr<Level> m_level;
 		
 		HUDManager m_hudManager;
 		

@@ -132,7 +132,7 @@ namespace TankGame
 		m_gameManager->SetLevel(CommandCallbackLevelFromName(name));
 		
 		m_menuManager->Hide();
-		if (!m_editor.IsNull())
+		if (m_editor != nullptr)
 			m_editor->Close();
 		
 		m_gameTime = 0;
@@ -142,9 +142,9 @@ namespace TankGame
 	{
 		m_menuManager->Hide();
 		
-		if (m_editor.IsNull())
+		if (m_editor == nullptr)
 		{
-			m_editor.Construct(*m_gameManager);
+			m_editor = std::make_unique<Editor>(*m_gameManager);
 			m_editor->OnResize(m_width, m_height);
 		}
 		
@@ -249,7 +249,7 @@ namespace TankGame
 			m_menuManager->ShowMainMenu();
 			
 			m_gameManager->ExitLevel();
-			if (!m_editor.IsNull())
+			if (m_editor != nullptr)
 				m_editor->Close();
 		});
 		
@@ -271,7 +271,7 @@ namespace TankGame
 		
 		window->m_aspectRatio = static_cast<float>(newWidth) / newHeight;
 		
-		if (!window->m_loadingScreen.IsNull())
+		if (window->m_loadingScreen != nullptr)
 			window->m_loadingScreen->SetWindowSize(newWidth, newHeight);
 		
 		UIRenderer::SetSingletonWindowDimensions(newWidth, newHeight);
@@ -284,7 +284,7 @@ namespace TankGame
 			window->m_shadowRenderer->OnResize(newWidth, newHeight);
 			window->m_gameManager->OnResize(newWidth, newHeight);
 			
-			if (!window->m_editor.IsNull())
+			if (window->m_editor != nullptr)
 				window->m_editor->OnResize(newWidth, newHeight);
 		}
 		
@@ -326,7 +326,7 @@ namespace TankGame
 	{
 		LevelsList::LoadLevelMenuInfos();
 		
-		m_menuManager.Construct();
+		m_menuManager = std::make_unique<MenuManager>();
 		m_menuManager->SetQuitCallback([this] { glfwSetWindowShouldClose(m_window, true); });
 		
 		m_menuManager->SetLoadLevelCallback([this] (const std::string& name, int checkpoint)
@@ -344,10 +344,10 @@ namespace TankGame
 				MakeWindowed();
 		});
 		
-		m_shadowRenderer.Construct();
+		m_shadowRenderer = std::make_unique<ShadowRenderer>();
 		
-		m_deferredRenderer.Construct();
-		m_gameManager.Construct(*m_deferredRenderer);
+		m_deferredRenderer = std::make_unique<DeferredRenderer>();
+		m_gameManager = std::make_unique<GameManager>(*m_deferredRenderer);
 		
 		m_gameManager->SetQuitCallback([this]
 		{
@@ -368,7 +368,7 @@ namespace TankGame
 	
 	void Window::RunFrame(float dt)
 	{
-		bool isEditorOpen = !m_editor.IsNull() && m_editor->IsOpen();
+		bool isEditorOpen = m_editor != nullptr && m_editor->IsOpen();
 		
 		float gameTime = 0;
 		if (m_gameManager->GetLevel() != nullptr && !m_gameManager->IsPaused())
@@ -414,7 +414,7 @@ namespace TankGame
 		if (worldRenderer != nullptr)
 			worldRenderer->UpdateResolution(m_width, m_height);
 		
-		if (!m_deferredRenderer.IsNull() && m_deferredRenderer->FramebufferOutOfDate())
+		if (m_deferredRenderer != nullptr && m_deferredRenderer->FramebufferOutOfDate())
 			m_deferredRenderer->CreateFramebuffer(m_width, m_height);
 		
 		if (worldRenderer != nullptr)
@@ -527,7 +527,7 @@ namespace TankGame
 		
 		UIRenderer::SetInstance(std::make_unique<UIRenderer>());
 		
-		m_loadingScreen.Construct();
+		m_loadingScreen = std::make_unique<LoadingScreen>();
 		m_loadingScreen->Initialize();
 		
 		int width, height;
@@ -556,7 +556,7 @@ namespace TankGame
 				glfwSwapInterval(isVSyncEnabled ? 1 : 0);
 			}
 			
-			if (!m_deferredRenderer.IsNull() &&
+			if (m_deferredRenderer != nullptr &&
 			    !FloatEqual(m_deferredRenderer->GetGamma(), Settings::GetInstance().GetGamma()))
 			{
 				m_deferredRenderer->SetGamma(Settings::GetInstance().GetGamma());
@@ -566,13 +566,13 @@ namespace TankGame
 			
 			bool shouldCaptureCursor = false;
 			
-			if (!m_loadingScreen.IsNull())
+			if (m_loadingScreen != nullptr)
 			{
 				m_loadingScreen->RunFrame();
 				
 				if (m_loadingScreen->IsLoadingDone())
 				{
-					m_loadingScreen.Destroy();
+					m_loadingScreen = nullptr;
 					
 					double beforeInitialize = glfwGetTime();
 					
@@ -583,7 +583,7 @@ namespace TankGame
 					GetLogStream() << "Initializing took " << (glfwGetTime() - beforeInitialize) << "s\n";
 				}
 			}
-			else if (!m_gameManager.IsNull() && m_gameManager->GetLevel() != nullptr && !m_gameManager->IsPaused() && m_isFocused)
+			else if (m_gameManager != nullptr && m_gameManager->GetLevel() != nullptr && !m_gameManager->IsPaused() && m_isFocused)
 				shouldCaptureCursor = true;
 			
 			SetIsCursorCaptured(shouldCaptureCursor);
@@ -611,7 +611,7 @@ namespace TankGame
 			}
 #endif
 			
-			if (m_loadingScreen.IsNull())
+			if (m_loadingScreen== nullptr)
 				RunFrame(elapsedTime);
 			
 			m_keyboard.OnFrameEnd();
@@ -622,7 +622,7 @@ namespace TankGame
 			glfwSwapBuffers(m_window);
 			
 			//Caps the FPS to 60Hz in menu screens
-			if (m_loadingScreen.IsNull() && m_menuManager->Visible() && !isVSyncEnabled)
+			if (m_loadingScreen== nullptr && m_menuManager->Visible() && !isVSyncEnabled)
 			{
 				const int MENU_FPS = 60;
 				double frameTime = glfwGetTime() - currentTime;
@@ -635,11 +635,11 @@ namespace TankGame
 		
 		SetIsCursorCaptured(false);
 		
-		m_menuManager.Destroy();
-		m_editor.Destroy();
-		m_shadowRenderer.Destroy();
-		m_deferredRenderer.Destroy();
-		m_gameManager.Destroy();
+		m_menuManager = nullptr;
+		m_editor = nullptr;
+		m_shadowRenderer = nullptr;
+		m_deferredRenderer = nullptr;
+		m_gameManager = nullptr;
 		
 		TileGridMaterial::SetInstance(nullptr);
 		UIRenderer::SetInstance(nullptr);

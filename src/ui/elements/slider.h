@@ -2,8 +2,9 @@
 
 #include "iuielement.h"
 #include "../../graphics/gl/texture2d.h"
-#include "../../utils/memory/stackobject.h"
 #include "../../rectangle.h"
+
+#include <memory>
 
 namespace TankGame
 {
@@ -19,8 +20,8 @@ namespace TankGame
 		virtual void Draw(const class UIRenderer& uiRenderer) const override;
 		
 	private:
-		static StackObject<Texture2D> s_knobTexture;
-		static StackObject<Texture2D> s_labelTexture;
+		static std::unique_ptr<Texture2D> s_knobTexture;
+		static std::unique_ptr<Texture2D> s_labelTexture;
 		
 		static float s_labelTextureAR;
 		static float s_labelStringAR;

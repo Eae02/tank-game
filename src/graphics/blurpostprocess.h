@@ -3,7 +3,8 @@
 #include "gl/texture2d.h"
 #include "gl/framebuffer.h"
 #include "gl/shaderprogram.h"
-#include "../utils/memory/stackobject.h"
+
+#include <memory>
 
 namespace TankGame
 {
@@ -23,7 +24,7 @@ namespace TankGame
 		
 		int m_blurVectorUniformLocation;
 		
-		StackObject<Framebuffer> m_framebuffer;
-		StackObject<Texture2D> m_intermidiateBuffer;
+		std::unique_ptr<Framebuffer> m_framebuffer;
+		std::unique_ptr<Texture2D> m_intermidiateBuffer;
 	};
 }

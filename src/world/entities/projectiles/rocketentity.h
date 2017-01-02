@@ -4,10 +4,11 @@
 #include "../particlesystementity.h"
 #include "../../lights/pointlightentity.h"
 #include "../../particles/systems/smokeparticlesystem.h"
-#include "../../../utils/memory/stackobject.h"
 #include "../../../graphics/gl/texture2d.h"
 #include "../../../graphics/spritematerial.h"
 #include "../../../audio/audiosource.h"
+
+#include <memory>
 
 namespace TankGame
 {
@@ -34,9 +35,9 @@ namespace TankGame
 		virtual void OnImpact(ImpactFlags flags) override;
 		
 	private:
-		static StackObject<Texture2D> s_diffuse;
-		static StackObject<Texture2D> s_normalMap;
-		static StackObject<SpriteMaterial> s_material;
+		static std::unique_ptr<Texture2D> s_diffuse;
+		static std::unique_ptr<Texture2D> s_normalMap;
+		static std::unique_ptr<SpriteMaterial> s_material;
 		
 		mutable Transform m_spriteTransform;
 		

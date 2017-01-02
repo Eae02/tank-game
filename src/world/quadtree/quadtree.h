@@ -3,7 +3,7 @@
 #include "quadtreenode.h"
 #include "iquadtreeentry.h"
 #include "../../rectangle.h"
-#include "../../utils/memory/objectpool.h"
+#include "../../utils/objectpool.h"
 
 namespace TankGame
 {

@@ -1,9 +1,10 @@
 #pragma once
 
 #include "../entity.h"
-#include "../../utils/memory/stackobject.h"
 #include "../../graphics/gl/shaderprogram.h"
 #include "../../editor/ieditoruientity.h"
+
+#include <memory>
 
 namespace TankGame
 {
@@ -32,7 +33,7 @@ namespace TankGame
 		virtual const char* GetObjectName() const override;
 		
 	private:
-		static StackObject<ShaderProgram> s_shader;
+		static std::unique_ptr<ShaderProgram> s_shader;
 		static int s_transformUniformLocation;
 		
 		bool m_hidden = false;

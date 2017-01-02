@@ -6,19 +6,19 @@
 
 namespace TankGame
 {
-	StackObject<Texture2DArray> BlueOrbEmitter::s_texture;
+	std::unique_ptr<Texture2DArray> BlueOrbEmitter::s_texture;
 	
 	BlueOrbEmitter::BlueOrbEmitter(ParticlesManager& particlesManager)
 	    : ParticleEmitter(particlesManager), m_positionGenerator(0, glm::two_pi<float>(), 0, 0.2f),
 	      m_velocityGenerator(0, glm::two_pi<float>(), 0.0f, 0.3f)
 	{
-		if (s_texture.IsNull())
+		if (s_texture== nullptr)
 		{
-			s_texture.Construct(64, 64, 1, Texture::GetMipmapCount(64), GL_RGBA8);
+			s_texture = std::make_unique<Texture2DArray>(64, 64, 1, Texture::GetMipmapCount(64), GL_RGBA8);
 			s_texture->LoadLayerFromFile(0, GetResDirectory() / "particles" / "blue_orb.png");
 			s_texture->SetupMipmapping(true);
 			
-			CallOnClose([] { s_texture.Destroy(); });
+			CallOnClose([] { s_texture = nullptr; });
 		}
 		
 		SetTextureArray(*s_texture);

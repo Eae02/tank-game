@@ -17,12 +17,12 @@
 #include "argumentdata.h"
 #include "console.h"
 #include "loadingscreen.h"
-#include "utils/memory/stackobject.h"
 #include "asyncworklist.h"
 
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <string>
+#include <memory>
 
 namespace TankGame
 {
@@ -50,7 +50,7 @@ namespace TankGame
 		void RunFrame(float dt);
 		void SetIsCursorCaptured(bool shouldCapture);
 		
-		StackObject<LoadingScreen> m_loadingScreen;
+		std::unique_ptr<LoadingScreen> m_loadingScreen;
 		
 		ArgumentData m_argumentData;
 		
@@ -74,16 +74,16 @@ namespace TankGame
 		
 		bool m_initialized = false;
 		
-		StackObject<Editor> m_editor;
+		std::unique_ptr<Editor> m_editor;
 		
 		Console m_console;
 		
-		StackObject<MenuManager> m_menuManager;
+		std::unique_ptr<MenuManager> m_menuManager;
 		
-		StackObject<GameManager> m_gameManager;
+		std::unique_ptr<GameManager> m_gameManager;
 		
-		StackObject<ShadowRenderer> m_shadowRenderer;
+		std::unique_ptr<ShadowRenderer> m_shadowRenderer;
 		
-		StackObject<DeferredRenderer> m_deferredRenderer;
+		std::unique_ptr<DeferredRenderer> m_deferredRenderer;
 	};
 }

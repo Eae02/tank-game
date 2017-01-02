@@ -10,18 +10,18 @@
 
 namespace TankGame
 {
-	StackObject<ShaderModule> ShadowRenderer::s_geometryShader;
-	StackObject<ShaderModule> ShadowRenderer::s_fragmentShader;
+	std::unique_ptr<ShaderModule> ShadowRenderer::s_geometryShader;
+	std::unique_ptr<ShaderModule> ShadowRenderer::s_fragmentShader;
 	
 	static const fs::path shaderPath = fs::path("shaders") / "lighting" / "shadows";
 	
 	const ShaderModule& ShadowRenderer::GetGeometryShader()
 	{
-		if (s_geometryShader.IsNull())
+		if (s_geometryShader== nullptr)
 		{
-			s_geometryShader.Construct(ShaderModule::FromFile(GetResDirectory() / shaderPath / "shadow.gs.glsl",
-			                                                  GL_GEOMETRY_SHADER));
-			CallOnClose([] { s_geometryShader.Destroy(); });
+			const fs::path gsPath = GetResDirectory() / shaderPath / "shadow.gs.glsl";
+			s_geometryShader = std::make_unique<ShaderModule>(ShaderModule::FromFile(gsPath, GL_GEOMETRY_SHADER));
+			CallOnClose([] { s_geometryShader = nullptr; });
 		}
 		
 		return *s_geometryShader;
@@ -29,11 +29,11 @@ namespace TankGame
 	
 	const ShaderModule& ShadowRenderer::GetFragmentShader()
 	{
-		if (s_fragmentShader.IsNull())
+		if (s_fragmentShader== nullptr)
 		{
-			s_fragmentShader.Construct(ShaderModule::FromFile(GetResDirectory() / shaderPath / "shadow.fs.glsl",
-			                                                  GL_FRAGMENT_SHADER));
-			CallOnClose([] { s_geometryShader.Destroy(); });
+			const fs::path fsPath = GetResDirectory() / shaderPath / "shadow.fs.glsl";
+			s_fragmentShader = std::make_unique<ShaderModule>(ShaderModule::FromFile(fsPath, GL_FRAGMENT_SHADER));
+			CallOnClose([] { s_fragmentShader = nullptr; });
 		}
 		
 		return *s_fragmentShader;

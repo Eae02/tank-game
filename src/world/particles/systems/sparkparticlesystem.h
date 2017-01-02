@@ -5,7 +5,6 @@
 #include "../particleemitter.h"
 #include "../spherevec2generator.h"
 #include "../../../graphics/gl/texture2darray.h"
-#include "../../../utils/memory/stackobject.h"
 
 namespace TankGame
 {

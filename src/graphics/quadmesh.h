@@ -4,7 +4,6 @@
 #include "gl/vertexarray.h"
 #include "gl/buffer.h"
 #include "gl/shadermodule.h"
-#include "../utils/memory/stackobject.h"
 
 #include <memory>
 
@@ -30,7 +29,7 @@ namespace TankGame
 		
 	private:
 		static std::unique_ptr<QuadMesh> s_instance;
-		static StackObject<ShaderModule> s_quadVertexShaderModule;
+		static std::unique_ptr<ShaderModule> s_quadVertexShaderModule;
 		
 		Buffer m_vbo;
 		VertexArray m_vertexArray;

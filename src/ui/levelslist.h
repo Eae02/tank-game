@@ -2,10 +2,10 @@
 
 #include <vector>
 #include <functional>
+#include <memory>
 
 #include "../rectangle.h"
 #include "../levelmenuinfo.h"
-#include "../utils/memory/stackobject.h"
 
 namespace TankGame
 {
@@ -38,8 +38,8 @@ namespace TankGame
 		
 		static std::vector<ListLevelMenuInfo> s_levelMenuInfos;
 		
-		static StackObject<Texture2D> s_playIcon;
-		static StackObject<Texture2D> s_lockIcon;
+		static std::unique_ptr<Texture2D> s_playIcon;
+		static std::unique_ptr<Texture2D> s_lockIcon;
 		
 		static constexpr float LEVEL_BOX_SPACING = 10;
 		

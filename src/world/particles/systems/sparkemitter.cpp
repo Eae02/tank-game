@@ -6,19 +6,19 @@
 
 namespace TankGame
 {
-	StackObject<Texture2DArray> SparkEmitter::s_sparkTextureArray;
+	std::unique_ptr<Texture2DArray> SparkEmitter::s_sparkTextureArray;
 	
 	SparkEmitter::SparkEmitter(ParticlesManager& particlesManager, float maxAngleDivergence, float speedMul)
 	    : ParticleEmitter(particlesManager), m_positionGenerator(0, glm::two_pi<float>(), 0.05f, 0.1f),
 	      m_velocityGenerator(-maxAngleDivergence, maxAngleDivergence, 3.0f, 4.0f)
 	{
-		if (s_sparkTextureArray.IsNull())
+		if (s_sparkTextureArray == nullptr)
 		{
-			s_sparkTextureArray.Construct(128, 128 / 8, 1, Texture::GetMipmapCount(128), GL_RGBA8);
+			s_sparkTextureArray = std::make_unique<Texture2DArray>(128, 128 / 8, 1, Texture::GetMipmapCount(128), GL_RGBA8);
 			s_sparkTextureArray->LoadLayerFromFile(0, GetResDirectory() / "particles" / "spark.png");
 			s_sparkTextureArray->SetupMipmapping(true);
 			
-			CallOnClose([] { s_sparkTextureArray.Destroy(); });
+			CallOnClose([] { s_sparkTextureArray = nullptr; });
 		}
 		
 		SetTextureArray(*s_sparkTextureArray);

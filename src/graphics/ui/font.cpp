@@ -52,7 +52,7 @@ namespace TankGame
 		
 		if (ftGlyph->bitmap.width != 0 && ftGlyph->bitmap.rows != 0)
 		{
-			glyph.m_texture.Construct(ftGlyph->bitmap.width, ftGlyph->bitmap.rows, 1, GL_R8);
+			glyph.m_texture = std::make_unique<Texture2D>(ftGlyph->bitmap.width, ftGlyph->bitmap.rows, 1, GL_R8);
 			glTextureSubImage2D(glyph.m_texture->GetID(), 0, 0, 0, ftGlyph->bitmap.width, ftGlyph->bitmap.rows,
 			                    GL_RED, GL_UNSIGNED_BYTE, ftGlyph->bitmap.buffer);
 			
@@ -62,7 +62,7 @@ namespace TankGame
 		return glyph;
 	}
 	
-	static StackObject<Font> namedFonts[Font::NUM_NAMED_FONTS];
+	static std::unique_ptr<Font> namedFonts[Font::NUM_NAMED_FONTS];
 	
 	static std::string fontFileNames[Font::NUM_NAMED_FONTS] =
 	{
@@ -82,17 +82,18 @@ namespace TankGame
 	
 	void Font::DestroyFonts()
 	{
-		for (StackObject<Font>& font : namedFonts)
-			font.Destroy();
+		for (std::unique_ptr<Font>& font : namedFonts)
+			font = nullptr;
 	}
 	
 	const Font& Font::GetNamedFont(FontNames name)
 	{
 		int index = static_cast<int>(name);
 		
-		if (namedFonts[index].IsNull())
+		if (namedFonts[index]== nullptr)
 		{
-			namedFonts[index].Construct(GetResDirectory() / "fonts" / fontFileNames[index], namedFontSizes[index]);
+			const fs::path fontPath = GetResDirectory() / "fonts" / fontFileNames[index];
+			namedFonts[index] = std::make_unique<Font>(fontPath, namedFontSizes[index]);
 		}
 		
 		return *namedFonts[index];
@@ -108,7 +109,7 @@ namespace TankGame
 			if (const Glyph* glyph = TryGetGlyph(c))
 			{
 				x += glyph->m_advance;
-				if (!glyph->m_texture.IsNull())
+				if (glyph->m_texture != nullptr)
 					maxHeight = glm::max<float>(maxHeight, glyph->m_texture->GetHeight());
 			}
 		}

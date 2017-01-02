@@ -3,8 +3,9 @@
 #include "graphics/gl/shadermodule.h"
 #include "graphics/gl/texture2d.h"
 #include "graphics/gl/vertexarray.h"
-#include "utils/memory/stackobject.h"
 #include "utils/ioutils.h"
+
+#include <memory>
 
 #ifdef _WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -15,9 +16,9 @@ namespace TankGame
 {
 namespace ImGuiInterface
 {
-	static StackObject<Texture2D> theFontTexture;
-	static StackObject<ShaderProgram> theGuiShader;
-	static StackObject<VertexArray> theGuiVAO;
+	static std::unique_ptr<Texture2D> theFontTexture;
+	static std::unique_ptr<ShaderProgram> theGuiShader;
+	static std::unique_ptr<VertexArray> theGuiVAO;
 	
 	static int theTextureUniformLoc = 0;
 	static int theProjectionMatrixUniformLoc = 0;
@@ -90,7 +91,7 @@ namespace ImGuiInterface
 		
 		io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 		
-		theFontTexture.Construct(width, height, 1, GL_RGBA8);
+		theFontTexture = std::make_unique<Texture2D>(width, height, 1, GL_RGBA8);
 		glTextureSubImage2D(theFontTexture->GetID(), 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 		
 		io.Fonts->TexID = reinterpret_cast<void*>(static_cast<intptr_t>(theFontTexture->GetID()));
@@ -101,7 +102,7 @@ namespace ImGuiInterface
 		auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "imgui.vs.glsl", GL_VERTEX_SHADER);
 		auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "imgui.fs.glsl", GL_FRAGMENT_SHADER);
 		
-		theGuiShader.Construct<std::initializer_list<const ShaderModule*>>({ &vs, &fs });
+		theGuiShader.reset(new ShaderProgram{ &vs, &fs });
 		
 		theTextureUniformLoc = theGuiShader->GetUniformLocation("Texture");
 		theProjectionMatrixUniformLoc = theGuiShader->GetUniformLocation("ProjMtx");
@@ -109,7 +110,7 @@ namespace ImGuiInterface
 		glGenBuffers(1, &theGuiVBO);
 		glGenBuffers(1, &theGuiIBO);
 		
-		theGuiVAO.Construct();
+		theGuiVAO = std::make_unique<VertexArray>();
 		theGuiVAO->Bind();
 		glBindBuffer(GL_ARRAY_BUFFER, theGuiVBO);
 		glEnableVertexAttribArray(0);
@@ -129,10 +130,10 @@ namespace ImGuiInterface
 			glDeleteBuffers(1, &theGuiIBO);
 		theGuiVBO = theGuiIBO = 0;
 		
-		theGuiVAO.Destroy();
+		theGuiVAO = nullptr;
 		
-		theGuiShader.Destroy();
-		theFontTexture.Destroy();
+		theGuiShader = nullptr;
+		theFontTexture = nullptr;
 		
 		ImGui::Shutdown();
 	}
@@ -209,9 +210,9 @@ namespace ImGuiInterface
 	
 	void NewFrame(GLFWwindow* window, float dt)
 	{
-		if (theGuiShader.IsNull())
+		if (theGuiShader== nullptr)
 			CreateDeviceObjects();
-		if (theFontTexture.IsNull())
+		if (theFontTexture== nullptr)
 			CreateFontsTexture();
 		
 		ImGuiIO& io = ImGui::GetIO();

@@ -1,25 +1,25 @@
 #include "ilightsource.h"
 #include "../../utils/ioutils.h"
 #include "../../utils/utils.h"
-#include "../../utils/memory/stackobject.h"
 #include "../../graphics/gl/shadermodule.h"
 
+#include <memory>
 #include <algorithm>
 #include <random>
 #include <glm/gtc/constants.hpp>
 
 namespace TankGame
 {
-	static StackObject<ShaderModule> vertexShader;
+	static std::unique_ptr<ShaderModule> vertexShader;
 	
 	const ShaderModule& ILightSource::GetVertexShader()
 	{
-		if (vertexShader.IsNull())
+		if (vertexShader== nullptr)
 		{
-			vertexShader.Construct(ShaderModule::FromFile(GetResDirectory() / "shaders" / "lighting" / "light.vs.glsl",
-			                                              GL_VERTEX_SHADER));
+			const fs::path vsPath = GetResDirectory() / "shaders" / "lighting" / "light.vs.glsl";
+			vertexShader = std::make_unique<ShaderModule>(ShaderModule::FromFile(vsPath, GL_VERTEX_SHADER));
 			
-			CallOnClose([] { vertexShader.Destroy(); });
+			CallOnClose([] { vertexShader = nullptr; });
 		}
 		
 		return *vertexShader;

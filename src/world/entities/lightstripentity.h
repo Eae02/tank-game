@@ -2,7 +2,6 @@
 
 #include "../entity.h"
 #include "../path/path.h"
-#include "../../utils/memory/stackobject.h"
 #include "../../graphics/gl/buffer.h"
 #include "../../graphics/gl/shaderprogram.h"
 #include "../../graphics/gl/vertexarray.h"
@@ -10,6 +9,7 @@
 #include "../../editor/ieditablepathprovider.h"
 
 #include <glm/glm.hpp>
+#include <memory>
 
 namespace TankGame
 {
@@ -76,15 +76,15 @@ namespace TankGame
 		
 		static void BindShader();
 		
-		static StackObject<ShaderProgram> s_shader;
+		static std::unique_ptr<ShaderProgram> s_shader;
 		
 		Path m_path;
 		glm::vec2 m_centerPath{ 0.0f, 0.0f };
 		
 		std::vector<class RayLightEntity*> m_lights;
 		
-		StackObject<Buffer> m_vertexBuffer;
-		StackObject<Buffer> m_indexBuffer;
+		std::unique_ptr<Buffer> m_vertexBuffer;
+		std::unique_ptr<Buffer> m_indexBuffer;
 		VertexArray m_vertexArray;
 		
 		GLsizei m_numIndices = 0;

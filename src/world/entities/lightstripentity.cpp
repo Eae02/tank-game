@@ -13,18 +13,18 @@
 
 namespace TankGame
 {
-	StackObject<ShaderProgram> LightStripEntity::s_shader;
+	std::unique_ptr<ShaderProgram> LightStripEntity::s_shader;
 	
 	void LightStripEntity::BindShader()
 	{
-		if (s_shader.IsNull())
+		if (s_shader== nullptr)
 		{
 			auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "lightstrip.vs.glsl", GL_VERTEX_SHADER);
 			auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "lightstrip.fs.glsl", GL_FRAGMENT_SHADER);
 			
-			s_shader.Construct<std::initializer_list<const ShaderModule*>>({ &vs, &fs });
+			s_shader.reset(new ShaderProgram{ &vs, &fs });
 			
-			CallOnClose([] { s_shader.Destroy(); });
+			CallOnClose([] { s_shader = nullptr; });
 		}
 		
 		s_shader->Use();
@@ -223,8 +223,8 @@ namespace TankGame
 		m_numIndices = indices.size();
 		if (!vertices.empty())
 		{
-			m_vertexBuffer.Construct(vertices.size() * sizeof(glm::vec2), vertices.data(), 0);
-			m_indexBuffer.Construct(indices.size() * sizeof(uint16_t), indices.data(), 0);
+			m_vertexBuffer = std::make_unique<Buffer>(vertices.size() * sizeof(glm::vec2), vertices.data(), 0);
+			m_indexBuffer = std::make_unique<Buffer>(indices.size() * sizeof(uint16_t), indices.data(), 0);
 			
 			glVertexArrayVertexBuffer(m_vertexArray.GetID(), 0, m_vertexBuffer->GetID(), 0, sizeof(float) * 2);
 			glVertexArrayElementBuffer(m_vertexArray.GetID(), m_indexBuffer->GetID());

@@ -12,7 +12,7 @@
 
 namespace TankGame
 {
-	StackObject<ShaderProgram> PointLightEntity::s_shaderProgram;
+	std::unique_ptr<ShaderProgram> PointLightEntity::s_shaderProgram;
 	int PointLightEntity::s_positionUniformLocation;
 	int PointLightEntity::s_worldTransformUniformLocation;
 	
@@ -24,17 +24,17 @@ namespace TankGame
 	
 	const ShaderProgram& PointLightEntity::GetShader() const
 	{
-		if (s_shaderProgram.IsNull())
+		if (s_shaderProgram== nullptr)
 		{
 			ShaderModule fragmentShader = ShaderModule::FromFile(
 					GetResDirectory() / "shaders" / "lighting" / "pointlight.fs.glsl", GL_FRAGMENT_SHADER);
 			
-			s_shaderProgram .Construct(ShaderProgram{ &GetVertexShader(), &fragmentShader });
+			s_shaderProgram.reset(new ShaderProgram{ &GetVertexShader(), &fragmentShader });
 			
 			s_positionUniformLocation = s_shaderProgram->GetUniformLocation("position");
 			s_worldTransformUniformLocation = s_shaderProgram->GetUniformLocation("worldTransform");
 			
-			CallOnClose([] { s_shaderProgram.Destroy(); });
+			CallOnClose([] { s_shaderProgram = nullptr; });
 		}
 		
 		return *s_shaderProgram;

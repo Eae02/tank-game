@@ -147,7 +147,7 @@ namespace TankGame
 		}
 		
 		inline const TileShadowCastersBuffer* GetTileShadowCastersBuffer() const
-		{ return m_tileShadowCastersBuffer.Get(); }
+		{ return m_tileShadowCastersBuffer.get(); }
 		
 		inline const TileGrid* GetTileGrid() const
 		{ return m_tileGrid.get(); }
@@ -240,6 +240,6 @@ namespace TankGame
 		
 		std::unique_ptr<TileGrid> m_tileGrid;
 		const class TileGridMaterial* m_tileGridMaterial = nullptr;
-		StackObject<TileShadowCastersBuffer> m_tileShadowCastersBuffer;
+		std::unique_ptr<TileShadowCastersBuffer> m_tileShadowCastersBuffer;
 	};
 }

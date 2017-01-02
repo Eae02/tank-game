@@ -5,9 +5,9 @@
 #include "../../graphics/gl/buffer.h"
 #include "../../graphics/gl/vertexarray.h"
 #include "../../graphics/gl/shaderprogram.h"
-#include "../../utils/memory/stackobject.h"
 
 #include <cstdint>
+#include <memory>
 
 namespace TankGame
 {
@@ -47,7 +47,7 @@ namespace TankGame
 		
 		ShaderProgram m_gridShader;
 		
-		StackObject<Buffer> m_gridBuffer;
+		std::unique_ptr<Buffer> m_gridBuffer;
 		GLsizei m_gridVertexCount;
 		
 		VertexArray m_gridVAO;

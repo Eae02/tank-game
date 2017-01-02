@@ -200,9 +200,9 @@ namespace TankGame
 	void GameWorld::UpdateTileShadowCasters()
 	{
 		if (m_tileGrid != nullptr && m_tileGridMaterial != nullptr)
-			m_tileShadowCastersBuffer.Construct(TileShadowCastersBuffer(*m_tileGrid, *m_tileGridMaterial));
+			m_tileShadowCastersBuffer = std::make_unique<TileShadowCastersBuffer>(*m_tileGrid, *m_tileGridMaterial);
 		else
-			m_tileShadowCastersBuffer.Destroy();
+			m_tileShadowCastersBuffer = nullptr;
 	}
 	
 	nlohmann::json GameWorld::Serialize() const

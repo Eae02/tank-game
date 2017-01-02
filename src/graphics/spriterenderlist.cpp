@@ -10,7 +10,7 @@
 
 namespace TankGame
 {
-	StackObject<ShaderProgram> SpriteRenderList::s_shaderProgram;
+	std::unique_ptr<ShaderProgram> SpriteRenderList::s_shaderProgram;
 	
 	int SpriteRenderList::s_translucentUniformLocation;
 	
@@ -58,16 +58,16 @@ namespace TankGame
 		if (Empty())
 			return;
 		
-		if (s_shaderProgram.IsNull())
+		if (s_shaderProgram == nullptr)
 		{
 			auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "sprite.vs.glsl", GL_VERTEX_SHADER);
 			auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "sprite.fs.glsl", GL_FRAGMENT_SHADER);
 			
-			s_shaderProgram.Construct<std::initializer_list<const ShaderModule*>>({ &vs, &fs });
+			s_shaderProgram.reset(new ShaderProgram{ &vs, &fs });
 			
 			s_translucentUniformLocation = s_shaderProgram->GetUniformLocation("translucent");
 			
-			CallOnClose([] { s_shaderProgram.Destroy(); });
+			CallOnClose([] { s_shaderProgram = nullptr; });
 		}
 		
 		s_shaderProgram->Use();

@@ -4,9 +4,9 @@
 #include "../gl/shaderprogram.h"
 #include "../gl/vertexarray.h"
 #include "../../rectangle.h"
-#include "../../utils/memory/stackobject.h"
 
 #include <glm/glm.hpp>
+#include <memory>
 
 namespace TankGame
 {
@@ -66,7 +66,7 @@ namespace TankGame
 		
 		struct SpriteShader
 		{
-			StackObject<ShaderProgram> m_shader;
+			std::unique_ptr<ShaderProgram> m_shader;
 			int m_sampleRectMinLocation;
 			int m_sampleRectMaxLocation;
 			int m_targetRectMinLocation;
@@ -77,7 +77,7 @@ namespace TankGame
 		
 		struct QuadShader
 		{
-			StackObject<ShaderProgram> m_shader;
+			std::unique_ptr<ShaderProgram> m_shader;
 			int m_colorLocation;
 			int m_transformLocation;
 		};
@@ -85,7 +85,7 @@ namespace TankGame
 		
 		struct LineShader
 		{
-			StackObject<ShaderProgram> m_shader;
+			std::unique_ptr<ShaderProgram> m_shader;
 			int m_vertex1Location;
 			int m_vertex2Location;
 			int m_colorLocation;
@@ -94,7 +94,7 @@ namespace TankGame
 		
 		struct TextShader
 		{
-			StackObject<ShaderProgram> m_shader;
+			std::unique_ptr<ShaderProgram> m_shader;
 			int m_offsetLocation;
 			int m_sizeLocation;
 			int m_colorLocation;

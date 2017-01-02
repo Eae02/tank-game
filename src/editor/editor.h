@@ -3,7 +3,6 @@
 #include "../updateinfo.h"
 #include "../graphics/viewinfo.h"
 #include "../graphics/ui/uirenderer.h"
-#include "../utils/memory/stackobject.h"
 #include "../world/gameworld.h"
 #include "../world/quadtree/quadtreevisualizer.h"
 #include "editorrenderer.h"
@@ -64,7 +63,7 @@ namespace TankGame
 		
 		std::vector<PropertiesWindow> m_propertyWindows;
 		
-		StackObject<EditorRenderer> m_editorRenderer;
+		std::unique_ptr<EditorRenderer> m_editorRenderer;
 		
 		bool m_drawQuadTree = false;
 		QuadTreeVisualizer m_quadTreeVisualizer;

@@ -6,7 +6,6 @@
 #include "gl/shaderprogram.h"
 #include "noisetexture.h"
 #include "blurpostprocess.h"
-#include "../utils/memory/stackobject.h"
 #include "../utils/filesystem.h"
 
 namespace TankGame
@@ -47,14 +46,14 @@ namespace TankGame
 		Texture2D m_hexagonTexture;
 		NoiseTexture m_noiseTexture;
 		
-		StackObject<Texture2D> m_bloomHBlurOutput;
-		StackObject<Texture2D> m_bloomVBlurOutput;
+		std::unique_ptr<Texture2D> m_bloomHBlurOutput;
+		std::unique_ptr<Texture2D> m_bloomVBlurOutput;
 		
-		StackObject<Framebuffer> m_bloomHBlurOutputFramebuffer;
-		StackObject<Framebuffer> m_bloomVBlurOutputFramebuffer;
+		std::unique_ptr<Framebuffer> m_bloomHBlurOutputFramebuffer;
+		std::unique_ptr<Framebuffer> m_bloomVBlurOutputFramebuffer;
 		
-		StackObject<Framebuffer> m_blurInputFramebuffer;
-		StackObject<Texture2D> m_blurInputBuffer;
+		std::unique_ptr<Framebuffer> m_blurInputFramebuffer;
+		std::unique_ptr<Texture2D> m_blurInputBuffer;
 		BlurPostProcess m_blurPostProcess;
 		
 		ShaderProgram m_bloomHBlurShader;

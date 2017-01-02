@@ -12,9 +12,9 @@ namespace TankGame
 {
 	static const float SIZE = 0.15f;
 	
-	StackObject<Texture2D> RocketEntity::s_diffuse;
-	StackObject<Texture2D> RocketEntity::s_normalMap;
-	StackObject<SpriteMaterial> RocketEntity::s_material;
+	std::unique_ptr<Texture2D> RocketEntity::s_diffuse;
+	std::unique_ptr<Texture2D> RocketEntity::s_normalMap;
+	std::unique_ptr<SpriteMaterial> RocketEntity::s_material;
 	
 	RocketEntity::RocketEntity(ParticlesManager& particlesManager, int teamID, const Entity* sourceEntity, float damage)
 	    : PointLightEntity(ParseColorHexCodeSRGB(0xff6c33), 4.0f, Attenuation(0, 0.5f)),
@@ -22,17 +22,17 @@ namespace TankGame
 	      ParticleSystemEntity(SmokeParticleSystem(particlesManager)),
 	      m_audioSource(AudioSource::VolumeModes::Effect)
 	{
-		if (s_material.IsNull())
+		if (s_material== nullptr)
 		{
-			s_diffuse.Construct(Texture2D::FromFile(GetResDirectory() / "rocket-diffuse.png"));
-			s_normalMap.Construct(Texture2D::FromFile(GetResDirectory() / "rocket-normals.png"));
+			s_diffuse = std::make_unique<Texture2D>(Texture2D::FromFile(GetResDirectory() / "rocket-diffuse.png"));
+			s_normalMap = std::make_unique<Texture2D>(Texture2D::FromFile(GetResDirectory() / "rocket-normals.png"));
 			
 			s_diffuse->SetWrapMode(GL_CLAMP_TO_EDGE);
 			s_normalMap->SetWrapMode(GL_CLAMP_TO_EDGE);
 			
-			s_material.Construct(*s_diffuse, *s_normalMap, 1, 30);
+			s_material = std::make_unique<SpriteMaterial>(*s_diffuse, *s_normalMap, 1, 30);
 			
-			CallOnClose([] { s_diffuse.Destroy(); s_normalMap.Destroy(); s_material.Destroy(); });
+			CallOnClose([] { s_diffuse = nullptr; s_normalMap = nullptr; s_material = nullptr; });
 		}
 		
 		m_spriteTransform = GetTransform();

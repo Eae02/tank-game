@@ -1,10 +1,11 @@
 #pragma once
 
 #include "../entity.h"
-#include "../../utils/memory/stackobject.h"
 #include "../../graphics/gl/texture2d.h"
 #include "../../graphics/gl/shaderprogram.h"
 #include "../../graphics/gl/bufferallocator.h"
+
+#include <memory>
 
 namespace TankGame
 {
@@ -47,11 +48,11 @@ namespace TankGame
 		static void LoadResources(class ASyncWorkList& workList);
 		
 	private:
-		static StackObject<Texture2D> s_diffuseTexture;
-		static StackObject<Texture2D> s_normalMap;
-		static StackObject<Texture2D> s_specularTexture;
+		static std::unique_ptr<Texture2D> s_diffuseTexture;
+		static std::unique_ptr<Texture2D> s_normalMap;
+		static std::unique_ptr<Texture2D> s_specularTexture;
 		
-		static StackObject<ShaderProgram> s_shader;
+		static std::unique_ptr<ShaderProgram> s_shader;
 		
 		BufferAllocator::UniquePtr m_uniformBuffer;
 		

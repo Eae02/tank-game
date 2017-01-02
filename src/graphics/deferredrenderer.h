@@ -8,8 +8,9 @@
 #include "postprocessor.h"
 #include "particlerenderer.h"
 
-#include "../utils/memory/stackobject.h"
 #include "../settings.h"
+
+#include <memory>
 
 namespace TankGame
 {
@@ -46,17 +47,17 @@ namespace TankGame
 		
 		static constexpr GLenum LIGHT_ACC_FORMAT = GL_RGB16F;
 		
-		StackObject<Framebuffer> m_geometryFramebuffer;
-		StackObject<Renderbuffer> m_depthBuffer;
-		StackObject<Texture2D> m_colorBuffer;
-		StackObject<Texture2D> m_normalsAndSpecBuffer;
-		StackObject<Texture2D> m_distortionBuffer;
+		std::unique_ptr<Framebuffer> m_geometryFramebuffer;
+		std::unique_ptr<Renderbuffer> m_depthBuffer;
+		std::unique_ptr<Texture2D> m_colorBuffer;
+		std::unique_ptr<Texture2D> m_normalsAndSpecBuffer;
+		std::unique_ptr<Texture2D> m_distortionBuffer;
 		
-		StackObject<Framebuffer> m_lightFramebuffer;
-		StackObject<Texture2D> m_lightAccBuffer;
+		std::unique_ptr<Framebuffer> m_lightFramebuffer;
+		std::unique_ptr<Texture2D> m_lightAccBuffer;
 		
-		StackObject<Framebuffer> m_outputFramebuffer;
-		StackObject<Texture2D> m_outputBuffer;
+		std::unique_ptr<Framebuffer> m_outputFramebuffer;
+		std::unique_ptr<Texture2D> m_outputBuffer;
 		
 		ResolutionScales m_resolutionScale = ResolutionScales::_100;
 		

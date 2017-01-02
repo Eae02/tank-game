@@ -35,7 +35,7 @@ namespace TankGame
 		
 		void UpdateBlastSettings(float timeInterpol);
 		
-		static StackObject<ShaderProgram> s_distortionShader;
+		static std::unique_ptr<ShaderProgram> s_distortionShader;
 		
 		BufferAllocator::UniquePtr m_blastSettingsUniformBuffer;
 		
