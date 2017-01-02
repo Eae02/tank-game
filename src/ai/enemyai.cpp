@@ -38,9 +38,10 @@ namespace TankGame
 	void EnemyAI::Update(glm::vec2 playerPosition, const UpdateInfo& updateInfo)
 	{
 		glm::vec2 toPlayer = playerPosition - m_entity.GetTransform().GetPosition();
-		const float SIGHT_RADIUS = 10;
+		const float SIGHT_RADIUS = 8;
+		const float FIRE_RADIUS = 7;
 		
-		bool isPlayerVisible = IsPointVisible(playerPosition) && LengthSquared(toPlayer) < SIGHT_RADIUS * SIGHT_RADIUS;
+		const bool isPlayerVisible = IsPointVisible(playerPosition) && LengthSquared(toPlayer) < SIGHT_RADIUS * SIGHT_RADIUS;
 		
 		switch (m_state)
 		{
@@ -67,7 +68,9 @@ namespace TankGame
 				
 				m_entity.SetCannonRotation(glm::half_pi<float>() + std::atan2(toPlayer.y, toPlayer.x));
 				
-				if (m_entity.CanFire(updateInfo.m_gameTime))
+				const bool withinFiringRange = LengthSquared(toPlayer) < FIRE_RADIUS * FIRE_RADIUS;
+				
+				if (m_entity.CanFire(updateInfo.m_gameTime) && withinFiringRange)
 				{
 					if (m_entity.IsRocketTank())
 						m_entity.FireRocket(35, updateInfo.m_gameTime, { });
