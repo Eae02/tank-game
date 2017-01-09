@@ -185,9 +185,14 @@ namespace TankGame
 			
 			if (ImGui::BeginMenu("Tools"))
 			{
-				if (ImGui::MenuItem("Entities", "F1", m_currentToolIndex == 0))
+				bool sel;
+				
+				sel = m_currentToolIndex == 0;
+				if (ImGui::MenuItem("Entities", "F1", &sel))
 					m_currentToolIndex = 0;
-				if (ImGui::MenuItem("Tiles", "F2", m_currentToolIndex == 1))
+				
+				sel = m_currentToolIndex == 1;
+				if (ImGui::MenuItem("Tiles", "F2", sel))
 					m_currentToolIndex = 1;
 				
 				ImGui::Separator();

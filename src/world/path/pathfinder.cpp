@@ -23,8 +23,8 @@ namespace TankGame
 		glm::ivec2 m_toParent;
 		bool m_closed = false;
 		
-		float m_movementCost;
-		float m_completionCost;
+		float m_movementCost; //The lowest cost to get to this node from the start node.
+		float m_completionCost; //An estimate of the cost to get from this node to the end node (the heuristic).
 		
 		Node() = default;
 		
@@ -56,8 +56,6 @@ namespace TankGame
 		glm::vec2 aL(a.y, -a.x);
 		
 		return glm::dot(aL, b);
-		
-		//return b.x * a.y - a.x * b.y;
 	}
 	
 	static bool Vec2Equal(glm::vec2 a, glm::vec2 b)

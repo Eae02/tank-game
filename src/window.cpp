@@ -292,8 +292,8 @@ namespace TankGame
 	}
 	
 #ifndef NDEBUG
-	static void GLAPIENTRY OpenGLMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
-	                                             const GLchar* message, const void* userParam)
+	static void GLAPIENTRY OpenGLMessageCallback(GLenum, GLenum type, GLuint id, GLenum severity, GLsizei,
+	                                             const GLchar* message, const void*)
 	{
 		if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
 			return;
@@ -306,11 +306,11 @@ namespace TankGame
 		
 		if (glVendorName == "Intel Open Source Technology Center")
 		{
-			if (id == 5 || id == 56 || id == 57)
+			if (id == 5 || id == 56 || id == 57 || id == 65 || id == 66)
 				return;
 		}
 		
-		if (severity == GL_DEBUG_SEVERITY_HIGH)
+		if (severity == GL_DEBUG_SEVERITY_HIGH || type == GL_DEBUG_TYPE_ERROR)
 			throw std::runtime_error(message);
 		
 		if (severity == GL_DEBUG_SEVERITY_LOW || GL_DEBUG_SEVERITY_MEDIUM)
@@ -616,8 +616,6 @@ namespace TankGame
 			
 			m_keyboard.OnFrameEnd();
 			m_mouse.OnFrameEnd();
-			
-			glFinish();
 			
 			glfwSwapBuffers(m_window);
 			

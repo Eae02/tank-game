@@ -21,8 +21,6 @@ using namespace TankGame;
 static ArgumentData ParseArguments(int argc, const char** argv)
 {
 	ArgumentData argumentData;
-	argumentData.m_profiling = false;
-	argumentData.m_noCursorGrab = false;
 	
 	for (int i = 1; i < argc; i++)
 	{
