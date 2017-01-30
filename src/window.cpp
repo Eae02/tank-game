@@ -60,6 +60,8 @@ namespace TankGame
 #ifndef NDEBUG
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 		glfwWindowHint(GLFW_CONTEXT_ROBUSTNESS, GLFW_LOSE_CONTEXT_ON_RESET);
+#else
+		glfwWindowHint(GLFW_CONTEXT_NO_ERROR, true);
 #endif
 		
 		m_width = Settings::GetInstance().GetResolution().x;
