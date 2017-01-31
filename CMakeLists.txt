@@ -19,6 +19,7 @@ file(GLOB_RECURSE SOURCE_FILES
 #Finds other libraries
 find_package(OpenGL REQUIRED)
 find_package(OpenAL REQUIRED)
+find_package(GLM REQUIRED)
 find_package(OGG REQUIRED)
 find_package(Vorbis REQUIRED)
 find_package(VorbisFile REQUIRED)
@@ -65,6 +66,7 @@ include_directories(
 	${OPENGL_INCLUDE_DIR}
 	${OPENAL_INCLUDE_DIR}
 	${OGG_INCLUDE_DIR}
+	${GLM_INCLUDE_DIRS}
 	${VORBIS_INCLUDE_DIR}
 	${VORBISFILE_INCLUDE_DIR}
 	${GLFW_INCLUDE_DIR}

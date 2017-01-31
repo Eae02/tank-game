@@ -5,7 +5,7 @@ A tank shooter written in modern C++ and OpenGL 4.4. The game is still quite far
 Precompiled windows binaries are available [here](https://www.dropbox.com/s/aevhdaysm028ur9/tankgame_win32.zip?dl=1). You may also need to install the visual C++ 2015 redistributable, which you can get [here](https://www.microsoft.com/en-us/download/details.aspx?id=48145).
 
 ## Compiling from source on Linux
-First, make sure you have all the runtime dependencies installed. These are:
+First, make sure you have all the dependencies installed. These are:
 * opengl
 * openal
 * glfw
@@ -14,6 +14,7 @@ First, make sure you have all the runtime dependencies installed. These are:
 * vorbis
 * vorbisfile
 * zlib
+* glm (buildtime dependency)
 
 You will also need CMake and GCC version 5.3 or later to build the game.
 
@@ -26,8 +27,8 @@ You will also need CMake and GCC version 5.3 or later to build the game.
 The binary will be put in PROJECT_ROOT/bin/Release.
 
 ## Compiling from source on Windows
-To set up the build system, you will need to install [vcpkg](https://github.com/Microsoft/vcpkg) and the project's runtime dependencies. You will also need to have cmake installed and available on the command line.
-After you have installed vcpkg, cd into the install directory and run `.\vcpkg.exe install opengl openal-soft glfw3 freetype libogg libvorbis zlib` to install the runtime dependencies.
+To set up the build system, you will need to install [vcpkg](https://github.com/Microsoft/vcpkg) and the project's dependencies. You will also need to have cmake installed and available on the command line.
+After you have installed vcpkg, cd into the install directory and run `.\vcpkg.exe install opengl openal-soft glfw3 freetype libogg libvorbis zlib glm` to install the dependencies.
 
 1. `mkdir PROJECT_ROOT\.build`
 2. `cd PROJECT_ROOT\.build`
