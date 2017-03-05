@@ -5,6 +5,7 @@
 #include "../pickups/shieldpickupentity.h"
 #include "../../spteams.h"
 #include "../../gameworld.h"
+#include "../../../lua/luavm.h"
 #include "../../../tanktextures.h"
 #include "../../../updateinfo.h"
 #include "../../../utils/utils.h"
@@ -15,6 +16,8 @@
 
 namespace TankGame
 {
+	Lua::RegistryReference EnemyTank::s_metaTableRef;
+	
 	bool EnemyTank::s_areTexturesLoaded = false;
 	
 	std::unique_ptr<Texture2D> EnemyTank::s_cannonTexture;
@@ -54,6 +57,12 @@ namespace TankGame
 		}
 		
 		m_isRocketTank = isRocketTank;
+	}
+	
+	void EnemyTank::DetectPlayer()
+	{
+		if (const Entity* player = GetGameWorld()->GetEntityByName("player"))
+			m_ai.DetectPlayer(player->GetTransform().GetPosition());
 	}
 	
 	void EnemyTank::Update(const UpdateInfo& updateInfo)
@@ -110,8 +119,6 @@ namespace TankGame
 	
 	void EnemyTank::OnSpawned(GameWorld& gameWorld)
 	{
-		if (!m_detectPlayerEventName.empty())
-			gameWorld.ListenForEvent(m_detectPlayerEventName, *this);
 		m_ai.SetGameWorld(&gameWorld);
 		
 		if (gameWorld.GetWorldType() != GameWorld::Types::Editor)
@@ -169,9 +176,6 @@ namespace TankGame
 			}
 		}
 		
-		if (!m_onKilledEventName.empty())
-			GetGameWorld()->SendEvent(m_onKilledEventName, this);
-		
 		Despawn();
 	}
 	
@@ -210,44 +214,32 @@ namespace TankGame
 		if (m_hasShield)
 			json["has_shield"] = true;
 		
-		if (!m_detectPlayerEventName.empty())
-			json["detect_event"] = m_detectPlayerEventName;
-		if (!m_onKilledEventName.empty())
-			json["killed_event"] = m_onKilledEventName;
-		
 		return json;
 	}
 	
-	void EnemyTank::HandleEvent(const std::string& event, Entity* sender)
+	void EnemyTank::EditorMoved()
 	{
-		if (event == "EditorSpawned")
-		{
-			Path idlePath;
-			
-			idlePath.AddNode(GetTransform().GetPosition());
-			idlePath.AddNode(GetTransform().GetPosition() + glm::vec2(0, 1));
-			idlePath.AddNode(GetTransform().GetPosition() + glm::vec2(1, 1));
-			idlePath.AddNode(GetTransform().GetPosition() + glm::vec2(1, 0));
-			idlePath.Close();
-			
-			m_ai.SetIdlePath(std::move(idlePath));
-		}
-		else if (event == "EditorMoved")
-		{
-			glm::vec2 deltaMove = GetTransform().GetPosition() - m_oldPosition;
-			m_oldPosition = GetTransform().GetPosition();
-			
-			//Moves the idle path when the entity is moved in the editor
-			Path& path = m_ai.GetIdlePath();
-			for (size_t i = 0; i < path.GetNodeCount(); i++)
-				path[i] += deltaMove;
-			m_ai.IdlePathChanged();
-		}
-		else if (event == m_detectPlayerEventName)
-		{
-			if (const Entity* player = GetGameWorld()->GetEntityByName("player"))
-				m_ai.DetectPlayer(player->GetTransform().GetPosition());
-		}
+		glm::vec2 deltaMove = GetTransform().GetPosition() - m_oldPosition;
+		m_oldPosition = GetTransform().GetPosition();
+		
+		//Moves the idle path when the entity is moved in the editor
+		Path& path = m_ai.GetIdlePath();
+		for (size_t i = 0; i < path.GetNodeCount(); i++)
+			path[i] += deltaMove;
+		m_ai.IdlePathChanged();
+	}
+	
+	void EnemyTank::EditorSpawned()
+	{
+		Path idlePath;
+		
+		idlePath.AddNode(GetTransform().GetPosition());
+		idlePath.AddNode(GetTransform().GetPosition() + glm::vec2(0, 1));
+		idlePath.AddNode(GetTransform().GetPosition() + glm::vec2(1, 1));
+		idlePath.AddNode(GetTransform().GetPosition() + glm::vec2(1, 0));
+		idlePath.Close();
+		
+		m_ai.SetIdlePath(std::move(idlePath));
 	}
 	
 	Path& EnemyTank::GetEditPath()
@@ -274,16 +266,29 @@ namespace TankGame
 			SetIsRocketTank(isRocketTank);
 		
 		ImGui::Checkbox("Has Shield", &m_hasShield);
+	}
+	
+	void EnemyTank::PushLuaMetaTable(lua_State* state) const
+	{
+		if (!s_metaTableRef)
+		{
+			NewLuaMetaTable(state);
+			
+			TankEntity::PushLuaMetaTable(state);
+			lua_setmetatable(state, -2);
+			
+			// ** detectPlayer **
+			lua_pushcfunction(state, [] (lua_State* state) -> int
+			{
+				dynamic_cast<EnemyTank*>(LuaGetInstance(state))->DetectPlayer();
+				return 0;
+			});
+			lua_setfield(state, -2, "detectPlayer");
+			
+			s_metaTableRef = Lua::RegistryReference::PopAndCreate(state);
+			CallOnClose([] { s_metaTableRef = { }; });
+		}
 		
-		std::array<char, 256> inputBuffer;
-		inputBuffer.back() = '\0';
-		
-		strncpy(inputBuffer.data(), m_detectPlayerEventName.c_str(), inputBuffer.size() - 1);
-		if (ImGui::InputText("Detect Event", inputBuffer.data(), inputBuffer.size()))
-			m_detectPlayerEventName = inputBuffer.data();
-		
-		strncpy(inputBuffer.data(), m_onKilledEventName.c_str(), inputBuffer.size() - 1);
-		if (ImGui::InputText("Killed Event", inputBuffer.data(), inputBuffer.size()))
-			m_onKilledEventName = inputBuffer.data();
+		s_metaTableRef.Load(state);
 	}
 }

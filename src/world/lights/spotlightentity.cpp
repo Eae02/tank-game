@@ -67,7 +67,7 @@ namespace TankGame
 	
 	void SpotLightEntity::RenderProperties()
 	{
-		RenderTransformProperty(Transform::Properties::Position | Transform::Properties::Rotation);
+		RenderBaseProperties(Transform::Properties::Position | Transform::Properties::Rotation);
 		
 		RenderLightSourceProperties();
 		

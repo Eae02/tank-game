@@ -48,7 +48,7 @@ namespace TankGame
 	
 	void PointLightEntity::RenderProperties()
 	{
-		RenderTransformProperty(Transform::Properties::Position);
+		RenderBaseProperties(Transform::Properties::Position);
 		RenderLightSourceProperties();
 	}
 	

@@ -7,43 +7,12 @@
 
 namespace TankGame
 {
+	Lua::RegistryReference DoorEntity::s_metaTableRef;
+	
 	static SoundEffectPlayer soundEffectPlayer{ "DoorOpen" };
 	
-	DoorEntity::DoorEntity(const std::string* openEvents, size_t numOpenEvents)
-	    : PropEntity("Door", 1.0f, true), m_openEvents(numOpenEvents)
-	{
-		for (size_t i = 0; i < numOpenEvents; i++)
-			m_openEvents[i] = OpenEvent(openEvents[i]);
-	}
-	
-	void DoorEntity::OnSpawned(GameWorld& gameWorld)
-	{
-		if (gameWorld.GetWorldType() == GameWorld::Types::Game)
-		{
-			for (const OpenEvent& eventName : m_openEvents)
-				gameWorld.ListenForEvent(eventName.m_name, *this);
-		}
-		
-		PropEntity::OnSpawned(gameWorld);
-	}
-	
-	void DoorEntity::HandleEvent(const std::string& event, Entity* sender)
-	{
-		auto evPos = std::find_if(m_openEvents.begin(), m_openEvents.end(), [&] (const OpenEvent& ev)
-		{
-			return ev.m_name == event;
-		});
-		
-		if (evPos != m_openEvents.end())
-		{
-			evPos->m_received = true;
-			
-			if (std::all_of(m_openEvents.begin(), m_openEvents.end(), [&] (const auto& ev) { return ev.m_received; }))
-				Open();
-		}
-		
-		PropEntity::HandleEvent(event, sender);
-	}
+	DoorEntity::DoorEntity()
+	    : PropEntity("Door", 1.0f, true) { }
 	
 	void DoorEntity::Open()
 	{
@@ -58,57 +27,18 @@ namespace TankGame
 	
 	void DoorEntity::RenderProperties()
 	{
-		RenderTransformProperty(Transform::Properties::Position | Transform::Properties::Rotation);
+		RenderBaseProperties(Transform::Properties::Position | Transform::Properties::Rotation);
 		
 		float size = GetSizeX();
 		if (ImGui::InputFloat("Size", &size))
 			SetSizeX(size);
-		
-		std::array<char, 256> inputBuffer;
-		inputBuffer.back() = '\n';
-		
-		if (ImGui::ListBoxHeader("Open Events", m_openEvents.size(), 4))
-		{
-			ImGui::PushID("OpenEvents");
-			
-			for (int i = 0; i < static_cast<int>(m_openEvents.size()); i++)
-			{
-				strncpy(inputBuffer.data(), m_openEvents[i].m_name.c_str(), inputBuffer.size());
-				
-				ImGui::PushID(static_cast<int>(i));
-				
-				if (ImGui::InputText("##OpenEvent", inputBuffer.data(), inputBuffer.size()))
-					m_openEvents[i].m_name = inputBuffer.data();
-				
-				ImGui::SameLine();
-				
-				if (ImGui::Button("Remove"))
-				{
-					m_openEvents.erase(m_openEvents.begin() + i);
-					i--;
-				}
-				
-				ImGui::PopID();
-			}
-			
-			if (ImGui::Button("Add"))
-				m_openEvents.emplace_back("OpenEvent");
-			
-			ImGui::PopID();
-			ImGui::ListBoxFooter();
-		}
 	}
 	
 	nlohmann::json DoorEntity::Serialize() const
 	{
 		nlohmann::json json;
 		
-		std::vector<std::string> openEventNames;
-		for (size_t i = 0; i < m_openEvents.size(); i++)
-			openEventNames.push_back(m_openEvents[i].m_name);
-		
 		json["transform"] = GetTransform().Serialize(Transform::Properties::Position | Transform::Properties::Rotation);
-		json["open_event"] = openEventNames;
 		json["size"] = GetSizeX() * 2;
 		
 		return json;
@@ -117,5 +47,29 @@ namespace TankGame
 	std::unique_ptr<Entity> DoorEntity::Clone() const
 	{
 		return std::make_unique<DoorEntity>(*this);
+	}
+	
+	void DoorEntity::PushLuaMetaTable(lua_State* state) const
+	{
+		if (!s_metaTableRef)
+		{
+			NewLuaMetaTable(state);
+			
+			PropEntity::PushLuaMetaTable(state);
+			lua_setmetatable(state, -2);
+			
+			// ** open **
+			lua_pushcfunction(state, [] (lua_State* state) -> int
+			{
+				dynamic_cast<DoorEntity*>(LuaGetInstance(state))->Open();
+				return 0;
+			});
+			lua_setfield(state, -2, "open");
+			
+			s_metaTableRef = Lua::RegistryReference::PopAndCreate(state);
+			CallOnClose([] { s_metaTableRef = { }; });
+		}
+		
+		s_metaTableRef.Load(state);
 	}
 }

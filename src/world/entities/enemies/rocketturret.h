@@ -39,7 +39,7 @@ namespace TankGame
 		
 		virtual Circle GetHitCircle() const override;
 		
-		virtual void HandleEvent(const std::string &event, Entity *sender) override;
+		virtual void EditorMoved() override;
 		
 		virtual void RenderProperties() override;
 		virtual const char* GetObjectName() const override;

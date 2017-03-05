@@ -176,7 +176,7 @@ namespace TankGame
 	
 	void SpiderBot::RenderProperties()
 	{
-		RenderTransformProperty(Transform::Properties::Position | Transform::Properties::Rotation);
+		RenderBaseProperties(Transform::Properties::Position | Transform::Properties::Rotation);
 	}
 	
 	const char* SpiderBot::GetObjectName() const

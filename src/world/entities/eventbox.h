@@ -10,8 +10,8 @@ namespace TankGame
 	public:
 		EventBox() = default;
 		
-		inline EventBox(std::string enterEventName, std::string leaveEventName)
-		    : m_playerEnterEvent(std::move(enterEventName)), m_playerLeaveEvent(std::move(leaveEventName)) { }
+		inline EventBox(std::string enterEventScript, std::string leaveEventScript)
+		    : m_playerEnterScript(std::move(enterEventScript)), m_playerLeaveScript(std::move(leaveEventScript)) { }
 		
 		virtual void Update(const class UpdateInfo& updateInfo) override;
 		
@@ -19,10 +19,10 @@ namespace TankGame
 		
 		virtual void DrawEditorUI(class UIRenderer& uiRenderer, const glm::mat3& uiViewMatrix) const override;
 		
-		inline void SetPlayerEnterEvent(std::string eventName)
-		{ m_playerEnterEvent = std::move(eventName); }
-		inline void SetPlayerLeaveEvent(std::string eventName)
-		{ m_playerLeaveEvent = std::move(eventName); }
+		inline void SetPlayerEnterScript(std::string eventName)
+		{ m_playerEnterScript = std::move(eventName); }
+		inline void SetPlayerLeaveScript(std::string eventName)
+		{ m_playerLeaveScript = std::move(eventName); }
 		
 		virtual Entity::IUpdateable* AsUpdatable() final override
 		{ return this; }
@@ -36,8 +36,8 @@ namespace TankGame
 		virtual std::unique_ptr<Entity> Clone() const override;
 		
 	private:
-		std::string m_playerEnterEvent;
-		std::string m_playerLeaveEvent;
+		std::string m_playerEnterScript;
+		std::string m_playerLeaveScript;
 		
 		bool m_wasPlayerInBox = false;
 		

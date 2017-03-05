@@ -16,6 +16,8 @@ namespace TankGame
 		bool IsRocketTank() const
 		{ return m_isRocketTank; }
 		
+		void DetectPlayer();
+		
 		virtual void Update(const class UpdateInfo& updateInfo) override;
 		
 		virtual void OnSpawned(class GameWorld& gameWorld) override;
@@ -38,7 +40,8 @@ namespace TankGame
 		virtual const char* GetSerializeClassName() const override;
 		virtual nlohmann::json Serialize() const override;
 		
-		virtual void HandleEvent(const std::string& event, Entity* sender) override;
+		virtual void EditorMoved() override;
+		virtual void EditorSpawned() override;
 		
 		virtual Path& GetEditPath() override;
 		virtual void PathEditEnd() override;
@@ -48,28 +51,22 @@ namespace TankGame
 		
 		virtual void RenderProperties() override;
 		
-		inline void SetDetectPlayerEventName(std::string eventName)
-		{ m_detectPlayerEventName = std::move(eventName); }
-		inline const std::string& GetDetectPlayerEventName() const
-		{ return m_detectPlayerEventName; }
-		
-		inline void SetOnKilledEventName(std::string eventName)
-		{ m_onKilledEventName = eventName; }
-		inline const std::string& GetOnKilledEventName() const
-		{ return m_onKilledEventName; }
-		
 		inline bool HasShield() const
 		{ return m_hasShield; }
 		inline void SetHasShield(bool hasShield)
 		{ m_hasShield = hasShield; }
 		
 	protected:
+		virtual void PushLuaMetaTable(lua_State* state) const override;
+		
 		virtual const class SpriteMaterial& GetBaseMaterial(int frame) const override;
 		virtual const class SpriteMaterial& GetCannonMaterial() const override;
 		
 		virtual void OnKilled() override;
 		
 	private:
+		static Lua::RegistryReference s_metaTableRef;
+		
 		static bool s_areTexturesLoaded;
 		static std::unique_ptr<Texture2D> s_cannonTexture;
 		static std::unique_ptr<Texture2D> s_cannonNormalMap;
@@ -77,9 +74,6 @@ namespace TankGame
 		
 		bool m_isRocketTank = false;
 		bool m_hasShield = false;
-		
-		std::string m_onKilledEventName;
-		std::string m_detectPlayerEventName;
 		
 		EnemyAI m_ai;
 		

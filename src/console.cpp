@@ -147,6 +147,8 @@ namespace TankGame
 			ImGui::EndChild();
 			ImGui::Separator();
 			
+			ImGui::PushItemWidth(ImGui::GetContentRegionAvailWidth() - 100);
+			
 			bool invoke = ImGui::InputText("##ConsoleInput", m_inputBuffer.data(), m_inputBuffer.size(),
 			                               ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory,
 			                               [] (ImGuiTextEditCallbackData* data)
@@ -158,7 +160,11 @@ namespace TankGame
 			if (ImGui::IsItemHovered() || (ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
 				ImGui::SetKeyboardFocusHere(-1);
 			
+			ImGui::PopItemWidth();
+			
 			ImGui::SameLine();
+			
+			ImGui::PushItemWidth(-1);
 			
 			if (ImGui::Button("Invoke"))
 				invoke = true;
@@ -168,6 +174,8 @@ namespace TankGame
 				RunCommand(m_inputBuffer.data());
 				m_inputBuffer[0] = '\0';
 			}
+			
+			ImGui::PopItemWidth();
 			
 			ImGui::PopFont();
 		}

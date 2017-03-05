@@ -36,6 +36,7 @@ namespace TankGame
 		virtual void SetHp(float hp) override;
 		
 		virtual const char* GetObjectName() const override;
+		virtual void RenderProperties() override;
 		
 		inline float GetEnergy() const
 		{ return m_energy; }

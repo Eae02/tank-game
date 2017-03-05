@@ -18,27 +18,15 @@ namespace TankGame
 		
 		inline float GetSpecularIntensity() const
 		{ return m_specularIntensity; }
-		inline void SetSpecularIntensity(float specularIntensity)
-		{
-			m_specularIntensity = specularIntensity;
-			m_ubNeedsUpload = true;
-		}
+		void SetSpecularIntensity(float specularIntensity);
 		
 		inline float GetSpecularExponent() const
 		{ return m_specularExponent; }
-		void SetSpecularExponent(float specularExponent)
-		{
-			m_specularExponent = specularExponent;
-			m_ubNeedsUpload = true;
-		}
+		void SetSpecularExponent(float specularExponent);
 		
 		inline const glm::vec4& GetShade() const
 		{ return m_shade; }
-		void SetShade(const glm::vec4& shade)
-		{
-			m_shade = shade;
-			m_ubNeedsUpload = true;
-		}
+		void SetShade(const glm::vec4& shade);
 		
 		static constexpr int MATERIAL_BUFFER_BINDING = 1;
 		

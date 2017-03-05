@@ -100,11 +100,15 @@ namespace TankGame
 		
 		if (ImGui::Begin("Tiles"))
 		{
-			bool changed = ImGui::ListBox("Tile", &m_currentMaterialIndex, [] (void* data, int i, const char** out)
+			ImGui::PushItemWidth(-1);
+			
+			bool changed = ImGui::ListBox("##Tiles", &m_currentMaterialIndex, [] (void* data, int i, const char** out)
 			{
 				*out = reinterpret_cast<TilesTool*>(data)->m_tileMaterials[i].m_name.c_str();
 				return true;
 			}, this, m_tileMaterials.size());
+			
+			ImGui::PopItemWidth();
 			
 			if (changed)
 				m_currentTileID = m_tileMaterials[m_currentMaterialIndex].m_id;

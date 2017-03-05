@@ -10,12 +10,12 @@ namespace TankGame
 		float scaleReciprocal = viewWidth / 2.0f;
 		float scale = 1.0f / scaleReciprocal;
 		
-		float cosR = std::cos(-rotation);
-		float sinR = std::sin(-rotation);
+		float cosR = std::cos(rotation);
+		float sinR = std::sin(rotation);
 		
 		m_worldViewMatrix = glm::transpose(glm::mat3(
-				cosR, -sinR, 0.0f,
-				sinR,  cosR, 0.0f,
+				 cosR, sinR, 0.0f,
+				-sinR, cosR, 0.0f,
 				0.0f, 0.0f,  1.0f
 		)) * glm::transpose(glm::mat3(
 				1.0f, 0.0f, -focusPoint.x,
@@ -34,8 +34,8 @@ namespace TankGame
 			0.0f, 1.0f, focusPoint.y,
 			0.0f, 0.0f, 1.0f
 		)) * glm::transpose(glm::mat3(
-			 cosR, sinR, 0.0f,
-			-sinR, cosR, 0.0f,
+			cosR, -sinR, 0.0f,
+			sinR,  cosR, 0.0f,
 			0.0f, 0.0f,  1.0f
 		)) * glm::transpose(glm::mat3(
 			scaleReciprocal, 0.0f, 0.0f,

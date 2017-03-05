@@ -6,6 +6,7 @@
 #include "../../utils/utils.h"
 #include "../../utils/ioutils.h"
 #include "../../utils/mathutils.h"
+#include "../../lua/luainc.h"
 
 #include <imgui.h>
 #include <glm/gtc/constants.hpp>
@@ -13,6 +14,8 @@
 
 namespace TankGame
 {
+	Lua::RegistryReference LightStripEntity::s_metaTableRef;
+	
 	std::unique_ptr<ShaderProgram> LightStripEntity::s_shader;
 	
 	void LightStripEntity::BindShader()
@@ -31,13 +34,8 @@ namespace TankGame
 	}
 	
 	LightStripEntity::LightStripEntity(glm::vec3 color, float glowStrength, float radius)
-	    : LightStripEntity(color, glowStrength, radius, "", color) { }
-	
-	LightStripEntity::LightStripEntity(glm::vec3 color, float glowStrength, float radius,
-	                                   std::string activateEventName, glm::vec3 activatedColor)
 	    : m_uniformBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(float) * 4, GL_MAP_WRITE_BIT)),
-	      m_radius(radius), m_activateEvent(std::move(activateEventName)),
-	      m_activatedColor(activatedColor), m_color(color), m_glowStrength(glowStrength)
+	      m_radius(radius), m_color(color), m_glowStrength(glowStrength)
 	{
 		glEnableVertexArrayAttrib(m_vertexArray.GetID(), 0);
 		glVertexArrayAttribFormat(m_vertexArray.GetID(), 0, 2, GL_FLOAT, GL_FALSE, 0);
@@ -79,7 +77,7 @@ namespace TankGame
 	
 	std::unique_ptr<Entity> LightStripEntity::Clone() const
 	{
-		auto clone = std::make_unique<LightStripEntity>(m_color, m_glowStrength, m_radius, m_activateEvent, m_activatedColor);
+		auto clone = std::make_unique<LightStripEntity>(m_color, m_glowStrength, m_radius);
 		
 		clone->GetTransform() = GetTransform();
 		clone->SetPath(m_path);
@@ -87,27 +85,21 @@ namespace TankGame
 		return clone;
 	}
 	
-	void LightStripEntity::HandleEvent(const std::string& event, Entity* sender)
+	void LightStripEntity::EditorMoved()
 	{
-		if (event == "EditorMoved")
-		{
-			glm::vec2 deltaMove = GetTransform().GetPosition() - m_centerPath;
-			m_centerPath += deltaMove;
-			
-			for (size_t i = 0; i < m_path.GetNodeCount(); i++)
-				m_path[i] += deltaMove;
-			PathChanged();
-		}
-		else if (event == "EditorSpawned")
-		{
-			for (size_t i = 0; i < m_path.GetNodeCount(); i++)
-				m_path[i] += GetTransform().GetPosition();
-			PathChanged();
-		}
-		else if (event == m_activateEvent)
-		{
-			SetColor(m_activatedColor);
-		}
+		glm::vec2 deltaMove = GetTransform().GetPosition() - m_centerPath;
+		m_centerPath += deltaMove;
+		
+		for (size_t i = 0; i < m_path.GetNodeCount(); i++)
+			m_path[i] += deltaMove;
+		PathChanged();
+	}
+	
+	void LightStripEntity::EditorSpawned()
+	{
+		for (size_t i = 0; i < m_path.GetNodeCount(); i++)
+			m_path[i] += GetTransform().GetPosition();
+		PathChanged();
 	}
 	
 	void LightStripEntity::SpawnLights(const Path& path)
@@ -244,9 +236,6 @@ namespace TankGame
 		Entity::OnSpawned(gameWorld);
 		if (m_path.GetNodeCount() > 0)
 			SpawnLights(m_path);
-		
-		if (gameWorld.GetWorldType() == GameWorld::Types::Game && !m_activateEvent.empty())
-			gameWorld.ListenForEvent(m_activateEvent, *this);
 	}
 	
 	void LightStripEntity::OnDespawning()
@@ -281,6 +270,8 @@ namespace TankGame
 	
 	void LightStripEntity::RenderProperties()
 	{
+		RenderBaseProperties(Transform::Properties::None);
+		
 		glm::vec3 colorSrgb = glm::convertLinearToSRGB(m_color);
 		if (ImGui::ColorEdit3("Color", reinterpret_cast<float*>(&colorSrgb)))
 			SetColor(glm::convertSRGBToLinear(colorSrgb));
@@ -292,17 +283,6 @@ namespace TankGame
 		float glowStrength = m_glowStrength;
 		if (ImGui::InputFloat("Glow Strength", &glowStrength))
 			SetGlowStrength(glm::max(0.0f, glowStrength));
-		
-		std::array<char, 256> activateEventBuffer;
-		activateEventBuffer.back() = '\0';
-		strncpy(activateEventBuffer.data(), m_activateEvent.c_str(), activateEventBuffer.size());
-		
-		if (ImGui::InputText("Activate Event", activateEventBuffer.data(), activateEventBuffer.size()))
-			m_activateEvent = activateEventBuffer.data();
-		
-		glm::vec3 activatedColorSrgb = glm::convertLinearToSRGB(m_activatedColor);
-		if (ImGui::ColorEdit3("Activated Color", reinterpret_cast<float*>(&activatedColorSrgb)))
-			SetActivatedColor(glm::convertSRGBToLinear(activatedColorSrgb));
 	}
 	
 	const char* LightStripEntity::GetObjectName() const
@@ -327,16 +307,6 @@ namespace TankGame
 		
 		json["glow_strength"] = m_glowStrength;
 		json["radius"] = m_radius;
-		
-		if (!m_activateEvent.empty())
-		{
-			json["activate_event"] = m_activateEvent;
-			
-			uint32_t hexColor = RgbColorToSRGBHex(m_activatedColor);
-			char hexColorStr[7];
-			sprintf(hexColorStr, "%06x", hexColor);
-			json["activated_color"] = hexColorStr;
-		}
 		
 		nlohmann::json::array_t nodesEl;
 		for (size_t i = 0; i < m_path.GetNodeCount(); i++)
@@ -365,5 +335,41 @@ namespace TankGame
 	const char* LightStripEntity::GetEditPathName() const
 	{
 		return "Light Path";
+	}
+	
+	const glm::vec3 activatedColor = glm::convertSRGBToLinear(glm::vec3(0.09f, 0.89f, 0.0f));
+	
+	void LightStripEntity::PushLuaMetaTable(lua_State* state) const
+	{
+		if (!s_metaTableRef)
+		{
+			NewLuaMetaTable(state);
+			
+			Entity::PushLuaMetaTable(state);
+			lua_setmetatable(state, -2);
+			
+			// ** setColor **
+			lua_pushcfunction(state, [] (lua_State* state) -> int
+			{
+				glm::vec3 color(luaL_checknumber(state, 2), luaL_checknumber(state, 3), luaL_checknumber(state, 4));
+				
+				dynamic_cast<LightStripEntity*>(LuaGetInstance(state))->SetColor(glm::convertSRGBToLinear(color));
+				return 0;
+			});
+			lua_setfield(state, -2, "setColor");
+			
+			// ** activate **
+			lua_pushcfunction(state, [] (lua_State* state) -> int
+			{
+				dynamic_cast<LightStripEntity*>(LuaGetInstance(state))->SetColor(activatedColor);
+				return 0;
+			});
+			lua_setfield(state, -2, "activate");
+			
+			s_metaTableRef = Lua::RegistryReference::PopAndCreate(state);
+			CallOnClose([] { s_metaTableRef = { }; });
+		}
+		
+		s_metaTableRef.Load(state);
 	}
 }

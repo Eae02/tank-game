@@ -18,7 +18,6 @@ namespace TankGame
 		
 	public:
 		virtual EntityHandle Spawn(std::unique_ptr<Entity>&& entity);
-		EntityHandle SpawnNamed(std::unique_ptr<Entity>&& entity, const std::string& name);
 		
 		inline void Despawn(Entity* entity)
 		{
@@ -30,8 +29,6 @@ namespace TankGame
 		Entity* GetEntityByName(const std::string& name);
 		inline const Entity* GetEntityByName(const std::string& name) const
 		{ return const_cast<EntitiesManager*>(this)->GetEntityByName(name); }
-		
-		std::string GetEntityName(const Entity& entity) const;
 		
 		template <typename CallbackTp>
 		void IterateEntities(CallbackTp callback) const
@@ -86,8 +83,6 @@ namespace TankGame
 		uint64_t m_nextEntityID = 0;
 		
 		std::vector<EntityEntry> m_entities;
-		
-		std::unordered_map<std::string, Entity*> m_namedEntities;
 		
 		std::vector<Entity*> m_entitiesToDespawn;
 		

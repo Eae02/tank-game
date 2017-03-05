@@ -60,8 +60,6 @@ namespace TankGame
 #ifndef NDEBUG
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 		glfwWindowHint(GLFW_CONTEXT_ROBUSTNESS, GLFW_LOSE_CONTEXT_ON_RESET);
-#else
-		glfwWindowHint(GLFW_CONTEXT_NO_ERROR, true);
 #endif
 		
 		m_width = Settings::GetInstance().GetResolution().x;
@@ -137,6 +135,8 @@ namespace TankGame
 		if (m_editor != nullptr)
 			m_editor->Close();
 		
+		Settings::GetInstance().SetLastPlayedLevel(name);
+		
 		m_gameTime = 0;
 	}
 	
@@ -183,13 +183,6 @@ namespace TankGame
 				throw Console::CommandException("Level not found: '" + argv[0] + "'.");
 			Progress::GetInstance().UpdateLevelProgress(argv[0], std::stoi(argv[1]));
 		}, 2);
-		
-		m_console.AddCommand("event", [&] (const std::string* argv, size_t argc)
-		{
-			if (m_gameManager->GetLevel() == nullptr)
-				throw Console::CommandException("No level loaded.");
-			m_gameManager->GetLevel()->GetGameWorld().SendEvent(argv[0], nullptr);
-		}, 1);
 		
 		m_console.AddCommand("powerup", [&] (const std::string* argv, size_t argc)
 		{
@@ -239,7 +232,7 @@ namespace TankGame
 		{
 			Level level = CommandCallbackLevelFromName(argv[0], GameWorld::Types::ScreenShot);
 			
-			std::ofstream stream(Level::GetLevelsPath() / (argv[0] + "_mi"), std::ios::binary);
+			std::ofstream stream(Level::GetLevelsPath() / (argv[0] + ".mi"), std::ios::binary);
 			LevelMenuInfo::WriteMenuInfo(level, argv[1], stream);
 		}, 2);
 		
@@ -359,8 +352,6 @@ namespace TankGame
 				m_menuManager->ShowMainMenu();
 		});
 		
-		m_menuManager->SetBackground("Level1_0");
-		
 		m_menuManager->ShowMainMenu();
 		
 		ImGuiInterface::Init(m_window);
@@ -438,7 +429,7 @@ namespace TankGame
 		}
 		
 		if (m_menuManager->Visible())
-			m_menuManager->Draw(*m_deferredRenderer, gameTime);
+			m_menuManager->Draw(*m_deferredRenderer, *m_shadowRenderer, gameTime);
 		
 		glEnable(GL_BLEND);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);

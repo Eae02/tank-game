@@ -10,6 +10,7 @@
 #include "../../updateinfo.h"
 #include "../../utils/utils.h"
 #include "../../utils/mathutils.h"
+#include "../../lua/luavm.h"
 
 #include <imgui.h>
 
@@ -39,6 +40,12 @@ namespace TankGame
 	{
 		if (m_shieldHandle.IsAlive())
 			m_shieldHandle->Despawn();
+		
+		PushLuaInstance(Lua::GetState());
+		lua_getfield(Lua::GetState(), -1, "onKilled");
+		if (lua_isfunction(Lua::GetState(), -1))
+			Lua::CallFunction(0, 0);
+		lua_pop(Lua::GetState(), 1);
 	}
 	
 	Transform TankEntity::GetBaseCannonTransform(const TankEntity::TextureInfo& textureInfo)
@@ -144,7 +151,7 @@ namespace TankGame
 	
 	void TankEntity::RenderProperties()
 	{
-		RenderTransformProperty(Transform::Properties::Position | Transform::Properties::Rotation);
+		RenderBaseProperties(Transform::Properties::Position | Transform::Properties::Rotation);
 		
 		float hp = GetHp();
 		if (ImGui::SliderFloat("Hp", &hp, 1, GetMaxHp()))

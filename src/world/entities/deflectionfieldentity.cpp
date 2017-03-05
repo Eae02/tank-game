@@ -36,7 +36,7 @@ namespace TankGame
 	
 	void DeflectionFieldEntity::RenderProperties()
 	{
-		RenderTransformProperty(Transform::Properties::Position | Transform::Properties::Rotation);
+		RenderBaseProperties(Transform::Properties::Position | Transform::Properties::Rotation);
 		
 		float length = GetLength();
 		if (ImGui::InputFloat("Length", &length))

@@ -4,6 +4,7 @@
 #include "world/serialization/deserializeworld.h"
 #include "audio/almanager.h"
 #include "utils/ioutils.h"
+#include "lua/luavm.h"
 
 #include <fstream>
 
@@ -19,24 +20,28 @@ namespace TankGame
 	}
 	
 	Level::Level(std::istream& stream, GameWorld::Types worldType)
-	    : m_gameWorld(DeserializeWorld(stream, worldType)),
+	    : m_gameWorld(DeserializeWorld(stream, worldType)), m_luaSandbox(Lua::GetState()),
 	      m_playerEntity(dynamic_cast<PlayerEntity*>(m_gameWorld->GetEntityByName("player")))
 	{
-		m_gameWorld->SetEventListener(this);
+		m_luaSandbox.PushTable(Lua::GetState());
+		m_gameWorld->InitLuaSandbox(Lua::GetState());
+		m_gameWorld->SetLuaSandbox(&m_luaSandbox);
 	}
 	
 	Level::Level(Level&& other)
-	    : m_gameWorld(std::move(other.m_gameWorld)), m_playerEntity(other.m_playerEntity)
+	    : m_gameWorld(std::move(other.m_gameWorld)), m_luaSandbox(std::move(other.m_luaSandbox)),
+	      m_playerEntity(other.m_playerEntity)
 	{
-		m_gameWorld->SetEventListener(this);
+		m_gameWorld->SetLuaSandbox(&m_luaSandbox);
 	}
 	
 	Level& Level::operator=(Level&& other)
 	{
 		m_gameWorld = std::move(other.m_gameWorld);
+		m_luaSandbox = std::move(other.m_luaSandbox);
 		m_playerEntity = other.m_playerEntity;
 		
-		m_gameWorld->SetEventListener(this);
+		m_gameWorld->SetLuaSandbox(&m_luaSandbox);
 		
 		return *this;
 	}
@@ -53,7 +58,15 @@ namespace TankGame
 		if (!stream)
 			throw std::runtime_error("Error opening file for reading: '" + fullPathString + "'.");
 		
-		return Level(stream, worldType);
+		Level level(stream, worldType);
+		
+		fs::path scriptPath = fullPath;
+		scriptPath += ".lua";
+		
+		if (fs::exists(scriptPath))
+			level.RunScript(scriptPath);
+		
+		return level;
 	}
 	
 	const CheckpointEntity* Level::GetCheckpointFromIndex(int index) const
@@ -90,17 +103,8 @@ namespace TankGame
 		UpdateListener(*m_playerEntity);
 	}
 	
-	void Level::HandleEvent(const std::string& event, Entity* sender)
+	void Level::RunScript(const fs::path& path)
 	{
-		if (event == "EndLevel")
-		{
-			
-		}
-		else if (event == "PlayerKilled")
-		{
-			m_playerEntity->GetTransform().SetPosition(m_gameWorld->GetRespawnPosition());
-			m_playerEntity->GetTransform().SetRotation(m_gameWorld->GetRespawnRotation());
-			m_playerEntity->SetHp(m_playerEntity->GetMaxHp());
-		}
+		Lua::DoString(ReadFileContents(path), &m_luaSandbox);
 	}
 }

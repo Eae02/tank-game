@@ -7,6 +7,8 @@
 #include "../transform.h"
 #include "../utils/abstract.h"
 #include "../colliderinfo.h"
+#include "../lua/registryreference.h"
+#include "../lua/luainc.h"
 
 #include <json.hpp>
 #include <glm/glm.hpp>
@@ -88,19 +90,38 @@ namespace TankGame
 		{ return nullptr; }
 		virtual nlohmann::json Serialize() const;
 		
-		virtual void HandleEvent(const std::string& event, Entity* sender) { }
+		virtual void EditorMoved() { }
+		virtual void EditorSpawned() { }
 		
 		virtual std::unique_ptr<Entity> Clone() const;
 		
 		virtual void RenderProperties() override;
 		virtual const char* GetObjectName() const override;
 		
+		inline const std::string& GetName() const
+		{ return m_name; }
+		inline void SetName(std::string name)
+		{ m_name = std::move(name); }
+		
+		void PushLuaInstance(lua_State* state);
+		
 	protected:
-		inline void RenderTransformProperty()
-		{ RenderTransformProperty(Transform::Properties::All); }
-		void RenderTransformProperty(Transform::Properties propertiesToShow);
+		virtual void PushLuaMetaTable(lua_State* state) const;
+		
+		inline void RenderBaseProperties()
+		{ RenderBaseProperties(Transform::Properties::All); }
+		void RenderBaseProperties(Transform::Properties propertiesToShow, bool nameable = true);
+		
+		static Entity* LuaGetInstance(lua_State* state);
+		static void NewLuaMetaTable(lua_State* state);
 		
 	private:
+		static Lua::RegistryReference s_metaTableRef;
+		
+		std::string m_name;
+		
+		Lua::RegistryReference m_luaObject;
+		
 		class GameWorld* m_world = nullptr;
 		
 		Transform m_transform;

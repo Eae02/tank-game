@@ -11,6 +11,8 @@
 #include "entities/particlesystementity.h"
 #include "../graphics/tileshadowcastersbuffer.h"
 #include "../graphics/viewinfo.h"
+#include "../lua/sandbox.h"
+#include "../lua/luainc.h"
 
 #include <memory>
 #include <vector>
@@ -25,12 +27,6 @@ namespace TankGame
 	class GameWorld : public EntitiesManager
 	{
 	public:
-		class IEventListener
-		{
-		public:
-			virtual void HandleEvent(const std::string& event, Entity* sender) = 0;
-		};
-		
 		enum class Types
 		{
 			Game,
@@ -53,12 +49,6 @@ namespace TankGame
 		
 		void SetFocusEntity(const Entity* entity);
 		glm::vec2 GetFocusLocation() const;
-		
-		void SendEvent(const std::string& event, Entity* sender);
-		void ListenForEvent(std::string event, Entity& receiver);
-		
-		inline void SetEventListener(IEventListener* eventListener)
-		{ m_eventListener = eventListener; }
 		
 		glm::vec2 GetGroundVelocity(glm::vec2 position) const;
 		
@@ -164,6 +154,8 @@ namespace TankGame
 		
 		bool SetCheckpoint(int index, glm::vec2 position, float rotation);
 		
+		void InitLuaSandbox(lua_State* state);
+		
 		inline void SetProgressLevelName(std::string levelName)
 		{ m_progressLevelName = std::move(levelName); }
 		
@@ -185,7 +177,14 @@ namespace TankGame
 		inline const QuadTree& GetQuadTree()
 		{ return m_quadTree; }
 		
-		nlohmann::json Serialize() const;
+		inline int GetWidth() const
+		{ return m_width; }
+		inline int GetHeight() const
+		{ return m_height; }
+		
+		inline const Lua::Sandbox* GetLuaSandbox() const
+		{ return m_luaSandbox; }
+		void SetLuaSandbox(const Lua::Sandbox* sandbox);
 		
 	protected:
 		virtual void OnEntityDespawn(Entity& entity) final override;
@@ -197,16 +196,9 @@ namespace TankGame
 		//Helper functions to detemplatize GetRayIntersectionDistance
 		void CheckRayIntersection(const ICollidable& collidable, glm::vec2 start, glm::vec2 dir, float& dist) const;
 		
-		struct EventListenerEntry
-		{
-			std::string m_eventName;
-			Entity* m_receiver;
-			
-			inline EventListenerEntry(std::string eventName, Entity& entity)
-			    : m_eventName(std::move(eventName)), m_receiver(&entity) { }
-		};
-		
 		void DespawnAtIndex(size_t index);
+		
+		const Lua::Sandbox* m_luaSandbox = nullptr;
 		
 		std::string m_progressLevelName;
 		
@@ -230,13 +222,9 @@ namespace TankGame
 		class IMainRenderer* m_renderer = nullptr;
 		class GameManager* m_gameManager = nullptr;
 		
-		IEventListener* m_eventListener = nullptr;
-		
 		QuadTree m_quadTree;
 		
 		ParticlesManager m_particlesManager;
-		
-		std::vector<EventListenerEntry> m_eventListeners;
 		
 		std::unique_ptr<TileGrid> m_tileGrid;
 		const class TileGridMaterial* m_tileGridMaterial = nullptr;

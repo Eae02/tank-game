@@ -9,11 +9,11 @@ namespace TankGame
 		
 		auto playerEnterIt = json.find("player_enter");
 		if (playerEnterIt != json.end())
-			entity->SetPlayerEnterEvent(playerEnterIt->get<std::string>());
+			entity->SetPlayerEnterScript(playerEnterIt->get<std::string>());
 		
 		auto playerLeaveIt = json.find("player_leave");
 		if (playerLeaveIt != json.end())
-			entity->SetPlayerLeaveEvent(playerLeaveIt->get<std::string>());
+			entity->SetPlayerLeaveScript(playerLeaveIt->get<std::string>());
 		
 		return entity;
 	}

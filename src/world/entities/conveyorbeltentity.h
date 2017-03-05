@@ -23,8 +23,6 @@ namespace TankGame
 		virtual Entity::IUpdateable* AsUpdatable() final override
 		{ return this; }
 		
-		virtual void HandleEvent(const std::string& event, Entity* sender) override;
-		
 		virtual const char* GetSerializeClassName() const override;
 		virtual nlohmann::json Serialize() const override;
 		

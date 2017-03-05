@@ -90,7 +90,7 @@ namespace TankGame
 					std::unique_ptr<Entity> entity = entry.m_entityParser->Parse(entry.m_jsonElement);
 					entity->GetTransform().SetPosition(m_spawnPosition);
 					
-					entity->HandleEvent("EditorSpawned", nullptr);
+					entity->EditorSpawned();
 					
 					m_gameWorld->Spawn(std::move(entity));
 				}

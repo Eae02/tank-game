@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH "${TankGame_SOURCE_DIR}/cmake")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TankGame_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${TankGame_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 
-add_definitions(-DGLM_FORCE_RADIANS -DZLIB_CONST)
+add_definitions(-DGLM_FORCE_RADIANS -DZLIB_CONST -DLUA_FLOAT_TYPE=LUA_FLOAT_FLOAT)
 
 file(GLOB_RECURSE SOURCE_FILES
 		${TankGame_SOURCE_DIR}/src/*.cpp
@@ -26,6 +26,7 @@ find_package(VorbisFile REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(Threads REQUIRED)
+find_package(Lua REQUIRED)
 
 find_path(GLFW_INCLUDE_DIR GLFW/glfw3.h ${HEADER_SEARCH_PATH})
 find_library(GLFW_LIBRARIES NAMES glfw glfw3dll ${LIBRARY_SEARCH_PATH})
@@ -57,6 +58,7 @@ link_libraries(
 	${GLFW_LIBRARIES}
 	${FREETYPE_LIBRARIES}
 	${ZLIB_LIBRARIES}
+	${LUA_LIBRARIES}
 	${CMAKE_THREAD_LIBS_INIT}
 	${LIBS}
 )
@@ -71,6 +73,7 @@ include_directories(
 	${VORBISFILE_INCLUDE_DIR}
 	${GLFW_INCLUDE_DIR}
 	${FREETYPE_INCLUDE_DIRS}
+	${LUA_INCLUDE_DIR}
 	${ZLIB_INCLUDE_DIRS}
 	${TankGame_SOURCE_DIR}/inc
 	${TankGame_SOURCE_DIR}/imgui

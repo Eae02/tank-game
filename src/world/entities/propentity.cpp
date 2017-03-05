@@ -72,7 +72,7 @@ namespace TankGame
 	
 	void PropEntity::RenderProperties()
 	{
-		RenderTransformProperty(Transform::Properties::Position | Transform::Properties::Rotation);
+		RenderBaseProperties(Transform::Properties::Position | Transform::Properties::Rotation);
 		
 		if (PropsManager::GetInstance().RenderPropClassSeletor("Prop Class", &m_propClass))
 		{

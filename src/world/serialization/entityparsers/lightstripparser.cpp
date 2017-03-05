@@ -22,19 +22,7 @@ namespace TankGame
 		if (radiusIt != json.end())
 			radius = radiusIt->get<float>();
 		
-		std::string activateEvent;
-		auto activateEventNameIt = json.find("activate_event");
-		if (activateEventNameIt != json.end())
-			activateEvent = activateEventNameIt->get<std::string>();
-		
-		auto activatedColorIt = json.find("activated_color");
-		glm::vec3 activatedColor = color;
-		if (activatedColorIt != json.end())
-			activatedColor = ParseColor(*activatedColorIt);
-		
-		std::unique_ptr<LightStripEntity> entity = std::make_unique<LightStripEntity>(color, glowStrength, radius,
-		                                                                              std::move(activateEvent),
-		                                                                              activatedColor);
+		std::unique_ptr<LightStripEntity> entity = std::make_unique<LightStripEntity>(color, glowStrength, radius);
 		
 		Path path;
 		for (const nlohmann::json& nodeEl : json["nodes"])

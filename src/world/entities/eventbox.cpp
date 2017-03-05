@@ -4,6 +4,8 @@
 #include "../../updateinfo.h"
 #include "../../graphics/ui/uirenderer.h"
 #include "../../orientedrectangle.h"
+#include "../../utils/imgui.h"
+#include "../../lua/luavm.h"
 
 #include <imgui.h>
 
@@ -18,10 +20,10 @@ namespace TankGame
 		
 		bool isPlayerInBox = rectangle.GetIntersectInfo(m_player->GetHitCircle()).m_intersects;
 		
-		if (isPlayerInBox && !m_wasPlayerInBox && !m_playerEnterEvent.empty())
-			GetGameWorld()->SendEvent(m_playerEnterEvent, this);
-		else if (!isPlayerInBox && m_wasPlayerInBox && !m_playerLeaveEvent.empty())
-			GetGameWorld()->SendEvent(m_playerLeaveEvent, this);
+		if (isPlayerInBox && !m_wasPlayerInBox && !m_playerEnterScript.empty())
+			Lua::DoString(m_playerEnterScript, GetGameWorld()->GetLuaSandbox());
+		else if (!isPlayerInBox && m_wasPlayerInBox && !m_playerLeaveScript.empty())
+			Lua::DoString(m_playerLeaveScript, GetGameWorld()->GetLuaSandbox());
 		
 		m_wasPlayerInBox = isPlayerInBox;
 	}
@@ -42,18 +44,11 @@ namespace TankGame
 	
 	void EventBox::RenderProperties()
 	{
-		RenderTransformProperty();
+		RenderBaseProperties();
 		
-		std::array<char, 256> buffer;
-		buffer.back() = '\0';
+		RenderScriptEditor("Player Enter Script", m_playerEnterScript);
 		
-		strncpy(buffer.data(), m_playerEnterEvent.c_str(), buffer.size() - 1);
-		if (ImGui::InputText("Player Enter Event", buffer.data(), buffer.size()))
-			m_playerEnterEvent = buffer.data();
-		
-		strncpy(buffer.data(), m_playerLeaveEvent.c_str(), buffer.size() - 1);
-		if (ImGui::InputText("Player Leave Event", buffer.data(), buffer.size()))
-			m_playerLeaveEvent = buffer.data();
+		RenderScriptEditor("Player Leave Script", m_playerLeaveScript);
 	}
 	
 	const char* EventBox::GetObjectName() const
@@ -65,10 +60,10 @@ namespace TankGame
 	{
 		nlohmann::json json = Entity::Serialize();
 		
-		if (!m_playerEnterEvent.empty())
-			json["player_enter"] = m_playerEnterEvent;
-		if (!m_playerLeaveEvent.empty())
-			json["player_leave"] = m_playerLeaveEvent;
+		if (!m_playerEnterScript.empty())
+			json["player_enter"] = m_playerEnterScript;
+		if (!m_playerLeaveScript.empty())
+			json["player_leave"] = m_playerLeaveScript;
 		
 		return json;
 	}

@@ -24,8 +24,6 @@ namespace TankGame
 	public:
 		MenuManager();
 		
-		void SetBackground(const std::string& name);
-		
 		void OnResize(int newWidth, int newHeight);
 		
 		void ShowMainMenu();
@@ -35,7 +33,7 @@ namespace TankGame
 		{ return m_visible; }
 		
 		void Update(const class UpdateInfo& updateInfo);
-		void Draw(class DeferredRenderer& deferredRenderer, float gameTime) const;
+		void Draw(class DeferredRenderer& deferredRenderer, const ShadowRenderer& shadowRenderer, float gameTime) const;
 		
 		inline void SetSettingsApplyCallback(OptionsMenu::ApplyCallback applyCallback)
 		{ m_optionsMenu.SetApplyCallback(std::move(applyCallback)); }
@@ -47,7 +45,8 @@ namespace TankGame
 		{ m_playMenu.SetLoadLevelCallback(loadLevelCallback); }
 		
 	private:
-		void LoadBackgroundWorld();
+		long GetBackgroundIndex(const std::string& levelName) const;
+		
 		void SetBackgroundWorld(std::unique_ptr<GameWorld>&& backgroundWorld);
 		
 		void SetCurrentMenu(MenuScreens menu);
@@ -56,9 +55,9 @@ namespace TankGame
 		
 		struct Background
 		{
-			std::string m_name;
-			std::string m_levelPath;
+			std::string m_levelName;
 			glm::vec2 m_focusPosition;
+			int m_requiredProgress;
 			
 			explicit Background(const nlohmann::json& element);
 		};
@@ -69,6 +68,8 @@ namespace TankGame
 		ViewInfo m_viewInfo;
 		
 		bool m_visible = false;
+		
+		float m_rotation = 0;
 		
 		std::vector<Background> m_backgrounds;
 		long m_currentBackgroundIndex = -1;

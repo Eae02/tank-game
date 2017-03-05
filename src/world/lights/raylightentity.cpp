@@ -40,7 +40,7 @@ namespace TankGame
 	
 	void RayLightEntity::SetIntensity(float intensity)
 	{
-		if (m_intensity == intensity)
+		if (FloatEqual(m_intensity, intensity))
 			return;
 		m_intensity = intensity;
 		m_uniformBufferOutOfDate = true;

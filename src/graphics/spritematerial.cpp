@@ -37,4 +37,22 @@ namespace TankGame
 		glBindTextureUnit(DIFFUSE_TEXTURE_UNIT, m_diffuse.GetID());
 		glBindTextureUnit(NORMAL_MAP_TEXTURE_UNIT, m_normalMap.GetID());
 	}
+	
+	void SpriteMaterial::SetSpecularIntensity(float specularIntensity)
+	{
+		m_specularIntensity = specularIntensity;
+		m_ubNeedsUpload = true;
+	}
+	
+	void SpriteMaterial::SetSpecularExponent(float specularExponent)
+	{
+		m_specularExponent = specularExponent;
+		m_ubNeedsUpload = true;
+	}
+	
+	void SpriteMaterial::SetShade(const glm::vec4& shade)
+	{
+		m_shade = shade;
+		m_ubNeedsUpload = true;
+	}
 }

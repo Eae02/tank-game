@@ -10,7 +10,29 @@ namespace TankGame
 	{
 		stream.write("lvl0", 4);
 		
-		nlohmann::json json = gameWorld.Serialize();
+		nlohmann::json json;
+		
+		json["width"] = gameWorld.GetWidth();
+		json["height"] = gameWorld.GetHeight();
+		
+		std::vector<nlohmann::json> entities;
+		
+		gameWorld.IterateEntities([&] (const Entity& entity)
+		{
+			const char* className = entity.GetSerializeClassName();
+			if (className == nullptr)
+				return;
+			
+			nlohmann::json element = entity.Serialize();
+			if (!entity.GetName().empty())
+				element["name"] = entity.GetName();
+			
+			element["class"] = className;
+			
+			entities.emplace_back(std::move(element));
+		});
+		
+		json["entities"] = std::move(entities);
 		
 		if (const Entity* playerEntity = gameWorld.GetEntityByName("player"))
 		{

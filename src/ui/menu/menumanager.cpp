@@ -5,9 +5,15 @@
 #include "../../level.h"
 #include "../../graphics/deferredrenderer.h"
 #include "../../updateinfo.h"
+#include "../../progress.h"
 
 #include <fstream>
+#include <random>
+#include <chrono>
 #include <algorithm>
+#include <glm/gtc/constants.hpp>
+
+using namespace std::chrono;
 
 namespace TankGame
 {
@@ -35,24 +41,25 @@ namespace TankGame
 		m_mainMenu.SetOptionsCallback([this] { SetCurrentMenu(MenuScreens::Options); });
 	}
 	
-	void MenuManager::SetBackground(const std::string& name)
+	long MenuManager::GetBackgroundIndex(const std::string& levelName) const
 	{
-		auto pos = std::find_if(m_backgrounds.begin(), m_backgrounds.end(), [&] (const Background& background)
-		{ return background.m_name == name; });
+		int progress = Progress::GetInstance().GetLevelProgress(levelName);
 		
-		if (pos == m_backgrounds.end())
+		long bestBackgroundIndex = -1;
+		
+		for (size_t i = 0; i < m_backgrounds.size(); i++)
 		{
-			GetLogStream() << LOG_ERROR << "There is no menu background called '" << name << "'.\n";
-			m_currentBackgroundIndex = -1;
-			SetBackgroundWorld(nullptr);
-		}
-		else
-		{
-			m_currentBackgroundIndex = pos - m_backgrounds.begin();
-			LoadBackgroundWorld();
+			if (m_backgrounds[i].m_levelName == levelName && progress >= m_backgrounds[i].m_requiredProgress)
+			{
+				if (bestBackgroundIndex == -1 ||
+				    m_backgrounds[i].m_requiredProgress > m_backgrounds[bestBackgroundIndex].m_requiredProgress)
+				{
+					bestBackgroundIndex = static_cast<long>(i);
+				}
+			}
 		}
 		
-		UpdateViewInfo();
+		return bestBackgroundIndex;
 	}
 	
 	void MenuManager::OnResize(int newWidth, int newHeight)
@@ -68,17 +75,38 @@ namespace TankGame
 	}
 	
 	MenuManager::Background::Background(const nlohmann::json& element)
-	    : m_name(element["name"].get<std::string>()),
-	      m_levelPath((Level::GetLevelsPath() / element["level"].get<std::string>()).string()),
-	      m_focusPosition(ParseVec2(element["position"])) { }
+	    : m_levelName(element["level"].get<std::string>()),
+	      m_focusPosition(ParseVec2(element["position"])),
+	      m_requiredProgress(element["requiredProgress"]) { }
+	
+	static std::mt19937 rotationGen(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
+	static std::uniform_real_distribution<float> rotationDist(-glm::pi<float>(), glm::pi<float>());
 	
 	void MenuManager::ShowMainMenu()
 	{
+		if (!m_visible)
+			m_rotation = rotationDist(rotationGen);
+		
 		SetCurrentMenu(MenuScreens::MainMenu);
 		m_visible = true;
 		
-		if (m_backgroundWorld == nullptr && m_currentBackgroundIndex != -1)
-			LoadBackgroundWorld();
+		m_currentBackgroundIndex = GetBackgroundIndex(Settings::GetInstance().GetLastPlayedLevelName());
+		if (m_currentBackgroundIndex == -1)
+			m_currentBackgroundIndex = GetBackgroundIndex("level_1");
+		
+		if (m_currentBackgroundIndex == -1)
+		{
+			SetBackgroundWorld(nullptr);
+		}
+		else
+		{
+			std::ifstream stream(Level::GetLevelsPath() / m_backgrounds[m_currentBackgroundIndex].m_levelName,
+			                     std::ios::binary);
+			
+			SetBackgroundWorld(DeserializeWorld(stream, GameWorld::Types::MenuBackground));
+		}
+		
+		UpdateViewInfo();
 	}
 	
 	void MenuManager::Hide()
@@ -100,7 +128,8 @@ namespace TankGame
 			m_playMenu.Update(updateInfo);
 	}
 	
-	void MenuManager::Draw(DeferredRenderer& deferredRenderer, float gameTime) const
+	void MenuManager::Draw(DeferredRenderer& deferredRenderer, const ShadowRenderer& shadowRenderer,
+	                       float gameTime) const
 	{
 		if (m_backgroundWorld == nullptr)
 		{
@@ -110,6 +139,8 @@ namespace TankGame
 		else
 		{
 			deferredRenderer.SetBlurAmount(1);
+			
+			m_worldRenderer.DrawShadowMaps(shadowRenderer, m_viewInfo);
 			
 			m_worldRenderer.Prepare(m_viewInfo, gameTime);
 			deferredRenderer.Draw(m_worldRenderer, m_viewInfo);
@@ -126,12 +157,6 @@ namespace TankGame
 			m_playMenu.Draw(UIRenderer::GetInstance());
 		
 		glDisable(GL_BLEND);
-	}
-	
-	void MenuManager::LoadBackgroundWorld()
-	{
-		std::ifstream stream(m_backgrounds[m_currentBackgroundIndex].m_levelPath, std::ios::binary);
-		SetBackgroundWorld(DeserializeWorld(stream, GameWorld::Types::MenuBackground));
 	}
 	
 	void MenuManager::SetBackgroundWorld(std::unique_ptr<GameWorld>&& backgroundWorld)
@@ -167,7 +192,7 @@ namespace TankGame
 		else
 		{
 			float ar = static_cast<float>(m_screenWidth) / m_screenHeight;
-			m_viewInfo = { m_backgrounds[m_currentBackgroundIndex].m_focusPosition, 0, 20, ar };
+			m_viewInfo = { m_backgrounds[m_currentBackgroundIndex].m_focusPosition, m_rotation, 20, ar };
 		}
 	}
 }

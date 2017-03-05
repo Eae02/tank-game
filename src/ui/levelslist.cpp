@@ -53,7 +53,7 @@ namespace TankGame
 		for (const fs::directory_entry& entry : fs::directory_iterator(Level::GetLevelsPath()))
 		{
 			fs::path miPath = entry.path();
-			miPath += "_mi";
+			miPath += ".mi";
 			
 			if (fs::exists(miPath))
 			{

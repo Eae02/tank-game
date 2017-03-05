@@ -5,6 +5,7 @@
 #include "../../graphics/spriterenderlist.h"
 #include "../../updateinfo.h"
 #include "../../orientedrectangle.h"
+#include "../../utils/jsonparseutils.h"
 
 #include <algorithm>
 #include <imgui.h>
@@ -17,15 +18,7 @@ namespace TankGame
 	static const glm::vec3 ACTIVATED_COLOR = ParseColorHexCodeSRGB(0x49DE5D);
 	
 	CheckpointEntity::CheckpointEntity(int checkpointIndex)
-	    : RayLightEntity(DEFAULT_COLOR, 5, Attenuation(0, 10), 1, 0.05f), m_checkpointIndex(checkpointIndex)
-	{
-		
-	}
-	
-	void CheckpointEntity::Draw(SpriteRenderList& spriteRenderList) const
-	{
-		
-	}
+	    : RayLightEntity(DEFAULT_COLOR, 5, Attenuation(0, 10), 1, 0.05f), m_checkpointIndex(checkpointIndex) { }
 	
 	void CheckpointEntity::Update(const UpdateInfo& updateInfo)
 	{
@@ -83,7 +76,7 @@ namespace TankGame
 	
 	void CheckpointEntity::RenderProperties()
 	{
-		RenderTransformProperty(Transform::Properties::Position | Transform::Properties::Rotation);
+		RenderBaseProperties(Transform::Properties::Position | Transform::Properties::Rotation);
 		
 		float length = GetLength();
 		if (ImGui::InputFloat("Length", &length))

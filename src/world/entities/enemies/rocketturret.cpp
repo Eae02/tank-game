@@ -220,10 +220,9 @@ namespace TankGame
 		return GetTransform().GetBoundingCircle();
 	}
 	
-	void RocketTurret::HandleEvent(const std::string& event, Entity* sender)
+	void RocketTurret::EditorMoved()
 	{
-		if (event == "EditorMoved")
-			SetLength(CalcLength(nullptr));
+		SetLength(CalcLength(nullptr));
 	}
 	
 	void RocketTurret::OnKilled()
@@ -237,7 +236,7 @@ namespace TankGame
 	
 	void RocketTurret::RenderProperties()
 	{
-		RenderTransformProperty(Transform::Properties::Position);
+		RenderBaseProperties(Transform::Properties::Position);
 		
 		bool resetRotation = false;
 		

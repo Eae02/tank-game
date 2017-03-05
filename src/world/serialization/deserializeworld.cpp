@@ -1,4 +1,4 @@
-#include "deserializeworld.h"
+﻿#include "deserializeworld.h"
 #include "parseutils.h"
 #include "sections.h"
 #include "entityparsers/entityparser.h"
@@ -25,9 +25,9 @@ namespace TankGame
 			
 			auto nameIt = entityElement.find("name");
 			if (nameIt != entityElement.end())
-				gameWorld.SpawnNamed(std::move(entity), nameIt->get<std::string>());
-			else
-				gameWorld.Spawn(std::move(entity));
+				entity->SetName(*nameIt);
+			
+			gameWorld.Spawn(std::move(entity));
 		}
 	}
 	
@@ -68,7 +68,9 @@ namespace TankGame
 			gameWorld->SetCheckpoint(-1, playerEntity->GetTransform().GetPosition(),
 			                         playerEntity->GetTransform().GetRotation());
 			
-			gameWorld->SetFocusEntity(gameWorld->SpawnNamed(std::move(playerEntity), "player").Get());
+			playerEntity->SetName("player");
+			
+			gameWorld->SetFocusEntity(gameWorld->Spawn(std::move(playerEntity)).Get());
 		}
 		
 		//Parses and spawns entities

@@ -67,11 +67,6 @@ namespace TankGame
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	}
 	
-	void ConveyorBeltEntity::HandleEvent(const std::string& event, Entity* sender)
-	{
-		
-	}
-	
 	const char* ConveyorBeltEntity::GetSerializeClassName() const
 	{ return "ConveyorBelt"; }
 	
@@ -87,7 +82,7 @@ namespace TankGame
 	
 	void ConveyorBeltEntity::RenderProperties()
 	{
-		RenderTransformProperty();
+		RenderBaseProperties();
 		
 		ImGui::Checkbox("Enabled", &m_enabled);
 		

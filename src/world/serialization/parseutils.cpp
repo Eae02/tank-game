@@ -8,7 +8,6 @@
 #include "entityparsers/ammoboxparser.h"
 #include "entityparsers/activatorparser.h"
 #include "entityparsers/eventboxparser.h"
-#include "entityparsers/zonehiderparser.h"
 #include "entityparsers/propparser.h"
 #include "entityparsers/doorparser.h"
 #include "entityparsers/checkpointparser.h"
@@ -32,7 +31,6 @@ namespace TankGame
 	static ActivatorParser activatorParser;
 	static AmmoBoxParser ammoBoxParser;
 	static EventBoxParser eventBoxParser;
-	static ZoneHiderParser zoneHiderParser;
 	static CheckpointParser checkpointParser;
 	static PropParser propParser;
 	static DoorParser doorParser;
@@ -64,8 +62,6 @@ namespace TankGame
 			return &ammoBoxParser;
 		if (className == "EventBox")
 			return &eventBoxParser;
-		if (className == "ZoneHider")
-			return &zoneHiderParser;
 		if (className == "Checkpoint")
 			return &checkpointParser;
 		if (className == "Prop")

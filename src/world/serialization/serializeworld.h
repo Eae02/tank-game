@@ -2,6 +2,8 @@
 
 #include <ostream>
 
+#include "../../utils/abstract.h"
+
 namespace TankGame
 {
 	void SerializeWorld(const class GameWorld& gameWorld, std::ostream& stream);

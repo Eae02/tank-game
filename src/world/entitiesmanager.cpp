@@ -21,14 +21,6 @@ namespace TankGame
 		return EntityHandle(*this, id, m_entities.size() - 1);
 	}
 	
-	EntityHandle EntitiesManager::SpawnNamed(std::unique_ptr<Entity>&& entity, const std::string& name)
-	{
-		if (!m_namedEntities.emplace(name, entity.get()).second)
-			throw std::runtime_error("There is already an entity with the name '" + name + "'.");
-		
-		return Spawn(std::move(entity));
-	}
-	
 	void EntitiesManager::Update(const UpdateInfo& updateInfo)
 	{
 		if (!updateInfo.m_isEditorOpen)
@@ -86,20 +78,12 @@ namespace TankGame
 	
 	Entity* EntitiesManager::GetEntityByName(const std::string& name)
 	{
-		auto it = m_namedEntities.find(name);
-		if (it == m_namedEntities.end())
-			return nullptr;
-		return it->second;
-	}
-	
-	std::string EntitiesManager::GetEntityName(const Entity& entity) const
-	{
-		auto pos = std::find_if(m_namedEntities.begin(), m_namedEntities.end(),
-		                        [&] (const std::pair<std::string, Entity*>& p) { return p.second == &entity; });
-		
-		if (pos == m_namedEntities.end())
-			return "";
-		return pos->first;
+		for (const EntityEntry& entity : m_entities)
+		{
+			if (entity.m_entity->GetName() == name)
+				return entity.m_entity.get();
+		}
+		return nullptr;
 	}
 	
 	template <typename Tp>

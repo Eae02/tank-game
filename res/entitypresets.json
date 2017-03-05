@@ -24,9 +24,6 @@
 		"index": 0,
 		"length": 2
 	},
-	"Zone Hider": {
-		"class": "ZoneHider"
-	},
 	"Activator": {
 		"class": "Activator",
 		"activated": ""

@@ -4,12 +4,10 @@
 
 namespace TankGame
 {
-	class CheckpointEntity : public RayLightEntity, public Entity::ISpriteDrawable, public Entity::IUpdateable
+	class CheckpointEntity : public RayLightEntity, public Entity::IUpdateable
 	{
 	public:
 		explicit CheckpointEntity(int checkpointIndex = 0);
-		
-		virtual void Draw(class SpriteRenderList& spriteRenderList) const override;
 		
 		virtual void Update(const class UpdateInfo& updateInfo) override;
 		

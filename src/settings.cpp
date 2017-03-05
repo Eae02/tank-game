@@ -2,6 +2,7 @@
 #include "settings.h"
 #include "utils/utils.h"
 #include "utils/ioutils.h"
+#include "level.h"
 
 #include <json.hpp>
 #include <fstream>
@@ -69,6 +70,14 @@ namespace TankGame
 			m_musicVolume = (*audioIt)["musicVol"].get<float>();
 			m_sfxVolume = (*audioIt)["sfxVol"].get<float>();
 		}
+		
+		auto lastLevelIt = settingsDocument.find("lastLevel");
+		if (lastLevelIt != settingsDocument.end())
+		{
+			std::string lastPlayedLevelName = *lastLevelIt;
+			if (fs::exists(Level::GetLevelsPath() / lastPlayedLevelName))
+				m_lastPlayedLevelName = std::move(lastPlayedLevelName);
+		}
 	}
 	
 	void Settings::Save(const fs::path& jsonPath) const
@@ -105,6 +114,8 @@ namespace TankGame
 		audioEl["musicVol"] = m_musicVolume;
 		audioEl["sfxVol"] = m_sfxVolume;
 		json["audio"] = audioEl;
+		
+		json["lastLevel"] = m_lastPlayedLevelName;
 		
 		std::ofstream stream(jsonPath);
 		stream << std::setw(4) << json;

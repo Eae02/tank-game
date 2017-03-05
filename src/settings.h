@@ -152,6 +152,11 @@ namespace TankGame
 		inline void SetEnableBloom(bool enableBloom)
 		{ m_enableBloom = enableBloom; }
 		
+		inline void SetLastPlayedLevel(std::string levelName)
+		{ m_lastPlayedLevelName = levelName; }
+		inline const std::string& GetLastPlayedLevelName() const
+		{ return m_lastPlayedLevelName; }
+		
 	private:
 		static void MaybeParseButtonFromJSON(const nlohmann::json& json, const std::string& elementName, int& out);
 		static int ParseButtonString(const std::string& string);
@@ -192,5 +197,7 @@ namespace TankGame
 		QualitySettings m_postProcessingQuality = QualitySettings::High;
 		
 		bool m_enableBloom = true;
+		
+		std::string m_lastPlayedLevelName = "level_1";
 	};
 }

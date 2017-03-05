@@ -11,6 +11,7 @@ namespace TankGame
 	public:
 		enum class Properties
 		{
+			None = 0,
 			Position = 1,
 			Scale = 2,
 			Rotation = 4,

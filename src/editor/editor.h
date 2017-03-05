@@ -5,6 +5,7 @@
 #include "../graphics/ui/uirenderer.h"
 #include "../world/gameworld.h"
 #include "../world/quadtree/quadtreevisualizer.h"
+#include "../world/serialization/serializeworld.h"
 #include "editorrenderer.h"
 #include "tools/editortool.h"
 #include "tools/entitytool.h"
@@ -15,6 +16,7 @@
 
 #include <set>
 #include <vector>
+#include <memory>
 
 namespace TankGame
 {

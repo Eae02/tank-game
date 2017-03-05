@@ -59,7 +59,7 @@ namespace TankGame
 		
 		virtual nlohmann::json Serialize() const;
 		
-		virtual void HandleEvent(const std::string& event, Entity* sender) override;
+		virtual void EditorMoved() override;
 		
 	protected:
 		LightSourceEntity(glm::vec3 color, float intensity, Attenuation attenuation, float height, size_t ubSize);

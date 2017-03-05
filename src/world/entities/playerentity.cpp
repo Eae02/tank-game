@@ -262,13 +262,15 @@ namespace TankGame
 	{
 		TankEntity::OnKilled();
 		
+		Hittable::SetHp(GetMaxHp());
 		m_energy = MAX_ENERGY;
+		
+		GetTransform().SetPosition(GetGameWorld()->GetRespawnPosition());
+		GetTransform().SetRotation(GetGameWorld()->GetRespawnRotation());
 		
 		auto explosion = std::make_unique<ExplosionEntity>(GetGameWorld()->GetParticlesManager());
 		explosion->GetTransform().SetPosition(GetTransform().GetPosition());
 		GetGameWorld()->Spawn(std::move(explosion));
-		
-		GetGameWorld()->SendEvent("PlayerKilled", this);
 	}
 	
 	Rectangle PlayerEntity::GetInteractRectangle() const
@@ -285,6 +287,11 @@ namespace TankGame
 	const char* PlayerEntity::GetObjectName() const
 	{
 		return "Player";
+	}
+	
+	void PlayerEntity::RenderProperties()
+	{
+		RenderBaseProperties(Transform::Properties::Position | Transform::Properties::Rotation, false);
 	}
 	
 	void PlayerEntity::GiveEnergy()

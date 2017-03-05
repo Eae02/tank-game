@@ -23,7 +23,7 @@ namespace TankGame
 	
 	void ShieldPickupEntity::RenderProperties()
 	{
-		RenderTransformProperty(Transform::Properties::Position);
+		RenderBaseProperties(Transform::Properties::Position);
 	}
 	
 	const char* ShieldPickupEntity::GetSerializeClassName() const

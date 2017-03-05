@@ -20,8 +20,6 @@ namespace TankGame
 		    : LightStripEntity({ 1, 1, 1 }, 5, 0.5f) { }
 		
 		LightStripEntity(glm::vec3 color, float glowStrength, float radius);
-		LightStripEntity(glm::vec3 color, float glowStrength, float radius,
-		                 std::string activateEventName, glm::vec3 activatedColor);
 		
 		virtual void Draw(class SpriteRenderList& spriteRenderList) const override;
 		
@@ -45,19 +43,12 @@ namespace TankGame
 		inline float GetRadius() const
 		{ return m_radius; }
 		
-		inline void SetActivatedColor(glm::vec3 activatedColor)
-		{ m_activatedColor = activatedColor; }
-		inline glm::vec3 GetActivatedColor() const
-		{ return m_activatedColor; }
-		
-		inline void SetActivateEventName(std::string activateEvent)
-		{ m_activateEvent = std::move(activateEvent); }
-		
 		void SetPath(Path path);
 		
 		virtual std::unique_ptr<Entity> Clone() const override;
 		
-		virtual void HandleEvent(const std::string &event, Entity* sender) override;
+		virtual void EditorMoved() override;
+		virtual void EditorSpawned() override;
 		
 		virtual void RenderProperties() override;
 		virtual const char* GetObjectName() const override;
@@ -70,7 +61,12 @@ namespace TankGame
 		virtual bool IsClosedPath() const override;
 		virtual const char* GetEditPathName() const override;
 		
+	protected:
+		virtual void PushLuaMetaTable(lua_State* state) const override;
+		
 	private:
+		static Lua::RegistryReference s_metaTableRef;
+		
 		void SpawnLights(const Path& path);
 		void PathChanged();
 		
@@ -94,9 +90,6 @@ namespace TankGame
 		Circle m_boundingCircle;
 		
 		float m_radius;
-		
-		std::string m_activateEvent;
-		glm::vec3 m_activatedColor;
 		
 		glm::vec3 m_color;
 		float m_glowStrength;

@@ -8,6 +8,7 @@
 #include "graphics/ui/font.h"
 #include "messagebox.h"
 #include "orientedrectangle.h"
+#include "lua/luavm.h"
 
 #include <cstring>
 #include <iostream>
@@ -69,10 +70,14 @@ int main(int argc, const char** argv)
 		else
 			Settings::SetInstance(Settings());
 		
+		Lua::Init();
+		
 		{
 			Window window(ParseArguments(argc, argv));
 			window.RunGame();
 		}
+		
+		Lua::Destroy();
 		
 		Settings::GetInstance().Save(settingsPath);
 		Progress::GetInstance().Save(progressPath);

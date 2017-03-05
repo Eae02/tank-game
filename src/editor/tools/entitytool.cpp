@@ -90,7 +90,7 @@ namespace TankGame
 							}
 							
 							entity.m_entity->GetTransform().SetPosition(newPosition);
-							entity.m_entity->HandleEvent("EditorMoved", nullptr);
+							entity.m_entity->EditorMoved();
 						}
 					}
 					else

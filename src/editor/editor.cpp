@@ -254,6 +254,18 @@ namespace TankGame
 			ImGui::EndPopup();
 		}
 		
+		//Renders the editor overlay in the top left corner
+		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.8f);
+		ImGui::SetNextWindowPos(ImVec2(10, ImGui::GetTextLineHeightWithSpacing() + 10));
+		if (ImGui::Begin("###Overlay", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings |
+		                 ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+		{
+			ImGui::Text("Camera Focus: %.1f, %.1f", m_focusLocation.x, m_focusLocation.y);
+		}
+		ImGui::End();
+		ImGui::PopStyleVar(1);
+		
+		//Draws the quadtree visualization
 		if (m_drawQuadTree)
 		{
 			glm::mat3 W(
@@ -324,6 +336,15 @@ namespace TankGame
 		
 		levelStream.seekg(0);
 		
-		m_gameManager.SetLevel(Level(levelStream), true);
+		Level level(levelStream);
+		
+		if (!m_currentLevelName.empty())
+		{
+			fs::path scriptPath = Level::GetLevelsPath() / (m_currentLevelName + ".lua");
+			if (fs::exists(scriptPath))
+				level.RunScript(scriptPath);
+		}
+		
+		m_gameManager.SetLevel(std::move(level), true);
 	}
 }

@@ -2,13 +2,14 @@
 
 #include "utils/filesystem.h"
 #include "world/gameworld.h"
+#include "lua/sandbox.h"
 
 #include <string>
 #include <memory>
 
 namespace TankGame
 {
-	class Level : private GameWorld::IEventListener
+	class Level
 	{
 	public:
 		explicit Level(std::istream& stream, GameWorld::Types worldType = GameWorld::Types::Game);
@@ -31,15 +32,17 @@ namespace TankGame
 		
 		virtual void Update(const class UpdateInfo& updateInfo);
 		
+		void RunScript(const fs::path& path);
+		
 		static const fs::path& GetLevelsPath();
 		
 	private:
 		explicit Level(struct ParseResult&& parseResult);
 		
-		virtual void HandleEvent(const std::string& event, Entity* sender) final override;
-		
 		//Needs to be a unique_ptr so the game world doesn't move in memory
 		std::unique_ptr<GameWorld> m_gameWorld;
+		
+		Lua::Sandbox m_luaSandbox;
 		
 		class PlayerEntity* m_playerEntity;
 	};

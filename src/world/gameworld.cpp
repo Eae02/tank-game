@@ -1,6 +1,7 @@
 #include "gameworld.h"
 #include "particles/particleemitter.h"
 #include "entities/conveyorbeltentity.h"
+#include "../lua/luavm.h"
 #include "../graphics/spriterenderlist.h"
 #include "../graphics/tilegridmaterial.h"
 #include "../updateinfo.h"
@@ -12,6 +13,7 @@
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <limits>
+#include <imgui.h>
 
 namespace TankGame
 {
@@ -52,16 +54,6 @@ namespace TankGame
 		if (m_focusEntity == &entity)
 			m_focusEntity = nullptr;
 		
-		for (long i = static_cast<long>(m_eventListeners.size()) - 1; i >= 0; i--)
-		{
-			if (m_eventListeners[i].m_receiver == &entity)
-			{
-				if (i != static_cast<long>(m_eventListeners.size()) - 1)
-					m_eventListeners[i] = std::move(m_eventListeners.back());
-				m_eventListeners.pop_back();
-			}
-		}
-		
 		m_quadTree.Remove(entity);
 	}
 	
@@ -70,22 +62,6 @@ namespace TankGame
 		if (m_focusEntity == nullptr)
 			return { 0.0f, 0.0f };
 		return m_focusEntity->GetTransform().GetPosition();
-	}
-	
-	void GameWorld::SendEvent(const std::string& event, Entity* sender)
-	{
-		for (const EventListenerEntry& listener : m_eventListeners)
-		{
-			if (listener.m_eventName == event)
-				listener.m_receiver->HandleEvent(event, sender);
-		}
-		
-		m_eventListener->HandleEvent(event, sender);
-	}
-	
-	void GameWorld::ListenForEvent(std::string event, Entity& receiver)
-	{
-		m_eventListeners.emplace_back(std::move(event), receiver);
 	}
 	
 	glm::vec2 GameWorld::GetGroundVelocity(glm::vec2 position) const
@@ -178,6 +154,27 @@ namespace TankGame
 		return true;
 	}
 	
+	void GameWorld::InitLuaSandbox(lua_State* state)
+	{
+		Lua::PushFunction(state, [this] (lua_State* state) -> int
+		{
+			Entity* entity = GetEntityByName(lua_tostring(state, 1));
+			
+			if (entity != nullptr)
+				entity->PushLuaInstance(state);
+			else
+				lua_pushnil(state);
+			
+			return 1;
+		});
+		lua_setfield(state, -2, "findEntity");
+	}
+	
+	void GameWorld::SetLuaSandbox(const Lua::Sandbox* sandbox)
+	{
+		m_luaSandbox = sandbox;
+	}
+	
 	void GameWorld::SetFocusEntity(const Entity* entity)
 	{
 		m_focusEntity = entity;
@@ -203,31 +200,5 @@ namespace TankGame
 			m_tileShadowCastersBuffer = std::make_unique<TileShadowCastersBuffer>(*m_tileGrid, *m_tileGridMaterial);
 		else
 			m_tileShadowCastersBuffer = nullptr;
-	}
-	
-	nlohmann::json GameWorld::Serialize() const
-	{
-		nlohmann::json json;
-		
-		json["width"] = m_width;
-		json["height"] = m_height;
-		
-		std::vector<nlohmann::json> entities;
-		
-		IterateEntities([&] (const Entity& entity)
-		{
-			const char* className = entity.GetSerializeClassName();
-			if (className == nullptr)
-				return;
-			
-			nlohmann::json element = entity.Serialize();
-			element["class"] = className;
-			
-			entities.emplace_back(std::move(element));
-		});
-		
-		json["entities"] = entities;
-		
-		return json;
 	}
 }

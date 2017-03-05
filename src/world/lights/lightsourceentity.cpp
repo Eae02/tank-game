@@ -156,10 +156,9 @@ namespace TankGame
 		return json;
 	}
 	
-	void LightSourceEntity::HandleEvent(const std::string& event, Entity* sender)
+	void LightSourceEntity::EditorMoved()
 	{
-		if (event == "EditorMoved")
-			InvalidateShadowMap();
+		InvalidateShadowMap();
 	}
 	
 	void LightSourceEntity::RenderLightSourceProperties()

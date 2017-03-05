@@ -10,7 +10,11 @@ namespace TankGame
 		if (singleUseIt != json.end())
 			singleUse = singleUseIt->get<bool>();
 		
-		return std::make_unique<ActivatorEntity>(json["activated"].get<std::string>(), singleUse);
+		std::string activateScript;
+		auto activateScriptIt = json.find("activate_script");
+		if (activateScriptIt != json.end())
+			activateScript = *activateScriptIt;
+		
+		return std::make_unique<ActivatorEntity>(std::move(activateScript), singleUse);
 	}
-	
 }
