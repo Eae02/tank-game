@@ -1,5 +1,7 @@
 #include "ammoboxentity.h"
 #include "playerentity.h"
+#include "explosionentity.h"
+#include "../spteams.h"
 #include "../gameworld.h"
 #include "../../audio/soundsmanager.h"
 
@@ -8,7 +10,7 @@
 namespace TankGame
 {
 	AmmoBoxEntity::AmmoBoxEntity()
-	    : PropEntity("AmmoBox", 0.5f, true)
+	    : PropEntity("AmmoBox", 0.5f, true), Hittable(50, NeutralTeamID)
 	{
 		SetZ(0.6f);
 		std::fill(m_hasAmmoType.begin(), m_hasAmmoType.end(), true);
@@ -99,6 +101,11 @@ namespace TankGame
 		return "Ammo Box";
 	}
 	
+	Circle AmmoBoxEntity::GetHitCircle() const
+	{
+		return GetBoundingCircle();
+	}
+	
 	PlayerWeaponState* AmmoBoxEntity::GetWeaponState()
 	{
 		if (!m_playerHandle.IsAlive())
@@ -114,5 +121,14 @@ namespace TankGame
 			return nullptr;
 		
 		return &playerEntity->GetWeaponState();
+	}
+	
+	void AmmoBoxEntity::OnKilled()
+	{
+		auto explosion = std::make_unique<ExplosionEntity>(GetGameWorld()->GetParticlesManager());
+		explosion->GetTransform().SetPosition(GetTransform().GetPosition());
+		GetGameWorld()->Spawn(std::move(explosion));
+		
+		Despawn();
 	}
 }

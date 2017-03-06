@@ -2,12 +2,13 @@
 
 #include "propentity.h"
 #include "playerweaponstate.h"
+#include "hittable.h"
 #include "../entityhandle.h"
 #include "../../audio/audiosource.h"
 
 namespace TankGame
 {
-	class AmmoBoxEntity : public PropEntity
+	class AmmoBoxEntity : public PropEntity, public Hittable
 	{
 	public:
 		AmmoBoxEntity();
@@ -26,6 +27,14 @@ namespace TankGame
 		
 		virtual void RenderProperties() override;
 		virtual const char* GetObjectName() const override;
+		
+		virtual Circle GetHitCircle() const override;
+		
+		virtual Hittable* AsHittable() override
+		{ return this; }
+		
+	protected:
+		virtual void OnKilled() override;
 		
 	private:
 		PlayerWeaponState* GetWeaponState();
