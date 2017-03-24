@@ -153,7 +153,7 @@ namespace TankGame
 		//Checks for intersections with hittable entities
 		GetGameWorld()->IterateIntersectingEntities(circle.GetBoundingRectangle(), [&] (Entity& entity)
 		{
-			if (&entity == m_sourceEntity)
+			if (&entity == m_sourceEntity && !m_hasDeflected)
 				return;
 			
 			Hittable* hittable = entity.AsHittable();
