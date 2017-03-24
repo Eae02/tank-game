@@ -68,4 +68,17 @@ namespace TankGame
 		
 		return json;
 	}
+	
+	ColliderInfo DeflectionFieldEntity::GetColliderInfo() const
+	{
+		glm::vec2 forward = GetTransform().GetForward();
+		
+		return OrientedRectangle(GetTransform().GetPosition() + forward * GetLength() * 0.5f,
+		                         glm::vec2(0.1f, GetLength() / 2), GetTransform().GetRotation());
+	}
+	
+	CollidableTypes DeflectionFieldEntity::GetCollidableType() const
+	{
+		return CollidableTypes::Npc;
+	}
 }

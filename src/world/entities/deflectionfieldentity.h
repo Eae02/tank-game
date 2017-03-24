@@ -1,10 +1,11 @@
 #pragma once
 
 #include "../lights/raylightentity.h"
+#include "../icollidable.h"
 
 namespace TankGame
 {
-	class DeflectionFieldEntity : public RayLightEntity, public Entity::IUpdateable
+	class DeflectionFieldEntity : public RayLightEntity, public ICollidable, public Entity::IUpdateable
 	{
 	public:
 		explicit DeflectionFieldEntity(float length = 1);
@@ -22,6 +23,9 @@ namespace TankGame
 		virtual Entity::IUpdateable* AsUpdatable() final override
 		{ return this; }
 		
+		virtual const ICollidable* AsCollidable() const final override
+		{ return this; }
+		
 		virtual std::unique_ptr<Entity> Clone() const override;
 		
 		virtual void RenderProperties() override;
@@ -29,6 +33,9 @@ namespace TankGame
 		
 		virtual const char* GetSerializeClassName() const override;
 		virtual nlohmann::json Serialize() const override;
+		
+		virtual ColliderInfo GetColliderInfo() const override;
+		virtual CollidableTypes GetCollidableType() const override;
 		
 	private:
 		bool m_deflectEnemy = false;
