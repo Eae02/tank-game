@@ -1,4 +1,5 @@
 #include "particlebatch.h"
+#include "frames.h"
 #include "../world/particles/particle.h"
 #include "../exceptions/invalidstateexception.h"
 
@@ -13,15 +14,21 @@ namespace TankGame
 	constexpr size_t ParticleBatch::BUFFER_SIZE;
 	
 	ParticleBatch::ParticleBatch()
-	    : m_buffer(BUFFER_SIZE, GL_MAP_WRITE_BIT) { }
+	    : m_buffer(BUFFER_SIZE * MAX_QUEUED_FRAMES, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT)
+	{
+		void* bufferMemory = glMapNamedBufferRange(m_buffer.GetID(), 0, BUFFER_SIZE * MAX_QUEUED_FRAMES,
+		                                           GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
+		
+		for (uint32_t i = 0; i < MAX_QUEUED_FRAMES; i++)
+		{
+			m_bufferMemory[i] = reinterpret_cast<char*>(bufferMemory) + BUFFER_SIZE * i;
+		}
+	}
 	
 	void ParticleBatch::AddParticle(const Particle& particle, float timeInterpolation)
 	{
-		if (m_mappedMemory == nullptr)
-			throw InvalidStateException("Memory not mapped when attempting to add a particle.");
-		
 		glm::mat4 worldMatrix(particle.GetWorldMatrix(timeInterpolation));
-		reinterpret_cast<glm::mat4*>(m_mappedMemory)[m_numParticles] = worldMatrix;
+		reinterpret_cast<glm::mat4*>(m_currentFrameBufferMemory)[m_numParticles] = worldMatrix;
 		
 		GetOpacitiesPtr()[m_numParticles] = glm::clamp(particle.GetOpacity(timeInterpolation), 0.0f, 1.0f);
 		GetLayersPtr()[m_numParticles] = particle.GetTextureLayer();
@@ -31,32 +38,27 @@ namespace TankGame
 	
 	void ParticleBatch::Begin()
 	{
-		if (m_mappedMemory != nullptr)
-			return;
-		m_mappedMemory = reinterpret_cast<char*>(glMapNamedBuffer(m_buffer.GetID(), GL_WRITE_ONLY));
 		m_numParticles = 0;
+		m_currentFrameBufferMemory = m_bufferMemory[GetFrameQueueIndex()];
 	}
 	
 	void ParticleBatch::End()
 	{
-		if (m_mappedMemory == nullptr)
-			return;
-		glUnmapNamedBuffer(m_buffer.GetID());
-		m_mappedMemory = nullptr;
+		glFlushMappedNamedBufferRange(m_buffer.GetID(), BUFFER_SIZE * GetFrameQueueIndex(), BUFFER_SIZE);
 	}
 	
 	float* ParticleBatch::GetOpacitiesPtr()
 	{
-		return reinterpret_cast<float*>(m_mappedMemory + OPACITY_BUFFER_OFFSET);
+		return reinterpret_cast<float*>(m_currentFrameBufferMemory + OPACITY_BUFFER_OFFSET);
 	}
 	
 	int32_t* ParticleBatch::GetLayersPtr()
 	{
-		return reinterpret_cast<int32_t*>(m_mappedMemory + LAYERS_BUFFER_OFFSET);
+		return reinterpret_cast<int32_t*>(m_currentFrameBufferMemory + LAYERS_BUFFER_OFFSET);
 	}
 	
 	void ParticleBatch::Bind() const
 	{
-		glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_buffer.GetID());
+		glBindBufferRange(GL_UNIFORM_BUFFER, 1, m_buffer.GetID(), BUFFER_SIZE * GetFrameQueueIndex(), BUFFER_SIZE);
 	}
 }

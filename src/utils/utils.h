@@ -38,6 +38,7 @@ namespace TankGame
 	
 	extern const std::string LOG_ERROR;
 	extern const std::string LOG_WARNING;
+	extern const std::string LOG_PERFORMANCE;
 	
 	std::ostream& GetLogStream();
 }

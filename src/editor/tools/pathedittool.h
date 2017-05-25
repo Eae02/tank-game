@@ -30,6 +30,8 @@ namespace TankGame
 		
 		long m_lineSubdivideIndex = -1;
 		
+		bool m_insertAtEnd = true;
+		
 		bool m_isClosed;
 		
 		class IEditablePathProvider* m_pathProvider = nullptr;

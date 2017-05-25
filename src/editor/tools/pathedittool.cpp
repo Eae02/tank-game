@@ -1,4 +1,4 @@
-#include "pathedittool.h"
+﻿#include "pathedittool.h"
 #include "../ieditablepathprovider.h"
 #include "../../graphics/ui/uirenderer.h"
 #include "../../graphics/viewinfo.h"
@@ -64,6 +64,16 @@ namespace TankGame
 				path.RemoveNodes(nodeIndex, 1);
 		}
 		
+		auto LockToGridIfShiftPressed = [&] (glm::vec2& position)
+		{
+			if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_LEFT_SHIFT) ||
+			    updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_RIGHT_SHIFT))
+			{
+				position.x = std::round(position.x * 2.0f) / 2.0f;
+				position.y = std::round(position.y * 2.0f) / 2.0f;
+			}
+		};
+		
 		if (updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
 		{
 			if (!updateInfo.m_mouse.WasButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
@@ -80,6 +90,16 @@ namespace TankGame
 					glm::vec2 newNodePos = (path[m_lineSubdivideIndex] + path[m_lineSubdivideIndex - 1]) / 2.0f;
 					path.InsertNode(newNodePos, m_lineSubdivideIndex);
 				}
+				else if (!m_isClosed)
+				{
+					glm::vec2 newNodePos = worldMouseCoords;
+					LockToGridIfShiftPressed(newNodePos);
+					
+					if (m_insertAtEnd)
+						path.AddNode(newNodePos);
+					else
+						path.InsertNode(newNodePos, 0);
+				}
 			}
 			else if (m_currentMovingNode != -1)
 			{
@@ -87,12 +107,7 @@ namespace TankGame
 				
 				path[m_currentMovingNode] = m_moveBeginPosition + m_moveVector;
 				
-				if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_LEFT_SHIFT) ||
-				    updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_RIGHT_SHIFT))
-				{
-					path[m_currentMovingNode].x = std::round(path[m_currentMovingNode].x * 2.0f) / 2.0f;
-					path[m_currentMovingNode].y = std::round(path[m_currentMovingNode].y * 2.0f) / 2.0f;
-				}
+				LockToGridIfShiftPressed(path[m_currentMovingNode]);
 				
 				if (m_isClosed && m_currentMovingNode == 0)
 					path[path.GetNodeCount() - 1] = path[0];

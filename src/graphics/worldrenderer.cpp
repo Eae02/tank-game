@@ -71,18 +71,18 @@ namespace TankGame
 	
 	void WorldRenderer::DrawTranslucentGeometry(const ViewInfo& viewInfo) const
 	{
-		m_spriteRenderList.Begin();
+		m_translucentSpriteRenderList.Begin();
 		
 		m_gameWorld->IterateIntersectingEntities(viewInfo.GetViewRectangle(), [&] (const Entity& entity)
 		{
 			if (const Entity::ITranslucentSpriteDrawable* translucentDrawable = entity.AsTranslucentSpriteDrawable())
 			{
 				if (viewInfo.Visible(entity.GetBoundingCircle()))
-					translucentDrawable->DrawTranslucent(m_spriteRenderList);
+					translucentDrawable->DrawTranslucent(m_translucentSpriteRenderList);
 			}
 		});
 		
-		m_spriteRenderList.End(true);
+		m_translucentSpriteRenderList.End(true);
 	}
 	
 	void WorldRenderer::DrawDistortions(const ViewInfo& viewInfo) const

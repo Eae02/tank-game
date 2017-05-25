@@ -20,8 +20,6 @@ namespace Lua
 			return 0;
 		});
 		lua_setglobal(state, "print");
-		
-		
 	}
 }
 }

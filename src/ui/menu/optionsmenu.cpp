@@ -31,7 +31,7 @@ namespace TankGame
 	OptionsMenu::OptionsMenu()
 	    : m_settingLabels{
 	          Label(U"Display Mode"), Label(U"Fullscreen Resolution"), Label(U"V-Sync"), Label(U"Gamma"),
-	          Label(U"Resolution Scale"), Label(U"Lighting"), Label(U"Particles"), Label(U"Post Processing"), Label(U"Bloom"),
+	          Label(U"Resolution Scale"), Label(U"Lighting"), Label(U"Particles"), Label(U"Post Processing"), Label(U"Bloom"), Label(U"Frame Queueing"),
 	          Label(U"Master Volume"), Label(U"Music Volume"), Label(U"SFX Volume")
 	      },
 	      m_backButton(U"Back"), m_applyButton(U"Apply"), m_displayModeComboBox{ U"Fullscreen", U"Windowed" },
@@ -39,6 +39,7 @@ namespace TankGame
 	      m_resolutionScaleComboBox{ U"50%", U"75%", U"100%", U"125%", U"150%", U"200%" },
 	      m_lightingQualityComboBox(CreateQualityComboBox()), m_particlesQualityComboBox(CreateQualityComboBox()),
 	      m_postQualityComboBox(CreateQualityComboBox()), m_bloomComboBox(CreateBoolComboBox()),
+	      m_frameQueueComboBox(CreateBoolComboBox()),
 	      m_masterVolumeSlider(0, 100, 5), m_musicVolumeSlider(0, 100, 5), m_sfxVolumeSlider(0, 100, 5)
 	{
 		for (int i = 0; i < Settings::GetResolutionsCount(); i++)
@@ -90,7 +91,8 @@ namespace TankGame
 		        m_lightingQualityComboBox.IsDropDownShown() ||
 		        m_particlesQualityComboBox.IsDropDownShown() ||
 		        m_postQualityComboBox.IsDropDownShown() ||
-		        m_bloomComboBox.IsDropDownShown();
+		        m_bloomComboBox.IsDropDownShown() ||
+		        m_frameQueueComboBox.IsDropDownShown();
 		
 		if (!anyDropDownShown && std::abs(updateInfo.m_mouse.GetDeltaScroll()) > 1E-6f)
 		{
@@ -174,6 +176,13 @@ namespace TankGame
 				Settings::GetInstance().SetEnableBloom(bloomEnabled);
 		}
 		
+		if (!anyDropDownShown || m_frameQueueComboBox.IsDropDownShown())
+		{
+			long queueFrames = Settings::GetInstance().QueueFrames();
+			if (m_frameQueueComboBox.Update(updateInfo, queueFrames))
+				Settings::GetInstance().SetQueueFrames(queueFrames);
+		}
+		
 		if (!anyDropDownShown)
 		{
 			float volume = Settings::GetInstance().GetMasterVolume() * 100.0f;
@@ -225,6 +234,7 @@ namespace TankGame
 		m_sfxVolumeSlider.Draw(uiRenderer);
 		m_musicVolumeSlider.Draw(uiRenderer);
 		m_masterVolumeSlider.Draw(uiRenderer);
+		m_frameQueueComboBox.Draw(uiRenderer);
 		m_bloomComboBox.Draw(uiRenderer);
 		m_postQualityComboBox.Draw(uiRenderer);
 		m_particlesQualityComboBox.Draw(uiRenderer);
@@ -254,6 +264,7 @@ namespace TankGame
 			&m_particlesQualityComboBox,
 			&m_postQualityComboBox,
 			&m_bloomComboBox,
+			&m_frameQueueComboBox,
 			nullptr,
 			&m_masterVolumeSlider,
 			&m_musicVolumeSlider,

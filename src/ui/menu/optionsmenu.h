@@ -46,7 +46,7 @@ namespace TankGame
 			    : m_string(string + U":") { }
 		};
 		
-		std::array<Label, 12> m_settingLabels;
+		std::array<Label, 13> m_settingLabels;
 		
 		std::array<Rectangle, NUM_SECTIONS> m_sectionTitleRectangles;
 		
@@ -80,6 +80,7 @@ namespace TankGame
 		ComboBox m_particlesQualityComboBox;
 		ComboBox m_postQualityComboBox;
 		ComboBox m_bloomComboBox;
+		ComboBox m_frameQueueComboBox;
 		
 		Slider m_masterVolumeSlider;
 		Slider m_musicVolumeSlider;

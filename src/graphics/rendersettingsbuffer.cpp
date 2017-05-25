@@ -7,11 +7,13 @@
 namespace TankGame
 {
 	RenderSettingsBuffer::RenderSettingsBuffer()
-	    : m_uniformBuffer(sizeof(float) * 32, GL_MAP_WRITE_BIT) { }
+	    : m_uniformBuffer(BUFFER_SIZE * MAX_QUEUED_FRAMES, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT),
+	      m_ubMemory(reinterpret_cast<char*>(glMapNamedBufferRange(m_uniformBuffer.GetID(), 0,
+	                 BUFFER_SIZE * MAX_QUEUED_FRAMES, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT))) { }
 	
 	void RenderSettingsBuffer::Update(const ViewInfo& viewInfo, glm::vec3 eyePosition, float time)
 	{
-		void* bufferMemory = glMapNamedBuffer(m_uniformBuffer.GetID(), GL_WRITE_ONLY);
+		char* bufferMemory = m_ubMemory + GetFrameQueueIndex() * BUFFER_SIZE;
 		
 		memcpy(reinterpret_cast<float*>(bufferMemory) + 0, &viewInfo.GetViewMatrix()[0], sizeof(float) * 3);
 		memcpy(reinterpret_cast<float*>(bufferMemory) + 4, &viewInfo.GetViewMatrix()[1], sizeof(float) * 3);
@@ -31,7 +33,7 @@ namespace TankGame
 		reinterpret_cast<int32_t*>(bufferMemory)[30] = static_cast<double>(m_resWidth) * resScale;
 		reinterpret_cast<int32_t*>(bufferMemory)[31] = static_cast<double>(m_resHeight) * resScale;
 		
-		glUnmapNamedBuffer(m_uniformBuffer.GetID());
+		glFlushMappedNamedBufferRange(m_uniformBuffer.GetID(), GetFrameQueueIndex() * BUFFER_SIZE, BUFFER_SIZE);
 	}
 	
 	void RenderSettingsBuffer::OnResize(int width, int height)

@@ -135,6 +135,8 @@ namespace TankGame
 					color = { 1.0f, 0.4f, 0.4f, 1.0f };
 				if (!line.compare(0, LOG_WARNING.size(), LOG_WARNING))
 					color = { 1.0f, 0.65f, 0.2f, 1.0f };
+				if (!line.compare(0, LOG_PERFORMANCE.size(), LOG_PERFORMANCE))
+					color = { 0.0f, 0.6f, 0.8f, 1.0f };
 				
 				ImGui::PushStyleColor(ImGuiCol_Text, color);
 				ImGui::TextUnformatted(line.c_str());

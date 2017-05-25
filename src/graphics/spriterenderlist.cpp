@@ -14,18 +14,32 @@ namespace TankGame
 	
 	int SpriteRenderList::s_translucentUniformLocation;
 	
-	GLint SpriteRenderList::s_maxVertexRelativeOffset = -1;
-	size_t SpriteRenderList::s_elementsPerDrawBuffer;
+	size_t SpriteRenderList::s_elementsPerDrawBuffer = 1024;
 	
 	static const int POSITION_ATTRIBUTE_INDEX = 0;
 	static const int Z_ATTRIBUTE_INDEX = 1;
 	
 	SpriteRenderList::SpriteRenderList()
 	{
-		if (s_maxVertexRelativeOffset == -1)
+		for (GLuint i = 0; i < 5; i++)
+			glEnableVertexArrayAttrib(m_vertexArray.GetID(), i);
+		
+		glVertexArrayVertexBuffer(m_vertexArray.GetID(), POSITION_ATTRIBUTE_INDEX,
+		                          QuadMesh::GetInstance().GetVBO(), 0, sizeof(float) * 2);
+		glVertexArrayAttribFormat(m_vertexArray.GetID(), POSITION_ATTRIBUTE_INDEX, 2, GL_FLOAT, GL_FALSE, 0);
+		glVertexArrayAttribBinding(m_vertexArray.GetID(), POSITION_ATTRIBUTE_INDEX, POSITION_ATTRIBUTE_INDEX);
+		
+		glVertexArrayBindingDivisor(m_vertexArray.GetID(), Z_ATTRIBUTE_INDEX, 1);
+		glVertexArrayAttribFormat(m_vertexArray.GetID(), Z_ATTRIBUTE_INDEX, 1, GL_FLOAT, GL_FALSE, 0);
+		glVertexArrayAttribBinding(m_vertexArray.GetID(), Z_ATTRIBUTE_INDEX, Z_ATTRIBUTE_INDEX);
+		
+		for (GLuint i = 0; i < 3; i++)
 		{
-			glGetIntegerv(GL_MAX_VERTEX_ATTRIB_RELATIVE_OFFSET, &s_maxVertexRelativeOffset);
-			s_elementsPerDrawBuffer = s_maxVertexRelativeOffset / sizeof(glm::mat3);
+			GLuint location = 2 + i;
+			
+			glVertexArrayBindingDivisor(m_vertexArray.GetID(), location, 1);
+			glVertexArrayAttribFormat(m_vertexArray.GetID(), location, 3, GL_FLOAT, GL_FALSE, 0);
+			glVertexArrayAttribBinding(m_vertexArray.GetID(), location, location);
 		}
 	}
 	
@@ -58,6 +72,9 @@ namespace TankGame
 		if (Empty())
 			return;
 		
+		size_t drawBufferOffset = s_elementsPerDrawBuffer * GetFrameQueueIndex();
+		
+		//Creates the sprite shader if it hasn't been created already
 		if (s_shaderProgram == nullptr)
 		{
 			auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "sprite.vs.glsl", GL_VERTEX_SHADER);
@@ -74,98 +91,94 @@ namespace TankGame
 		
 		glUniform1i(s_translucentUniformLocation, isTranslucent ? 1 : 0);
 		
-		glm::mat3* matricesMemory;
+		glm::mat3x4* matricesMemory;
 		float* zValuesMemory;
 		
-		GLuint currentLocation = 0;
+		GLuint currentBufferOffset = 0;
 		long currentDrawBuffer = -1;
 		
 		for (size_t i = 0; i < m_materialBatches.size(); i++)
 		{
-			if (currentLocation > s_elementsPerDrawBuffer || currentDrawBuffer == -1)
+			if (currentBufferOffset > s_elementsPerDrawBuffer || currentDrawBuffer == -1)
 			{
-				if (currentDrawBuffer != -1)
-				{
-					glUnmapNamedBuffer(m_drawBuffers[currentDrawBuffer].m_matricesBuffer.GetID());
-					glUnmapNamedBuffer(m_drawBuffers[currentDrawBuffer].m_zValuesBuffer.GetID());
-				}
-				
-				currentLocation = 0;
+				currentBufferOffset = 0;
 				currentDrawBuffer++;
 				
 				if (currentDrawBuffer >= static_cast<long>(m_drawBuffers.size()))
 					m_drawBuffers.emplace_back();
 				const DrawBuffer& drawBuffer = m_drawBuffers[currentDrawBuffer];
 				
-				matricesMemory = (glm::mat3*)glMapNamedBuffer(drawBuffer.m_matricesBuffer.GetID(), GL_WRITE_ONLY);
-				zValuesMemory = (float*)glMapNamedBuffer(drawBuffer.m_zValuesBuffer.GetID(), GL_WRITE_ONLY);
+				matricesMemory = reinterpret_cast<glm::mat3x4*>(drawBuffer.m_matricesMemory) + drawBufferOffset;
+				zValuesMemory = reinterpret_cast<float*>(drawBuffer.m_zValuesMemory) + drawBufferOffset;
 			}
 			
 			Batch& batch = m_materialBatches[i];
 			
-			std::copy(batch.m_worldMatrices.begin(), batch.m_worldMatrices.end(), matricesMemory + currentLocation);
-			std::copy(batch.m_spriteZ.begin(), batch.m_spriteZ.end(), zValuesMemory + currentLocation);
-			
-			batch.m_bufferOffset = currentLocation;
-			batch.m_drawBufferIndex = currentDrawBuffer;
-			currentLocation += batch.m_worldMatrices.size();
-		}
-		
-		if (currentDrawBuffer != -1)
-		{
-			glUnmapNamedBuffer(m_drawBuffers[currentDrawBuffer].m_matricesBuffer.GetID());
-			glUnmapNamedBuffer(m_drawBuffers[currentDrawBuffer].m_zValuesBuffer.GetID());
-		}
-		
-		long currentVertexArray = -1;
-		
-		for (size_t i = 0; i < m_materialBatches.size(); i++)
-		{
-			long batchVertexArray = static_cast<long>(m_materialBatches[i].m_drawBufferIndex);
-			if (currentVertexArray != batchVertexArray)
+			std::transform(batch.m_worldMatrices.begin(), batch.m_worldMatrices.end(),
+			               matricesMemory + currentBufferOffset, [] (const glm::mat3& in)
 			{
-				currentVertexArray = batchVertexArray;
-				m_drawBuffers[batchVertexArray].m_vertexArray.Bind();
+				return glm::mat3x4(in);
+			});
+			
+			std::copy(batch.m_spriteZ.begin(), batch.m_spriteZ.end(), zValuesMemory + currentBufferOffset);
+			
+			batch.m_bufferOffset = currentBufferOffset;
+			batch.m_drawBufferIndex = currentDrawBuffer;
+			currentBufferOffset += batch.m_worldMatrices.size();
+		}
+		
+		m_vertexArray.Bind();
+		
+		const size_t matrixStride = sizeof(float) * 4 * 3;
+		
+		for (long i = 0; i <= currentDrawBuffer; i++)
+		{
+			GLuint usedLength = i == currentDrawBuffer ? currentBufferOffset : s_elementsPerDrawBuffer;
+			
+			glFlushMappedNamedBufferRange(m_drawBuffers[i].m_matricesBuffer.GetID(),
+			                              drawBufferOffset * matrixStride, usedLength * matrixStride);
+			
+			glFlushMappedNamedBufferRange(m_drawBuffers[i].m_zValuesBuffer.GetID(),
+			                              drawBufferOffset * sizeof(float), usedLength * sizeof(float));
+			
+			GLuint matricesBuffer = m_drawBuffers[i].m_matricesBuffer.GetID();
+			GLuint zValuesBuffer = m_drawBuffers[i].m_zValuesBuffer.GetID();
+			
+			for (const Batch& materialBatch : m_materialBatches)
+			{
+				if (static_cast<long>(materialBatch.m_drawBufferIndex) != i)
+					continue;
+				
+				size_t offset = materialBatch.m_bufferOffset + drawBufferOffset;
+				
+				const GLuint buffers[] = { zValuesBuffer, matricesBuffer, matricesBuffer, matricesBuffer };
+				const GLintptr offsets[] =
+				{
+					static_cast<GLintptr>(offset * sizeof(float)),
+					static_cast<GLintptr>(offset * matrixStride + sizeof(float) * 4 * 0),
+					static_cast<GLintptr>(offset * matrixStride + sizeof(float) * 4 * 1),
+					static_cast<GLintptr>(offset * matrixStride + sizeof(float) * 4 * 2)
+				};
+				const GLsizei strides[] = { sizeof(float), matrixStride, matrixStride, matrixStride };
+				
+				glBindVertexBuffers(Z_ATTRIBUTE_INDEX, 4, buffers, offsets, strides);
+				
+				materialBatch.m_material.Bind();
+				
+				glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, materialBatch.m_worldMatrices.size());
 			}
-			
-			m_materialBatches[i].m_material.Bind();
-			
-			GLuint offset = m_materialBatches[i].m_bufferOffset;
-			glVertexAttribFormat(1, 3, GL_FLOAT, GL_FALSE, offset * sizeof(float));
-			for (GLuint l = 0; l < 3; l++)
-				glVertexAttribFormat(2 + l, 3, GL_FLOAT, GL_FALSE, offset * sizeof(glm::mat3));
-			
-			glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, m_materialBatches[i].m_worldMatrices.size());
 		}
 	}
 	
 	SpriteRenderList::DrawBuffer::DrawBuffer()
-	    : m_matricesBuffer(s_elementsPerDrawBuffer * sizeof(glm::mat3), GL_MAP_WRITE_BIT),
-	      m_zValuesBuffer(s_elementsPerDrawBuffer * sizeof(float), GL_MAP_WRITE_BIT)
+	    : m_matricesBuffer(GetMatricesBufferSize(), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT),
+	      m_zValuesBuffer(GetZValuesBufferSize(), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT),
+	      m_matricesMemory(glMapNamedBufferRange(m_matricesBuffer.GetID(), 0, GetMatricesBufferSize(),
+	                                             GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT)),
+	      m_zValuesMemory(glMapNamedBufferRange(m_zValuesBuffer.GetID(), 0, GetZValuesBufferSize(),
+	                                            GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT))
 	{
-		for (GLuint i = 0; i < 5; i++)
-			glEnableVertexArrayAttrib(m_vertexArray.GetID(), i);
 		
-		glVertexArrayVertexBuffer(m_vertexArray.GetID(), POSITION_ATTRIBUTE_INDEX,
-		                          QuadMesh::GetInstance().GetVBO(), 0, sizeof(float) * 2);
-		glVertexArrayAttribFormat(m_vertexArray.GetID(), POSITION_ATTRIBUTE_INDEX, 2, GL_FLOAT, GL_FALSE, 0);
-		glVertexArrayAttribBinding(m_vertexArray.GetID(), POSITION_ATTRIBUTE_INDEX, POSITION_ATTRIBUTE_INDEX);
-		
-		glVertexArrayBindingDivisor(m_vertexArray.GetID(), Z_ATTRIBUTE_INDEX, 1);
-		glVertexArrayVertexBuffer(m_vertexArray.GetID(), Z_ATTRIBUTE_INDEX, m_zValuesBuffer.GetID(), 0, sizeof(float));
-		glVertexArrayAttribFormat(m_vertexArray.GetID(), Z_ATTRIBUTE_INDEX, 1, GL_FLOAT, GL_FALSE, 0);
-		glVertexArrayAttribBinding(m_vertexArray.GetID(), Z_ATTRIBUTE_INDEX, Z_ATTRIBUTE_INDEX);
-		
-		for (GLuint i = 0; i < 3; i++)
-		{
-			GLuint location = 2 + i;
-			
-			glVertexArrayBindingDivisor(m_vertexArray.GetID(), location, 1);
-			glVertexArrayVertexBuffer(m_vertexArray.GetID(), location, m_matricesBuffer.GetID(),
-			                          sizeof(float) * 3 * i, sizeof(glm::mat3));
-			glVertexArrayAttribFormat(m_vertexArray.GetID(), location, 3, GL_FLOAT, GL_FALSE, 0);
-			glVertexArrayAttribBinding(m_vertexArray.GetID(), location, location);
-		}
 	}
 	
 }

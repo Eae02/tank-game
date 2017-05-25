@@ -143,6 +143,11 @@ namespace TankGame
 		inline bool EnableBloom() const
 		{ return m_enableBloom; }
 		
+		inline bool QueueFrames() const
+		{ return m_queueFrames; }
+		inline void SetQueueFrames(bool queueFrames)
+		{ m_queueFrames = queueFrames; }
+		
 		inline void SetLightingQuality(QualitySettings lightingQuality)
 		{ m_lightingQuality = lightingQuality; }
 		inline void SetParticleQuality(QualitySettings particleQuality)
@@ -173,6 +178,8 @@ namespace TankGame
 		int m_videoModeIndex;
 		
 		float m_gamma = 1.0f;
+		
+		bool m_queueFrames = false;
 		
 		int m_forwardButton = GLFW_KEY_W;
 		int m_backButton = GLFW_KEY_S;

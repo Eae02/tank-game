@@ -16,6 +16,7 @@ namespace TankGame
 	
 	const std::string LOG_ERROR = "[error] ";
 	const std::string LOG_WARNING = "[warning] ";
+	const std::string LOG_PERFORMANCE = "[perf] ";
 	
 	void CallOnClose(void (*callback)())
 	{

@@ -5,6 +5,7 @@
 #include "graphics/spritematerial.h"
 #include "graphics/tilegridmaterial.h"
 #include "graphics/shadowrenderer.h"
+#include "graphics/frames.h"
 #include "world/gameworld.h"
 #include "ui/menu/menumanager.h"
 #include "gamemanager.h"
@@ -51,6 +52,8 @@ namespace TankGame
 		void SetIsCursorCaptured(bool shouldCapture);
 		
 		std::unique_ptr<LoadingScreen> m_loadingScreen;
+		
+		std::array<GLsync, MAX_QUEUED_FRAMES> m_frameFences;
 		
 		ArgumentData m_argumentData;
 		

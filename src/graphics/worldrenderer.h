@@ -41,6 +41,7 @@ namespace TankGame
 		mutable RenderSettingsBuffer m_renderSettings;
 		
 		mutable SpriteRenderList m_spriteRenderList;
+		mutable SpriteRenderList m_translucentSpriteRenderList;
 		
 		mutable std::vector<const class ILightSource*> m_lightSources;
 		mutable std::vector<const Entity::IDistortionDrawable*> m_distortionDrawables;

@@ -8,6 +8,7 @@
 #include <vector>
 #include <memory>
 
+#include "frames.h"
 #include "gl/functions.h"
 #include <glm/glm.hpp>
 
@@ -29,8 +30,12 @@ namespace TankGame
 		static std::unique_ptr<ShaderProgram> s_shaderProgram;
 		static int s_translucentUniformLocation;
 		
-		static GLint s_maxVertexRelativeOffset;
 		static size_t s_elementsPerDrawBuffer;
+		
+		inline static size_t GetMatricesBufferSize()
+		{ return s_elementsPerDrawBuffer * sizeof(float) * 4 * 3 * MAX_QUEUED_FRAMES; }
+		inline static size_t GetZValuesBufferSize()
+		{ return s_elementsPerDrawBuffer * sizeof(float) * MAX_QUEUED_FRAMES; }
 		
 		struct Batch
 		{
@@ -48,10 +53,14 @@ namespace TankGame
 		{
 			Buffer m_matricesBuffer;
 			Buffer m_zValuesBuffer;
-			VertexArray m_vertexArray;
+			
+			void* m_matricesMemory;
+			void* m_zValuesMemory;
 			
 			DrawBuffer();
 		};
+		
+		VertexArray m_vertexArray;
 		
 		std::vector<Batch> m_materialBatches;
 		

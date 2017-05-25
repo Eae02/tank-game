@@ -2,6 +2,7 @@
 #include "sandbox.h"
 #include "standardfunctions.h"
 #include "../utils/utils.h"
+#include "../utils/ioutils.h"
 
 #include <ostream>
 
@@ -44,6 +45,8 @@ namespace Lua
 		
 		luaL_newmetatable(state, "Entity");
 		lua_pop(state, 1);
+		
+		DoString(ReadFileContents(GetResDirectory() / "std.lua"), nullptr);
 	}
 	
 	void Destroy()

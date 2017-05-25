@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gl/buffer.h"
+#include "frames.h"
 #include <cstdint>
 
 namespace TankGame
@@ -37,6 +38,7 @@ namespace TankGame
 		
 		Buffer m_buffer;
 		
-		char* m_mappedMemory = nullptr;
+		char* m_bufferMemory[MAX_QUEUED_FRAMES];
+		char* m_currentFrameBufferMemory;
 	};
 }

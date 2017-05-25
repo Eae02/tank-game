@@ -1,4 +1,4 @@
-#include "graphics/gl/functions.h"
+﻿#include "graphics/gl/functions.h"
 #include "window.h"
 
 #include "settings.h"
@@ -38,6 +38,8 @@
 #include <imgui.h>
 #include <glm/gtc/color_space.hpp>
 
+using namespace std::chrono;
+
 namespace TankGame
 {
 	//Defined in utils.cpp
@@ -61,6 +63,8 @@ namespace TankGame
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 		glfwWindowHint(GLFW_CONTEXT_ROBUSTNESS, GLFW_LOSE_CONTEXT_ON_RESET);
 #endif
+		
+		std::fill(m_frameFences.begin(), m_frameFences.end(), nullptr);
 		
 		m_width = Settings::GetInstance().GetResolution().x;
 		m_height = Settings::GetInstance().GetResolution().y;
@@ -248,6 +252,13 @@ namespace TankGame
 				m_editor->Close();
 		});
 		
+		m_console.AddCommand("qf", [this] (const std::string* argv, size_t argc)
+		{
+			if (argv[0] != "true" && argv[0] != "false")
+				throw Console::CommandException("Invalid argument, should be 'true' or 'false'.");
+			Settings::GetInstance().SetQueueFrames(argv[0] == "true");
+		}, 1);
+		
 		m_console.AddCommand("glinfo", [] (const std::string* argv, size_t argc)
 		{
 			GetLogStream() << "GL Renderer: " << glGetString(GL_RENDERER) << "\nGL Vendor: " << glVendorName << "\n";
@@ -301,7 +312,7 @@ namespace TankGame
 		
 		if (glVendorName == "Intel Open Source Technology Center")
 		{
-			if (id == 5 || id == 56 || id == 57 || id == 65 || id == 66)
+			if (id == 5 || id == 56 || id == 57 || id == 65 || id == 66 || id == 83 || id == 87)
 				return;
 		}
 		
@@ -361,6 +372,26 @@ namespace TankGame
 	
 	void Window::RunFrame(float dt)
 	{
+		GLsync fence = m_frameFences[GetFrameQueueIndex()];
+		if (fence != nullptr)
+		{
+#ifndef NDEBUG
+			auto startTime = high_resolution_clock::now();
+#endif
+			
+			GLenum waitReturn = GL_UNSIGNALED;
+			while (waitReturn != GL_ALREADY_SIGNALED && waitReturn != GL_CONDITION_SATISFIED)
+			{
+				waitReturn = glClientWaitSync(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 1);
+			}
+			
+#ifndef NDEBUG
+			long delta = duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count();
+			if (delta > 1 && waitReturn != GL_ALREADY_SIGNALED)
+				GetLogStream() << LOG_PERFORMANCE << "CPU stalled for " << delta << "ms while waiting for the GPU.\n";
+#endif
+		}
+		
 		bool isEditorOpen = m_editor != nullptr && m_editor->IsOpen();
 		
 		float gameTime = 0;
@@ -458,6 +489,15 @@ namespace TankGame
 		}
 		
 		glDisable(GL_BLEND);
+		
+		if (fence != nullptr)
+			glDeleteSync(fence);
+		m_frameFences[GetFrameQueueIndex()] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+		
+		glFlush();
+		
+		if (Settings::GetInstance().QueueFrames())
+			AdvanceFrameQueueIndex();
 	}
 	
 	void Window::SetIsCursorCaptured(bool shouldCapture)

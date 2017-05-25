@@ -13,8 +13,5 @@ namespace TankGame
 		    : Buffer(size, nullptr, flags) { }
 		
 		Buffer(size_t size, const void* data, GLbitfield flags);
-		
-	private:
-		
 	};
 }
