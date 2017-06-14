@@ -60,13 +60,13 @@ namespace TankGame
 	
 	void RocketEntity::OnSpawned(GameWorld& gameWorld)
 	{
-		m_audioSource.Play(1.0f, 1.0f);
+		m_audioSource.Play();
 		
 		PointLightEntity::OnSpawned(gameWorld);
 		ParticleSystemEntity::OnSpawned(gameWorld);
 	}
 	
-	void RocketEntity::OnImpact(ImpactFlags flags)
+	void RocketEntity::OnImpact(ImpactFlags flags, glm::vec2 penetration)
 	{
 		auto explosion = std::make_unique<ExplosionEntity>(GetGameWorld()->GetParticlesManager());
 		explosion->GetTransform().SetPosition(GetTransform().GetPosition() - GetTransform().GetForward() * 0.1f);

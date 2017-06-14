@@ -40,7 +40,7 @@ namespace TankGame
 		}
 	}
 	
-	void PlasmaBulletEntity::OnImpact(ImpactFlags flags)
+	void PlasmaBulletEntity::OnImpact(ImpactFlags flags, glm::vec2 penetration)
 	{
 		if (flags & ShieldImpact)
 		{

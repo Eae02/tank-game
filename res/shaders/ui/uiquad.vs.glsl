@@ -1,10 +1,8 @@
 #version 420 core
 
-layout(location=0) in vec2 position_in;
-
-uniform mat3 transform;
+uniform vec2 corners[4];
 
 void main()
 {
-	gl_Position = vec4((transform * vec3(position_in, 1.0)).xy, 0.0, 1.0);
+	gl_Position = vec4(corners[gl_VertexID].xy, 0.0, 1.0);
 }

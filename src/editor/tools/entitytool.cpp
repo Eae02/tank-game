@@ -254,6 +254,14 @@ namespace TankGame
 				{
 					if (const IEditorUIEntity* uiEntity = dynamic_cast<const IEditorUIEntity*>(&entity))
 						uiEntity->DrawEditorUI(uiRenderer, viewMatrix);
+					
+					if (!entity.GetName().empty())
+					{
+						const Font& font = Font::GetNamedFont(FontNames::StandardUI);
+						
+						uiRenderer.DrawString(font, entity.GetName(), { iconRect.CenterX(), iconRect.y - 5, 0, 0 },
+						                      Alignment::Center, Alignment::Top, glm::vec4(1.0f));
+					}
 				}
 				
 				if (m_drawEntityIcons)

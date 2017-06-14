@@ -40,7 +40,7 @@ namespace TankGame
 		CallOnClose([] { s_quadShader.m_shader = nullptr; });
 		
 		s_quadShader.m_colorLocation = s_quadShader.m_shader->GetUniformLocation("color");
-		s_quadShader.m_transformLocation = s_quadShader.m_shader->GetUniformLocation("transform");
+		s_quadShader.m_cornersLocation = s_quadShader.m_shader->GetUniformLocation("corners");
 	}
 	
 	void UIRenderer::LoadLineShader()
@@ -114,23 +114,37 @@ namespace TankGame
 	
 	void UIRenderer::DrawRectangle(const Rectangle& rectangle, const glm::vec4& color) const
 	{
-		DrawQuad(MapNDCToRectangle(rectangle), color);
+		std::array<glm::vec2, 4> corners = { rectangle.NearPos(), rectangle.NearXFarY(), rectangle.FarXNearY(), rectangle.FarPos() };
+		
+		DrawQuad(corners, color);
 	}
 	
 	void UIRenderer::DrawQuad(const glm::mat3& transform, const glm::vec4& color) const
 	{
-		if (s_quadShader.m_shader== nullptr)
+		std::array<glm::vec2, 4> corners = { glm::vec2 { -1, -1 }, glm::vec2 { -1, 1 }, glm::vec2 { 1, -1 }, glm::vec2 { 1, 1 } };
+		
+		for (glm::vec2& corner : corners)
+			corner = glm::vec2(transform * glm::vec3(corner, 1.0f));
+		
+		DrawQuad(corners, color);
+	}
+	
+	void UIRenderer::DrawQuad(const std::array<glm::vec2, 4>& corners, const glm::vec4& color) const
+	{
+		if (s_quadShader.m_shader == nullptr)
 			LoadQuadShader();
 		s_quadShader.m_shader->Use();
 		
-		glm::mat3 fullTransform = glm::transpose(glm::mat3(
-				2.0f / m_windowWidth, 0.0f, -1.0f,
-				0.0f, 2.0f / m_windowHeight, -1.0f,
-				0.0f, 0.0f, 1.0f
-		)) * transform;
+		glm::vec2 scaleToNDC = 2.0f / glm::vec2(m_windowWidth, m_windowHeight);
 		
-		glProgramUniformMatrix3fv(s_quadShader.m_shader->GetID(), s_quadShader.m_transformLocation, 1, GL_FALSE,
-		                          reinterpret_cast<const GLfloat*>(&fullTransform));
+		glm::vec2 cornersNDC[4];
+		for (size_t i = 0; i < 4; i++)
+		{
+			cornersNDC[i] = corners[i] * scaleToNDC - glm::vec2(1.0f);
+		}
+		
+		glProgramUniform2fv(s_quadShader.m_shader->GetID(), s_quadShader.m_cornersLocation, 4,
+		                    reinterpret_cast<const GLfloat*>(&cornersNDC));
 		
 		glProgramUniform4fv(s_quadShader.m_shader->GetID(), s_quadShader.m_colorLocation, 1,
 		                    reinterpret_cast<const GLfloat*>(&color));

@@ -3,7 +3,7 @@
 
 namespace TankGame
 {
-	std::unique_ptr<Entity> ActivatorParser::ParseEntity(const nlohmann::json& json) const
+	std::unique_ptr<Entity> ActivatorParser::ParseEntity(const nlohmann::json& json, const ParseParams& params) const
 	{
 		bool singleUse = true;
 		auto singleUseIt = json.find("single_use");

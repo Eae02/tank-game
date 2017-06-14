@@ -1,13 +1,14 @@
 ﻿#pragma once
 
+#include "../hittable.h"
 #include "../../lights/pointlightentity.h"
 #include "../../path/path.h"
-#include "../hittable.h"
+#include "../../../editor/ieditoruientity.h"
 
 namespace TankGame
 {
-	class SpiderBot : public PointLightEntity, public Entity::IUpdateable,
-	        public Entity::ISpriteDrawable, public Hittable
+	class SpiderBot : public PointLightEntity, public Entity::IUpdateable, public Entity::ISpriteDrawable,
+	        public IEditorUIEntity, public Hittable
 	{
 	public:
 		SpiderBot();
@@ -19,6 +20,8 @@ namespace TankGame
 		virtual void OnSpawned(class GameWorld& gameWorld) override;
 		
 		virtual Circle GetHitCircle() const override;
+		
+		virtual void DrawEditorUI(UIRenderer& uiRenderer, const glm::mat3& uiViewMatrix) const override;
 		
 		virtual const Entity::ISpriteDrawable* AsSpriteDrawable() const final override
 		{ return this; }

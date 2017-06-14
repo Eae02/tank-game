@@ -3,13 +3,13 @@
 #include "gl/vertexarray.h"
 #include "gl/bufferallocator.h"
 #include "gl/shaderprogram.h"
+#include "gl/functions.h"
+#include "frames.h"
+#include "../rectangle.h"
 
 #include <unordered_map>
 #include <vector>
 #include <memory>
-
-#include "frames.h"
-#include "gl/functions.h"
 #include <glm/glm.hpp>
 
 namespace TankGame
@@ -23,7 +23,15 @@ namespace TankGame
 		{ return m_materialBatches.empty(); }
 		
 		void Begin();
-		void Add(const class Transform& transform, const class SpriteMaterial& material, float z);
+		
+		void Add(const class Transform& transform, const class SpriteMaterial& material, float z)
+		{
+			Add(transform, material, z, { 0, 0, 1, 1 });
+		}
+		
+		void Add(const class Transform& transform, const class SpriteMaterial& material, float z,
+		         const Rectangle& textureRectangle);
+		
 		void End(bool isTranslucent = false);
 		
 	private:
@@ -32,30 +40,42 @@ namespace TankGame
 		
 		static size_t s_elementsPerDrawBuffer;
 		
-		inline static size_t GetMatricesBufferSize()
-		{ return s_elementsPerDrawBuffer * sizeof(float) * 4 * 3 * MAX_QUEUED_FRAMES; }
-		inline static size_t GetZValuesBufferSize()
-		{ return s_elementsPerDrawBuffer * sizeof(float) * MAX_QUEUED_FRAMES; }
+		static constexpr size_t INSTANCE_MATRIX_OFF = 0;
+		static constexpr size_t INSTANCE_Z_OFF = INSTANCE_MATRIX_OFF + sizeof(float) * (4 + 4 + 3);
+		static constexpr size_t INSTANCE_TEX_AREA_OFF = INSTANCE_Z_OFF + sizeof(float);
+		
+		static constexpr size_t INSTANCE_DATA_STRIDE = INSTANCE_TEX_AREA_OFF + sizeof(float) * 4;
+		
+		inline static size_t GetInstanceBufferSize()
+		{ return s_elementsPerDrawBuffer * INSTANCE_DATA_STRIDE * MAX_QUEUED_FRAMES; }
+		
+		struct InstanceData
+		{
+			glm::mat3 m_worldMatrix;
+			float m_zIndex;
+			glm::vec2 m_textureMin;
+			glm::vec2 m_textureMax;
+		};
 		
 		struct Batch
 		{
 			const class SpriteMaterial& m_material;
-			std::vector<glm::mat3> m_worldMatrices;
-			std::vector<float> m_spriteZ;
+			std::vector<InstanceData> m_instances;
+			
+			//Assigned in End
 			GLuint m_bufferOffset;
 			size_t m_drawBufferIndex;
 			
-			inline Batch(const class SpriteMaterial& material, const glm::mat3& worldMatrix, float z)
-			    : m_material(material), m_worldMatrices{ worldMatrix }, m_spriteZ{ z } { }
+			inline Batch(const class SpriteMaterial& material, const InstanceData& instanceData)
+			    : m_material(material), m_instances{ instanceData } { }
 		};
 		
+		//Manages a persistently mapped buffer for instance data.
 		struct DrawBuffer
 		{
-			Buffer m_matricesBuffer;
-			Buffer m_zValuesBuffer;
+			Buffer m_instanceDataBuffer;
 			
-			void* m_matricesMemory;
-			void* m_zValuesMemory;
+			void* m_instanceDataMemory;
 			
 			DrawBuffer();
 		};

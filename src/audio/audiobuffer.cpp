@@ -12,11 +12,11 @@ namespace TankGame
 		alDeleteBuffers(1, &buffer);
 	}
 	
-	AudioBuffer::AudioBuffer()
+	ALuint AudioBuffer::CreateAudioBuffer()
 	{
 		ALuint id;
 		alGenBuffers(1, &id);
-		SetID(id);
+		return id;
 	}
 	
 	void AudioBuffer::SetData(ALenum format, void* data, ALsizei dataSize, ALsizei frequency)

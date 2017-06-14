@@ -21,7 +21,9 @@ namespace TankGame
 		const EntityParser* parser = GetEntityParser(entityClass);
 		if (parser != nullptr)
 		{
-			std::unique_ptr<Entity> entity = parser->Parse(entityElement);
+			const EntityParser::ParseParams params = { &gameWorld.GetParticlesManager() };
+			
+			std::unique_ptr<Entity> entity = parser->Parse(entityElement, params);
 			
 			auto nameIt = entityElement.find("name");
 			if (nameIt != entityElement.end())

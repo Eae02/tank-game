@@ -10,7 +10,8 @@
 namespace TankGame
 {
 	AmmoBoxEntity::AmmoBoxEntity()
-	    : PropEntity("AmmoBox", 0.5f, true), Hittable(50, NeutralTeamID)
+	    : PropEntity("AmmoBox", 0.5f, true), Hittable(50, NeutralTeamID),
+	      m_audioSource(AudioSource::VolumeModes::Effect)
 	{
 		SetZ(0.6f);
 		std::fill(m_hasAmmoType.begin(), m_hasAmmoType.end(), true);
@@ -58,7 +59,7 @@ namespace TankGame
 		}
 		
 		m_audioSource.SetPosition(GetTransform().GetPosition());
-		m_audioSource.Play(1, 1);
+		m_audioSource.Play();
 	}
 	
 	std::unique_ptr<Entity> AmmoBoxEntity::Clone() const

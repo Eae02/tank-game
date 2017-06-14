@@ -20,7 +20,7 @@ namespace TankGame
 	static const float CANNON_SIZE = 0.15f;
 	
 	TankEntity::TankEntity(glm::vec3 spotlightColor, const TankEntity::TextureInfo& textureInfo, int teamID, float maxHp)
-	    : SpotLightEntity(spotlightColor, 7, glm::radians(80.0f), Attenuation(0, 0.7f)), Hittable(maxHp, teamID),
+	    : SpotLightEntity(spotlightColor, 5, glm::radians(80.0f), Attenuation(0, 0.7f)), Hittable(maxHp, teamID),
 	      m_audioSource(AudioSource::VolumeModes::Effect), m_textureInfo(textureInfo), m_teamID(teamID)
 	{
 		SetFlickers(true);
@@ -40,12 +40,6 @@ namespace TankGame
 	{
 		if (m_shieldHandle.IsAlive())
 			m_shieldHandle->Despawn();
-		
-		PushLuaInstance(Lua::GetState());
-		lua_getfield(Lua::GetState(), -1, "onKilled");
-		if (lua_isfunction(Lua::GetState(), -1))
-			Lua::CallFunction(0, 0);
-		lua_pop(Lua::GetState(), 1);
 	}
 	
 	Transform TankEntity::GetBaseCannonTransform(const TankEntity::TextureInfo& textureInfo)
@@ -113,7 +107,8 @@ namespace TankGame
 		Fire(std::move(projectile), gameTime, params.m_rotationOffset);
 		
 		m_audioSource.SetBuffer(SoundsManager::GetInstance().GetSound("PlasmaGun"));
-		m_audioSource.Play(1, pitchDist(randomGen));
+		m_audioSource.SetPitch(pitchDist(randomGen));
+		m_audioSource.Play();
 		
 		m_fireCooldown = 0.25f;
 	}

@@ -33,11 +33,18 @@
 		"color": "FF0000",
 		"nodes": [ [ 0, 0 ], [ 0, 1 ] ]
 	},
+	"Flame Thrower": {
+		"class": "FlameThrower"
+	},
 	"Rocket Turret": {
 		"class": "RocketTurret",
 		"rotation_min": -45,
 		"rotation_max": 45,
 		"rotation_speed": 1
+	},
+	"Energy Ball": {
+		"class": "EnergyBall",
+		"direction": [ 1, 0 ]
 	},
 	"Prop": {
 		"class": "Prop",

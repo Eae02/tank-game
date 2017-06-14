@@ -14,16 +14,12 @@ namespace TankGame
 		
 		void Update(const class ViewInfo& viewInfo, glm::vec3 eyePosition, float time);
 		
-		inline void Bind() const
-		{
-			glBindBufferRange(GL_UNIFORM_BUFFER, 0, m_uniformBuffer.GetID(),
-			                  GetFrameQueueIndex() * BUFFER_SIZE, BUFFER_SIZE);
-		}
+		void Bind() const;
 		
 		void OnResize(int width, int height);
 		
 	private:
-		static constexpr size_t BUFFER_SIZE = sizeof(float) * 32;
+		size_t m_bufferSize;
 		
 		Buffer m_uniformBuffer;
 		

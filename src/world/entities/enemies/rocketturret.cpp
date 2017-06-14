@@ -39,9 +39,12 @@ namespace TankGame
 		GetTransform().SetScale({ CANNON_SIZE, CANNON_SIZE / cannonAR });
 		GetTransform().SetCenterOfRotation({ 0.0f, 1.0f - cannonAR });
 		
+		m_ambienceSource.SetVolume(0.75f);
+		m_detectedSource.SetAttenuationSettings(1.0f, 5.0f);
 		m_ambienceSource.SetIsLooping(true);
 		m_ambienceSource.SetBuffer(SoundsManager::GetInstance().GetSound("Beam"));
 		
+		m_detectedSource.SetVolume(2.0f);
 		m_detectedSource.SetAttenuationSettings(0.5f, 1.0f);
 		m_detectedSource.SetBuffer(SoundsManager::GetInstance().GetSound("TurretDetected"));
 	}
@@ -114,7 +117,7 @@ namespace TankGame
 					m_firePreparationTime = FIRE_PREPERATION_TIME;
 					m_nextFireTime = updateInfo.m_gameTime + m_fireDelay;
 					
-					m_detectedSource.Play(2, 1);
+					m_detectedSource.Play();
 				}
 				else
 					RotateTowardsPlayer(updateInfo.m_dt);
@@ -198,7 +201,7 @@ namespace TankGame
 		m_playerEntity = dynamic_cast<const PlayerEntity*>(gameWorld.GetEntityByName("player"));
 		
 		if (gameWorld.GetWorldType() == GameWorld::Types::Game)
-			m_ambienceSource.Play(0.75f, 1.0f);
+			m_ambienceSource.Play();
 		
 		RayLightEntity::OnSpawned(gameWorld);
 		

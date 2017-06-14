@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "particle.h"
 #include "particlepool.h"
@@ -13,7 +13,7 @@
 
 namespace TankGame
 {
-	class ParticleEmitter
+	class ParticleEmitter : public Abstract
 	{
 	public:
 		ParticleEmitter(ParticlesManager& particlesManager);
@@ -62,7 +62,7 @@ namespace TankGame
 		
 		void SetTextureArray(const Texture2DArray& textureArray);
 		
-		void SpawnParticles();
+		void SpawnParticles(float elapsedTime);
 		
 		void Render(class ParticleRenderer& renderer) const;
 		
@@ -92,7 +92,7 @@ namespace TankGame
 		const Texture2DArray* m_textureArray = nullptr;
 		std::uniform_int_distribution<int> m_layerDist;
 		
-		double m_lastEmissionTime = std::numeric_limits<float>::quiet_NaN();
+		float m_timeNotEmitted = 0.0f; //Accumulates the amount of time which hasn't contributed to an emitted particle.
 		
 		float m_emissionRate = 10; //The number of particles to spawn per second.
 		

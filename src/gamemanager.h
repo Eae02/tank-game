@@ -41,11 +41,19 @@ namespace TankGame
 		inline WorldRenderer& GetRenderer()
 		{ return m_renderer; }
 		
+		inline void LevelComplete(std::string nextLevelName)
+		{ m_hudManager.ShowLevelComplete(nextLevelName); }
+		
 		inline void ShowNoAmmoText()
 		{ m_hudManager.ShowNoAmmoText(); }
 		
 		inline void SetQuitCallback(std::function<void()> quitCallback)
 		{ m_quitCallback = std::move(quitCallback); }
+		
+		inline void SetShowGlobalHealthBar(bool showGlobalHealthBar)
+		{ m_hudManager.SetShowGlobalHealthBar(showGlobalHealthBar); }
+		inline void SetGlobalHealthBarPercentage(float percentage)
+		{ m_hudManager.SetGlobalHealthBarPercentage(percentage); }
 		
 	private:
 		class IMainRenderer& m_mainRenderer;

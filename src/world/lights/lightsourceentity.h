@@ -45,6 +45,10 @@ namespace TankGame
 		inline bool Flickers() const
 		{ return m_flickers; }
 		
+		void SetEnabled(bool enabled);
+		inline bool Enabled() const
+		{ return m_enabled; }
+		
 		virtual ShadowMap* GetShadowMap() const override;
 		void SetShadowMode(EntityShadowModes mode);
 		inline EntityShadowModes GetShadowMode() const
@@ -69,6 +73,8 @@ namespace TankGame
 		virtual int GetPositionUniformLocation() const = 0;
 		virtual int GetWorldTransformUniformLocation() const = 0;
 		
+		virtual void PushLuaMetaTable(lua_State* state) const override;
+		
 		inline void InvalidateUniformBuffer()
 		{ m_uniformBufferOutOfDate = true; }
 		
@@ -78,6 +84,8 @@ namespace TankGame
 		{ return m_flickerOffset; }
 		
 	private:
+		static Lua::RegistryReference s_metaTableRef;
+		
 		size_t m_ubSize;
 		
 		bool m_flickers = false;
@@ -94,6 +102,8 @@ namespace TankGame
 		glm::vec3 m_color;
 		float m_intensity;
 		Attenuation m_attenuation;
+		
+		bool m_enabled = true;
 		
 		float m_height;
 		

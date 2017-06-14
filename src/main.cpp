@@ -94,4 +94,11 @@ int main(int argc, const char** argv)
 		ShowErrorMessage(exception.what(), "Error");
 		return 1;
 	}
+#ifdef NDEBUG
+	catch (const std::exception& exception)
+	{
+		ShowErrorMessage(exception.what(), "Unexpected Error");
+		return 1;
+	}
+#endif
 }

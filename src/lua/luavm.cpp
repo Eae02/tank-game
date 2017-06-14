@@ -45,8 +45,6 @@ namespace Lua
 		
 		luaL_newmetatable(state, "Entity");
 		lua_pop(state, 1);
-		
-		DoString(ReadFileContents(GetResDirectory() / "std.lua"), nullptr);
 	}
 	
 	void Destroy()
@@ -64,13 +62,19 @@ namespace Lua
 	{
 		int result = lua_pcall(state, numParams, numReturnValues, errorFuncLocation);
 		
-		if (result == LUA_ERRMEM || result == LUA_ERRERR)
+		if (result == LUA_ERRMEM)
+			throw std::bad_alloc();
+		if (result == LUA_ERRERR)
 			throw std::runtime_error("Invalid result");
 	}
 	
 	void DoString(const std::string& code, const Sandbox* sandbox)
 	{
-		luaL_loadstring(state, code.c_str());
+		if (luaL_loadstring(state, code.c_str()) != 0)
+		{
+			GetLogStream() << LOG_ERROR << lua_tostring(state, -1) << "\n";
+			return;
+		}
 		
 		if (sandbox != nullptr)
 		{

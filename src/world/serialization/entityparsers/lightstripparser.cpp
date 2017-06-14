@@ -5,7 +5,7 @@
 
 namespace TankGame
 {
-	std::unique_ptr<Entity> LightStripParser::ParseEntity(const nlohmann::json& json) const
+	std::unique_ptr<Entity> LightStripParser::ParseEntity(const nlohmann::json& json, const ParseParams& params) const
 	{
 		glm::vec3 color(1.0f);
 		auto colorIt = json.find("color");

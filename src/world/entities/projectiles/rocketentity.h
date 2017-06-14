@@ -32,7 +32,7 @@ namespace TankGame
 		virtual std::unique_ptr<Entity> Clone() const override;
 		
 	protected:
-		virtual void OnImpact(ImpactFlags flags) override;
+		virtual void OnImpact(ImpactFlags flags, glm::vec2 penetration) override;
 		
 	private:
 		static std::unique_ptr<Texture2D> s_diffuse;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <al.h>
+#include <AL/al.h>
 
 namespace TankGame
 {
@@ -46,16 +46,6 @@ namespace TankGame
 		
 		inline ALuint GetID() const
 		{ return m_id; }
-		
-		void SetID(ALuint id)
-		{
-			if (!m_isNull)
-				DEL(m_id);
-			else
-				m_isNull = false;
-			
-			m_id = id;
-		}
 		
 		inline bool IsNull() const
 		{ return m_isNull; }

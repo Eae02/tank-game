@@ -43,9 +43,13 @@ namespace TankGame
 		
 		glm::vec2 GetPushVector(glm::vec2 position) const;
 		
+		virtual void PushLuaMetaTable(lua_State* state) const override;
+		
 		static void LoadResources(class ASyncWorkList& workList);
 		
 	private:
+		static Lua::RegistryReference s_metaTableRef;
+		
 		static std::unique_ptr<Texture2D> s_diffuseTexture;
 		static std::unique_ptr<Texture2D> s_normalMap;
 		static std::unique_ptr<Texture2D> s_specularTexture;

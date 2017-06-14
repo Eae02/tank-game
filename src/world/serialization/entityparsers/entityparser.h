@@ -1,16 +1,23 @@
 #pragma once
 
-#include "../iclassparser.h"
 #include "../../entity.h"
+
+#include <memory>
+#include <json.hpp>
 
 namespace TankGame
 {
-	class EntityParser : public IClassParser<Entity>
+	class EntityParser
 	{
 	public:
-		virtual std::unique_ptr<Entity> Parse(const nlohmann::json& json) const final override;
+		struct ParseParams
+		{
+			class ParticlesManager* m_particlesManager;
+		};
+		
+		std::unique_ptr<Entity> Parse(const nlohmann::json& json, const ParseParams& params) const;
 		
 	protected:
-		virtual std::unique_ptr<Entity> ParseEntity(const nlohmann::json& json) const = 0;
+		virtual std::unique_ptr<Entity> ParseEntity(const nlohmann::json& json, const ParseParams& params) const = 0;
 	};
 }

@@ -13,8 +13,6 @@ namespace TankGame
 	GameManager::GameManager(IMainRenderer& renderer)
 	    : m_mainRenderer(renderer), m_hudManager(renderer), m_ambiencePlayer(GetResDirectory() / "audio" / "ambient")
 	{
-		m_ambiencePlayer.SetVolume(0.5f);
-		
 		m_hudManager.SetQuitCallback([this] 
 		{
 			ExitLevel();
@@ -87,11 +85,15 @@ namespace TankGame
 		
 		m_isTesting = testing;
 		m_hudManager.SetShouldQuitToEditor(m_isTesting);
+		
+		m_hudManager.SetShowGlobalHealthBar(false);
+		m_hudManager.SetGlobalHealthBarPercentage(1.0f);
 	}
 	
 	void GameManager::ExitLevel()
 	{
 		m_mainRenderer.SetBlurAmount(0);
+		m_hudManager.SetPlayerEntity(nullptr);
 		
 		m_level = nullptr;
 		m_ambiencePlayer.Stop();

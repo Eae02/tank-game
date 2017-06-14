@@ -1,4 +1,5 @@
 #include "level.h"
+#include "updateinfo.h"
 #include "world/entities/playerentity.h"
 #include "world/entities/checkpointentity.h"
 #include "world/serialization/deserializeworld.h"
@@ -20,30 +21,15 @@ namespace TankGame
 	}
 	
 	Level::Level(std::istream& stream, GameWorld::Types worldType)
-	    : m_gameWorld(DeserializeWorld(stream, worldType)), m_luaSandbox(Lua::GetState()),
+	    : m_gameWorld(DeserializeWorld(stream, worldType)),
+	      m_luaSandbox(std::make_unique<Lua::Sandbox>(Lua::GetState())),
 	      m_playerEntity(dynamic_cast<PlayerEntity*>(m_gameWorld->GetEntityByName("player")))
 	{
-		m_luaSandbox.PushTable(Lua::GetState());
+		m_luaSandbox->PushTable(Lua::GetState());
 		m_gameWorld->InitLuaSandbox(Lua::GetState());
-		m_gameWorld->SetLuaSandbox(&m_luaSandbox);
-	}
-	
-	Level::Level(Level&& other)
-	    : m_gameWorld(std::move(other.m_gameWorld)), m_luaSandbox(std::move(other.m_luaSandbox)),
-	      m_playerEntity(other.m_playerEntity)
-	{
-		m_gameWorld->SetLuaSandbox(&m_luaSandbox);
-	}
-	
-	Level& Level::operator=(Level&& other)
-	{
-		m_gameWorld = std::move(other.m_gameWorld);
-		m_luaSandbox = std::move(other.m_luaSandbox);
-		m_playerEntity = other.m_playerEntity;
+		lua_pop(Lua::GetState(), 1);
 		
-		m_gameWorld->SetLuaSandbox(&m_luaSandbox);
-		
-		return *this;
+		m_gameWorld->SetLuaSandbox(m_luaSandbox.get());
 	}
 	
 	Level Level::FromName(const std::string& name, GameWorld::Types worldType)
@@ -96,15 +82,17 @@ namespace TankGame
 		return true;
 	}
 	
-	void Level::Update(const class UpdateInfo& updateInfo)
+	void Level::Update(const UpdateInfo& updateInfo)
 	{
 		m_gameWorld->Update(updateInfo);
+		
+		m_luaSandbox->Update(updateInfo.m_dt);
 		
 		UpdateListener(*m_playerEntity);
 	}
 	
 	void Level::RunScript(const fs::path& path)
 	{
-		Lua::DoString(ReadFileContents(path), &m_luaSandbox);
+		Lua::DoString(ReadFileContents(path), m_luaSandbox.get());
 	}
 }

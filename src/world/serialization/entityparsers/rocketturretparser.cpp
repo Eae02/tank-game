@@ -6,7 +6,7 @@
 
 namespace TankGame
 {
-	std::unique_ptr<Entity> RocketTurretParser::ParseEntity(const nlohmann::json& json) const
+	std::unique_ptr<Entity> RocketTurretParser::ParseEntity(const nlohmann::json& json, const ParseParams& params) const
 	{
 		float minRotation = -glm::half_pi<float>();
 		float maxRotation = glm::half_pi<float>();

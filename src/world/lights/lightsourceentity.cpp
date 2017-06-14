@@ -9,6 +9,8 @@
 
 namespace TankGame
 {
+	Lua::RegistryReference LightSourceEntity::s_metaTableRef;
+	
 	LightSourceEntity::LightSourceEntity(glm::vec3 color, float intensity, Attenuation attenuation, float height, size_t ubSize)
 	    : m_ubSize(ubSize), m_flickerOffset(GenerateFlickerOffset()),
 	      m_uniformBuffer(BufferAllocator::GetInstance().AllocateUnique(ubSize, GL_MAP_WRITE_BIT)),
@@ -57,7 +59,7 @@ namespace TankGame
 		floatMem[0] = m_color.r;
 		floatMem[1] = m_color.g;
 		floatMem[2] = m_color.b;
-		floatMem[3] = m_intensity;
+		floatMem[3] = m_enabled ? m_intensity : 0.0f;
 		floatMem[4] = m_attenuation.GetLinear();
 		floatMem[5] = m_attenuation.GetExponent();
 		floatMem[6] = m_flickers ? 0.12f : 0.0f;
@@ -93,6 +95,12 @@ namespace TankGame
 	void LightSourceEntity::SetFlickers(bool flickers)
 	{
 		m_flickers = flickers;
+		InvalidateUniformBuffer();
+	}
+	
+	void LightSourceEntity::SetEnabled(bool enabled)
+	{
+		m_enabled = enabled;
 		InvalidateUniformBuffer();
 	}
 	
@@ -145,6 +153,8 @@ namespace TankGame
 		
 		json["color"] = hexColorStr;
 		
+		json["enabled"] = m_enabled;
+		
 		const char* shadowNames[] = { "none", "static", "dynamic" };
 		json["shadows"] = shadowNames[static_cast<int>(m_shadowMode)];
 		
@@ -192,6 +202,9 @@ namespace TankGame
 			m_uniformBufferOutOfDate = true;
 		}
 		
+		if (ImGui::Checkbox("Enabled", &m_enabled))
+			m_uniformBufferOutOfDate = true;
+		
 		if (ImGui::Checkbox("Flickers", &m_flickers))
 			m_uniformBufferOutOfDate = true;
 		
@@ -201,5 +214,37 @@ namespace TankGame
 			m_color = glm::convertSRGBToLinear(colorSrgb);
 			m_uniformBufferOutOfDate = true;
 		}
+	}
+	
+	void LightSourceEntity::PushLuaMetaTable(lua_State* state) const
+	{
+		if (!s_metaTableRef)
+		{
+			NewLuaMetaTable(state);
+			
+			Entity::PushLuaMetaTable(state);
+			lua_setmetatable(state, -2);
+			
+			// ** setEnabled **
+			lua_pushcfunction(state, [] (lua_State* state) -> int
+			{
+				dynamic_cast<LightSourceEntity*>(LuaGetInstance(state))->SetEnabled(lua_toboolean(state, 2));
+				return 0;
+			});
+			lua_setfield(state, -2, "setEnabled");
+			
+			// ** enabled **
+			lua_pushcfunction(state, [] (lua_State* state) -> int
+			{
+				lua_pushboolean(state, dynamic_cast<const LightSourceEntity*>(LuaGetInstance(state))->Enabled());
+				return 1;
+			});
+			lua_setfield(state, -2, "enabled");
+			
+			s_metaTableRef = Lua::RegistryReference::PopAndCreate(state);
+			CallOnClose([] { s_metaTableRef = { }; });
+		}
+		
+		s_metaTableRef.Load(state);
 	}
 }

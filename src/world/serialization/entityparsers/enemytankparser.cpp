@@ -5,7 +5,7 @@
 
 namespace TankGame
 {
-	std::unique_ptr<Entity> EnemyTankParser::ParseEntity(const nlohmann::json& json) const
+	std::unique_ptr<Entity> EnemyTankParser::ParseEntity(const nlohmann::json& json, const ParseParams& params) const
 	{
 		Path idlePath;
 		for (auto& pathEntry : json["idle_path"])

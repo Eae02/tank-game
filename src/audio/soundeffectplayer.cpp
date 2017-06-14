@@ -26,8 +26,10 @@ namespace TankGame
 			audioSource->SetBuffer(SoundsManager::GetInstance().GetSound(m_effectName));
 		}
 		
+		audioSource->SetVolume(volume);
+		audioSource->SetPitch(pitch);
 		audioSource->SetAttenuationSettings(rolloffFactor, refDistance);
 		audioSource->SetPosition(position);
-		audioSource->Play(volume, pitch);
+		audioSource->Play();
 	}
 }

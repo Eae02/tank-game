@@ -16,6 +16,9 @@ namespace TankGame
 	
 	const float PADDING = 2 PERCENT;
 	
+	const float GLOBAL_HP_BAR_TOP_DIST = -5 PERCENT;
+	const float GLOBAL_HP_BAR_WIDTH = 50 PERCENT;
+	
 	const float HP_BAR_WIDTH = 20 PERCENT;
 	const float CHECKPOINT_REACHED_WIDTH = 40 PERCENT;
 	
@@ -105,6 +108,7 @@ namespace TankGame
 		LayoutElements(width, height);
 		
 		m_pauseMenu.OnResize(width, height);
+		m_levelCompleteMenu.OnResize(width, height);
 	}
 	
 	void HUDManager::Update(const UpdateInfo& updateInfo)
@@ -118,14 +122,23 @@ namespace TankGame
 			m_energy += deltaEnergy * glm::min(updateInfo.m_dt * 10, 1.0f);
 		}
 		
-		float blurAmountTarget = m_pauseMenu.IsShown() ? 1.0f : 0.0f;
+		float deltaGlobalHP = m_globalHealthBarTargetPercentage - m_globalHealthBarPercentage;
+		m_globalHealthBarPercentage += deltaGlobalHP * glm::min(updateInfo.m_dt * 5.0f, 0.1f);
+		
+		const float globalHealthBarOpacityDelta = (m_globalHealthBarVisible ? 1 : -1) * updateInfo.m_dt * 1.5f;
+		m_globalHealthBarOpacity = glm::clamp(m_globalHealthBarOpacity + globalHealthBarOpacityDelta, 0.0f, 1.0f);
+		
+		float blurAmountTarget = IsPaused() ? 1.0f : 0.0f;
 		m_blurAmount = glm::clamp(m_blurAmount + glm::sign(blurAmountTarget - m_blurAmount) * updateInfo.m_dt * 5, 0.0f, 1.0f);
 		m_mainRenderer.SetBlurAmount(m_blurAmount);
 		
 		if (m_noAmmoOpacity > 0)
 			m_noAmmoOpacity = glm::max(m_noAmmoOpacity - updateInfo.m_dt, 0.0f);
 		
-		m_pauseMenu.Update(updateInfo);
+		if (m_levelCompleteMenu.IsShown())
+			m_levelCompleteMenu.Update(updateInfo);
+		else
+			m_pauseMenu.Update(updateInfo);
 		
 		for (WeaponIcon& weaponIcon : m_weaponIcons)
 			weaponIcon.Update(updateInfo);
@@ -137,19 +150,26 @@ namespace TankGame
 		
 		m_contentsRect = Rectangle(padding, padding, screenWidth - 2 * padding, screenHeight - 2 * padding);
 		
-		float hpBarAspectRatio = m_textures.m_hpBarFull.GetHeight() / static_cast<float>(m_textures.m_hpBarFull.GetWidth());
-		float energyBarAspectRatio = m_textures.m_energyBarFull.GetHeight() / static_cast<float>(m_textures.m_energyBarFull.GetWidth());
+		float globalHpBarAR = m_textures.m_hpBarGlobalFull.GetHeight() / static_cast<float>(m_textures.m_hpBarGlobalFull.GetWidth());
+		
+		float hpBarAR = m_textures.m_hpBarFull.GetHeight() / static_cast<float>(m_textures.m_hpBarFull.GetWidth());
+		float energyBarAR = m_textures.m_energyBarFull.GetHeight() / static_cast<float>(m_textures.m_energyBarFull.GetWidth());
+		
+		m_globalHpBarRectangle.x = m_contentsRect.x + m_contentsRect.w * (1.0f - GLOBAL_HP_BAR_WIDTH) * 0.5f;
+		m_globalHpBarRectangle.w = m_contentsRect.w * GLOBAL_HP_BAR_WIDTH;
+		m_globalHpBarRectangle.h = globalHpBarAR * m_globalHpBarRectangle.w;
+		m_globalHpBarRectangle.y = m_contentsRect.FarY() - m_globalHpBarRectangle.h - GLOBAL_HP_BAR_TOP_DIST * m_contentsRect.h;
 		
 		m_hpBarRectangle.x = m_contentsRect.x;
 		m_hpBarRectangle.y = m_contentsRect.y;
 		m_hpBarRectangle.w = HP_BAR_WIDTH * screenWidth;
-		m_hpBarRectangle.h = hpBarAspectRatio * m_hpBarRectangle.w;
+		m_hpBarRectangle.h = hpBarAR * m_hpBarRectangle.w;
 		
 		m_energyBarRectangle.x = m_contentsRect.x;
 		m_energyBarRectangle.y = m_hpBarRectangle.FarY();
 		m_energyBarRectangle.w = m_hpBarRectangle.w * (m_textures.m_energyBarFull.GetWidth() /
 		                                               static_cast<float>(m_textures.m_hpBarFull.GetWidth()));
-		m_energyBarRectangle.h = energyBarAspectRatio * m_energyBarRectangle.w;
+		m_energyBarRectangle.h = energyBarAR * m_energyBarRectangle.w;
 		
 		float weaponIconW = WEAPON_ICON_WIDTH * screenWidth;
 		float weaponIconH = WEAPON_ICON_WIDTH * screenWidth;
@@ -191,19 +211,26 @@ namespace TankGame
 		m_vertexArray.Bind();
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, m_vertexCount);
 		
-		m_pauseMenu.Draw(UIRenderer::GetInstance());
+		if (m_levelCompleteMenu.IsShown())
+			m_levelCompleteMenu.Draw(UIRenderer::GetInstance());
+		else
+			m_pauseMenu.Draw(UIRenderer::GetInstance());
 	}
 	
 	void HUDManager::SetPlayerEntity(const PlayerEntity* playerEntity)
 	{
 		m_playerEntity = playerEntity;
-		m_hp = playerEntity->GetHp();
-		m_energy = playerEntity->GetEnergy();
+		
+		if (playerEntity != nullptr)
+		{
+			m_hp = playerEntity->GetHp();
+			m_energy = playerEntity->GetEnergy();
+		}
 		
 		m_noAmmoOpacity = 0;
 		
 		for (WeaponIcon& weaponIcon : m_weaponIcons)
-			weaponIcon.SetWeaponState(playerEntity->GetWeaponState());
+			weaponIcon.SetWeaponState(playerEntity == nullptr ? nullptr : &playerEntity->GetWeaponState());
 	}
 	
 	int HUDManager::GetWeaponIndex(const PlayerWeaponState& weaponState)
@@ -216,6 +243,39 @@ namespace TankGame
 	void HUDManager::DrawHUDElements()
 	{
 		const Font& hudFont = Font::GetNamedFont(FontNames::HudFont);
+		
+		// ** Draws the global HP bar **
+		if (m_globalHealthBarVisible)
+		{
+			const int GLOBAL_BAR_MARGIN_L = 39;
+			const int GLOBAL_BAR_MARGIN_R = 37;
+			
+			int fullHpBarWidth = m_textures.m_hpBarGlobalFull.GetWidth() - GLOBAL_BAR_MARGIN_L - GLOBAL_BAR_MARGIN_R;
+			
+			Rectangle fullBarSampleRect(0, 0, GLOBAL_BAR_MARGIN_L + fullHpBarWidth * m_globalHealthBarPercentage,
+			                            m_textures.m_hpBarFull.GetHeight());
+			Rectangle emptyBarSampleRect(fullBarSampleRect.w, 0, m_textures.m_hpBarEmpty.GetWidth() -
+			                             fullBarSampleRect.w, m_textures.m_hpBarFull.GetHeight());
+			
+			Rectangle fullBarTargetRect(m_globalHpBarRectangle.x, m_globalHpBarRectangle.y,
+			                            m_globalHpBarRectangle.w * m_globalHealthBarPercentage, m_globalHpBarRectangle.h);
+			Rectangle emptyBarTargetRect(fullBarTargetRect.FarX(), m_globalHpBarRectangle.y,
+			                             m_globalHpBarRectangle.w - fullBarTargetRect.w, m_globalHpBarRectangle.h);
+			
+			const glm::vec4 globalHealthBarColor(1.0f, 1.0f, 1.0f, m_globalHealthBarOpacity);
+			
+			if (emptyBarSampleRect.w > 1E-6f)
+			{
+				UIRenderer::GetInstance().DrawSprite(m_textures.m_hpBarGlobalEmpty, emptyBarTargetRect,
+				                                     emptyBarSampleRect, globalHealthBarColor);
+			}
+			
+			if (fullBarSampleRect.w > 1E-6f)
+			{
+				UIRenderer::GetInstance().DrawSprite(m_textures.m_hpBarGlobalFull, fullBarTargetRect,
+				                                     fullBarSampleRect, globalHealthBarColor);
+			}
+		}
 		
 		// ** Draws the HP bar **
 		const int BAR_MARGIN_L = 29;
@@ -234,13 +294,13 @@ namespace TankGame
 		Rectangle emptyHpBarTargetRect(fullHpBarTargetRect.FarX(), m_hpBarRectangle.y,
 		                               m_hpBarRectangle.w - fullHpBarTargetRect.w, m_hpBarRectangle.h);
 		
-		if (emptyHpBarSampleRect.w > 1E-6)
+		if (emptyHpBarSampleRect.w > 1E-6f)
 		{
 			UIRenderer::GetInstance().DrawSprite(m_textures.m_hpBarEmpty, emptyHpBarTargetRect,
 			                                     emptyHpBarSampleRect, glm::vec4(1.0f));
 		}
 		
-		if (fullHpBarSampleRect.w > 1E-6)
+		if (fullHpBarSampleRect.w > 1E-6f)
 		{
 			UIRenderer::GetInstance().DrawSprite(m_textures.m_hpBarFull, fullHpBarTargetRect,
 			                                     fullHpBarSampleRect, glm::vec4(1.0f));
@@ -265,13 +325,13 @@ namespace TankGame
 		Rectangle emptyEnergyBarTargetRect(fullEnergyBarTargetRect.FarX(), m_energyBarRectangle.y,
 		                                   m_energyBarRectangle.w - fullEnergyBarTargetRect.w, m_energyBarRectangle.h);
 		
-		if (emptyEnergyBarSampleRect.w > 1E-6)
+		if (emptyEnergyBarSampleRect.w > 1E-6f)
 		{
 			UIRenderer::GetInstance().DrawSprite(m_textures.m_energyBarEmpty, emptyEnergyBarTargetRect,
 			                                     emptyEnergyBarSampleRect, glm::vec4(1.0f));
 		}
 		
-		if (fullEnergyBarSampleRect.w > 1E-6)
+		if (fullEnergyBarSampleRect.w > 1E-6f)
 		{
 			UIRenderer::GetInstance().DrawSprite(m_textures.m_energyBarFull, fullEnergyBarTargetRect,
 			                                     fullEnergyBarSampleRect, glm::vec4(1.0f));
@@ -303,6 +363,8 @@ namespace TankGame
 	      m_hpBarEmpty(Texture2D::FromFile(dirPath / "hp-empty.png")),
 	      m_energyBarFull(Texture2D::FromFile(dirPath / "energy-full.png")),
 	      m_energyBarEmpty(Texture2D::FromFile(dirPath / "energy-empty.png")),
+	      m_hpBarGlobalFull(Texture2D::FromFile(dirPath / "hp-global-full.png")),
+	      m_hpBarGlobalEmpty(Texture2D::FromFile(dirPath / "hp-global-empty.png")),
 	      m_noAmmo(Texture2D::FromFile(dirPath / "no-ammo.png"))
 	{
 		

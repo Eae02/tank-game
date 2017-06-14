@@ -1,19 +1,23 @@
 #include "rendersettingsbuffer.h"
 #include "viewinfo.h"
 #include "../settings.h"
+#include "../utils/mathutils.h"
 
 #include <cstring>
 
 namespace TankGame
 {
+	static const size_t BUFFER_SIZE = sizeof(float) * 32;
+	
 	RenderSettingsBuffer::RenderSettingsBuffer()
-	    : m_uniformBuffer(BUFFER_SIZE * MAX_QUEUED_FRAMES, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT),
+	    : m_bufferSize(RoundToNextMultiple(BUFFER_SIZE, GetUniformBufferOffsetAlignment())),
+	      m_uniformBuffer(m_bufferSize * MAX_QUEUED_FRAMES, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT),
 	      m_ubMemory(reinterpret_cast<char*>(glMapNamedBufferRange(m_uniformBuffer.GetID(), 0,
-	                 BUFFER_SIZE * MAX_QUEUED_FRAMES, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT))) { }
+	                 m_bufferSize * MAX_QUEUED_FRAMES, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT))) { }
 	
 	void RenderSettingsBuffer::Update(const ViewInfo& viewInfo, glm::vec3 eyePosition, float time)
 	{
-		char* bufferMemory = m_ubMemory + GetFrameQueueIndex() * BUFFER_SIZE;
+		char* bufferMemory = m_ubMemory + GetFrameQueueIndex() * m_bufferSize;
 		
 		memcpy(reinterpret_cast<float*>(bufferMemory) + 0, &viewInfo.GetViewMatrix()[0], sizeof(float) * 3);
 		memcpy(reinterpret_cast<float*>(bufferMemory) + 4, &viewInfo.GetViewMatrix()[1], sizeof(float) * 3);
@@ -33,7 +37,13 @@ namespace TankGame
 		reinterpret_cast<int32_t*>(bufferMemory)[30] = static_cast<double>(m_resWidth) * resScale;
 		reinterpret_cast<int32_t*>(bufferMemory)[31] = static_cast<double>(m_resHeight) * resScale;
 		
-		glFlushMappedNamedBufferRange(m_uniformBuffer.GetID(), GetFrameQueueIndex() * BUFFER_SIZE, BUFFER_SIZE);
+		glFlushMappedNamedBufferRange(m_uniformBuffer.GetID(), GetFrameQueueIndex() * m_bufferSize, BUFFER_SIZE);
+	}
+	
+	void RenderSettingsBuffer::Bind() const
+	{
+		glBindBufferRange(GL_UNIFORM_BUFFER, 0, m_uniformBuffer.GetID(),
+		                  GetFrameQueueIndex() * m_bufferSize, BUFFER_SIZE);
 	}
 	
 	void RenderSettingsBuffer::OnResize(int width, int height)

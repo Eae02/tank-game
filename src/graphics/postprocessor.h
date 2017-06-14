@@ -30,7 +30,7 @@ namespace TankGame
 	private:
 		static ShaderProgram LoadShader(const fs::path& path);
 		
-		float m_exposure = 1.5f;
+		float m_exposure = 1.75f;
 		float m_gamma = 1.0f;
 		float m_contrast = 1.0f;
 		float m_framebufferAR = 1.0f;

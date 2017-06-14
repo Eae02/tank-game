@@ -13,6 +13,8 @@
 
 namespace TankGame
 {
+	Lua::RegistryReference ConveyorBeltEntity::s_metaTableRef;
+	
 	std::unique_ptr<Texture2D> ConveyorBeltEntity::s_diffuseTexture;
 	std::unique_ptr<Texture2D> ConveyorBeltEntity::s_normalMap;
 	std::unique_ptr<Texture2D> ConveyorBeltEntity::s_specularTexture;
@@ -107,6 +109,38 @@ namespace TankGame
 		if (rectangle.Contains(position))
 			return GetTransform().GetForward() * m_speed;
 		return glm::vec2(0.0f);
+	}
+	
+	void ConveyorBeltEntity::PushLuaMetaTable(lua_State* state) const
+	{
+		if (!s_metaTableRef)
+		{
+			NewLuaMetaTable(state);
+			
+			Entity::PushLuaMetaTable(state);
+			lua_setmetatable(state, -2);
+			
+			// ** setSpeed **
+			lua_pushcfunction(state, [] (lua_State* state) -> int
+			{
+				dynamic_cast<ConveyorBeltEntity*>(LuaGetInstance(state))->SetSpeed(luaL_checknumber(state, 2));
+				return 0;
+			});
+			lua_setfield(state, -2, "setSpeed");
+			
+			// ** getSpeed **
+			lua_pushcfunction(state, [] (lua_State* state) -> int
+			{
+				lua_pushnumber(state, dynamic_cast<const ConveyorBeltEntity*>(LuaGetInstance(state))->GetSpeed());
+				return 1;
+			});
+			lua_setfield(state, -2, "getSpeed");
+			
+			s_metaTableRef = Lua::RegistryReference::PopAndCreate(state);
+			CallOnClose([] { s_metaTableRef = { }; });
+		}
+		
+		s_metaTableRef.Load(state);
 	}
 	
 	void ConveyorBeltEntity::LoadResources(ASyncWorkList& workList)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "alresource.h"
+#include "audiobuffer.h"
 #include "../graphics/viewinfo.h"
 
 #include <glm/glm.hpp>
@@ -21,28 +22,48 @@ namespace TankGame
 		
 		explicit AudioSource(VolumeModes volumeMode = VolumeModes::None);
 		
-		void SetBuffer(const class AudioBuffer& buffer);
+		inline void SetBuffer(const AudioBuffer& buffer)
+		{
+			alSourcei(GetID(), AL_BUFFER, buffer.GetID());
+		}
 		
 		void SetPosition(glm::vec2 position);
 		void SetVelocity(glm::vec2 velocity);
 		void SetDirection(glm::vec2 direction);
-		void SetIsLooping(bool isLooping);
+		
+		inline void SetIsLooping(bool isLooping)
+		{
+			alSourcei(GetID(), AL_LOOPING, isLooping ? AL_TRUE : AL_FALSE);
+		}
 		
 		void SetAttenuationSettings(float rolloffFactor, float refDistance);
 		
-		void Play(float volume, float pitch) const;
-		void Stop() const;
+		inline void Play() const
+		{
+			alSourcePlay(GetID());
+		}
+		
+		inline void Stop() const
+		{
+			alSourceStop(GetID());
+		}
+		
+		void SetVolume(float volume);
+		
+		inline void SetPitch(float pitch)
+		{
+			alSourcef(GetID(), AL_PITCH, pitch);
+		}
 		
 		bool IsPlaying() const;
 		
 		inline static void SetViewInfo(const ViewInfo& viewInfo)
-		{ s_viewInfo = viewInfo; }
+		{
+			s_viewInfo = viewInfo;
+		}
 		
 	private:
 		static ViewInfo s_viewInfo;
-		
-		mutable float m_volume = 1;
-		mutable float m_pitch = 1;
 		
 		VolumeModes m_volumeMode;
 	};

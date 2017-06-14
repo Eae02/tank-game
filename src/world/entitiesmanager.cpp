@@ -6,7 +6,7 @@
 
 namespace TankGame
 {
-	EntityHandle EntitiesManager::Spawn(std::unique_ptr<Entity>&& entity)
+	EntityHandle EntitiesManager::Spawn(std::unique_ptr<Entity> entity)
 	{
 		if (Entity::IUpdateable* updateable = entity->AsUpdatable())
 			m_updateableEntities.push_back(updateable);
@@ -51,7 +51,7 @@ namespace TankGame
 			if (time > psEntity->GetDeathTime())
 			{
 				bool hasParticles = false;
-				for (long i = psEntity->GetParticleSystem().GetEmitterCount() - 1; i >= 0; i--)
+				for (long i = static_cast<long>(psEntity->GetParticleSystem().GetEmitterCount()) - 1; i >= 0; i--)
 				{
 					if (psEntity->GetParticleSystem().GetEmitter(i)->HasParticles())
 					{
@@ -66,10 +66,12 @@ namespace TankGame
 					continue;
 				}
 			}
-			else
+			else if (psEntity->IsEnabled())
 			{
-				for (long i = psEntity->GetParticleSystem().GetEmitterCount() - 1; i >= 0; i--)
-					psEntity->GetParticleSystem().GetEmitter(i)->SpawnParticles();
+				for (long i = static_cast<long>(psEntity->GetParticleSystem().GetEmitterCount()) - 1; i >= 0; i--)
+				{
+					psEntity->GetParticleSystem().GetEmitter(i)->SpawnParticles(updateInfo.m_dt);
+				}
 			}
 			
 			psEntity->UpdateLastFrameTransform();

@@ -2,8 +2,8 @@
 #include "../world/entities/playerentity.h"
 #include "../exceptions/fatalexception.h"
 
-#include <al.h>
-#include <alc.h>
+#include <AL/al.h>
+#include <AL/alc.h>
 #include <stdexcept>
 
 namespace TankGame

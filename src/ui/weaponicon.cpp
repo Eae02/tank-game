@@ -21,6 +21,9 @@ namespace TankGame
 	
 	void WeaponIcon::Update(const UpdateInfo& updateInfo)
 	{
+		if (m_weaponState == nullptr)
+			return;
+		
 		bool isSelected = HUDManager::GetWeaponIndex(*m_weaponState) == m_weaponIndex;
 		UpdateTransition(m_highlight, isSelected ? 1.0f : 0.0f, updateInfo.m_dt * 5);
 		
@@ -60,6 +63,9 @@ namespace TankGame
 	
 	std::string WeaponIcon::GetInfoString() const
 	{
+		if (m_weaponState == nullptr)
+			return "";
+		
 		if (m_weaponIndex == 0)
 			return "Plasma Gun";
 		
@@ -71,14 +77,14 @@ namespace TankGame
 		return infoStringStream.str();
 	}
 	
-	void WeaponIcon::SetWeaponState(const PlayerWeaponState& weaponState)
+	void WeaponIcon::SetWeaponState(const PlayerWeaponState* weaponState)
 	{
-		m_weaponState = &weaponState;
+		m_weaponState = weaponState;
 		
-		if (m_weaponIndex != 0)
+		if (m_weaponIndex != 0 && weaponState != nullptr)
 		{
 			m_incrementStringHideTime = glfwGetTime();
-			m_lastAmmoCount = weaponState.GetAmmoCount(static_cast<SpecialWeapons>(m_weaponIndex - 1));
+			m_lastAmmoCount = weaponState->GetAmmoCount(static_cast<SpecialWeapons>(m_weaponIndex - 1));
 		}
 	}
 	

@@ -5,6 +5,7 @@
 #include "progress.h"
 #include "graphics/quadmesh.h"
 #include "graphics/ui/font.h"
+#include "graphics/gl/dsawrapper.h"
 #include "world/lights/pointlightentity.h"
 #include "world/particles/systems/smokeparticlesystem.h"
 #include "world/entities/playerentity.h"
@@ -24,9 +25,13 @@
 #define GLFW_EXPOSE_NATIVE_X11
 #elif defined(_WIN32)
 #define GLFW_EXPOSE_NATIVE_WIN32
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #endif
 
 #include <GLFW/glfw3native.h>
+#include <GL/glext.h>
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -58,6 +63,8 @@ namespace TankGame
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, true);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+		glfwWindowHint(GLFW_DEPTH_BITS, 0);
+		glfwWindowHint(GLFW_STENCIL_BITS, 0);
 		
 #ifndef NDEBUG
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
@@ -261,7 +268,10 @@ namespace TankGame
 		
 		m_console.AddCommand("glinfo", [] (const std::string* argv, size_t argc)
 		{
-			GetLogStream() << "GL Renderer: " << glGetString(GL_RENDERER) << "\nGL Vendor: " << glVendorName << "\n";
+			GetLogStream() << "Renderer: " << glGetString(GL_RENDERER) << 
+			                  "\nVendor: " << glVendorName << 
+			                  "\nDSA: " << (DSAWrapper::IsActive() ? "wrapper" : "driver") <<
+			                  "\nUB alignment: " << GetUniformBufferOffsetAlignment() << "\n";
 		});
 	}
 	
@@ -298,8 +308,8 @@ namespace TankGame
 	}
 	
 #ifndef NDEBUG
-	static void GLAPIENTRY OpenGLMessageCallback(GLenum, GLenum type, GLuint id, GLenum severity, GLsizei,
-	                                             const GLchar* message, const void*)
+	void APIENTRY OpenGLMessageCallback(GLenum, GLenum type, GLuint id, GLenum severity, GLsizei,
+	                                    const GLchar* message, const void*)
 	{
 		if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
 			return;
@@ -375,21 +385,11 @@ namespace TankGame
 		GLsync fence = m_frameFences[GetFrameQueueIndex()];
 		if (fence != nullptr)
 		{
-#ifndef NDEBUG
-			auto startTime = high_resolution_clock::now();
-#endif
-			
 			GLenum waitReturn = GL_UNSIGNALED;
 			while (waitReturn != GL_ALREADY_SIGNALED && waitReturn != GL_CONDITION_SATISFIED)
 			{
 				waitReturn = glClientWaitSync(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 1);
 			}
-			
-#ifndef NDEBUG
-			long delta = duration_cast<milliseconds>(high_resolution_clock::now() - startTime).count();
-			if (delta > 1 && waitReturn != GL_ALREADY_SIGNALED)
-				GetLogStream() << LOG_PERFORMANCE << "CPU stalled for " << delta << "ms while waiting for the GPU.\n";
-#endif
 		}
 		
 		bool isEditorOpen = m_editor != nullptr && m_editor->IsOpen();

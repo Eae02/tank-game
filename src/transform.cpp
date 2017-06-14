@@ -111,24 +111,29 @@ namespace TankGame
 		return json;
 	}
 	
-	void Transform::RenderProperties(Properties propertiesToShow)
+	bool Transform::RenderProperties(Properties propertiesToShow)
 	{
-		if (propertiesToShow & Properties::Position)
+		bool modified = false;
+		
+		if (propertiesToShow & Properties::Position &&
+		    ImGui::InputFloat2("Position", reinterpret_cast<float*>(&m_position)))
 		{
-			if (ImGui::InputFloat2("Position", reinterpret_cast<float*>(&m_position)))
-				m_matrixOutOfDate = true;
+			modified = true;
+			m_matrixOutOfDate = true;
 		}
 		
-		if (propertiesToShow & Properties::Scale)
+		if (propertiesToShow & Properties::Scale && ImGui::InputFloat2("Scale", reinterpret_cast<float*>(&m_scale)))
 		{
-			if (ImGui::InputFloat2("Scale", reinterpret_cast<float*>(&m_scale)))
-				m_matrixOutOfDate = true;
+			modified = true;
+			m_matrixOutOfDate = true;
 		}
 		
-		if (propertiesToShow & Properties::Rotation)
+		if (propertiesToShow & Properties::Rotation && ImGui::SliderAngle("Rotation", &m_rotation))
 		{
-			if (ImGui::SliderAngle("Rotation", &m_rotation))
-				SetRotation(m_rotation);
+			modified = true;
+			SetRotation(m_rotation);
 		}
+		
+		return modified;
 	}
 }

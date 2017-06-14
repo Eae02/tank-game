@@ -39,6 +39,8 @@ namespace TankGame
 		void DrawRectangle(const Rectangle& rectangle, const glm::vec4& color) const;
 		void DrawQuad(const glm::mat3& transform, const glm::vec4& color) const;
 		
+		void DrawQuad(const std::array<glm::vec2, 4>& corners, const glm::vec4& color) const;
+		
 		void DrawQuadBorder(const glm::mat3& transform, const glm::vec4& color) const;
 		
 		void DrawLine(const glm::vec2& a, const glm::vec2& b, const glm::vec4& color) const;
@@ -79,7 +81,7 @@ namespace TankGame
 		{
 			std::unique_ptr<ShaderProgram> m_shader;
 			int m_colorLocation;
-			int m_transformLocation;
+			int m_cornersLocation;
 		};
 		static QuadShader s_quadShader;
 		

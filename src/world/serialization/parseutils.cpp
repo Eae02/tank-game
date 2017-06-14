@@ -6,6 +6,7 @@
 #include "entityparsers/spiderbotparser.h"
 #include "entityparsers/rocketturretparser.h"
 #include "entityparsers/ammoboxparser.h"
+#include "entityparsers/energyballparser.h"
 #include "entityparsers/activatorparser.h"
 #include "entityparsers/eventboxparser.h"
 #include "entityparsers/propparser.h"
@@ -14,6 +15,8 @@
 #include "entityparsers/deflectionfieldparser.h"
 #include "entityparsers/nullentityparser.h"
 #include "entityparsers/conveyorbeltparser.h"
+#include "entityparsers/flamethrowerparser.h"
+#include "entityparsers/omniflamethrowerparser.h"
 
 #include "../entities/pickups/shieldpickupentity.h"
 
@@ -27,7 +30,10 @@ namespace TankGame
 	static SpiderBotParser spiderBotParser;
 	static RocketTurretParser rocketTurretParser;
 	static DeflectionFieldParser deflectionFieldParser;
+	static FlameThrowerParser flameThrowerParser;
+	static OmniFlameThrowerParser omniFlameThrowerParser;
 	
+	static EnergyBallParser energyBallParser;
 	static ActivatorParser activatorParser;
 	static AmmoBoxParser ammoBoxParser;
 	static EventBoxParser eventBoxParser;
@@ -55,7 +61,13 @@ namespace TankGame
 			return &rayLightParser;
 		if (className == "LightStrip")
 			return &lightStripParser;
+		if (className == "FlameThrower")
+			return &flameThrowerParser;
+		if (className == "OmniFlameThrower")
+			return &omniFlameThrowerParser;
 		
+		if (className == "EnergyBall")
+			return &energyBallParser;
 		if (className == "Activator")
 			return &activatorParser;
 		if (className == "AmmoBox")

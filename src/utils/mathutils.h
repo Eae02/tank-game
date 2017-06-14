@@ -16,4 +16,11 @@ namespace TankGame
 	template <typename T>
 	inline float LengthSquared(T vector)
 	{ return glm::dot(vector, vector); }
+	
+	template <typename T>
+	inline T RoundToNextMultiple(T value, T multiple)
+	{
+		T valModMul = value % multiple;
+		return valModMul == 0 ? value : (value + multiple - valModMul);
+	}
 }

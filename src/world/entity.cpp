@@ -56,8 +56,8 @@ namespace TankGame
 		{
 			lua_newtable(state);
 			
-			Entity** userDataPtr = reinterpret_cast<Entity**>(lua_newuserdata(state, sizeof(Entity*)));
-			*userDataPtr = this;
+			EntityHandle* userDataPtr = reinterpret_cast<EntityHandle*>(lua_newuserdata(state, sizeof(EntityHandle)));
+			*userDataPtr = EntityHandle(*m_world, *this);
 			
 			luaL_getmetatable(state, "Entity");
 			lua_setmetatable(state, -2);
@@ -104,7 +104,8 @@ namespace TankGame
 		if (propertiesToShow != Transform::Properties::None &&
 		    ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed))
 		{
-			GetTransform().RenderProperties(propertiesToShow);
+			if (GetTransform().RenderProperties(propertiesToShow))
+				EditorMoved();
 			ImGui::TreePop();
 		}
 	}
@@ -145,7 +146,7 @@ namespace TankGame
 			lua_pushcfunction(state, [] (lua_State* state) -> int
 			{
 				lua_pushnumber(state, LuaGetInstance(state)->GetTransform().GetRotation());
-				return 2;
+				return 1;
 			});
 			lua_setfield(state, -2, "getRotation");
 			
@@ -170,12 +171,27 @@ namespace TankGame
 			// ** getObjectName **
 			lua_pushcfunction(state, [] (lua_State* state) -> int
 			{
-				Entity* instance = LuaGetInstance(state);
-				
-				lua_pushstring(state, instance->GetObjectName());
+				lua_pushstring(state, LuaGetInstance(state)->GetObjectName());
 				return 1;
 			});
 			lua_setfield(state, -2, "getObjectName");
+			
+			// ** despawn **
+			lua_pushcfunction(state, [] (lua_State* state) -> int
+			{
+				if (Entity* instance = LuaGetInstance(state, false))
+					instance->Despawn();
+				return 0;
+			});
+			lua_setfield(state, -2, "despawn");
+			
+			// ** isAlive **
+			lua_pushcfunction(state, [] (lua_State* state) -> int
+			{
+				lua_pushboolean(state, LuaGetInstance(state, false) != nullptr);
+				return 1;
+			});
+			lua_setfield(state, -2, "isAlive");
 			
 			s_metaTableRef = Lua::RegistryReference::PopAndCreate(state);
 			CallOnClose([] { s_metaTableRef = { }; });
@@ -184,15 +200,22 @@ namespace TankGame
 		s_metaTableRef.Load(state);
 	}
 	
-	Entity* Entity::LuaGetInstance(lua_State* state)
+	Entity* Entity::LuaGetInstance(lua_State* state, bool errorOnFail)
 	{
 		lua_getfield(state, 1, "__instance");
 		
-		Entity** entity = reinterpret_cast<Entity**>(luaL_checkudata(state, -1, "Entity"));
-		
+		EntityHandle* entityHandle = reinterpret_cast<EntityHandle*>(luaL_checkudata(state, -1, "Entity"));
 		lua_pop(state, 1);
 		
-		return *entity;
+		Entity* entity = entityHandle->Get();
+		
+		if (entity == nullptr && errorOnFail)
+		{
+			lua_pushstring(state, "Attempted to access a despawned entity.");
+			lua_error(state);
+		}
+		
+		return entity;
 	}
 	
 	void Entity::NewLuaMetaTable(lua_State* state)

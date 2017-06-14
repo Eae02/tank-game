@@ -53,9 +53,7 @@ namespace TankGame
 		inline Transform& GetTransform()
 		{ return m_transform; }
 		
-		inline class GameWorld* GetGameWorld()
-		{ return m_world; }
-		inline const class GameWorld* GetGameWorld() const
+		inline class GameWorld* GetGameWorld() const
 		{ return m_world; }
 		
 		virtual bool CanInteract()
@@ -112,7 +110,7 @@ namespace TankGame
 		{ RenderBaseProperties(Transform::Properties::All); }
 		void RenderBaseProperties(Transform::Properties propertiesToShow, bool nameable = true);
 		
-		static Entity* LuaGetInstance(lua_State* state);
+		static Entity* LuaGetInstance(lua_State* state, bool errorOnFail = true);
 		static void NewLuaMetaTable(lua_State* state);
 		
 	private:

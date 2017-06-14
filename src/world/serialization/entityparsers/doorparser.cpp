@@ -3,7 +3,7 @@
 
 namespace TankGame
 {
-	std::unique_ptr<Entity> DoorParser::ParseEntity(const nlohmann::json& json) const
+	std::unique_ptr<Entity> DoorParser::ParseEntity(const nlohmann::json& json, const ParseParams& params) const
 	{
 		std::unique_ptr<DoorEntity> entity = std::make_unique<DoorEntity>();
 		

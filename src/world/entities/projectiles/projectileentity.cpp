@@ -143,7 +143,7 @@ namespace TankGame
 		if (intersectInfo.m_intersects)
 		{
 			GetTransform().Translate(-intersectInfo.m_penetration + move * CIRCLE_RADIUS);
-			OnImpact(DefaultImpact);
+			OnImpact(DefaultImpact, intersectInfo.m_penetration);
 		}
 		
 		Hittable* hitEntity = nullptr;
@@ -190,8 +190,7 @@ namespace TankGame
 				flags = static_cast<ImpactFlags>(flags | ShieldImpact);
 			}
 			
-			OnImpact(flags);
-			
+			OnImpact(flags, hitEntityPenetration);
 		}
 	}
 }

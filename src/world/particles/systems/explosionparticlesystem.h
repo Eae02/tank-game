@@ -1,6 +1,6 @@
 #pragma once
 
-#include "flameemitter.h"
+#include "explosionflameemitter.h"
 #include "sparkemitter.h"
 #include "particlesystem.h"
 
@@ -18,7 +18,7 @@ namespace TankGame
 		virtual void SetTransformationProvider(const class ITransformationProvider* transformationProvider) override;
 		
 	private:
-		FlameEmitter m_flameEmitter;
+		ExplosionFlameEmitter m_flameEmitter;
 		SparkEmitter m_sparkEmitter;
 	};
 }

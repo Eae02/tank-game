@@ -6,7 +6,7 @@
 
 namespace TankGame
 {
-	std::unique_ptr<Entity> AmmoBoxParser::ParseEntity(const nlohmann::json& json) const
+	std::unique_ptr<Entity> AmmoBoxParser::ParseEntity(const nlohmann::json& json, const ParseParams& params) const
 	{
 		std::unique_ptr<AmmoBoxEntity> entity = std::make_unique<AmmoBoxEntity>();
 		
@@ -19,5 +19,4 @@ namespace TankGame
 		
 		return entity;
 	}
-	
 }

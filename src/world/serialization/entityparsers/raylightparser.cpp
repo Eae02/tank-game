@@ -5,7 +5,7 @@
 
 namespace TankGame
 {
-	std::unique_ptr<Entity> RayLightParser::ParseEntity(const nlohmann::json& json) const
+	std::unique_ptr<Entity> RayLightParser::ParseEntity(const nlohmann::json& json, const ParseParams& params) const
 	{
 		std::unique_ptr<RayLightEntity> entity = std::make_unique<RayLightEntity>();
 		

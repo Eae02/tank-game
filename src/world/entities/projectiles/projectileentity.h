@@ -33,7 +33,7 @@ namespace TankGame
 		
 		ProjectileEntity(int teamID, const Entity* sourceEntity, float speed, float damage, float damageStandardDist);
 		
-		virtual void OnImpact(ImpactFlags flags) { }
+		virtual void OnImpact(ImpactFlags flags, glm::vec2 penetration) { }
 		
 		virtual bool ShouldDeflect(const class DeflectionFieldEntity& deflectionField) const;
 		virtual void OnDeflected(glm::vec2 deflectionPos) { }

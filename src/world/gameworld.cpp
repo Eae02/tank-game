@@ -1,6 +1,11 @@
 #include "gameworld.h"
 #include "particles/particleemitter.h"
+#include "entities/energyball.h"
+#include "entities/explosionentity.h"
+#include "entities/enemies/enemytank.h"
 #include "entities/conveyorbeltentity.h"
+#include "serialization/entityparsers/entityparser.h"
+#include "serialization/parseutils.h"
 #include "../lua/luavm.h"
 #include "../graphics/spriterenderlist.h"
 #include "../graphics/tilegridmaterial.h"
@@ -8,6 +13,7 @@
 #include "../utils/mathutils.h"
 #include "../utils/utils.h"
 #include "../progress.h"
+#include "../gamemanager.h"
 
 #include <glm/gtc/constants.hpp>
 #include <GLFW/glfw3.h>
@@ -40,7 +46,7 @@ namespace TankGame
 		m_quadTree.Update();
 	}
 	
-	EntityHandle GameWorld::Spawn(std::unique_ptr<Entity>&& entity)
+	EntityHandle GameWorld::Spawn(std::unique_ptr<Entity> entity)
 	{
 		m_quadTree.Add(*entity);
 		
@@ -156,6 +162,7 @@ namespace TankGame
 	
 	void GameWorld::InitLuaSandbox(lua_State* state)
 	{
+		// ** findEntity **
 		Lua::PushFunction(state, [this] (lua_State* state) -> int
 		{
 			Entity* entity = GetEntityByName(lua_tostring(state, 1));
@@ -168,6 +175,143 @@ namespace TankGame
 			return 1;
 		});
 		lua_setfield(state, -2, "findEntity");
+		
+		// ** setShowBossHP **
+		Lua::PushFunction(state, [this] (lua_State* state) -> int
+		{
+			if (m_gameManager != nullptr)
+				m_gameManager->SetShowGlobalHealthBar(lua_toboolean(state, 1));
+			return 0;
+		});
+		lua_setfield(state, -2, "setShowBossHP");
+		
+		// ** setBossHP **
+		Lua::PushFunction(state, [this] (lua_State* state) -> int
+		{
+			if (m_gameManager != nullptr)
+				m_gameManager->SetGlobalHealthBarPercentage(static_cast<float>(luaL_checknumber(state, 1)));
+			return 0;
+		});
+		lua_setfield(state, -2, "setBossHP");
+		
+		// ** levelComplete **
+		Lua::PushFunction(state, [this] (lua_State* state) -> int
+		{
+			if (m_gameManager == nullptr)
+				return 0;
+			
+			std::string nextLevel;
+			if (lua_gettop(state) > 0)
+				nextLevel = lua_tostring(state, 1);
+			
+			m_gameManager->LevelComplete(std::move(nextLevel));
+			
+			return 0;
+		});
+		lua_setfield(state, -2, "levelComplete");
+		
+		// ** explosion **
+		Lua::PushFunction(state, [this] (lua_State* state) -> int
+		{
+			const glm::vec2 pos(luaL_checknumber(state, 1), luaL_checknumber(state, 2));
+			
+			auto entity = std::make_unique<ExplosionEntity>(GetParticlesManager());
+			entity->GetTransform().SetPosition(pos);
+			Spawn(std::move(entity));
+			
+			return 0;
+		});
+		lua_setfield(state, -2, "explosion");
+		
+		// ** spawnEnergyBall **
+		Lua::PushFunction(state, [this] (lua_State* state) -> int
+		{
+			const glm::vec2 pos(luaL_checknumber(state, 1), luaL_checknumber(state, 2));
+			const glm::vec2 dir(luaL_checknumber(state, 3), luaL_checknumber(state, 4));
+			float damage = luaL_optnumber(state, 5, 70);
+			
+			auto entity = std::make_unique<EnergyBall>(dir, damage, GetParticlesManager());
+			entity->GetTransform().SetPosition(pos);
+			
+			Entity* entityCopy = entity.get();
+			Spawn(std::move(entity));
+			entityCopy->PushLuaInstance(state);
+			
+			return 1;
+		});
+		lua_setfield(state, -2, "spawnEnergyBall");
+		
+		// ** spawnEnemyTank **
+		Lua::PushFunction(state, [this] (lua_State* state) -> int
+		{
+			const glm::vec2 pos(luaL_checknumber(state, 1), luaL_checknumber(state, 2));
+			
+			//Parses parameters from argument #3
+			bool hasShield = false;
+			bool isRocketTank = false;
+			float hp = 50;
+			if (lua_istable(state, 3))
+			{
+				lua_getfield(state, 3, "hasShield");
+				if (!lua_isnil(state, -1))
+					hasShield = lua_toboolean(state, -1);
+				
+				lua_getfield(state, 3, "isRocketTank");
+				if (!lua_isnil(state, -1))
+					isRocketTank = lua_toboolean(state, -1);
+				
+				lua_getfield(state, 3, "hp");
+				if (!lua_isnil(state, -1))
+					hp = std::max(static_cast<float>(lua_tonumber(state, -1)), 10.0f);
+				
+				lua_pop(state, 3);
+			}
+			
+			Path idlePath;
+			if (lua_istable(state, 4))
+			{
+				lua_len(state, 4);
+				lua_Integer pathLen = lua_tointeger(state, -1);
+				lua_pop(state, 1);
+				
+				for (lua_Integer i = 1; i <= pathLen; i++)
+				{
+					lua_geti(state, 4, i); //Fetches the coordinate array
+					
+					lua_geti(state, -1, 1); //Fetches the x-coordinate from the coordinate array
+					float x = static_cast<float>(lua_tonumber(state, -1));
+					lua_geti(state, -2, 2); //Fetches the y-coordinate from the coordinate array
+					float y = static_cast<float>(lua_tonumber(state, -1));
+					
+					idlePath.AddNode({ x, y });
+					
+					lua_pop(state, 3);
+				}
+			}
+			else
+			{
+				idlePath.AddNode(pos + glm::vec2(0.1f, 0.1f));
+				idlePath.AddNode(pos + glm::vec2(-0.1f, 0.1f));
+				idlePath.AddNode(pos + glm::vec2(-0.1f, -0.1f));
+				idlePath.AddNode(pos + glm::vec2(0.1f, -0.1f));
+			}
+			idlePath.Close();
+			
+			std::unique_ptr<EnemyTank> entity = std::make_unique<EnemyTank>(std::move(idlePath));
+			entity->SetHasShield(hasShield);
+			entity->SetIsRocketTank(isRocketTank);
+			entity->SetHp(hp);
+			
+			EnemyTank* entityCopy = entity.get();
+			Spawn(std::move(entity));
+			
+			entityCopy->GetTransform().SetPosition(pos); //We have to set this again because onspawned moved the entity onto it's idle path
+			entityCopy->DetectPlayer();
+			entityCopy->PushLuaInstance(state);
+			
+			return 1;
+		});
+		lua_setfield(state, -2, "spawnEnemyTank");
 	}
 	
 	void GameWorld::SetLuaSandbox(const Lua::Sandbox* sandbox)

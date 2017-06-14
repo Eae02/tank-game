@@ -1,4 +1,4 @@
-#include "flameemitter.h"
+#include "explosionflameemitter.h"
 #include "../../../utils/ioutils.h"
 #include "../../../utils/utils.h"
 
@@ -6,9 +6,9 @@
 
 namespace TankGame
 {
-	std::unique_ptr<Texture2DArray> FlameEmitter::s_flameTexture;
+	std::unique_ptr<Texture2DArray> ExplosionFlameEmitter::s_flameTexture;
 	
-	FlameEmitter::FlameEmitter(ParticlesManager& particlesManager)
+	ExplosionFlameEmitter::ExplosionFlameEmitter(ParticlesManager& particlesManager)
 	    : ParticleEmitter(particlesManager), m_positionGenerator(0, glm::two_pi<float>(), 0, 0.4f),
 	      m_velocityGenerator(0, glm::two_pi<float>(), 0, 1.0f)
 	{
@@ -35,18 +35,18 @@ namespace TankGame
 		SetEndSize(0.4f, 0.6f);
 	}
 	
-	void FlameEmitter::SetTransformationProvider(const class ITransformationProvider* transformationProvider)
+	void ExplosionFlameEmitter::SetTransformationProvider(const class ITransformationProvider* transformationProvider)
 	{
 		m_positionGenerator.SetRelativeTransformProvider(transformationProvider, true);
 		m_velocityGenerator.SetRelativeTransformProvider(transformationProvider, false);
 	}
 	
-	glm::vec2 FlameEmitter::GeneratePosition(float subframeInterpolation) const
+	glm::vec2 ExplosionFlameEmitter::GeneratePosition(float subframeInterpolation) const
 	{
 		return m_positionGenerator.GenerateVec2(GetRandom(), subframeInterpolation);
 	}
 	
-	glm::vec2 FlameEmitter::GenerateVelocity(float subframeInterpolation) const
+	glm::vec2 ExplosionFlameEmitter::GenerateVelocity(float subframeInterpolation) const
 	{
 		return m_velocityGenerator.GenerateVec2(GetRandom(), subframeInterpolation);
 	}

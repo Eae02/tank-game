@@ -1,0 +1,9 @@
+{
+	"name": "StainDecalYellow",
+	"diffuse": "stain-decal-yellow.png",
+	"specular": {
+		"intensity": 0.05,
+		"exponent": 10
+	},
+	"decal": true
+}

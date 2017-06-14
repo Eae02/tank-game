@@ -20,7 +20,7 @@ namespace TankGame
 		gameWorld.IterateEntities([&] (const Entity& entity)
 		{
 			const char* className = entity.GetSerializeClassName();
-			if (className == nullptr)
+			if (className == nullptr || !entity.IsEditorVisible())
 				return;
 			
 			nlohmann::json element = entity.Serialize();

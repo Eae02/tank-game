@@ -3,7 +3,7 @@
 
 namespace TankGame
 {
-	std::unique_ptr<Entity> ConveyorBeltParser::ParseEntity(const nlohmann::json& json) const
+	std::unique_ptr<Entity> ConveyorBeltParser::ParseEntity(const nlohmann::json& json, const ParseParams& params) const
 	{
 		float speed = 1;
 		auto speedIt = json.find("speed");

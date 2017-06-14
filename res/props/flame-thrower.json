@@ -1,0 +1,9 @@
+{
+	"name": "FlameThrower",
+	"diffuse": "flame-thrower-diffuse.png",
+	"normalMap": "flame-thrower-normals.png",
+	"specular": {
+		"intensity": 1,
+		"exponent": 30
+	}
+}

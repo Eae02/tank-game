@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH "${TankGame_SOURCE_DIR}/cmake")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TankGame_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${TankGame_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 
-add_definitions(-DGLM_FORCE_RADIANS -DZLIB_CONST -DLUA_FLOAT_TYPE=LUA_FLOAT_FLOAT)
+add_definitions(-DGLM_FORCE_RADIANS -DZLIB_CONST)
 
 file(GLOB_RECURSE SOURCE_FILES
 		${TankGame_SOURCE_DIR}/src/*.cpp
@@ -64,7 +64,7 @@ link_libraries(
 )
 
 #Sets include directories for all projects
-include_directories(
+include_directories(SYSTEM
 	${OPENGL_INCLUDE_DIR}
 	${OPENAL_INCLUDE_DIR}
 	${OGG_INCLUDE_DIR}

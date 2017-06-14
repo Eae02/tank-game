@@ -15,3 +15,13 @@ function updateDoor9()
 		findEntity("door9"):open()
 	end
 end
+
+local finalTanksRemaining = 3
+for i = 1, 3 do
+	findEntity("tankFinal_" .. i):onKilled(function ()
+		finalTanksRemaining = finalTanksRemaining - 1
+		if finalTanksRemaining == 0 then
+			levelComplete("level_2")
+		end
+	end)
+end

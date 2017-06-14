@@ -20,15 +20,12 @@ namespace TankGame
 		SetRotationSpeed(0.0f, 0.0f);
 	}
 	
-	void ParticleEmitter::SpawnParticles()
+	void ParticleEmitter::SpawnParticles(float elapsedTime)
 	{
-		double time = glfwGetTime();
+		elapsedTime += m_timeNotEmitted;
 		
-		if (std::isnan(m_lastEmissionTime))
-			m_lastEmissionTime = time;
-		
-		double elapsedTime = time - m_lastEmissionTime;
 		int numEmissions = static_cast<int>(std::floor(elapsedTime * m_emissionRate));
+		m_timeNotEmitted = elapsedTime - numEmissions / m_emissionRate;
 		
 		if (numEmissions > 0)
 		{
@@ -52,7 +49,6 @@ namespace TankGame
 					m_particlePools.back()->SpawnParticle(info);
 				}
 			}
-			m_lastEmissionTime += numEmissions / m_emissionRate;
 		}
 		
 		for (size_t i = 0; i < m_particlePools.size();)

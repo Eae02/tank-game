@@ -72,6 +72,8 @@ namespace TankGame
 		static std::unique_ptr<Texture2D> s_cannonNormalMap;
 		static std::unique_ptr<SpriteMaterial> s_cannonMaterial;
 		
+		Lua::RegistryReference m_onKilledCallback;
+		
 		bool m_isRocketTank = false;
 		bool m_hasShield = false;
 		

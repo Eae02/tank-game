@@ -156,14 +156,24 @@ namespace TankGame
 	{
 		TankEntity::OnKilled();
 		
+		//Invokes a lua callabck set by onKilled.
+		if (m_onKilledCallback)
+		{
+			m_onKilledCallback.Load(Lua::GetState());
+			Lua::CallFunction(0, 0);
+		}
+		
+		//Spawns an expolsion entity.
 		auto explosion = std::make_unique<ExplosionEntity>(GetGameWorld()->GetParticlesManager());
 		explosion->GetTransform().SetPosition(GetTransform().GetPosition());
 		GetGameWorld()->Spawn(std::move(explosion));
 		
+		//Gives the player energy and spawns drops.
 		PlayerEntity* player = dynamic_cast<PlayerEntity*>(GetGameWorld()->GetEntityByName("player"));
 		if (player != nullptr)
 		{
 			player->GiveEnergy();
+			
 			if (player->GetHp() < player->GetMaxHp())
 				HpPickupEntity::SpawnEntities(*GetGameWorld(), GetTransform().GetPosition(), 20.0f);
 			
@@ -284,6 +294,19 @@ namespace TankGame
 				return 0;
 			});
 			lua_setfield(state, -2, "detectPlayer");
+			
+			// ** onKilled **
+			lua_pushcfunction(state, [] (lua_State* state) -> int
+			{
+				if (!lua_isfunction(state, 2))
+					luaL_error(state, "Invalid argument #1 to onKilled, expected a function.");
+				
+				lua_pushvalue(state, 2);
+				dynamic_cast<EnemyTank*>(LuaGetInstance(state))->m_onKilledCallback =
+				        Lua::RegistryReference::PopAndCreate(Lua::GetState());
+				return 0;
+			});
+			lua_setfield(state, -2, "onKilled");
 			
 			s_metaTableRef = Lua::RegistryReference::PopAndCreate(state);
 			CallOnClose([] { s_metaTableRef = { }; });

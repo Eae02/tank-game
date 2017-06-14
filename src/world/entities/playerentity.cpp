@@ -4,6 +4,8 @@
 #include "conveyorbeltentity.h"
 #include "../spteams.h"
 #include "../gameworld.h"
+#include "../../settings.h"
+#include "../../inpututils.h"
 #include "../../tanktextures.h"
 #include "../../audio/soundsmanager.h"
 #include "../../updateinfo.h"
@@ -15,6 +17,7 @@
 #include "../../utils/utils.h"
 #include "../../utils/ioutils.h"
 #include "../../gamemanager.h"
+#include "../../lua/luavm.h"
 
 #include <glm/gtc/color_space.hpp>
 
@@ -43,7 +46,8 @@ namespace TankGame
 	const float PLAYER_MAX_HP = 100;
 	
 	PlayerEntity::PlayerEntity()
-	    : TankEntity(ParseColorHexCodeSRGB(0xFADD98), textureInfo, PlayerTeamID, PLAYER_MAX_HP), m_dist(0.0f, 1.0f)
+	    : TankEntity(ParseColorHexCodeSRGB(0xFADD98), textureInfo, PlayerTeamID, PLAYER_MAX_HP),
+	      m_noAmmoAudioSource(AudioSource::VolumeModes::Effect), m_dist(0.0f, 1.0f)
 	{
 		if (!s_areTexturesLoaded)
 		{
@@ -67,6 +71,7 @@ namespace TankGame
 			s_areTexturesLoaded = true;
 		}
 		
+		m_noAmmoAudioSource.SetVolume(0.7f);
 		m_noAmmoAudioSource.SetBuffer(SoundsManager::GetInstance().GetSound("NoAmmo"));
 	}
 	
@@ -92,7 +97,9 @@ namespace TankGame
 		const float DRAG_CONSTANT = 12;
 		const float MASS = 0.8f;
 		
-		if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_E) && !updateInfo.m_keyboard.WasKeyDown(GLFW_KEY_E))
+		const Settings& settings = Settings::GetInstance();
+		
+		if (IsButtonPressedNow(updateInfo, settings.GetInteractButton()))
 		{
 			GetGameWorld()->IterateIntersectingEntities(GetInteractRectangle(), [] (Entity& entity)
 			{
@@ -101,21 +108,21 @@ namespace TankGame
 			});
 		}
 		
-		if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_W))
+		if (IsButtonPressed(updateInfo, settings.GetForwardButton()))
 		{
 			force += forward * MOVE_FORCE;
 			AdvanceFrame(-updateInfo.m_dt * FRAME_MULTIPLIER * MOVE_FORCE);
 		}
 		
-		if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_S))
+		if (IsButtonPressed(updateInfo, settings.GetBackButton()))
 		{
 			force -= forward * MOVE_FORCE;
 			AdvanceFrame(updateInfo.m_dt * FRAME_MULTIPLIER * MOVE_FORCE);
 		}
 		
-		if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_A))
+		if (IsButtonPressed(updateInfo, settings.GetLeftButton()))
 			rotForce += ROTATION_FORCE;
-		if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_D))
+		if (IsButtonPressed(updateInfo, settings.GetRightButton()))
 			rotForce -= ROTATION_FORCE;
 		
 		//Applies drag
@@ -172,7 +179,7 @@ namespace TankGame
 			m_energy = glm::min(m_energy + updateInfo.m_dt * 15, 100.0f);
 		}
 		
-		if (updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT) && CanFire(updateInfo.m_gameTime))
+		if (IsButtonPressed(updateInfo, settings.GetFireButton()) && CanFire(updateInfo.m_gameTime))
 			FireSelectedWeapon(updateInfo.m_gameTime);
 		
 		TankEntity::Update(updateInfo);
@@ -213,7 +220,7 @@ namespace TankGame
 				GetGameWorld()->GetGameManager()->ShowNoAmmoText();
 				
 				if (!m_noAmmoAudioSource.IsPlaying())
-					m_noAmmoAudioSource.Play(0.7f, 1.0f);
+					m_noAmmoAudioSource.Play();
 			}
 			else
 			{
@@ -271,6 +278,8 @@ namespace TankGame
 		auto explosion = std::make_unique<ExplosionEntity>(GetGameWorld()->GetParticlesManager());
 		explosion->GetTransform().SetPosition(GetTransform().GetPosition());
 		GetGameWorld()->Spawn(std::move(explosion));
+		
+		Lua::DoString("if onPlayerKilled then onPlayerKilled() end", GetGameWorld()->GetLuaSandbox());
 	}
 	
 	Rectangle PlayerEntity::GetInteractRectangle() const

@@ -14,9 +14,6 @@ namespace TankGame
 	public:
 		explicit Level(std::istream& stream, GameWorld::Types worldType = GameWorld::Types::Game);
 		
-		Level(Level&& other);
-		Level& operator=(Level&& other);
-		
 		static Level FromName(const std::string& name, GameWorld::Types worldType = GameWorld::Types::Game);
 		
 		inline GameWorld& GetGameWorld() const
@@ -42,7 +39,8 @@ namespace TankGame
 		//Needs to be a unique_ptr so the game world doesn't move in memory
 		std::unique_ptr<GameWorld> m_gameWorld;
 		
-		Lua::Sandbox m_luaSandbox;
+		//Needs to be a unique_ptr so the sandbox doesn't move in memory
+		std::unique_ptr<Lua::Sandbox> m_luaSandbox;
 		
 		class PlayerEntity* m_playerEntity;
 	};

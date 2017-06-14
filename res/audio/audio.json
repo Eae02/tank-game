@@ -24,6 +24,10 @@
 		"src": "checkpoint.ogg"
 	},
 	{
+		"name": "FlameThrower",
+		"src": "flame_thrower.ogg"
+	},
+	{
 		"name": "MenuMouseOver",
 		"src": "menu_mouse_over.ogg"
 	},

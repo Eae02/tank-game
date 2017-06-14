@@ -9,22 +9,20 @@ namespace TankGame
 		alDeleteSources(1, &source);
 	}
 	
-	ViewInfo AudioSource::s_viewInfo;
-	
-	AudioSource::AudioSource(VolumeModes volumeMode)
-	    : m_volumeMode(volumeMode)
+	static ALuint CreateAudioSource()
 	{
 		ALuint id;
 		alGenSources(1, &id);
-		SetID(id);
-		
-		alSourcef(GetID(), AL_GAIN, m_volume);
-		alSourcef(GetID(), AL_PITCH, m_pitch);
+		return id;
 	}
 	
-	void AudioSource::SetBuffer(const AudioBuffer& buffer)
+	ViewInfo AudioSource::s_viewInfo;
+	
+	AudioSource::AudioSource(VolumeModes volumeMode)
+	    : ALResource(CreateAudioSource()), m_volumeMode(volumeMode)
 	{
-		alSourcei(GetID(), AL_BUFFER, buffer.GetID());
+		SetVolume(1.0f);
+		SetPitch(1.0f);
 	}
 	
 	void AudioSource::SetPosition(glm::vec2 position)
@@ -48,42 +46,20 @@ namespace TankGame
 		alSource3f(GetID(), AL_DIRECTION, sDirection.x, sDirection.y, 0);
 	}
 	
-	void AudioSource::SetIsLooping(bool isLooping)
-	{
-		alSourcei(GetID(), AL_LOOPING, isLooping ? AL_TRUE : AL_FALSE);
-	}
-	
 	void AudioSource::SetAttenuationSettings(float rolloffFactor, float refDistance)
 	{
 		alSourcef(GetID(), AL_ROLLOFF_FACTOR, rolloffFactor);
 		alSourcef(GetID(), AL_REFERENCE_DISTANCE, refDistance);
 	}
 	
-	void AudioSource::Play(float volume, float pitch) const
+	void AudioSource::SetVolume(float volume)
 	{
 		if (m_volumeMode == VolumeModes::Music)
 			volume *= Settings::GetInstance().GetMusicGain();
 		if (m_volumeMode == VolumeModes::Effect)
 			volume *= Settings::GetInstance().GetSFXGain();
 		
-		if (!FloatEqual(m_volume, volume))
-		{
-			m_volume = volume;
-			alSourcef(GetID(), AL_GAIN, volume);
-		}
-		
-		if (!FloatEqual(m_pitch, pitch))
-		{
-			m_pitch = pitch;
-			alSourcef(GetID(), AL_PITCH, pitch);
-		}
-		
-		alSourcePlay(GetID());
-	}
-	
-	void AudioSource::Stop() const
-	{
-		alSourceStop(GetID());
+		alSourcef(GetID(), AL_GAIN, volume);
 	}
 	
 	bool AudioSource::IsPlaying() const

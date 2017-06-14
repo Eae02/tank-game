@@ -8,10 +8,10 @@
 
 namespace TankGame
 {
-	class FlameEmitter : public ParticleEmitter
+	class ExplosionFlameEmitter : public ParticleEmitter
 	{
 	public:
-		explicit FlameEmitter(ParticlesManager& particlesManager);
+		explicit ExplosionFlameEmitter(ParticlesManager& particlesManager);
 		
 		void SetTransformationProvider(const class ITransformationProvider* transformationProvider);
 		

@@ -17,7 +17,7 @@ namespace TankGame
 		virtual std::unique_ptr<Entity> Clone() const override;
 		
 	protected:
-		virtual void OnImpact(ImpactFlags flags) override;
+		virtual void OnImpact(ImpactFlags flags, glm::vec2 penetration) override;
 		
 		virtual void OnDeflected(glm::vec2 deflectionPos) override;
 		

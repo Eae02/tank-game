@@ -3,7 +3,6 @@
 #include <string>
 #include <json.hpp>
 
-#include "iclassparser.h"
 #include "../entity.h"
 
 namespace TankGame

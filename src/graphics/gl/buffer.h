@@ -4,6 +4,8 @@
 
 namespace TankGame
 {
+	size_t GetUniformBufferOffsetAlignment();
+	
 	void DeleteBuffer(GLuint id);
 	
 	class Buffer : public GLResource<DeleteBuffer>

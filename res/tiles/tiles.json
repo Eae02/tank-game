@@ -66,5 +66,19 @@
 			"intensity": 4,
 			"exponent": 50
 		}
+	},
+	
+	{
+		"id": 5,
+		"name": "Secret floor",
+		"solid": false,
+		"diffuse": "floor_secret_diffuse.png",
+		"normalMap": "floor_secret_normals.png",
+		"specularMap": "floor_secret_specular.png",
+		"textureScale": [ 0.3333333, 0.3333333 ],
+		"specular": {
+			"intensity": 10,
+			"exponent": 30
+		}
 	}
 ]

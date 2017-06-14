@@ -19,10 +19,7 @@ namespace TankGame
 {
 	Editor::Editor(GameManager& gameManager)
 	    : m_gameManager(gameManager), m_entityTool(*this), m_tilesTool(*this), m_pathEditTool(*this),
-	      m_tools{ &m_entityTool, &m_tilesTool, &m_pathEditTool }
-	{
-		
-	}
+	      m_tools{ &m_entityTool, &m_tilesTool, &m_pathEditTool } { }
 	
 	void Editor::Update(const UpdateInfo& updateInfo)
 	{

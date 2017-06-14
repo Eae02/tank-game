@@ -35,6 +35,7 @@ namespace TankGame
 		
 	private:
 		BufferAllocator::UniquePtr m_uniformBuffer;
+		float* m_uniformBufferMemory;
 		mutable bool m_ubNeedsUpload = true;
 		
 		glm::vec4 m_shade;

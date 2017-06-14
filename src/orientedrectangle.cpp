@@ -19,14 +19,35 @@ namespace TankGame
 		m_edgeNormals[2] = { forward.y, -forward.x };
 		m_edgeNormals[3] = { -forward.y, forward.x };
 		
+		glm::vec2 corners[4];
+		
 		for (int i = 0; i < 4; i++)
 		{
 			m_edgePositions[i] = center + m_edgeNormals[i] * size[1 - i / 2];
+			corners[i] = m_edgePositions[i] + m_edgeNormals[(i + 2) % 4] * size[i / 2];
 		}
+		
+		float minX = corners[0].x;
+		float maxX = corners[0].x;
+		float minY = corners[0].y;
+		float maxY = corners[0].y;
+		
+		for (int i = 1; i < 3; i++)
+		{
+			minX = std::min(minX, corners[i].x);
+			maxX = std::max(maxX, corners[i].x);
+			minY = std::min(minY, corners[i].y);
+			maxY = std::max(maxY, corners[i].y);
+		}
+		
+		m_outsideRectangle = Rectangle::FromMinMax({ minX, minY }, { maxX, maxY });
 	}
 	
 	bool OrientedRectangle::Contains(glm::vec2 point) const
 	{
+		if (!m_outsideRectangle.Contains(point))
+			return false;
+		
 		for (int i = 0; i < 4; i++)
 		{
 			float distToPoint = glm::dot(point - m_edgePositions[i], m_edgeNormals[i]);
@@ -40,6 +61,9 @@ namespace TankGame
 	
 	IntersectInfo OrientedRectangle::GetIntersectInfo(const Circle& circle) const
 	{
+		if (!m_outsideRectangle.Intersects(circle.GetBoundingRectangle()))
+			return { };
+		
 		IntersectInfo intersectInfo;
 		intersectInfo.m_intersects = true;
 		

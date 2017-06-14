@@ -87,7 +87,9 @@ namespace TankGame
 				
 				if (ImGui::MenuItem(entry.m_label.c_str()))
 				{
-					std::unique_ptr<Entity> entity = entry.m_entityParser->Parse(entry.m_jsonElement);
+					const EntityParser::ParseParams params = { &m_gameWorld->GetParticlesManager() };
+					
+					std::unique_ptr<Entity> entity = entry.m_entityParser->Parse(entry.m_jsonElement, params);
 					entity->GetTransform().SetPosition(m_spawnPosition);
 					
 					entity->EditorSpawned();

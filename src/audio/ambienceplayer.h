@@ -21,8 +21,6 @@ namespace TankGame
 		
 		void Update();
 		
-		void SetVolume(float volume);
-		
 	private:
 		AudioSource m_source;
 		

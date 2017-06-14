@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#include "entity.h"
+
 namespace TankGame
 {
 	class EntityHandle
@@ -12,6 +14,12 @@ namespace TankGame
 		inline EntityHandle() : m_manager(nullptr) { }
 		
 		EntityHandle(class EntitiesManager& manager, const class Entity& entity);
+		
+		inline void Despawn() const
+		{
+			if (Entity* entity = Get())
+				entity->Despawn();
+		}
 		
 		inline bool IsNull() const
 		{ return m_manager == nullptr; }

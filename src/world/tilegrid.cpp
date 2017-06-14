@@ -297,8 +297,8 @@ namespace TankGame
 		glm::vec2 maxT(FindIntStep(position.x, forward.x), FindIntStep(position.y, forward.y));
 		glm::vec2 deltaT(step.x / forward.x, step.y / forward.y);
 		
-		int enterStepDir;
-		float enterLineOffset;
+		int enterStepDir = 0;
+		float enterLineOffset = 0;
 		
 		while (true)
 		{

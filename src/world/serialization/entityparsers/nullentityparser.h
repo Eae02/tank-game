@@ -9,7 +9,7 @@ namespace TankGame
 	class NullEntityParser : public EntityParser
 	{
 	protected:
-		virtual std::unique_ptr<Entity> ParseEntity(const nlohmann::json& json) const final override
+		virtual std::unique_ptr<Entity> ParseEntity(const nlohmann::json& json, const ParseParams& params) const final override
 		{
 			return std::make_unique<EntityTp>();
 		}

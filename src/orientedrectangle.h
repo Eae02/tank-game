@@ -28,8 +28,13 @@ namespace TankGame
 		*/
 		float GetRayIntersectionDistance(glm::vec2 start, glm::vec2 direction) const;
 		
+		const Rectangle& GetOutsideRectangle() const
+		{ return m_outsideRectangle; }
+		
 	private:
 		glm::vec2 m_edgeNormals[4];
 		glm::vec2 m_edgePositions[4];
+		
+		Rectangle m_outsideRectangle;
 	};
 }

@@ -14,6 +14,7 @@
 #include "../../../utils/mathutils.h"
 #include "../../../utils/utils.h"
 #include "../../../graphics/spriterenderlist.h"
+#include "../../../graphics/ui/uirenderer.h"
 
 #include <GLFW/glfw3.h>
 
@@ -148,6 +149,25 @@ namespace TankGame
 	Circle SpiderBot::GetHitCircle() const
 	{
 		return Circle(GetTransform().GetPosition(), CIRCLE_RADIUS);
+	}
+	
+	void SpiderBot::DrawEditorUI(UIRenderer& uiRenderer, const glm::mat3& uiViewMatrix) const
+	{
+		const float arrowDist = 0.2f;
+		const float arrowScale = 0.15f;
+		
+		glm::vec2 corners[] = { glm::vec2(-1, 0), glm::vec2(1, 0), glm::vec2(0, std::sqrt(3.0f)) };
+		
+		glm::mat2 cornerRot(glm::vec2(GetTransform().GetForward().y, -GetTransform().GetForward().x), GetTransform().GetForward());
+		
+		for (glm::vec2& corner : corners)
+		{
+			corner = GetTransform().GetPosition() + GetTransform().GetForward() * arrowDist + cornerRot * (corner * arrowScale);
+			corner = glm::vec2(uiViewMatrix * glm::vec3(corner, 1.0f));
+		}
+		
+		for (int i = 0; i < 3; i++)
+			uiRenderer.DrawLine(corners[i], corners[(i + 1) % 3], glm::vec4(1.0f));
 	}
 	
 	void SpiderBot::OnKilled()

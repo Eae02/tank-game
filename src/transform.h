@@ -45,9 +45,9 @@ namespace TankGame
 		
 		const glm::mat3& GetMatrix() const;
 		
-		inline const float GetCosRotation() const
+		inline float GetCosRotation() const
 		{ return m_cosRot; }
-		inline const float GetSinRotation() const
+		inline float GetSinRotation() const
 		{ return m_sinRot; }
 		
 		inline glm::vec2 GetForward() const
@@ -55,7 +55,7 @@ namespace TankGame
 		
 		nlohmann::json Serialize(Properties propertiesToSerialize) const;
 		
-		void RenderProperties(Properties propertiesToShow);
+		bool RenderProperties(Properties propertiesToShow);
 		
 	private:
 		float m_rotation = 0.0f;

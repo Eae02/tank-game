@@ -28,10 +28,12 @@ namespace TankGame
 		if (!m_isPlaying)
 			return;
 		
-		float musicVol = Settings::GetInstance().GetMusicGain();
+		const float volumeMul = 0.5f;
+		
+		float musicVol = Settings::GetInstance().GetMusicGain() * volumeMul;
 		if (!FloatEqual(m_volume, musicVol))
 		{
-			alSourcef(m_source.GetID(), AL_GAIN, musicVol);
+			m_source.SetVolume(musicVol);
 			m_volume = musicVol;
 		}
 		
@@ -40,13 +42,7 @@ namespace TankGame
 			m_currentTrack = m_trackDistribution(randomGen);
 			
 			m_source.SetBuffer(m_tracks[m_currentTrack]);
-			m_source.Play(m_volume, 1);
+			m_source.Play();
 		}
-	}
-	
-	void AmbiencePlayer::SetVolume(float volume)
-	{
-		m_volume = volume;
-		alSourcef(m_source.GetID(), AL_GAIN, volume);
 	}
 }

@@ -18,7 +18,7 @@ namespace TankGame
 		
 		std::string GetInfoString() const;
 		
-		void SetWeaponState(const class PlayerWeaponState& weaponState);
+		void SetWeaponState(const class PlayerWeaponState* weaponState);
 		
 		static void MaybeLoadIcons();
 		

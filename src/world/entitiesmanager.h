@@ -17,7 +17,7 @@ namespace TankGame
 		friend class EntityHandle;
 		
 	public:
-		virtual EntityHandle Spawn(std::unique_ptr<Entity>&& entity);
+		virtual EntityHandle Spawn(std::unique_ptr<Entity> entity);
 		
 		inline void Despawn(Entity* entity)
 		{

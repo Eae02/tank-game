@@ -5,7 +5,7 @@
 
 namespace TankGame
 {
-	std::unique_ptr<Entity> PointLightParser::ParseEntity(const nlohmann::json& json) const
+	std::unique_ptr<Entity> PointLightParser::ParseEntity(const nlohmann::json& json, const ParseParams& params) const
 	{
 		std::unique_ptr<PointLightEntity> entity = std::make_unique<PointLightEntity>();
 		
@@ -16,6 +16,10 @@ namespace TankGame
 		auto flickersIt = json.find("flickers");
 		if (flickersIt != json.end())
 			entity->SetFlickers(flickersIt->get<bool>());
+		
+		auto enabledIt = json.find("enabled");
+		if (enabledIt != json.end())
+			entity->SetEnabled(enabledIt->get<bool>());
 		
 		auto shadowsIt = json.find("shadows");
 		if (shadowsIt != json.end())
@@ -44,7 +48,9 @@ namespace TankGame
 		
 		auto attenuationExpIt = json.find("attenuation_exp");
 		if (attenuationExpIt != json.end())
-			attenuation.SetLinear(attenuationExpIt->get<float>());
+			attenuation.SetExponent(attenuationExpIt->get<float>());
+		
+		entity->SetAttenuation(attenuation);
 		
 		return entity;
 	}

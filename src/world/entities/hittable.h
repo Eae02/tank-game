@@ -4,6 +4,11 @@
 
 namespace TankGame
 {
+	enum class HpSource
+	{
+		
+	};
+	
 	class Hittable
 	{
 	public:
@@ -17,6 +22,8 @@ namespace TankGame
 		
 		inline int GetTeamID() const
 		{ return m_teamID; }
+		
+		virtual void ChangeHp(float delta, HpSource source);
 		
 		virtual void SetHp(float hp);
 		
