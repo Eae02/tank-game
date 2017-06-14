@@ -127,7 +127,7 @@ namespace TankGame
 		
 		float radiusSq = circle.GetRadius() * circle.GetRadius();
 		
-		float lowestDistToCenterSq;
+		float lowestDistToCenterSq = std::numeric_limits<float>::infinity();
 		
 		IntersectInfo intersectInfo;
 		

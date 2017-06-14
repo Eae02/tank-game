@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <string>
 
+#include "particles/particlesmanager.h"
 #include "entities/particlesystementity.h"
 #include "entity.h"
 #include "entityhandle.h"
@@ -25,6 +26,9 @@ namespace TankGame
 		}
 		
 		void Update(const class UpdateInfo& updateInfo);
+		
+		inline ParticlesManager& GetParticlesManager()
+		{ return m_particlesManager; }
 		
 		Entity* GetEntityByName(const std::string& name);
 		inline const Entity* GetEntityByName(const std::string& name) const
@@ -81,6 +85,8 @@ namespace TankGame
 		};
 		
 		uint64_t m_nextEntityID = 0;
+		
+		ParticlesManager m_particlesManager;
 		
 		std::vector<EntityEntry> m_entities;
 		

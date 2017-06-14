@@ -23,6 +23,8 @@ namespace TankGame
 	
 	void EntitiesManager::Update(const UpdateInfo& updateInfo)
 	{
+		m_particlesManager.Update(updateInfo.m_dt);
+		
 		if (!updateInfo.m_isEditorOpen)
 		{
 			for (long i = m_updateableEntities.size() - 1; i >= 0; i--)

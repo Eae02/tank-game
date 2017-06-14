@@ -34,8 +34,6 @@ namespace TankGame
 	{
 		EntitiesManager::Update(updateInfo);
 		
-		m_particlesManager.Update(updateInfo.m_dt);
-		
 		float targetRotation = 0;
 		if (m_focusEntity != nullptr)
 			targetRotation = m_focusEntity->GetTransform().GetRotation();

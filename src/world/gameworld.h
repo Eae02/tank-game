@@ -6,7 +6,6 @@
 #include "icollidable.h"
 #include "intersectinfo.h"
 #include "entitiesmanager.h"
-#include "particles/particlesmanager.h"
 #include "particles/particleemitter.h"
 #include "entities/particlesystementity.h"
 #include "../graphics/tileshadowcastersbuffer.h"
@@ -147,9 +146,6 @@ namespace TankGame
 		const class TileGridMaterial* GetTileGridMaterial() const
 		{ return m_tileGridMaterial; }
 		
-		inline ParticlesManager& GetParticlesManager()
-		{ return m_particlesManager; }
-		
 		void ShakeCamera(double time, float amount);
 		
 		bool SetCheckpoint(int index, glm::vec2 position, float rotation);
@@ -223,8 +219,6 @@ namespace TankGame
 		class GameManager* m_gameManager = nullptr;
 		
 		QuadTree m_quadTree;
-		
-		ParticlesManager m_particlesManager;
 		
 		std::unique_ptr<TileGrid> m_tileGrid;
 		const class TileGridMaterial* m_tileGridMaterial = nullptr;
