@@ -1,4 +1,5 @@
 #include "energyball.h"
+#include "explosionentity.h"
 #include "../spteams.h"
 #include "../icollidable.h"
 #include "../gameworld.h"
@@ -37,18 +38,22 @@ namespace TankGame
 			return collidable.GetCollidableType() == CollidableTypes::Object;
 		});
 		
+		//Bounces the energy ball off tiles and object type collidable entities
 		if (intersectInfo.m_intersects)
 		{
 			m_direction = glm::reflect(m_direction, glm::normalize(intersectInfo.m_penetration));
 			
+			GetTransform().Translate(-m_direction * glm::dot(intersectInfo.m_penetration, m_direction));
+			
+			//Spawns a spark particle system
 			SparkParticleSystem particleSystem(GetGameWorld()->GetParticlesManager());
 			
-			auto entity = std::make_unique<ParticleSystemEntity<SparkParticleSystem>>(std::move(particleSystem), 0.05f);
+			auto psEntity = std::make_unique<ParticleSystemEntity<SparkParticleSystem>>(std::move(particleSystem), 0.05f);
 			
-			entity->GetTransform().SetRotation(std::atan2(intersectInfo.m_penetration.y, intersectInfo.m_penetration.x) + glm::pi<float>());
-			entity->GetTransform().SetPosition(GetTransform().GetPosition());
+			psEntity->GetTransform().SetRotation(std::atan2(intersectInfo.m_penetration.y, intersectInfo.m_penetration.x) + glm::pi<float>());
+			psEntity->GetTransform().SetPosition(GetTransform().GetPosition());
 			
-			GetGameWorld()->Spawn(std::move(entity));
+			GetGameWorld()->Spawn(std::move(psEntity));
 		}
 		
 		Hittable* hitEntity = nullptr;
@@ -81,6 +86,11 @@ namespace TankGame
 		
 		if (hitEntity != nullptr)
 		{
+			//Spawns an explosion at the energy ball's position.
+			auto explosionEntity = std::make_unique<ExplosionEntity>(GetGameWorld()->GetParticlesManager());
+			explosionEntity->GetTransform().SetPosition(GetTransform().GetPosition());
+			GetGameWorld()->Spawn(std::move(explosionEntity));
+			
 			hitEntity->SetHp(hitEntity->GetHp() - m_damage * damageMulDist(randomGen));
 			Despawn();
 		}

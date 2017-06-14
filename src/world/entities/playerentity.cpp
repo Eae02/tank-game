@@ -272,14 +272,14 @@ namespace TankGame
 		Hittable::SetHp(GetMaxHp());
 		m_energy = MAX_ENERGY;
 		
-		GetTransform().SetPosition(GetGameWorld()->GetRespawnPosition());
-		GetTransform().SetRotation(GetGameWorld()->GetRespawnRotation());
-		
 		auto explosion = std::make_unique<ExplosionEntity>(GetGameWorld()->GetParticlesManager());
 		explosion->GetTransform().SetPosition(GetTransform().GetPosition());
 		GetGameWorld()->Spawn(std::move(explosion));
 		
 		Lua::DoString("if onPlayerKilled then onPlayerKilled() end", GetGameWorld()->GetLuaSandbox());
+		
+		GetTransform().SetPosition(GetGameWorld()->GetRespawnPosition());
+		GetTransform().SetRotation(GetGameWorld()->GetRespawnRotation());
 	}
 	
 	Rectangle PlayerEntity::GetInteractRectangle() const
