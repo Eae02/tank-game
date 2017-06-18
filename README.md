@@ -5,10 +5,7 @@ A tank shooter written in modern C++ and OpenGL 4.4.
 
 ## Precompiled binaries
  * [Windows](https://www.dropbox.com/s/aevhdaysm028ur9/tankgame_win32.zip?dl=1). You may also need to install the visual C++ 2015 redistributable (x86 version), which you can get [here](https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x86.exe).
- * [Ubuntu (16.10+)](https://www.dropbox.com/s/a4xz1v7vavq5rb7/tankgame_ubuntu.tar.gz?dl=1). You also have to install the runtime dependencies: `sudo apt-get install libglfw3 libopenal1 libfreetype6 libogg0 libvorbis0a libvorbisfile3 zlib1g liblua5.3`.
- * [Arch Linux](https://www.dropbox.com/s/2yyyrogw3lxdj2l/tankgame_arch.tar.gz?dl=1). You also have to install the runtime dependencies: `sudo pacman -S glfw-x11 openal freetype2 libogg libvorbis zlib lua`
-
-The precompiled binaries may work on other linux distributions too, but i haven't tested this.
+ * [Linux](https://www.dropbox.com/s/u0wxsf4hvspbdxv/tankgame_linux.tar.gz?dl=1). Some of the runtime dependencies are included in the archive. Not included are zlib, glib, xlib, and freetype. Install these with your package manager if you don't already have them.
 
 ## Compiling from source
 ### 1) Clone the repo

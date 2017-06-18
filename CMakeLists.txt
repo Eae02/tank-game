@@ -34,14 +34,15 @@ find_library(GLFW_LIBRARIES NAMES glfw glfw3dll ${LIBRARY_SEARCH_PATH})
 if (CMAKE_COMPILER_IS_GNUCXX)
 	add_definitions(-Wall)
 	
+	set(CMAKE_INSTALL_RPATH "$ORIGIN")
+	set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+	
 	find_package(PkgConfig REQUIRED)
 	pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
 	
 	include_directories(${GTK3_INCLUDE_DIRS})
-	link_directories(${GTK3_LIBRARY_DIRS})
-	add_definitions(${GTK3_CFLAGS_OTHER})
 	
-	set(LIBS ${LIBS} stdc++fs X11 ${GTK3_LIBRARIES})
+	link_libraries(stdc++fs dl X11 glib-2.0)
 endif()
 
 if (${MSVC})
@@ -60,7 +61,6 @@ link_libraries(
 	${ZLIB_LIBRARIES}
 	${LUA_LIBRARIES}
 	${CMAKE_THREAD_LIBS_INIT}
-	${LIBS}
 )
 
 #Sets include directories for all projects
