@@ -308,8 +308,12 @@ namespace TankGame
 	}
 	
 #ifndef NDEBUG
-	void APIENTRY OpenGLMessageCallback(GLenum, GLenum type, GLuint id, GLenum severity, GLsizei,
-	                                    const GLchar* message, const void*)
+#ifdef _WIN32
+	void __stdcall
+#else
+	void
+#endif
+	OpenGLMessageCallback(GLenum, GLenum type, GLuint id, GLenum severity, GLsizei, const GLchar* message, const void*)
 	{
 		if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
 			return;

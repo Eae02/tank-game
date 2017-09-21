@@ -27,14 +27,17 @@ namespace TankGame
 		bool isSelected = HUDManager::GetWeaponIndex(*m_weaponState) == m_weaponIndex;
 		UpdateTransition(m_highlight, isSelected ? 1.0f : 0.0f, updateInfo.m_dt * 5);
 		
-		int ammoCount = m_weaponState->GetAmmoCount(static_cast<SpecialWeapons>(m_weaponIndex - 1));
-		if (ammoCount > m_lastAmmoCount)
+		if (m_weaponIndex != 0)
 		{
-			m_incrementString = UTF8ToUTF32("+" + std::to_string(ammoCount - m_lastAmmoCount));
-			m_incrementStringHideTime = glfwGetTime() + 2.0;
+			int ammoCount = m_weaponState->GetAmmoCount(static_cast<SpecialWeapons>(m_weaponIndex - 1));
+			if (ammoCount > m_lastAmmoCount)
+			{
+				m_incrementString = UTF8ToUTF32("+" + std::to_string(ammoCount - m_lastAmmoCount));
+				m_incrementStringHideTime = glfwGetTime() + 2.0;
+			}
+			
+			m_lastAmmoCount = ammoCount;
 		}
-		
-		m_lastAmmoCount = ammoCount;
 	}
 	
 	void WeaponIcon::Draw(const UIRenderer& uiRenderer) const

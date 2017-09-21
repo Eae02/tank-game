@@ -71,6 +71,7 @@ namespace TankGame
 			glMapNamedBuffer = MapNamedBuffer;
 			glMapNamedBufferRange = MapNamedBufferRange;
 			glUnmapNamedBuffer = UnmapNamedBuffer;
+			glFlushMappedNamedBufferRange = FlushMappedNamedBufferRange;
 		}
 		
 		static std::unordered_map<GLuint, GLenum> textureTargets;
@@ -397,6 +398,12 @@ namespace TankGame
 		{
 			glBindBuffer(GL_ARRAY_BUFFER, buffer);
 			return glUnmapBuffer(GL_ARRAY_BUFFER);
+		}
+
+		void APIENTRY FlushMappedNamedBufferRange(GLuint buffer, GLintptr offset, GLsizei length)
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, buffer);
+			glFlushMappedBufferRange(GL_ARRAY_BUFFER, offset, length);
 		}
 	}
 }

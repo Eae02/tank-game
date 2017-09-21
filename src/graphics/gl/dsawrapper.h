@@ -66,5 +66,6 @@ namespace TankGame
 		void* APIENTRY MapNamedBuffer(GLuint buffer, GLenum access);
 		void* APIENTRY MapNamedBufferRange(GLuint buffer, GLintptr offset, GLsizeiptr length, GLbitfield access);
 		GLboolean APIENTRY UnmapNamedBuffer(GLuint buffer);
+		void APIENTRY FlushMappedNamedBufferRange(GLuint buffer, GLintptr offset, GLsizei length);
 	}
 }
