@@ -12,7 +12,7 @@ namespace TankGame
 				m_tracks.emplace_back(AudioBuffer::FromOGG(entry.path().string()));
 		}
 		
-		m_trackDistribution = std::uniform_int_distribution<size_t>(0, m_tracks.size());
+		m_trackDistribution = std::uniform_int_distribution<size_t>(0, m_tracks.size() - 1);
 	}
 	
 	void AmbiencePlayer::Stop()
