@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/python
 
 #This script packages the executable, res directory and libraries into tankgame_linux.tar.gz.
 
@@ -9,7 +9,7 @@ from elftools.elf.elffile import ELFFile
 from elftools.elf.dynamic import DynamicSection
 
 #List of libraries to be included in the archive.
-libs = ["glfw", "openal", "ogg", "vorbis", "vorbisfile", "lua"]
+libs = ["glfw", "openal", "ogg", "vorbis", "vorbisfile", "lua", "glib-2.0", "stdc++"]
 
 with tarfile.open("tankgame_linux.tar.gz", "w:gz") as tar:
 	tar.add("bin/Release/tankgame", arcname="tankgame")

@@ -53,5 +53,70 @@
 		"level": "level_1",
 		"position": [ 92, 72.5 ],
 		"requiredProgress": 9
+	},
+	{
+		"level": "level_2",
+		"position": [ 11, 5.5 ],
+		"requiredProgress": -1
+	},
+	{
+		"level": "level_2",
+		"position": [ 49.5, 8.5 ],
+		"requiredProgress": 0
+	},
+	{
+		"level": "level_2",
+		"position": [ 78.5, 9.5 ],
+		"requiredProgress": 1
+	},
+	{
+		"level": "level_2",
+		"position": [ 90, 22.5 ],
+		"requiredProgress": 2
+	},
+	{
+		"level": "level_2",
+		"position": [ 87.5, 34.5 ],
+		"requiredProgress": 3
+	},
+	{
+		"level": "level_2",
+		"position": [ 88, 80 ],
+		"requiredProgress": 4
+	},
+	{
+		"level": "level_2",
+		"position": [ 77, 68.5 ],
+		"requiredProgress": 5
+	},
+	{
+		"level": "level_2",
+		"position": [ 50, 52 ],
+		"requiredProgress": 6
+	},
+	{
+		"level": "level_2",
+		"position": [ 68, 83 ],
+		"requiredProgress": 7
+	},
+	{
+		"level": "level_2",
+		"position": [ 50.5, 94 ],
+		"requiredProgress": 8
+	},
+	{
+		"level": "level_2",
+		"position": [ 25, 86 ],
+		"requiredProgress": 9
+	},
+	{
+		"level": "level_2",
+		"position": [ 8.5, 61 ],
+		"requiredProgress": 10
+	},
+	{
+		"level": "level_2",
+		"position": [ 22, 52 ],
+		"requiredProgress": 11
 	}
 ]

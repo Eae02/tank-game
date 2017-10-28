@@ -61,6 +61,8 @@ namespace TankGame
 				s_levelMenuInfos.emplace_back(stream, entry.path().filename().string());
 			}
 		}
+		
+		std::sort(s_levelMenuInfos.begin(), s_levelMenuInfos.end());
 	}
 	
 	void LevelsList::SetDrawRectangle(const Rectangle& rectangle)

@@ -33,7 +33,7 @@ namespace TankGame
 		static constexpr size_t NUM_SECTIONS = 3;
 		static const std::array<std::u32string, NUM_SECTIONS> SECTION_TITLES;
 		
-		static constexpr float CONTENTS_HEIGHT = 650;
+		static constexpr float CONTENTS_HEIGHT = 700;
 		
 		void LayoutContentWidgets();
 		

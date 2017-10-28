@@ -33,6 +33,26 @@ namespace TankGame
 			inline explicit ListLevelMenuInfo(std::istream& stream, std::string levelFileName)
 			    : LevelMenuInfo(stream), m_levelFileName(std::move(levelFileName)) { }
 			
+			inline bool operator==(const ListLevelMenuInfo& other) const
+			{
+				return m_levelFileName == other.m_levelFileName;
+			}
+			
+			inline bool operator!=(const ListLevelMenuInfo& other) const
+			{
+				return m_levelFileName == other.m_levelFileName;
+			}
+			
+			inline bool operator<(const ListLevelMenuInfo& other) const
+			{
+				return std::less<std::string>()(m_levelFileName, other.m_levelFileName);
+			}
+			
+			inline bool operator>(const ListLevelMenuInfo& other) const
+			{
+				return std::greater<std::string>()(m_levelFileName, other.m_levelFileName);
+			}
+			
 			std::string m_levelFileName;
 		};
 		

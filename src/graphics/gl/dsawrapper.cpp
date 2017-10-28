@@ -400,7 +400,7 @@ namespace TankGame
 			return glUnmapBuffer(GL_ARRAY_BUFFER);
 		}
 
-		void APIENTRY FlushMappedNamedBufferRange(GLuint buffer, GLintptr offset, GLsizei length)
+		void APIENTRY FlushMappedNamedBufferRange(GLuint buffer, GLintptr offset, GLintptr length)
 		{
 			glBindBuffer(GL_ARRAY_BUFFER, buffer);
 			glFlushMappedBufferRange(GL_ARRAY_BUFFER, offset, length);
