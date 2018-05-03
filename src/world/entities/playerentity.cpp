@@ -75,6 +75,16 @@ namespace TankGame
 		m_noAmmoAudioSource.SetBuffer(SoundsManager::GetInstance().GetSound("NoAmmo"));
 	}
 	
+	const float MAX_SPEED         = 4.0f;  //Maximum movement speed (pixels / second)
+	const float ACCEL_TIME        = 0.15f; //The amount of time it takes for the tank to reach maximum speed (seconds)
+	const float ROT_MAX_SPEED     = 1.5f;  //Maximum rotational speed (radians / second)
+	const float ROT_ACCEL_TIME    = 0.1f;  //The amount of time it takes for the tank to reach maximum rotational speed (seconds)
+	const float DRIFT_CANCEL_RATE = 10;
+	const float ANIMATION_SPEED   = 15;
+	
+	const float ACCEL_AMOUNT = MAX_SPEED / ACCEL_TIME;
+	const float ROT_ACCEL_AMOUNT = ROT_MAX_SPEED / ROT_ACCEL_TIME;
+	
 	void PlayerEntity::Update(const UpdateInfo& updateInfo)
 	{
 		m_powerUpState.Update(updateInfo.m_dt);
@@ -85,74 +95,113 @@ namespace TankGame
 			m_weaponState.SelectSpecialWeapon(SpecialWeapons::RocketLauncher);
 		
 		glm::vec2 forward = GetTransform().GetForward();
+		glm::vec2 left(forward.y, -forward.x);
 		
-		glm::vec2 force(0.0f);
-		float rotForce = 0.0f;
+		glm::vec2 localVel(glm::dot(m_velocity, forward), glm::dot(m_velocity, left));
+		glm::vec2 localAcc;
 		
-		const float FRAME_MULTIPLIER = 1.7f;
-		const float MOVE_FORCE = 40;
-		
-		const float ROTATION_FORCE = 20;
-		
-		const float DRAG_CONSTANT = 12;
-		const float MASS = 0.8f;
+		if (localVel.y < 0)
+		{
+			localVel.y += updateInfo.m_dt * DRIFT_CANCEL_RATE;
+			if (localVel.y > 0)
+				localVel.y = 0;
+		}
+		if (localVel.y > 0)
+		{
+			localVel.y -= updateInfo.m_dt * DRIFT_CANCEL_RATE;
+			if (localVel.y < 0)
+				localVel.y = 0;
+		}
 		
 		const Settings& settings = Settings::GetInstance();
 		
-		if (IsButtonPressedNow(updateInfo, settings.GetInteractButton()))
+		const bool moveForward = IsButtonPressed(updateInfo, settings.GetForwardButton());
+		const bool moveBack =    IsButtonPressed(updateInfo, settings.GetBackButton());
+		const bool rotateLeft =  IsButtonPressed(updateInfo, settings.GetLeftButton());
+		const bool rotateRight = IsButtonPressed(updateInfo, settings.GetRightButton());
+		
+		if (moveForward == moveBack)
 		{
-			GetGameWorld()->IterateIntersectingEntities(GetInteractRectangle(), [] (Entity& entity)
+			if (localVel.x < 0)
 			{
-				if (entity.CanInteract())
-					entity.OnInteract();
-			});
+				localVel.x += updateInfo.m_dt * ACCEL_AMOUNT;
+				if (localVel.x > 0)
+					localVel.x = 0.0f;
+			}
+			if (localVel.x > 0)
+			{
+				localVel.x -= updateInfo.m_dt * ACCEL_AMOUNT;
+				if (localVel.x < 0)
+					localVel.x = 0.0f;
+			}
 		}
-		
-		if (IsButtonPressed(updateInfo, settings.GetForwardButton()))
+		else if (moveForward)
 		{
-			force += forward * MOVE_FORCE;
-			AdvanceFrame(-updateInfo.m_dt * FRAME_MULTIPLIER * MOVE_FORCE);
+			localAcc += glm::vec2(1, 0);
 		}
-		
-		if (IsButtonPressed(updateInfo, settings.GetBackButton()))
+		else //if (moveBack)
 		{
-			force -= forward * MOVE_FORCE;
-			AdvanceFrame(updateInfo.m_dt * FRAME_MULTIPLIER * MOVE_FORCE);
+			localAcc -= glm::vec2(1, 0);
 		}
 		
-		if (IsButtonPressed(updateInfo, settings.GetLeftButton()))
-			rotForce += ROTATION_FORCE;
-		if (IsButtonPressed(updateInfo, settings.GetRightButton()))
-			rotForce -= ROTATION_FORCE;
+		float accelMag = glm::length(localAcc);
+		if (accelMag > 1E-6f)
+		{
+			localAcc *= ACCEL_AMOUNT / accelMag;
+			
+			localVel += localAcc * updateInfo.m_dt;
+		}
 		
-		//Applies drag
-		force -= m_velocity * DRAG_CONSTANT;
-		rotForce -= m_rotationVelocity * DRAG_CONSTANT;
+		//Caps the local velocity to the maximum speed
+		float speed = glm::length(localVel);
+		if (speed > MAX_SPEED)
+		{
+			localVel *= MAX_SPEED / speed;
+		}
+		
+		float oldRotationVelocity = m_rotationVelocity;
+		
+		if (rotateLeft == rotateRight)
+		{
+			if (m_rotationVelocity < 0)
+			{
+				m_rotationVelocity += updateInfo.m_dt * ROT_ACCEL_AMOUNT;
+				if (m_rotationVelocity > 0)
+					m_rotationVelocity = 0.0f;
+			}
+			if (m_rotationVelocity > 0)
+			{
+				m_rotationVelocity -= updateInfo.m_dt * ROT_ACCEL_AMOUNT;
+				if (m_rotationVelocity < 0)
+					m_rotationVelocity = 0.0f;
+			}
+		}
+		else if (rotateLeft)
+		{
+			m_rotationVelocity += 1.0f;
+		}
+		else //if (rotateRight)
+		{
+			m_rotationVelocity -= 1.0f;
+		}
+		
+		float rotationSpeed = std::abs(m_rotationVelocity);
+		if (rotationSpeed > ROT_MAX_SPEED)
+		{
+			m_rotationVelocity *= ROT_MAX_SPEED / rotationSpeed;
+		}
+		
+		AdvanceFrame(-localVel.x * updateInfo.m_dt * ANIMATION_SPEED);
 		
 		glm::vec2 oldVelocity = m_velocity;
-		float oldRotVelocity = m_rotationVelocity;
-		
-		//Updates the tank's velocity
-		m_velocity += (force / MASS) * updateInfo.m_dt;
-		m_rotationVelocity += (rotForce / MASS) * updateInfo.m_dt;
-		
-		
-		
-		//Caps the speed of the tank, this is to stop physics from breaking at low framerates
-		const float MAX_SPEED = 2.5f;
-		const float MAX_ROT_SPEED = 2;
-		float speed = glm::length(m_velocity);
-		if (speed > MAX_SPEED)
-			m_velocity *= MAX_SPEED / speed;
-		float rotSpeed = glm::abs(m_rotationVelocity);
-		if (rotSpeed > MAX_ROT_SPEED)
-			m_rotationVelocity *= MAX_ROT_SPEED / rotSpeed;
+		m_velocity = localVel.x * forward + localVel.y * left;
 		
 		glm::vec2 groundVelocity = GetGameWorld()->GetGroundVelocity(GetTransform().GetPosition());
+		glm::vec2 move = ((m_velocity + oldVelocity) * 0.5f + groundVelocity) * updateInfo.m_dt;
 		
 		//Updates the tank's position
-		GetTransform().Rotate((m_rotationVelocity + oldRotVelocity) * 0.5f * updateInfo.m_dt);
-		GetTransform().Translate(((m_velocity + oldVelocity) * 0.5f + groundVelocity) * updateInfo.m_dt);
+		GetTransform().Rotate((m_rotationVelocity + oldRotationVelocity) * 0.5f * updateInfo.m_dt);
+		GetTransform().Translate(move);
 		
 		//Collision correction
 		Circle circle = GetTransform().GetBoundingCircle();
