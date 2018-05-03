@@ -17,7 +17,7 @@ void writeMaterialOutputs(vec4 color, vec2 normal, float specIntensity, float sp
 	
 	color_out = color;
 	
-	normalAndSpec_out = vec4(normal, specIntensity, specExponent);
+	normalAndSpec_out = vec4((normal + 1.0) / 2.0, specIntensity / 100.0, specExponent / 100.0);
 }
 
 vec2 toWorldNormal(vec3 nmNormal)

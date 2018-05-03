@@ -40,8 +40,8 @@ namespace TankGame
 		{ return m_postProcessor.GetGamma(); }
 		
 	private:
-		static constexpr GLenum COLOR_FORMAT = GL_RGBA16F;
-		static constexpr GLenum NORMALS_AND_SPECULAR_FORMAT = GL_RGBA16F;
+		static constexpr GLenum COLOR_FORMAT = GL_RGBA8;
+		static constexpr GLenum NORMALS_AND_SPECULAR_FORMAT = GL_RGBA8;
 		
 		static constexpr GLenum DISTORTION_BUFFER_FORMAT = GL_RG16F;
 		

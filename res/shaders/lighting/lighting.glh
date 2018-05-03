@@ -36,11 +36,13 @@ GBufferData getGBufferData(vec2 texCoord)
 	GBufferData data;
 	
 	vec4 normalAndSpec = texture(normalsAndSpecSampler, texCoord);
-	float ny = 1.0 - normalAndSpec.x * normalAndSpec.x - normalAndSpec.y * normalAndSpec.y;
-	data.normal = vec3(normalAndSpec.x, ny, normalAndSpec.y);
 	
-	data.specIntensity = normalAndSpec.z;
-	data.specExponent = normalAndSpec.w;
+	vec2 normal2 = normalAndSpec.xy * 2.0 - 1.0;
+	float ny = 1.0 - normal2.x * normal2.x - normal2.y * normal2.y;
+	data.normal = vec3(normal2.x, ny, normal2.y);
+	
+	data.specIntensity = normalAndSpec.z * 100.0;
+	data.specExponent = normalAndSpec.w * 100.0;
 	
 	return data;
 }
