@@ -12,7 +12,7 @@ layout(binding=4) uniform sampler2DArray specularMaps;
 void main()
 {
 	vec4 color = texture(diffuseMaps, texCoord_in);
-	vec2 normal = toWorldNormal(texture(normalMaps, texCoord_in).rgb);
+	vec3 normal = toWorldNormal(texture(normalMaps, texCoord_in).rgb).xzy;
 	
 	writeMaterialOutputs(color, normal, specular_in.x * texture(specularMaps, texCoord_in).r, specular_in.y);
 }

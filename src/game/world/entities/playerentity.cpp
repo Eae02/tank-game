@@ -75,11 +75,23 @@ namespace TankGame
 		m_noAmmoAudioSource.SetBuffer(SoundsManager::GetInstance().GetSound("NoAmmo"));
 	}
 	
-	const float MAX_SPEED         = 4.0f;  //Maximum movement speed (pixels / second)
-	const float ACCEL_TIME        = 0.15f; //The amount of time it takes for the tank to reach maximum speed (seconds)
-	const float ROT_MAX_SPEED     = 1.5f;  //Maximum rotational speed (radians / second)
-	const float ROT_ACCEL_TIME    = 0.1f;  //The amount of time it takes for the tank to reach maximum rotational speed (seconds)
+	// ** Physics constants **
+	
+	//Maximum movement speed (in tiles / second)
+	const float MAX_SPEED         = 3.0f;
+	
+	//The amount of time it takes for the tank to reach maximum speed (in seconds)
+	const float ACCEL_TIME        = 0.15f;
+	
+	//Maximum rotational speed (in radians / second)
+	const float ROT_MAX_SPEED     = 1.5f;
+	
+	//The amount of time it takes for the tank to reach maximum rotational speed (in seconds)
+	const float ROT_ACCEL_TIME    = 0.1f;
+	
 	const float DRIFT_CANCEL_RATE = 10;
+	
+	//Number of frames to step the movement animation by for every tile moved
 	const float ANIMATION_SPEED   = 15;
 	
 	const float ACCEL_AMOUNT = MAX_SPEED / ACCEL_TIME;

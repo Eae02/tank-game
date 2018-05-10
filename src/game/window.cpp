@@ -56,8 +56,8 @@ namespace TankGame
 	constexpr int Window::MIN_WIDTH;
 	constexpr int Window::MIN_HEIGHT;
 	
-	Window::Window(const ArgumentData& argumentData)
-	    : m_argumentData(argumentData)
+	Window::Window(const ClientArgs& arguments)
+	    : m_arguments(arguments)
 	{
 		glfwWindowHint(GLFW_VISIBLE, false);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -474,7 +474,7 @@ namespace TankGame
 		
 		ImGui::Render();
 		
-		if (m_argumentData.m_profiling)
+		if (m_arguments.profiling)
 		{
 			std::ostringstream profileTextStream;
 			profileTextStream << "FPS: " << static_cast<int>(1.0f / dt);
@@ -507,7 +507,7 @@ namespace TankGame
 	
 	void Window::SetIsCursorCaptured(bool shouldCapture)
 	{
-		if (shouldCapture == m_isCursorCaptured || m_argumentData.m_noCursorGrab)
+		if (shouldCapture == m_isCursorCaptured || m_arguments.noCursorGrab)
 			return;
 		m_isCursorCaptured = shouldCapture;
 		
@@ -541,7 +541,7 @@ namespace TankGame
 		
 		glfwMakeContextCurrent(m_window);
 		
-		LoadExtensions(m_argumentData.m_useDSAWrapper);
+		LoadExtensions(m_arguments.useDSAWrapper);
 		
 		glVendorName = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
 		

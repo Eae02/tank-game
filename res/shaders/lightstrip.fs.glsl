@@ -9,5 +9,5 @@ layout(std140, binding=1) uniform LightStripUB
 
 void main()
 {
-	writeMaterialOutputs(vec4(color, 1.0), vec2(0.0), 0.0, 0.0);
+	writeMaterialOutputs(vec4(color, 1.0), vec3(0, 1, 0), 0.0, 0.0);
 }

@@ -16,7 +16,8 @@ namespace TankGame
 	{
 		MainMenu,
 		Options,
-		Play
+		Play,
+		Lobby
 	};
 	
 	class MenuManager

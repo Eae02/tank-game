@@ -19,11 +19,11 @@ layout(location=2) in flat mat3 transform_in;
 void main()
 {
 	vec4 color = texture(diffuseSampler, texCoord_in) * shade;
-	vec2 normal = toWorldNormal(texture(normalMapSampler, texCoord_in).rgb);
+	vec2 normal = toWorldNormal(texture(normalMapSampler, texCoord_in).rgb).xy;
 	
 	float normalLen = length(normal);
 	normal = (transform_in * vec3(normal, 0.0)).xy;
 	normal = normalize(normal) * normalLen;
 	
-	writeMaterialOutputs(color, normal, specularIntensity, specularExponent);
+	writeMaterialOutputs(color, makeNormal3(normal), specularIntensity, specularExponent);
 }

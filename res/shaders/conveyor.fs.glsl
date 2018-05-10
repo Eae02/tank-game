@@ -21,7 +21,7 @@ const float SPECULAR_EXPONENT = 30;
 void main()
 {
 	vec4 color = texture(diffuseSampler, texCoord_in);
-	vec2 normal = toWorldNormal(texture(normalMapSampler, texCoord_in).rgb);
+	vec2 normal = toWorldNormal(texture(normalMapSampler, texCoord_in).rgb).xy;
 	
 	float normalLen = length(normal);
 	normal = (transform * vec3(normal, 0.0)).xy;
@@ -29,5 +29,5 @@ void main()
 	
 	float specIntensity = texture(specularMapSampler, texCoord_in).r * SPECULAR_INTENSITY;
 	
-	writeMaterialOutputs(color, normal, specIntensity, SPECULAR_EXPONENT);
+	writeMaterialOutputs(color, makeNormal3(normal), specIntensity, SPECULAR_EXPONENT);
 }

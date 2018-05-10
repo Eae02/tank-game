@@ -31,15 +31,24 @@ float getFlickerFactor(float offset, float intensity)
 	return 1.0 - (sin(time * 40 + offset) + 1) * 0.5 * intensity;
 }
 
+vec3 smDecode(vec2 enc)
+{
+	vec2 fenc = enc * 4.0 - 2.0;
+	float f = dot(fenc, fenc);
+	float g = sqrt(1.0 - f / 4.0);
+	vec3 n;
+	n.xy = fenc * g;
+	n.z = 1.0 - f / 2.0;
+	return n;
+}
+
 GBufferData getGBufferData(vec2 texCoord)
 {
 	GBufferData data;
 	
 	vec4 normalAndSpec = texture(normalsAndSpecSampler, texCoord);
 	
-	vec2 normal2 = normalAndSpec.xy * 2.0 - 1.0;
-	float ny = 1.0 - normal2.x * normal2.x - normal2.y * normal2.y;
-	data.normal = vec3(normal2.x, ny, normal2.y);
+	data.normal = normalize(smDecode(normalAndSpec.xy));
 	
 	data.specIntensity = normalAndSpec.z * 100.0;
 	data.specExponent = normalAndSpec.w * 100.0;

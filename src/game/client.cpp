@@ -1,3 +1,4 @@
+#include "client.h"
 #include "window.h"
 #include "settings.h"
 #include "progress.h"
@@ -13,37 +14,14 @@
 #include <cstring>
 #include <iostream>
 
-#ifdef _WIN32
-#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
-#endif
-
-using namespace TankGame;
-
-static ArgumentData ParseArguments(int argc, const char** argv)
+namespace TankGame
 {
-	ArgumentData argumentData;
-	
-	for (int i = 1; i < argc; i++)
+	static void GLFWErrorCallback(int error, const char* description)
 	{
-		if (strcmp(argv[i], "-prof") == 0)
-			argumentData.m_profiling = true;
-		if (strcmp(argv[i], "-nocursorgrab") == 0)
-			argumentData.m_noCursorGrab = true;
-		if (strcmp(argv[i], "-dsawrapper") == 0)
-			argumentData.m_useDSAWrapper = true;
+		throw FatalException(std::to_string(error) + " " + description);
 	}
 	
-	return argumentData;
-}
-
-static void GLFWErrorCallback(int error, const char* description)
-{
-	throw FatalException(std::to_string(error) + " " + description);
-}
-
-int main(int argc, const char** argv)
-{
-	try
+	void StartClient(const ClientArgs& args)
 	{
 		if (!fs::exists(GetResDirectory()))
 			throw FatalException("res directory not found. Needs to be in the same directory as the executable!");
@@ -73,7 +51,7 @@ int main(int argc, const char** argv)
 		Lua::Init();
 		
 		{
-			Window window(ParseArguments(argc, argv));
+			Window window(args);
 			window.RunGame();
 		}
 		
@@ -89,16 +67,4 @@ int main(int argc, const char** argv)
 		
 		glfwTerminate();
 	}
-	catch (const FatalException& exception)
-	{
-		ShowErrorMessage(exception.what(), "Error");
-		return 1;
-	}
-#ifdef NDEBUG
-	catch (const std::exception& exception)
-	{
-		ShowErrorMessage(exception.what(), "Unexpected Error");
-		return 1;
-	}
-#endif
 }

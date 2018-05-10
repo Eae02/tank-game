@@ -1,0 +1,6 @@
+#include "{HEADER_FILE_NAME}"
+
+namespace TankGame
+{{
+	
+}}

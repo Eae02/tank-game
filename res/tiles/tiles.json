@@ -8,8 +8,8 @@
 		"specularMap": "floor1_specular.png",
 		"textureScale": [ 0.2, 0.2 ],
 		"specular": {
-			"intensity": 10,
-			"exponent": 20
+			"intensity": 15,
+			"exponent": 15
 		}
 	},
 	
@@ -36,7 +36,7 @@
 		"specularMap": "floor2_specular.png",
 		"textureScale": [ 0.3333333, 0.3333333 ],
 		"specular": {
-			"intensity": 10,
+			"intensity": 15,
 			"exponent": 50
 		}
 	},

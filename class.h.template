@@ -1,0 +1,13 @@
+#pragma once
+
+namespace TankGame
+{{
+	class {CLASS_NAME}
+	{{
+	public:
+		{CLASS_NAME}() = default;
+		
+	private:
+		
+	}};
+}}

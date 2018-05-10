@@ -131,7 +131,7 @@ namespace TankGame
 		
 		glDisable(GL_DEPTH_TEST);
 		
-		// ** Light accumulation pass **
+		// ** Light pass **
 		Framebuffer::Bind(*m_lightFramebuffer, 0, 0, m_lightAccBuffer->GetWidth(), m_lightAccBuffer->GetHeight());
 		
 		m_normalsAndSpecBuffer->Bind(0);
