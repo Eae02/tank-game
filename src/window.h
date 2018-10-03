@@ -15,7 +15,7 @@
 #include "keyboard.h"
 #include "mouse.h"
 #include "level.h"
-#include "client.h"
+#include "argumentdata.h"
 #include "console.h"
 #include "loadingscreen.h"
 #include "asyncworklist.h"
@@ -30,7 +30,7 @@ namespace TankGame
 	class Window
 	{
 	public:
-		explicit Window(const ClientArgs& arguments);
+		explicit Window(const ArgumentData& arguments);
 		
 		void RunGame();
 		
@@ -55,7 +55,7 @@ namespace TankGame
 		
 		std::array<GLsync, MAX_QUEUED_FRAMES> m_frameFences;
 		
-		ClientArgs m_arguments;
+		ArgumentData m_arguments;
 		
 		GLFWwindow* m_window;
 		

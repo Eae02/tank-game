@@ -11,11 +11,13 @@ from elftools.elf.dynamic import DynamicSection
 #List of libraries to be included in the archive.
 libs = ["glfw", "openal", "ogg", "vorbis", "vorbisfile", "lua", "glib-2.0", "stdc++"]
 
+binary = "bin/Debug/tankgame"
+
 with tarfile.open("tankgame_linux.tar.gz", "w:gz") as tar:
-	tar.add("bin/Release/tankgame", arcname="tankgame")
+	tar.add(binary, arcname="tankgame")
 	tar.add("res")
 	
-	elfStream = open("bin/Release/tankgame", "rb")
+	elfStream = open(binary, "rb")
 	elfFile = ELFFile(elfStream)
 	
 	#Scans through the dynamic sections of the ELF searching for needed libraries from the libs list.

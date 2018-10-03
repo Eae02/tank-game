@@ -6,12 +6,12 @@ set(CMAKE_MODULE_PATH "${TankGame_SOURCE_DIR}/cmake")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TankGame_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${TankGame_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 
-add_definitions(-DGLM_FORCE_RADIANS -DZLIB_CONST)
+add_definitions(-DGLM_FORCE_RADIANS -DZLIB_CONST -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_CTOR_INIT)
 
 file(GLOB_RECURSE SOURCE_FILES
-		${TankGame_SOURCE_DIR}/src/game/*.cpp
-		${TankGame_SOURCE_DIR}/src/game/*.h
-		${TankGame_SOURCE_DIR}/src/game/*.inl
+		${TankGame_SOURCE_DIR}/src/*.cpp
+		${TankGame_SOURCE_DIR}/src/*.h
+		${TankGame_SOURCE_DIR}/src/*.inl
 		${TankGame_SOURCE_DIR}/imgui/*.cpp
 		${TankGame_SOURCE_DIR}/imgui/*.h
 )
@@ -79,16 +79,6 @@ include_directories(SYSTEM
 	${TankGame_SOURCE_DIR}/imgui
 )
 
-add_library(tankgame SHARED ${SOURCE_FILES})
-add_executable(tclient src/client.cpp)
-add_executable(tserver src/server.cpp)
-
-target_link_libraries(tclient tankgame)
-target_link_libraries(tserver tankgame)
-
-add_dependencies(tclient tankgame)
-add_dependencies(tserver tankgame)
+add_executable(tankgame ${SOURCE_FILES})
 
 set_property(TARGET tankgame PROPERTY CXX_STANDARD 14)
-set_property(TARGET tclient PROPERTY CXX_STANDARD 14)
-set_property(TARGET tserver PROPERTY CXX_STANDARD 14)
