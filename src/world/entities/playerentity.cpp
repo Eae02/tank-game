@@ -127,6 +127,15 @@ namespace TankGame
 		
 		const Settings& settings = Settings::GetInstance();
 		
+		if (IsButtonPressedNow(updateInfo, settings.GetInteractButton()))
+		{
+			GetGameWorld()->IterateIntersectingEntities(GetInteractRectangle(), [] (Entity& entity)
+			{
+				if (entity.CanInteract())
+					entity.OnInteract();
+			});
+		}
+		
 		const bool moveForward = IsButtonPressed(updateInfo, settings.GetForwardButton());
 		const bool moveBack =    IsButtonPressed(updateInfo, settings.GetBackButton());
 		const bool rotateLeft =  IsButtonPressed(updateInfo, settings.GetLeftButton());
