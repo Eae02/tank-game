@@ -46,9 +46,4 @@ namespace TankGame
 		glTextureSubImage3D(GetID(), 0, 0, 0, layer, m_width, m_height, 1, FORMATS[components - 1],
 		                    GL_UNSIGNED_BYTE, resizedData == nullptr ? data.get() : resizedData.get());
 	}
-	
-	void Texture2DArray::ClearLayer(int layer, GLenum format, GLenum type, const void* data)
-	{
-		glClearTexSubImage(GetID(), 0, 0, 0, layer, m_width, m_height, 1, format, type, data);
-	}
 }

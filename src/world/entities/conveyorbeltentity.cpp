@@ -21,9 +21,12 @@ namespace TankGame
 	
 	std::unique_ptr<ShaderProgram> ConveyorBeltEntity::s_shader;
 	
+	int ConveyorBeltEntity::s_transformUniformLoc;
+	int ConveyorBeltEntity::s_sizeUniformLoc;
+	int ConveyorBeltEntity::s_textureOffsetUniformLoc;
+	
 	ConveyorBeltEntity::ConveyorBeltEntity(float speed)
-	    : m_uniformBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(float) * 15, GL_MAP_WRITE_BIT)),
-	      m_speed(speed)
+	    : m_speed(speed)
 	{
 		if (s_shader == nullptr)
 		{
@@ -31,6 +34,13 @@ namespace TankGame
 			auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "conveyor.fs.glsl", GL_FRAGMENT_SHADER);
 			
 			s_shader.reset(new ShaderProgram{ &vs, &fs });
+			s_shader->SetTextureBinding("diffuseSampler", 0);
+			s_shader->SetTextureBinding("normalMapSampler", 1);
+			s_shader->SetTextureBinding("specularMapSampler", 2);
+			
+			s_transformUniformLoc     = s_shader->GetUniformLocation("transform");
+			s_sizeUniformLoc          = s_shader->GetUniformLocation("size");
+			s_textureOffsetUniformLoc = s_shader->GetUniformLocation("textureOffset");
 			
 			CallOnClose([] { s_shader = nullptr; });
 		}
@@ -44,25 +54,15 @@ namespace TankGame
 	
 	void ConveyorBeltEntity::Draw(SpriteRenderList& spriteRenderList) const
 	{
-		void* bufferMemory = glMapNamedBufferRange(*m_uniformBuffer, 0, sizeof(float) * 15,
-		                                           GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-		
-		memcpy(reinterpret_cast<float*>(bufferMemory) + 0, &GetTransform().GetMatrix()[0], sizeof(float) * 3);
-		memcpy(reinterpret_cast<float*>(bufferMemory) + 4, &GetTransform().GetMatrix()[1], sizeof(float) * 3);
-		memcpy(reinterpret_cast<float*>(bufferMemory) + 8, &GetTransform().GetMatrix()[2], sizeof(float) * 3);
-		reinterpret_cast<float*>(bufferMemory)[12] = GetTransform().GetScale().x;
-		reinterpret_cast<float*>(bufferMemory)[13] = GetTransform().GetScale().y;
-		reinterpret_cast<float*>(bufferMemory)[14] = m_textureOffset;
-		
-		glUnmapNamedBuffer(*m_uniformBuffer);
-		
 		s_shader->Use();
+		
+		glUniformMatrix3fv(s_transformUniformLoc, 1, false, &GetTransform().GetMatrix()[0][0]);
+		glUniform2f(s_sizeUniformLoc, GetTransform().GetScale().x, GetTransform().GetScale().y);
+		glUniform1f(s_textureOffsetUniformLoc, m_textureOffset);
 		
 		s_diffuseTexture->Bind(0);
 		s_normalMap->Bind(1);
 		s_specularTexture->Bind(2);
-		
-		glBindBufferBase(GL_UNIFORM_BUFFER, 1, *m_uniformBuffer);
 		
 		QuadMesh::GetInstance().GetVAO().Bind();
 		

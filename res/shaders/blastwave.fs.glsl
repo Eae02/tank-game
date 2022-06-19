@@ -1,13 +1,9 @@
-#version 420 core
+#version 330 core
 
-layout(std140, binding=1) uniform BastSettingsUB
-{
-	vec2 bastOrigin;
-	float blastIntensity;
-	float blastRadius;
-};
+uniform float blastIntensity;
+uniform float blastRadius;
 
-layout(location=0) in vec2 worldPos_in;
+in vec2 toOrigin_v;
 
 layout(location=0) out vec2 distortion_out;
 
@@ -15,8 +11,6 @@ const float PI = 3.141592653589793;
 
 void main()
 {
-	vec2 toOrigin = bastOrigin - worldPos_in;
-	
-	float d = 0.5 * blastIntensity * cos(clamp(blastIntensity * (length(toOrigin) - blastRadius), -PI, PI) + PI / 2.0);
-	distortion_out = d * normalize(toOrigin);
+	float d = 0.5 * blastIntensity * cos(clamp(blastIntensity * (length(toOrigin_v) - blastRadius), -PI, PI) + PI / 2.0);
+	distortion_out = d * normalize(toOrigin_v);
 }

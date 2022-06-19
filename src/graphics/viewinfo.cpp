@@ -7,6 +7,9 @@ namespace TankGame
 {
 	ViewInfo::ViewInfo(glm::vec2 focusPoint, float rotation, float viewWidth, float aspectRatio)
 	{
+		if (aspectRatio < 1)
+			viewWidth *= aspectRatio;
+		
 		float scaleReciprocal = viewWidth / 2.0f;
 		float scale = 1.0f / scaleReciprocal;
 		

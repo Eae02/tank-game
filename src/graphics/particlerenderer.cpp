@@ -11,11 +11,20 @@ namespace TankGame
 		auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "particle.vs.glsl", GL_VERTEX_SHADER);
 		auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "particle.fs.glsl", GL_FRAGMENT_SHADER);
 		
-		return ShaderProgram({ &vs, &fs });
+		ShaderProgram program({ &vs, &fs });
+		program.SetUniformBlockBinding("ParticlesUB", 1);
+		program.SetTextureBinding("lightingSampler", 0);
+		program.SetTextureBinding("diffuseSampler", 1);
+		
+		return program;
 	}
 	
 	ParticleRenderer::ParticleRenderer()
-	    : m_shader(LoadShader()) { }
+	    : m_shader(LoadShader())
+	{
+		m_additiveBlendingUniformLocation = m_shader.GetUniformLocation("additiveBlend");
+		m_aspectRatioUniformLocation = m_shader.GetUniformLocation("aspectRatio");
+	}
 	
 	void ParticleRenderer::Begin(const Texture2D& lightBufferTexture)
 	{
@@ -29,6 +38,12 @@ namespace TankGame
 		glEnable(GL_BLEND);
 		glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 		glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+	}
+	
+	void ParticleRenderer::SetUniforms(bool additiveBlending, float textureAspectRatio)
+	{
+		glUniform1i(m_additiveBlendingUniformLocation, additiveBlending);
+		glUniform1f(m_aspectRatioUniformLocation, textureAspectRatio);
 	}
 	
 	ParticleBatch& ParticleRenderer::GetRenderBatch()

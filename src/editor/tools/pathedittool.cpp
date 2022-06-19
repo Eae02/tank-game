@@ -56,29 +56,28 @@ namespace TankGame
 		
 		Path& path = m_pathProvider->GetEditPath();
 		
-		if (m_currentMovingNode == -1 && updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_RIGHT) &&
-		    !updateInfo.m_mouse.WasButtonPressed(GLFW_MOUSE_BUTTON_RIGHT) && path.GetNodeCount() > 3)
+		if (m_currentMovingNode == -1 && path.GetNodeCount() > 3 &&
+			updateInfo.m_mouse.IsDown(MouseButton::Right) && !updateInfo.m_mouse.WasDown(MouseButton::Right))
 		{
-			long nodeIndex = PickNode(ssViewMatrix, updateInfo.m_mouse.GetPosition());
+			long nodeIndex = PickNode(ssViewMatrix, updateInfo.m_mouse.pos);
 			if (nodeIndex != -1)
 				path.RemoveNodes(nodeIndex, 1);
 		}
 		
 		auto LockToGridIfShiftPressed = [&] (glm::vec2& position)
 		{
-			if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_LEFT_SHIFT) ||
-			    updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_RIGHT_SHIFT))
+			if (updateInfo.m_keyboard.IsAnyDown(KEY_MASK_SHIFT))
 			{
 				position.x = std::round(position.x * 2.0f) / 2.0f;
 				position.y = std::round(position.y * 2.0f) / 2.0f;
 			}
 		};
 		
-		if (updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+		if (updateInfo.m_mouse.IsDown(MouseButton::Left))
 		{
-			if (!updateInfo.m_mouse.WasButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+			if (!updateInfo.m_mouse.WasDown(MouseButton::Left))
 			{
-				m_currentMovingNode = PickNode(ssViewMatrix, updateInfo.m_mouse.GetPosition());
+				m_currentMovingNode = PickNode(ssViewMatrix, updateInfo.m_mouse.pos);
 				m_moveVector = glm::vec2(0.0f);
 				
 				if (m_currentMovingNode != -1)

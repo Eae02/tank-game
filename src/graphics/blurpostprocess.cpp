@@ -11,11 +11,15 @@ namespace TankGame
 	{
 		auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "postblur.fs.glsl", GL_FRAGMENT_SHADER);
 		
-		return ShaderProgram({ &QuadMesh::GetVertexShader(), &fs });
+		ShaderProgram program({ &QuadMesh::GetVertexShader(), &fs });
+		program.SetTextureBinding("inputSampler", 0);
+		return program;
 	}
 	
 	BlurPostProcess::BlurPostProcess()
-	    : m_shader(LoadShader()), m_blurVectorUniformLocation(m_shader.GetUniformLocation("blurVector"))
+	    : m_shader(LoadShader()),
+		  m_blurVectorUniformLocation(m_shader.GetUniformLocation("blurVector")),
+		  m_sampleOffsetUniformLocation(m_shader.GetUniformLocation("sampleOffset"))
 	{
 		
 	}
@@ -31,6 +35,8 @@ namespace TankGame
 		glNamedFramebufferDrawBuffer(m_framebuffer->GetID(), GL_COLOR_ATTACHMENT0);
 		
 		m_intermidiateBuffer->SetWrapMode(GL_CLAMP_TO_EDGE);
+		m_intermidiateBuffer->SetMagFilter(GL_LINEAR);
+		m_intermidiateBuffer->SetMinFilter(GL_LINEAR);
 	}
 	
 	void BlurPostProcess::DoBlurPass(float blurAmount) const
@@ -38,7 +44,9 @@ namespace TankGame
 		if (m_input == nullptr || blurAmount < 1E-6)
 			return;
 		
-		glm::vec2 blurVector(blurAmount / m_input->GetWidth(), blurAmount / m_input->GetHeight());
+		float blurAmount2 = blurAmount * 2.0f;
+		glm::vec2 blurVector(blurAmount2 / m_input->GetWidth(), blurAmount2 / m_input->GetHeight());
+		glm::vec2 sampleOffset(0.5f / m_input->GetWidth(), 0.5f / m_input->GetHeight());
 		
 		QuadMesh::GetInstance().GetVAO().Bind();
 		
@@ -50,6 +58,7 @@ namespace TankGame
 		m_input->Bind(0);
 		
 		glUniform2f(m_blurVectorUniformLocation, blurVector.x, 0.0f);
+		glUniform2f(m_sampleOffsetUniformLocation, sampleOffset.x, sampleOffset.y);
 		
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		
@@ -57,6 +66,7 @@ namespace TankGame
 		m_intermidiateBuffer->Bind(0);
 		
 		glUniform2f(m_blurVectorUniformLocation, 0.0f, blurVector.y);
+		glUniform2f(m_sampleOffsetUniformLocation, -sampleOffset.x, -sampleOffset.y);
 		
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	}

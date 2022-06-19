@@ -11,7 +11,6 @@
 #include "audio/soundloadoperation.h"
 
 #include <cmath>
-#include <GLFW/glfw3.h>
 
 namespace TankGame
 {

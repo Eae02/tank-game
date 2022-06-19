@@ -55,7 +55,7 @@ namespace TankGame
 			vertices[i * 2 + 1].m_position = vertexVec * OUTER_VERTEX_DIST;
 		}
 		
-		s_vertexBuffer = std::make_unique<Buffer>(vertices.size() * sizeof(Vertex), vertices.data(), 0);
+		s_vertexBuffer = std::make_unique<Buffer>(vertices.size() * sizeof(Vertex), vertices.data(), BufferUsage::StaticData);
 		s_vertexArray = std::make_unique<VertexArray>();
 		
 		glEnableVertexArrayAttrib(s_vertexArray->GetID(), 0);
@@ -69,9 +69,21 @@ namespace TankGame
 		glVertexArrayAttribBinding(s_vertexArray->GetID(), 1, 1);
 	}
 	
+	struct SettingsBufferData
+	{
+		glm::vec2 transformRS;
+		glm::vec2 centerWorld;
+		glm::vec2 centerView;
+		float radius;
+		float intensity;
+		float rippleCenter;
+		float rippleDistance;
+		float rippleIntensity;
+	};
+	
 	ShieldEntity::ShieldEntity(float hp, int teamID, float radius)
 	    : Hittable(hp, teamID),
-	      m_settingsBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(float) * 17, GL_MAP_WRITE_BIT)),
+	      m_settingsBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(SettingsBufferData), BufferUsage::MapWritePersistentMultiFrame)),
 	      m_radius(radius)
 	{
 		if (s_distortionShader== nullptr)
@@ -111,36 +123,32 @@ namespace TankGame
 		m_rippleProgress += updateInfo.m_dt * 12;
 		m_intensity = glm::min(m_intensity + updateInfo.m_dt * 2, 1.0f);
 		
-		void* settingsMemory = glMapNamedBuffer(*m_settingsBuffer, GL_WRITE_ONLY);
-		
 		float rotation = 0;
 		float sinR = std::sin(rotation);
 		float cosR = std::cos(rotation) * m_radius;
 		
 		glm::vec2 centerView = updateInfo.m_viewInfo.WorldToScreen(GetTransform().GetPosition());
 		
-		reinterpret_cast<float*>(settingsMemory)[0] = cosR;
-		reinterpret_cast<float*>(settingsMemory)[1] = sinR;
-		reinterpret_cast<float*>(settingsMemory)[4] = -sinR;
-		reinterpret_cast<float*>(settingsMemory)[5] = cosR;
-		reinterpret_cast<float*>(settingsMemory)[8] = GetTransform().GetPosition().x;
-		reinterpret_cast<float*>(settingsMemory)[9] = GetTransform().GetPosition().y;
-		reinterpret_cast<float*>(settingsMemory)[10] = centerView.x * 2.0f - 1.0f;
-		reinterpret_cast<float*>(settingsMemory)[11] = centerView.y * 2.0f - 1.0f;
-		reinterpret_cast<float*>(settingsMemory)[12] = m_radius;
-		reinterpret_cast<float*>(settingsMemory)[13] = m_intensity;
-		reinterpret_cast<float*>(settingsMemory)[14] = m_rippleAngle;
-		reinterpret_cast<float*>(settingsMemory)[15] = m_rippleProgress;
-		reinterpret_cast<float*>(settingsMemory)[16] = glm::pi<float>() / m_rippleProgress;
+		auto& settingsData = *reinterpret_cast<SettingsBufferData*>(m_settingsBuffer->CurrentFrameMappedMemory());
 		
-		glUnmapNamedBuffer(*m_settingsBuffer);
+		settingsData.transformRS = glm::vec2(cosR, sinR);
+		settingsData.centerWorld = GetTransform().GetPosition();
+		settingsData.centerView = centerView * 2.0f - 1.0f;
+		settingsData.radius = m_radius;
+		settingsData.intensity = m_intensity;
+		settingsData.rippleCenter = m_rippleAngle;
+		settingsData.rippleDistance = m_rippleProgress;
+		settingsData.rippleIntensity = glm::pi<float>() / m_rippleProgress;
+		
+		m_settingsBuffer->FlushCurrentFrameMappedMemory();
 	}
 	
 	void ShieldEntity::DrawTranslucent(SpriteRenderList& spriteRenderList) const
 	{
 		s_spriteShader->Use();
 		
-		glBindBufferBase(GL_UNIFORM_BUFFER, 1, *m_settingsBuffer);
+		glBindBufferRange(GL_UNIFORM_BUFFER, 1, m_settingsBuffer->GetID(),
+		                  m_settingsBuffer->CurrentFrameOffset(), sizeof(SettingsBufferData));
 		
 		s_vertexArray->Bind();
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, s_numVertices);
@@ -150,7 +158,8 @@ namespace TankGame
 	{
 		s_distortionShader->Use();
 		
-		glBindBufferBase(GL_UNIFORM_BUFFER, 1, *m_settingsBuffer);
+		glBindBufferRange(GL_UNIFORM_BUFFER, 1, m_settingsBuffer->GetID(),
+		                  m_settingsBuffer->CurrentFrameOffset(), sizeof(SettingsBufferData));
 		
 		s_vertexArray->Bind();
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, s_numVertices);

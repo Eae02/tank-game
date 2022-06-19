@@ -10,10 +10,10 @@ namespace TankGame
 	{
 		if (defaultNormalMap == nullptr)
 		{
-			defaultNormalMap = std::make_unique<Texture2D>(2, 2, 1, GL_RGBA8);
+			defaultNormalMap = std::make_unique<Texture2D>(1, 1, 1, GL_RGBA8);
 			
 			float pixel[] = { 0.5f, 0.5f, 1.0f, 0.0f };
-			glClearTexImage(defaultNormalMap->GetID(), 0, GL_RGBA, GL_FLOAT, pixel);
+			glTextureSubImage2D(defaultNormalMap->GetID(), 0, 0, 0, 1, 1, GL_RGBA, GL_FLOAT, pixel);
 			
 			CallOnClose([] { defaultNormalMap = nullptr; });
 		}

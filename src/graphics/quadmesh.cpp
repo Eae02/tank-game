@@ -28,7 +28,7 @@ namespace TankGame
 		1.0f,  1.0f
 	};
 	
-	QuadMesh::QuadMesh() : m_vbo(sizeof(vertices), vertices, 0)
+	QuadMesh::QuadMesh() : m_vbo(sizeof(vertices), vertices, BufferUsage::StaticData)
 	{
 		glEnableVertexArrayAttrib(m_vertexArray.GetID(), 0);
 		glVertexArrayVertexBuffer(m_vertexArray.GetID(), 0, m_vbo.GetID(), 0, sizeof(float) * 2);

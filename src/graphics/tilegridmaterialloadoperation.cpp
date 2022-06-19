@@ -3,7 +3,7 @@
 #include "../utils/jsonparseutils.h"
 #include "../utils/ioutils.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <stb_image.h>
 #include <stb_image_resize.h>
 
@@ -15,6 +15,8 @@ namespace TankGame
 	{
 		
 	}
+	
+	constexpr size_t BYTES_PER_LAYER = TileGridMaterial::WIDTH * TileGridMaterial::HEIGHT * 4;
 	
 	void TileGridMaterialLoadOperation::DoWork()
 	{
@@ -89,22 +91,35 @@ namespace TankGame
 			if (diffusePaths[i].empty())
 			{
 				GetLogStream() << "[warning] No diffuse for tile with id " << i << '\n';
-				m_diffuseLayers.emplace_back(CreateLayerPtr());
+				auto layerData = AllocateTextureLayer();
+				std::memset(layerData.get(), 0, BYTES_PER_LAYER);
+				m_diffuseLayers.push_back(std::move(layerData));
 			}
 			else
 			{
 				m_diffuseLayers.emplace_back(LoadTextureLayer(parentPath / diffusePaths[i]));
 			}
 			
+			TextureLayerPtr normalSpecData;
+			
 			if (!normalMapPaths[i].empty())
-				m_normalMapLayers.emplace_back(LoadTextureLayer(parentPath / normalMapPaths[i]));
+			{
+				normalSpecData = LoadTextureLayer(parentPath / normalMapPaths[i]);
+			}
 			else
-				m_normalMapLayers.emplace_back(CreateLayerPtr());
+			{
+				normalSpecData = AllocateTextureLayer();
+				std::memset(normalSpecData.get(), 0x0000FFFF, BYTES_PER_LAYER);
+			}
 			
 			if (!specularMapPaths[i].empty())
-				m_specularMapLayers.emplace_back(LoadTextureLayer(parentPath / specularMapPaths[i]));
-			else
-				m_specularMapLayers.emplace_back(CreateLayerPtr());
+			{
+				TextureLayerPtr specularData = LoadTextureLayer(parentPath / specularMapPaths[i]);
+				for (size_t i = 0; i < BYTES_PER_LAYER; i += 4)
+					normalSpecData.get()[i + 3] = specularData.get()[i];
+			}
+			
+			m_normalSpecLayers.push_back(std::move(normalSpecData));
 		}
 	}
 	
@@ -114,64 +129,27 @@ namespace TankGame
 		
 		material.m_materialNames = std::move(m_materialNames);
 		
-		const uint8_t defaultNormal[] = { 0, 0, 255 };
-		const uint8_t defaultSpecular[] = { 255 };
-		
 		for (int i = 0; i < m_layers; i++)
 		{
-			if (m_diffuseLayers[i] != nullptr)
-			{
-				glTextureSubImage3D(material.m_diffuseTextureArray.GetID(), 0, 0, 0, i, TileGridMaterial::WIDTH,
-				                    TileGridMaterial::HEIGHT, 1, GL_RGBA, GL_UNSIGNED_BYTE, m_diffuseLayers[i].get());
-			}
+			glTextureSubImage3D(material.m_diffuseTextureArray.GetID(), 0, 0, 0, i, TileGridMaterial::WIDTH,
+			                    TileGridMaterial::HEIGHT, 1, GL_RGBA, GL_UNSIGNED_BYTE, m_diffuseLayers[i].get());
 			
-			if (m_normalMapLayers[i] != nullptr)
-			{
-				glTextureSubImage3D(material.m_normalMapTextureArray.GetID(), 0, 0, 0, i, TileGridMaterial::WIDTH,
-				                    TileGridMaterial::HEIGHT, 1, GL_RGBA, GL_UNSIGNED_BYTE, m_normalMapLayers[i].get());
-			}
-			else
-			{
-				glClearTexSubImage(material.m_normalMapTextureArray.GetID(), 0, 0, 0, i, TileGridMaterial::WIDTH,
-				                   TileGridMaterial::HEIGHT, 1, GL_RGB, GL_UNSIGNED_BYTE, defaultNormal);
-			}
-			
-			if (m_specularMapLayers[i] != nullptr)
-			{
-				glTextureSubImage3D(material.m_specularMapTextureArray.GetID(), 0, 0, 0, i, TileGridMaterial::WIDTH,
-				                    TileGridMaterial::HEIGHT, 1, GL_RGBA, GL_UNSIGNED_BYTE, m_specularMapLayers[i].get());
-			}
-			else
-			{
-				glClearTexSubImage(material.m_specularMapTextureArray.GetID(), 0, 0, 0, i, TileGridMaterial::WIDTH,
-				                   TileGridMaterial::HEIGHT, 1, GL_RED, GL_UNSIGNED_BYTE, defaultSpecular);
-			}
+			glTextureSubImage3D(material.m_normalSpecTextureArray.GetID(), 0, 0, 0, i, TileGridMaterial::WIDTH,
+			                    TileGridMaterial::HEIGHT, 1, GL_RGBA, GL_UNSIGNED_BYTE, m_normalSpecLayers[i].get());
 		}
 		
 		std::copy(m_materialSettings.begin(), m_materialSettings.end(), material.m_materialSettings);
 		std::copy(m_isSolid.begin(), m_isSolid.end(), material.m_isSolid);
 		
-		uint32_t isSolidPacked[256 / 32];
-		std::fill(std::begin(isSolidPacked), std::end(isSolidPacked), 0);
-		
-		for (size_t i = 0; i < 256; i++)
-		{
-			if (i < m_isSolid.size() && m_isSolid[i])
-				isSolidPacked[i / 32] |= 1 << (i % 32);
-		}
-		
-		material.m_isSolidBuffer = std::make_unique<Buffer>(sizeof(isSolidPacked), isSolidPacked, 0);
-		
 		material.m_diffuseTextureArray.SetupMipmapping(true);
-		material.m_normalMapTextureArray.SetupMipmapping(true);
-		material.m_specularMapTextureArray.SetupMipmapping(true);
+		material.m_normalSpecTextureArray.SetupMipmapping(true);
 		
 		m_doneCallback(std::move(material));
 	}
 	
-	TileGridMaterialLoadOperation::TextureLayerPtr TileGridMaterialLoadOperation::CreateLayerPtr()
+	TileGridMaterialLoadOperation::TextureLayerPtr TileGridMaterialLoadOperation::AllocateTextureLayer()
 	{
-		return { nullptr, &TextureLoadOperation::STBIDataDeleter };
+		return TextureLayerPtr(reinterpret_cast<uint8_t*>(malloc(BYTES_PER_LAYER)));
 	}
 	
 	TileGridMaterialLoadOperation::TextureLayerPtr TileGridMaterialLoadOperation::LoadTextureLayer(const fs::path& path)
@@ -180,14 +158,12 @@ namespace TankGame
 		
 		std::string pathString = path.string();
 		
-		TextureLayerPtr layerData = CreateLayerPtr();
-		layerData.reset(stbi_load(pathString.c_str(), &width, &height, nullptr, 4));
+		TextureLayerPtr layerData(stbi_load(pathString.c_str(), &width, &height, nullptr, 4));
 		
 		if (width == TileGridMaterial::WIDTH && height == TileGridMaterial::HEIGHT)
 			return layerData;
 		
-		TextureLayerPtr resizedData = CreateLayerPtr();
-		resizedData.reset(reinterpret_cast<uint8_t*>(malloc(TileGridMaterial::WIDTH * TileGridMaterial::HEIGHT * 4)));
+		TextureLayerPtr resizedData = AllocateTextureLayer();
 		
 		stbir_resize_uint8(layerData.get(), width, height, 0, resizedData.get(),
 		                   TileGridMaterial::WIDTH, TileGridMaterial::HEIGHT, 0, 4);

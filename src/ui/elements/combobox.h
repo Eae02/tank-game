@@ -32,6 +32,7 @@ namespace TankGame
 		
 	private:
 		void SetScroll(float scroll);
+		void AreaChanged();
 		
 		ScrollBar m_scrollBar;
 		

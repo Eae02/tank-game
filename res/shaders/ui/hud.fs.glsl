@@ -1,12 +1,12 @@
-#version 420 core
+#version 330 core
 
-layout(location=0) in vec2 texCoord_in;
+in vec2 texCoord_v;
 
 layout(location=0) out vec4 color_out;
 
-layout(binding=0) uniform sampler2D inputSampler;
+uniform sampler2D inputSampler;
 
 void main()
 {
-	color_out = texture(inputSampler, texCoord_in);
+	color_out = texture(inputSampler, texCoord_v);
 }

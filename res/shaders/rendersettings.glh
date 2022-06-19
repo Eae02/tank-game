@@ -1,7 +1,7 @@
 #ifndef RENDER_SETTINGS_H
 #define RENDER_SETTINGS_H
 
-layout(std140, binding=0) uniform RenderSettingsUB
+layout(std140) uniform RenderSettingsUB
 {
 	mat3 viewMatrix;
 	vec3 eyePosition;

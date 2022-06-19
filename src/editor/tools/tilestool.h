@@ -7,6 +7,7 @@
 #include "../../graphics/gl/shaderprogram.h"
 
 #include <cstdint>
+#include <vector>
 #include <memory>
 
 namespace TankGame

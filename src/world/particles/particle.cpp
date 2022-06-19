@@ -1,13 +1,10 @@
 #include "particle.h"
-#include <GLFW/glfw3.h>
+#include "../../platform/common.h"
 
 namespace TankGame
 {
 	Particle::Particle(const ParticleInfo& particleInfo)
-	    : ParticleInfo(particleInfo), m_spawnTime(glfwGetTime())
-	{
-		
-	}
+	    : ParticleInfo(particleInfo), m_spawnTime(GetTime()) { }
 	
 	void Particle::Update(float dt)
 	{

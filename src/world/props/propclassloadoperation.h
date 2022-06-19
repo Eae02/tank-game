@@ -4,7 +4,7 @@
 #include "../../utils/filesystem.h"
 #include "../../graphics/textureloadoperation.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace TankGame
 {

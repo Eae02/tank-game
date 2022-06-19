@@ -1,16 +1,11 @@
 #include "particlepool.h"
 #include "../../utils/utils.h"
+#include "../../platform/common.h"
 
-#include <GLFW/glfw3.h>
 #include <iostream>
 
 namespace TankGame
 {
-	ParticlePool::ParticlePool()
-	{
-		
-	}
-	
 	bool ParticlePool::SpawnParticle(const ParticleInfo& info)
 	{
 		if (m_numParticles >= m_particles.size())
@@ -21,7 +16,7 @@ namespace TankGame
 	
 	void ParticlePool::Update(float dt)
 	{
-		double time = glfwGetTime();
+		double time = GetTime();
 		
 		for (size_t i = 0; i < m_numParticles;)
 		{

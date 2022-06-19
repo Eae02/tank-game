@@ -4,7 +4,7 @@
 #include "../../graphics/spritematerial.h"
 #include "../../utils/filesystem.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace TankGame
 {

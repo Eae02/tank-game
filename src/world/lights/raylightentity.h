@@ -61,8 +61,6 @@ namespace TankGame
 		static int s_heightUniformLocation;
 		static int s_worldTransformUniformLocation;
 		
-		void UpdateUniformBuffer() const;
-		
 		BufferAllocator::UniquePtr m_uniformBuffer;
 		mutable bool m_uniformBufferOutOfDate = true;
 		

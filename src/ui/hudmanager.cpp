@@ -30,7 +30,9 @@ namespace TankGame
 		fs::path shaderPath = GetResDirectory() / "shaders" / "ui";
 		auto vs = ShaderModule::FromFile(shaderPath / "hud.vs.glsl", GL_VERTEX_SHADER);
 		auto fs = ShaderModule::FromFile(shaderPath / "hud.fs.glsl", GL_FRAGMENT_SHADER);
-		return ShaderProgram({ &vs, &fs });
+		ShaderProgram program({ &vs, &fs });
+		program.SetTextureBinding("inputSampler", 0);
+		return program;
 	}
 	
 	static Buffer CreateVertexBuffer(GLsizei& vertexCountOut)
@@ -68,7 +70,7 @@ namespace TankGame
 		
 		vertexCountOut = (COLUMNS + 1) * 2;
 		
-		return Buffer(sizeof(vertices), vertices, 0);
+		return Buffer(sizeof(vertices), vertices, BufferUsage::StaticData);
 	}
 	
 	HUDManager::HUDManager(IMainRenderer& mainRenderer)
@@ -130,7 +132,7 @@ namespace TankGame
 		
 		float blurAmountTarget = IsPaused() ? 1.0f : 0.0f;
 		m_blurAmount = glm::clamp(m_blurAmount + glm::sign(blurAmountTarget - m_blurAmount) * updateInfo.m_dt * 5, 0.0f, 1.0f);
-		m_mainRenderer.SetBlurAmount(m_blurAmount);
+		m_mainRenderer.SetBlurAmount(glm::smoothstep(0.0f, 1.0f, m_blurAmount));
 		
 		if (m_noAmmoOpacity > 0)
 			m_noAmmoOpacity = glm::max(m_noAmmoOpacity - updateInfo.m_dt, 0.0f);

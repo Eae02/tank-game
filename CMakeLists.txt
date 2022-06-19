@@ -1,20 +1,15 @@
 cmake_minimum_required(VERSION 3.1)
 project(TankGame CXX)
 
+set(BUILD_DIR_NAME ${CMAKE_BUILD_TYPE})
 set(CMAKE_MODULE_PATH "${TankGame_SOURCE_DIR}/cmake")
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TankGame_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${TankGame_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 
-add_definitions(-DGLM_FORCE_RADIANS -DZLIB_CONST -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_CTOR_INIT)
+add_definitions(-DGLM_FORCE_RADIANS -DZLIB_CONST -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_CTOR_INIT -Wall -Wpedantic -Wfatal-errors)
 
-file(GLOB_RECURSE SOURCE_FILES
-		${TankGame_SOURCE_DIR}/src/*.cpp
-		${TankGame_SOURCE_DIR}/src/*.h
-		${TankGame_SOURCE_DIR}/src/*.inl
-		${TankGame_SOURCE_DIR}/imgui/*.cpp
-		${TankGame_SOURCE_DIR}/imgui/*.h
-)
+file(GLOB_RECURSE SOURCE_FILES ${TankGame_SOURCE_DIR}/src/*.cpp)
 
 #Finds other libraries
 find_package(OpenGL REQUIRED)
@@ -25,28 +20,17 @@ find_package(Vorbis REQUIRED)
 find_package(VorbisFile REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(ZLIB REQUIRED)
-find_package(Threads REQUIRED)
 find_package(Lua REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 find_path(GLFW_INCLUDE_DIR GLFW/glfw3.h ${HEADER_SEARCH_PATH})
 find_library(GLFW_LIBRARIES NAMES glfw glfw3dll ${LIBRARY_SEARCH_PATH})
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-	add_definitions(-Wall)
-	
-	set(CMAKE_INSTALL_RPATH "$ORIGIN")
-	set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-	
 	find_package(PkgConfig REQUIRED)
 	pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
-	
 	include_directories(${GTK3_INCLUDE_DIRS})
-	
-	link_libraries(stdc++fs dl X11 glib-2.0)
-endif()
-
-if (${MSVC})
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4250 /D_CRT_SECURE_NO_WARNINGS")
+	link_libraries(stdc++fs dl X11)
 endif()
 
 #Sets link libraries for all projects
@@ -61,6 +45,7 @@ link_libraries(
 	${ZLIB_LIBRARIES}
 	${LUA_LIBRARIES}
 	${CMAKE_THREAD_LIBS_INIT}
+	nlohmann_json::nlohmann_json
 )
 
 #Sets include directories for all projects
@@ -79,6 +64,19 @@ include_directories(SYSTEM
 	${TankGame_SOURCE_DIR}/imgui
 )
 
-add_executable(tankgame ${SOURCE_FILES})
+add_executable(tankgame ${SOURCE_FILES} imgui/imgui.cpp imgui/imgui_draw.cpp)
 
-set_property(TARGET tankgame PROPERTY CXX_STANDARD 14)
+set_target_properties(tankgame PROPERTIES
+	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}-${CMAKE_SYSTEM_NAME}
+	LINKER_LANGUAGE CXX
+	CXX_STANDARD 20
+)
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+	set_target_properties(tankgame PROPERTIES INSTALL_RPATH "$ORIGIN" BUILD_WITH_INSTALL_RPATH TRUE)
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+	target_link_options(tankgame PRIVATE "-Wl,-subsystem,windows")
+endif()
+
+set_source_files_properties(imgui/imgui.cpp PROPERTIES COMPILE_FLAGS -w)
+set_source_files_properties(imgui/imgui_draw.cpp PROPERTIES COMPILE_FLAGS -w)

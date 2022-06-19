@@ -11,7 +11,7 @@
 namespace TankGame
 {
 	std::unique_ptr<ShaderProgram> SpriteRenderList::s_shaderProgram;
-	
+	SpriteMaterial::UniformLocations SpriteRenderList::s_spriteMaterialUniformLocations;
 	int SpriteRenderList::s_translucentUniformLocation;
 	
 	size_t SpriteRenderList::s_elementsPerDrawBuffer = 1024;
@@ -95,6 +95,12 @@ namespace TankGame
 			
 			s_shaderProgram.reset(new ShaderProgram{ &vs, &fs });
 			
+			s_shaderProgram->SetTextureBinding("diffuseSampler", SpriteMaterial::DIFFUSE_TEXTURE_UNIT);
+			s_shaderProgram->SetTextureBinding("normalMapSampler", SpriteMaterial::NORMAL_MAP_TEXTURE_UNIT);
+			
+			s_spriteMaterialUniformLocations.shadeLoc = s_shaderProgram->GetUniformLocation("shade");
+			s_spriteMaterialUniformLocations.specularIntensityLoc = s_shaderProgram->GetUniformLocation("specularIntensity");
+			s_spriteMaterialUniformLocations.specularExponentLoc = s_shaderProgram->GetUniformLocation("specularExponent");
 			s_translucentUniformLocation = s_shaderProgram->GetUniformLocation("translucent");
 			
 			CallOnClose([] { s_shaderProgram = nullptr; });
@@ -128,9 +134,9 @@ namespace TankGame
 				
 				//Creates more buffers as neccesary
 				if (currentDrawBuffer >= m_drawBuffers.size())
-					m_drawBuffers.emplace_back();
+					m_drawBuffers.emplace_back(GetInstanceBufferSize(), BufferUsage::MapWritePersistent);
 				
-				instanceDataMemory = reinterpret_cast<char*>(m_drawBuffers[currentDrawBuffer].m_instanceDataMemory) +
+				instanceDataMemory = m_drawBuffers[currentDrawBuffer].MappedMemory() +
 				                     drawBufferOffset * INSTANCE_DATA_STRIDE;
 			}
 			
@@ -178,11 +184,10 @@ namespace TankGame
 		{
 			const GLuint usedLength = i == currentDrawBuffer ? currentBufferOffset : s_elementsPerDrawBuffer;
 			
-			glFlushMappedNamedBufferRange(m_drawBuffers[i].m_instanceDataBuffer.GetID(),
-			                              drawBufferOffset * INSTANCE_DATA_STRIDE, usedLength * INSTANCE_DATA_STRIDE);
+			m_drawBuffers[i].FlushMappedMemory(drawBufferOffset * INSTANCE_DATA_STRIDE, usedLength * INSTANCE_DATA_STRIDE);
 			
-			GLuint instanceBuffers[5];
-			std::fill_n(instanceBuffers, 5, m_drawBuffers[i].m_instanceDataBuffer.GetID());
+			std::array<GLuint, 5> instanceBuffers;
+			std::fill_n(instanceBuffers.data(), instanceBuffers.size(), m_drawBuffers[i].GetID());
 			
 			for (const Batch& materialBatch : m_materialBatches)
 			{
@@ -200,19 +205,12 @@ namespace TankGame
 					static_cast<GLintptr>(instanceByteOffset + INSTANCE_MATRIX_OFF + sizeof(float) * 4 * 2)
 				};
 				
-				glBindVertexBuffers(1, 5, instanceBuffers, instanceOffsets, instanceStrides);
+				glBindVertexBuffers(1, instanceBuffers.size(), instanceBuffers.data(), instanceOffsets, instanceStrides);
 				
-				materialBatch.m_material.Bind();
+				materialBatch.m_material.Bind(s_spriteMaterialUniformLocations);
 				
 				glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, materialBatch.m_instances.size());
 			}
 		}
 	}
-	
-	static const GLenum bufferFlags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT;
-	
-	SpriteRenderList::DrawBuffer::DrawBuffer()
-	    : m_instanceDataBuffer(GetInstanceBufferSize(), bufferFlags),
-	      m_instanceDataMemory(glMapNamedBufferRange(m_instanceDataBuffer.GetID(), 0, GetInstanceBufferSize(),
-	                                                 bufferFlags  | GL_MAP_FLUSH_EXPLICIT_BIT)) { }
 }

@@ -1,4 +1,5 @@
 #include "lightsourceentity.h"
+#include "ilightsource.h"
 #include "../../utils/mathutils.h"
 #include "../../utils/utils.h"
 
@@ -11,34 +12,41 @@ namespace TankGame
 {
 	Lua::RegistryReference LightSourceEntity::s_metaTableRef;
 	
-	LightSourceEntity::LightSourceEntity(glm::vec3 color, float intensity, Attenuation attenuation, float height, size_t ubSize)
-	    : m_ubSize(ubSize), m_flickerOffset(GenerateFlickerOffset()),
-	      m_uniformBuffer(BufferAllocator::GetInstance().AllocateUnique(ubSize, GL_MAP_WRITE_BIT)),
+	LightSourceEntity::LightSourceEntity(glm::vec3 color, float intensity, Attenuation attenuation, float height)
+	    : m_flickerOffset(GenerateFlickerOffset()),
+	      m_uniformBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(LightUniformBufferData), BufferUsage::DynamicData)),
 	      m_color(color), m_intensity(intensity), m_attenuation(attenuation), m_height(height),
-	      m_range(GetRange(color, intensity, attenuation))
-	{
-		
-	}
+	      m_range(GetRange(color, intensity, attenuation)) { }
 	
 	Circle LightSourceEntity::GetBoundingCircle() const
 	{
 		return Circle(GetTransform().GetPosition(), m_range);
 	}
 	
+	static constexpr float FLICKER_INTENSITY = 0.12f;
+	
 	void LightSourceEntity::Bind() const
 	{
 		if (m_uniformBufferOutOfDate)
 		{
-			void* bufferMemory = glMapNamedBuffer(*m_uniformBuffer, GL_WRITE_ONLY);
+			LightUniformBufferData data = {};
+			if (m_enabled)
+			{
+				data.colorTimesIntensity[0] = m_color.r * m_intensity;
+				data.colorTimesIntensity[1] = m_color.g * m_intensity;
+				data.colorTimesIntensity[2] = m_color.b * m_intensity;
+			}
+			data.extra = GetExtraUniformValue();
+			data.attenLin = m_attenuation.GetLinear();
+			data.attenExp = m_attenuation.GetExponent();
+			data.flickerIntensity = m_flickers ? FLICKER_INTENSITY : 0.0f;
+			data.flickerOffset = m_flickerOffset;
 			
-			UpdateUniformBuffer(bufferMemory);
-			
-			glUnmapNamedBuffer(*m_uniformBuffer);
-			
+			m_uniformBuffer->Update(0, sizeof(LightUniformBufferData), &data);
 			m_uniformBufferOutOfDate = false;
 		}
 		
-		glBindBufferBase(GL_UNIFORM_BUFFER, 1, *m_uniformBuffer);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_uniformBuffer->GetID());
 		
 		glm::vec2 pos2D = GetTransform().GetPosition();
 		glUniform3f(GetPositionUniformLocation(), pos2D.x, m_height, pos2D.y);
@@ -47,23 +55,9 @@ namespace TankGame
 		glUniformMatrix3fv(GetWorldTransformUniformLocation(), 1, GL_FALSE, reinterpret_cast<GLfloat*>(&worldTransform));
 		
 		if (m_shadowMap != nullptr)
-			m_shadowMap->Bind();
+			m_shadowMap->Bind(SHADOW_MAP_TEXTURE_BINDING);
 		else
-			ShadowMap::BindDefault();
-	}
-	
-	void LightSourceEntity::UpdateUniformBuffer(void* memory) const
-	{
-		float* floatMem = reinterpret_cast<float*>(memory);
-		
-		floatMem[0] = m_color.r;
-		floatMem[1] = m_color.g;
-		floatMem[2] = m_color.b;
-		floatMem[3] = m_enabled ? m_intensity : 0.0f;
-		floatMem[4] = m_attenuation.GetLinear();
-		floatMem[5] = m_attenuation.GetExponent();
-		floatMem[6] = m_flickers ? 0.12f : 0.0f;
-		floatMem[7] = m_flickerOffset;
+			ShadowMap::BindDefault(SHADOW_MAP_TEXTURE_BINDING);
 	}
 	
 	LightInfo LightSourceEntity::GetLightInfo() const

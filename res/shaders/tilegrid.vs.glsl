@@ -1,22 +1,23 @@
-#version 420 core
+#version 330 core
 
-#include rendersettings.glh
+#ifndef LAYER_COUNT
+#define LAYER_COUNT 8
+#endif
+
+#include "rendersettings.glh"
 
 layout(location=0) in vec2 position_in;
 
-layout(location=0) out vec3 texCoord_out;
-layout(location=1) out flat vec2 specular_out;
+out vec3 texCoord_v;
+flat out vec2 specular_v;
 
-layout(binding=0) uniform usampler2D tileIDSampler;
-layout(binding=1) uniform sampler2D tileRotationSampler;
+uniform usampler2D tileIDSampler;
+uniform sampler2D tileRotationSampler;
 
-layout(std140, binding=1) uniform RenderAreaUB
-{
-	ivec2 offset;
-	ivec2 size;
-} renderArea;
+uniform ivec2 renderAreaOffset;
+uniform int renderAreaWidth;
 
-layout(std140, binding=2) uniform MaterialSettingsUB
+layout(std140) uniform MaterialSettingsUB
 {
 	/*
 		x: Texture Scale X
@@ -31,7 +32,7 @@ const float Z = 1.0;
 
 void main()
 {
-	ivec2 offset = renderArea.offset + ivec2(gl_InstanceID % renderArea.size.x, gl_InstanceID / renderArea.size.x);
+	ivec2 offset = renderAreaOffset + ivec2(gl_InstanceID % renderAreaWidth, gl_InstanceID / renderAreaWidth);
 	vec2 worldPos = position_in / 2.0 + vec2(0.5) + vec2(offset);
 	
 	uint layer = texelFetch(tileIDSampler, offset, 0).r;
@@ -41,13 +42,13 @@ void main()
 	//x: cos(rotation), y: sin(rotation)
 	vec2 rotation = texelFetch(tileRotationSampler, offset, 0).rg;
 	
-	texCoord_out = vec3(
+	texCoord_v = vec3(
 		(rotation.x * worldPos.x - rotation.y * worldPos.y) * parameters.x,
 		(rotation.y * worldPos.x + rotation.x * worldPos.y) * parameters.y,
 		layer
 	);
 	
-	specular_out = parameters.zw;
+	specular_v = parameters.zw;
 	
 	gl_Position = vec4((viewMatrix * vec3(worldPos, 1.0)).xy, Z, 1.0);
 }

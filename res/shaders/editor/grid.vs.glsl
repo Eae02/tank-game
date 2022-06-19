@@ -1,6 +1,6 @@
-#version 420 core
+#version 330 core
 
-#include ../rendersettings.glh
+#include "../rendersettings.glh"
 
 layout(location=0) in vec2 position_in;
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <glm/glm.hpp>
 #include "../transform.h"
 

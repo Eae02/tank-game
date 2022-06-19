@@ -17,6 +17,9 @@ namespace TankGame
 		int GetUniformLocation(const std::string& name) const;
 		int GetUniformBlockIndex(const std::string& name) const;
 		
+		void SetUniformBlockBinding(const std::string& name, GLuint binding, bool failIfMissing = true);
+		void SetTextureBinding(const std::string& name, GLuint binding, bool failIfMissing = true);
+		
 		void Use() const;
 		
 		inline static GLint GetCurrentShaderProgram()

@@ -1,13 +1,22 @@
-#version 420 core
+#version 330 core
+
+#include "shadowrendersettings.glh"
 
 layout(location=0) in vec2 position_in;
-layout(location=1) in vec2 normal_in;
 
-layout(location=0) out vec2 position_out;
-layout(location=1) out vec2 normal_out;
+out float distanceToCaster_v;
 
 void main()
 {
-	position_out = position_in;
-	normal_out = normal_in;
+	vec2 position = position_in;
+	
+	if ((gl_VertexID & 2) != 0)
+	{
+		vec2 toVertex = position_in - lightPosition;
+		toVertex.y = max(abs(toVertex.y), 1E-6) * (toVertex.y < -1E-6 ? -1 : 1);
+		position = position_in + normalize(toVertex) * projectionDistance;
+	}
+	
+	distanceToCaster_v = distance(position, position_in);
+	gl_Position = vec4((shadowViewMatrix * vec3(position, 1.0)).xy, 0.0, 1.0);
 }

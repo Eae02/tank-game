@@ -1,12 +1,13 @@
-#version 420 core
+#version 330 core
 
-#include bloom.glh
+#include "bloom.glh"
 
-layout(location=0) in vec2 texCoord_in;
+in vec2 texCoord_v;
+
 layout(location=0) out vec3 color_out;
 
-layout(binding=0) uniform sampler2D inputSampler;
-layout(binding=1) uniform sampler2D bloomInputSampler;
+uniform sampler2D inputSampler;
+uniform sampler2D bloomInputSampler;
 
 vec3 sampleInput(vec2 tc)
 {
@@ -15,6 +16,6 @@ vec3 sampleInput(vec2 tc)
 
 void main()
 {
-	color_out = getBloomColor(texCoord_in, 1);
-	color_out += texture(inputSampler, texCoord_in).rgb;
+	color_out = getBloomColor(texCoord_v, 1);
+	color_out += texture(inputSampler, texCoord_v).rgb;
 }

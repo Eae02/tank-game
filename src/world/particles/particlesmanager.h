@@ -22,7 +22,7 @@ namespace TankGame
 		
 		using ParticlePoolHandle = std::unique_ptr<ParticlePool, ParticlesManager::ParticlePoolDeleter>;
 		
-		ParticlesManager();
+		ParticlesManager() = default;
 		
 		ParticlesManager(ParticlesManager&& other) = delete;
 		ParticlesManager& operator=(ParticlesManager&& other) = delete;

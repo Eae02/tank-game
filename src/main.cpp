@@ -1,4 +1,3 @@
-#include "window.h"
 #include "settings.h"
 #include "progress.h"
 #include "audio/almanager.h"
@@ -6,7 +5,10 @@
 #include "utils/ioutils.h"
 #include "exceptions/fatalexception.h"
 #include "graphics/ui/font.h"
-#include "messagebox.h"
+#include "platform/messagebox.h"
+#include "platform/window.h"
+#include "platform/common.h"
+#include "game.h"
 #include "orientedrectangle.h"
 #include "lua/luavm.h"
 
@@ -15,6 +17,11 @@
 
 #ifdef _WIN32
 #pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+extern "C"
+{
+	__declspec(dllexport) uint32_t NvOptimusEnablement = 1;
+	__declspec(dllexport) uint32_t AmdPowerXpressRequestHighPerformance = 1;
+}
 #endif
 
 using namespace TankGame;
@@ -36,11 +43,6 @@ static ArgumentData ParseArguments(int argc, const char** argv)
 	return argumentData;
 }
 
-static void GLFWErrorCallback(int error, const char* description)
-{
-	throw FatalException(std::to_string(error) + " " + description);
-}
-
 int main(int argc, const char** argv)
 {
 	try
@@ -48,12 +50,9 @@ int main(int argc, const char** argv)
 		if (!fs::exists(GetResDirectory()))
 			throw FatalException("res directory not found. Needs to be in the same directory as the executable!");
 		
-		if (!glfwInit())
-			throw FatalException("Error initializing GLFW.");
+		PlatformInitialize();
 		
-		glfwSetErrorCallback(GLFWErrorCallback);
-		
-		Settings::DetectVideoModes();
+		VideoModes videoModes = DetectVideoModes();
 		
 		if (FT_Init_FreeType(&TankGame::theFTLibrary) != 0)
 			throw FatalException("Error initializing freetype.");
@@ -65,21 +64,17 @@ int main(int argc, const char** argv)
 			Progress::SetInstance({ progressPath });
 		
 		fs::path settingsPath(GetDataDirectory() / "settings.json");
+		
 		if (fs::exists(settingsPath))
-			Settings::SetInstance(Settings(settingsPath));
-		else
-			Settings::SetInstance(Settings());
+			Settings::instance.Load(settingsPath, videoModes);
 		
 		Lua::Init();
 		
-		{
-			Window window(ParseArguments(argc, argv));
-			window.RunGame();
-		}
+		RunGame(ParseArguments(argc, argv), videoModes);
 		
 		Lua::Destroy();
 		
-		Settings::GetInstance().Save(settingsPath);
+		Settings::instance.Save(settingsPath);
 		Progress::GetInstance().Save(progressPath);
 		
 		SoundsManager::SetInstance(nullptr);
@@ -87,7 +82,7 @@ int main(int argc, const char** argv)
 		
 		FT_Done_FreeType(TankGame::theFTLibrary);
 		
-		glfwTerminate();
+		PlatformShutdown();
 	}
 	catch (const FatalException& exception)
 	{
@@ -103,3 +98,10 @@ int main(int argc, const char** argv)
 #endif
 }
  
+#ifdef __EMSCRIPTEN__
+extern "C" void WebMain()
+{
+	const char* args[] = { "tank-game", "-dsawrapper", nullptr };
+	main(2, args);
+}
+#endif

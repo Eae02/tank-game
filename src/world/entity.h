@@ -10,7 +10,7 @@
 #include "../lua/registryreference.h"
 #include "../lua/luainc.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <glm/glm.hpp>
 
 namespace TankGame

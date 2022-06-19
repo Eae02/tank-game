@@ -1,16 +1,15 @@
 #include "particleemitter.h"
+#include "../../platform/common.h"
 #include "../../graphics/particlerenderer.h"
 
 #include <glm/gtc/constants.hpp>
-#include <GLFW/glfw3.h>
 
 namespace TankGame
 {
 	std::mt19937 ParticleEmitter::s_random;
 	
 	ParticleEmitter::ParticleEmitter(ParticlesManager& particlesManager)
-	    : m_emitterSettingsBuffer(BufferAllocator::GetInstance().AllocateUnique(8, GL_MAP_WRITE_BIT)),
-	      m_particlesManager(particlesManager)
+	    : m_particlesManager(particlesManager)
 	{
 		SetBeginOpacity(1.0f, 1.0f);
 		SetEndOpacity(1.0f, 1.0f);
@@ -92,13 +91,12 @@ namespace TankGame
 	{
 		m_textureArray = &textureArray;
 		m_layerDist = std::uniform_int_distribution<int>(0, textureArray.GetLayers() - 1);
-		m_settingsBufferOutOfDate = true;
+		m_textureAspectRatio = (float)textureArray.GetHeight() / (float)textureArray.GetWidth();
 	}
 	
 	void ParticleEmitter::SetUseAdditiveBlending(bool useAdditiveBlending)
 	{
 		m_useAdditiveBlending = useAdditiveBlending;
-		m_settingsBufferOutOfDate = true;
 	}
 	
 	bool ParticleEmitter::HasParticles() const
@@ -113,27 +111,13 @@ namespace TankGame
 	
 	void ParticleEmitter::Render(ParticleRenderer& renderer) const
 	{
-		if (m_settingsBufferOutOfDate)
-		{
-			char* settingsMemory = reinterpret_cast<char*>(glMapNamedBuffer(*m_emitterSettingsBuffer, GL_WRITE_ONLY));
-			
-			*reinterpret_cast<float*>(settingsMemory) = m_textureArray->GetHeight() /
-				static_cast<float>(m_textureArray->GetWidth());
-			
-			*reinterpret_cast<int32_t*>(settingsMemory + 4) = m_useAdditiveBlending ? 1 : 0;
-			
-			glUnmapNamedBuffer(*m_emitterSettingsBuffer);
-			
-			m_settingsBufferOutOfDate = false;
-		}
-		
 		m_textureArray->Bind(1);
 		
-		glBindBufferBase(GL_UNIFORM_BUFFER, 2, *m_emitterSettingsBuffer);
+		renderer.SetUniforms(m_useAdditiveBlending, m_textureAspectRatio);
 		
 		ParticleBatch* batch = nullptr;
 		
-		double time = glfwGetTime();
+		double time = GetTime();
 		
 		for (const ParticlePoolHandle& poolHandle : m_particlePools)
 		{

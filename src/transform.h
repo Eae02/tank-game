@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include "circle.h"
 
 namespace TankGame

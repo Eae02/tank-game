@@ -28,8 +28,6 @@ namespace TankGame
 		
 		void LoadLayerFromFile(int layer, const fs::path& path);
 		
-		void ClearLayer(int layer, GLenum format, GLenum type, const void* data);
-		
 	private:
 		GLsizei m_width;
 		GLsizei m_height;

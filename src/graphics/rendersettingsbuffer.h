@@ -19,12 +19,8 @@ namespace TankGame
 		void OnResize(int width, int height);
 		
 	private:
-		size_t m_bufferSize;
-		
 		Buffer m_uniformBuffer;
-		
-		char* m_ubMemory;
-		
-		int m_resWidth = 0, m_resHeight = 0;
+		int m_resWidth = 0;
+		int m_resHeight = 0;
 	};
 }

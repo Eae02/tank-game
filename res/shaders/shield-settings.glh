@@ -1,0 +1,17 @@
+#ifndef SHIELD_SETTINGS_H
+#define SHIELD_SETTINGS_H
+
+layout(std140) uniform ShieldSettingsUB
+{
+	vec2 transformRS;
+	vec2 centerWorld;
+	vec2 centerView;
+	float radius;
+	float intensity;
+	
+	float rippleCenter;
+	float rippleDistance;
+	float rippleIntensity;
+};
+
+#endif

@@ -3,7 +3,6 @@
 #include "particlesystementity.h"
 #include "../particles/systems/explosionparticlesystem.h"
 #include "../lights/pointlightentity.h"
-#include "../../graphics/gl/bufferallocator.h"
 #include "../../audio/audiosource.h"
 
 namespace TankGame
@@ -37,8 +36,9 @@ namespace TankGame
 		
 		static std::unique_ptr<ShaderProgram> s_distortionShader;
 		
-		BufferAllocator::UniquePtr m_blastSettingsUniformBuffer;
-		
 		AudioSource m_audioSource;
+		
+		float m_blastRadiusUniformValue;
+		float m_blastIntensityUniformValue;
 	};
 }

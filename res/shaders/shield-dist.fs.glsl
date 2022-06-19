@@ -1,12 +1,12 @@
-#version 420 core
+#version 330 core
 
-#include shield-common.glh
+#include "shield-common.glh"
 
 layout(location=0) out vec2 distortion_out;
 
-const float DISTORTION_INTENSITY = 5;
+const float DISTORTION_vTENSITY = 5;
 
 void main()
 {
-	distortion_out = getShieldIntensity() * DISTORTION_INTENSITY * normalize(centerView - screenPos_in);
+	distortion_out = getShieldIntensity() * DISTORTION_vTENSITY * normalize(centerView - screenPos_v);
 }

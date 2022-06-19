@@ -1,14 +1,15 @@
-#version 420 core
+#version 330 core
 
-layout(location=0) in vec2 texCoord_in;
+in vec2 texCoord_v;
+
 layout(location=0) out vec4 color_out;
 
-layout(binding=0) uniform sampler2D glyph;
+uniform sampler2D glyph;
 
 uniform vec4 color;
 
 void main()
 {
 	color_out = color;
-	color_out.a *= texture(glyph, texCoord_in).r;
+	color_out.a *= texture(glyph, texCoord_v).r;
 }

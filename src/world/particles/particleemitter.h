@@ -84,9 +84,6 @@ namespace TankGame
 		
 		bool m_alignParticlesToVelocity = false;
 		
-		BufferAllocator::UniquePtr m_emitterSettingsBuffer;
-		mutable bool m_settingsBufferOutOfDate = true;
-		
 		ParticlesManager& m_particlesManager;
 		
 		const Texture2DArray* m_textureArray = nullptr;
@@ -95,6 +92,8 @@ namespace TankGame
 		float m_timeNotEmitted = 0.0f; //Accumulates the amount of time which hasn't contributed to an emitted particle.
 		
 		float m_emissionRate = 10; //The number of particles to spawn per second.
+		
+		float m_textureAspectRatio = 0;
 		
 		std::uniform_real_distribution<double> m_lifeTimeDist;
 		std::uniform_real_distribution<float> m_rotationDist;

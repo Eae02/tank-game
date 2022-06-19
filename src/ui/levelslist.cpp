@@ -10,7 +10,6 @@
 #include "../progress.h"
 
 #include <fstream>
-#include <GLFW/glfw3.h>
 
 namespace TankGame
 {
@@ -92,7 +91,7 @@ namespace TankGame
 		{
 			int progress = Progress::GetInstance().GetLevelProgress(s_levelMenuInfos[i].m_levelFileName);
 			
-			if (m_levelEntries[i].m_rectangle.Contains(updateInfo.m_mouse.GetPosition()) &&
+			if (m_levelEntries[i].m_rectangle.Contains(updateInfo.m_mouse.pos) &&
 			    std::abs(updateInfo.m_mouse.GetDeltaScroll()) > 1E-6f)
 			{
 				m_levelEntries[i].SetScroll(m_levelEntries[i].m_scroll - updateInfo.m_mouse.GetDeltaScroll() * 30);
@@ -104,13 +103,13 @@ namespace TankGame
 				startLocation.m_unlocked = progress >= startLocation.m_checkpointIndex;
 				
 				float targetHoverProgress = 0.0f;
-				if (startLocation.m_unlocked && startLocation.m_rectangle.Contains(updateInfo.m_mouse.GetPosition()))
+				if (startLocation.m_unlocked && startLocation.m_rectangle.Contains(updateInfo.m_mouse.pos))
 				{
 					targetHoverProgress = 1.0f;
 					
-					if (updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+					if (updateInfo.m_mouse.IsDown(MouseButton::Left))
 						targetHoverProgress = 0.9f;
-					else if (updateInfo.m_mouse.WasButtonPressed(GLFW_MOUSE_BUTTON_LEFT) && m_loadLevelCallback)
+					else if (updateInfo.m_mouse.WasDown(MouseButton::Left) && m_loadLevelCallback)
 						m_loadLevelCallback(s_levelMenuInfos[i].m_levelFileName, startLocation.m_checkpointIndex);
 					
 					if (startLocation.m_hoverProgress == 0.0f)

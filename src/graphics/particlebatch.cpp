@@ -14,14 +14,11 @@ namespace TankGame
 	constexpr size_t ParticleBatch::BUFFER_SIZE;
 	
 	ParticleBatch::ParticleBatch()
-	    : m_buffer(BUFFER_SIZE * MAX_QUEUED_FRAMES, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT)
+	    : m_buffer(BUFFER_SIZE * MAX_QUEUED_FRAMES, BufferUsage::MapWritePersistent)
 	{
-		void* bufferMemory = glMapNamedBufferRange(m_buffer.GetID(), 0, BUFFER_SIZE * MAX_QUEUED_FRAMES,
-		                                           GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
-		
 		for (uint32_t i = 0; i < MAX_QUEUED_FRAMES; i++)
 		{
-			m_bufferMemory[i] = reinterpret_cast<char*>(bufferMemory) + BUFFER_SIZE * i;
+			m_bufferMemory[i] = m_buffer.MappedMemory() + BUFFER_SIZE * i;
 		}
 	}
 	
@@ -44,7 +41,7 @@ namespace TankGame
 	
 	void ParticleBatch::End()
 	{
-		glFlushMappedNamedBufferRange(m_buffer.GetID(), BUFFER_SIZE * GetFrameQueueIndex(), BUFFER_SIZE);
+		m_buffer.FlushMappedMemory(BUFFER_SIZE * GetFrameQueueIndex(), BUFFER_SIZE);
 	}
 	
 	float* ParticleBatch::GetOpacitiesPtr()

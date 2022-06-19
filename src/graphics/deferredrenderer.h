@@ -2,7 +2,6 @@
 
 #include "gl/framebuffer.h"
 #include "gl/texture2d.h"
-#include "gl/renderbuffer.h"
 #include "gl/shaderprogram.h"
 #include "imainrenderer.h"
 #include "postprocessor.h"
@@ -48,9 +47,11 @@ namespace TankGame
 		static constexpr GLenum LIGHT_ACC_FORMAT = GL_RGB16F;
 		
 		std::unique_ptr<Framebuffer> m_geometryFramebuffer;
-		std::unique_ptr<Renderbuffer> m_depthBuffer;
+		std::unique_ptr<Texture2D> m_depthBuffer;
 		std::unique_ptr<Texture2D> m_colorBuffer;
 		std::unique_ptr<Texture2D> m_normalsAndSpecBuffer;
+		
+		std::unique_ptr<Framebuffer> m_distortionFramebuffer;
 		std::unique_ptr<Texture2D> m_distortionBuffer;
 		
 		std::unique_ptr<Framebuffer> m_lightFramebuffer;

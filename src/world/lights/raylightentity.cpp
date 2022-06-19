@@ -15,7 +15,7 @@ namespace TankGame
 	int RayLightEntity::s_worldTransformUniformLocation;
 	
 	RayLightEntity::RayLightEntity(glm::vec3 color, float intensity, Attenuation attenuation, float length, float height)
-	    : m_uniformBuffer(BufferAllocator::GetInstance().AllocateUnique(8 * sizeof(float), GL_MAP_WRITE_BIT)),
+	    : m_uniformBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(LightUniformBufferData), BufferUsage::DynamicData)),
 	      m_flickerOffset(GenerateFlickerOffset()), m_height(height), m_length(length), m_color(color),
 	      m_intensity(intensity), m_attenuation(attenuation)
 	{
@@ -64,10 +64,7 @@ namespace TankGame
 	{
 		if (s_shaderProgram== nullptr)
 		{
-			const fs::path fsPath = GetResDirectory() / "shaders" / "lighting" / "raylight.fs.glsl";
-			const ShaderModule fs = ShaderModule::FromFile(fsPath, GL_FRAGMENT_SHADER);
-			
-			s_shaderProgram.reset(new ShaderProgram{ &GetVertexShader(), &fs });
+			s_shaderProgram = std::make_unique<ShaderProgram>(MakeShaderProgram("raylight.fs.glsl"));
 			
 			s_positionUniformLocation = s_shaderProgram->GetUniformLocation("position");
 			s_directionUniformLocation = s_shaderProgram->GetUniformLocation("direction");
@@ -82,11 +79,21 @@ namespace TankGame
 	{
 		if (m_uniformBufferOutOfDate)
 		{
-			UpdateUniformBuffer();
+			LightUniformBufferData data = {};
+			data.colorTimesIntensity[0] = m_color.r * m_intensity;
+			data.colorTimesIntensity[1] = m_color.g * m_intensity;
+			data.colorTimesIntensity[2] = m_color.b * m_intensity;
+			data.attenLin = m_attenuation.GetLinear();
+			data.attenExp = m_attenuation.GetExponent();
+			data.flickerIntensity = m_flickerIntensity;
+			data.flickerOffset = m_flickerOffset;
+			
+			m_uniformBuffer->Update(0, sizeof(LightUniformBufferData), &data);
+			
 			m_uniformBufferOutOfDate = false;
 		}
 		
-		glBindBufferBase(GL_UNIFORM_BUFFER, 1, *m_uniformBuffer);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_uniformBuffer->GetID());
 		
 		glm::vec2 direction = GetTransform().GetForward() * m_length;
 		glProgramUniform2f(s_shaderProgram->GetID(), s_directionUniformLocation, direction.x, direction.y);
@@ -135,22 +142,5 @@ namespace TankGame
 				0, m_range, 0,
 				0, 0, 1.0f
 		);
-	}
-	
-	void RayLightEntity::UpdateUniformBuffer() const
-	{
-		float* bufferMemory = reinterpret_cast<float*>(glMapNamedBufferRange(*m_uniformBuffer, 0, sizeof(float) * 6,
-				GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT));
-		
-		bufferMemory[0] = m_color.r;
-		bufferMemory[1] = m_color.g;
-		bufferMemory[2] = m_color.b;
-		bufferMemory[3] = m_intensity;
-		bufferMemory[4] = m_attenuation.GetLinear();
-		bufferMemory[5] = m_attenuation.GetExponent();
-		bufferMemory[6] = m_flickerIntensity;
-		bufferMemory[7] = m_flickerOffset;
-		
-		glUnmapNamedBuffer(*m_uniformBuffer);
 	}
 }

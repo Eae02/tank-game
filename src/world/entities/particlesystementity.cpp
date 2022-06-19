@@ -1,6 +1,5 @@
 #include "particlesystementity.h"
-
-#include <GLFW/glfw3.h>
+#include "../../platform/common.h"
 
 namespace TankGame
 {
@@ -12,5 +11,5 @@ namespace TankGame
 	
 	//The particle system reference cannot be used yet!
 	ParticleSystemEntityBase::ParticleSystemEntityBase(IParticleSystem& particleSystem, double lifeTime)
-	    : m_particleSystem(particleSystem), m_deathTime(glfwGetTime() + lifeTime) { }
+	    : m_particleSystem(particleSystem), m_deathTime(GetTime() + lifeTime) { }
 }

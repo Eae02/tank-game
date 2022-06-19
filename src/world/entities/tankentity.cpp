@@ -30,7 +30,7 @@ namespace TankGame
 		
 		m_cannonTransform = GetBaseCannonTransform(textureInfo);
 		
-		if (Settings::GetInstance().GetLightingQuality() != QualitySettings::Low)
+		if (Settings::instance.GetLightingQuality() != QualitySettings::Low)
 			SetShadowMode(EntityShadowModes::Dynamic);
 		else
 			SetShadowMode(EntityShadowModes::None);

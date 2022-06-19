@@ -68,7 +68,7 @@ namespace TankGame
 		std::transform(m_nodes.begin(), m_nodes.end(), bufferData.begin(),
 		               [] (const Node& node) { return node.m_position; });
 		
-		return Buffer(bufferData.size() * sizeof(glm::vec2), bufferData.data(), 0);
+		return Buffer(bufferData.size() * sizeof(glm::vec2), bufferData.data(), BufferUsage::StaticData);
 	}
 	
 	void Path::RemoveNodes(size_t firstIndex, size_t count)

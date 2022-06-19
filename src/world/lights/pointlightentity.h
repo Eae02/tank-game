@@ -9,7 +9,9 @@ namespace TankGame
 	public:
 		inline PointLightEntity()
 		    : PointLightEntity({ 1.0f, 1.0f, 1.0f }, 3.0f, { }) { }
-		PointLightEntity(glm::vec3 color, float intensity, Attenuation attenuation, float height = 0.5f);
+		
+		PointLightEntity(glm::vec3 color, float intensity, Attenuation attenuation, float height = 0.5f)
+			: LightSourceEntity(color, intensity, attenuation, height) { }
 		
 		virtual const ShaderProgram& GetShader() const final override;
 		

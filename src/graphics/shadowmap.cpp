@@ -8,12 +8,7 @@ namespace TankGame
 	std::unique_ptr<Texture2D> ShadowMap::s_defaultTexture;
 	std::unique_ptr<Buffer> ShadowMap::s_defaultRenderSettingsBuffer;
 	
-	ShadowMap::ShadowMap(bool isStatic)
-	    : m_renderSettingsBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(float) * 16, GL_MAP_WRITE_BIT)),
-	      m_isStatic(isStatic)
-	{
-		
-	}
+	static constexpr size_t SHADOW_RENDER_SETTINGS_SIZE = sizeof(float) * 16;
 	
 	void ShadowMap::SetResolution(GLsizei width, GLsizei height)
 	{
@@ -73,7 +68,7 @@ namespace TankGame
 		));
 	}
 	
-	void ShadowMap::BeginShadowPass(const ViewInfo& viewInfo, LightInfo lightInfo) const
+	void ShadowMap::BeginShadowPass(const ViewInfo& viewInfo, LightInfo lightInfo)
 	{
 		Framebuffer::Bind(*m_shadowPassFramebuffer, 0, 0, m_shadowPassTexture->GetWidth(), m_shadowPassTexture->GetHeight());
 		
@@ -97,23 +92,30 @@ namespace TankGame
 		
 		glm::mat3 viewMatrix = m_isStatic ? GetStaticViewMatrix(lightInfo) : viewInfo.GetViewMatrix();
 		
-		void* memory = glMapNamedBuffer(*m_renderSettingsBuffer, GL_WRITE_ONLY);
+		m_currentRenderSettingsBuffer++;
+		if (m_currentRenderSettingsBuffer == MAX_QUEUED_FRAMES)
+			m_currentRenderSettingsBuffer = 0;
+		if (m_renderSettingsBuffers[m_currentRenderSettingsBuffer].IsNull())
+		{
+			m_renderSettingsBuffers[m_currentRenderSettingsBuffer] =
+				BufferAllocator::GetInstance().AllocateUnique(SHADOW_RENDER_SETTINGS_SIZE, BufferUsage::MapWritePersistent);
+		}
 		
-		memcpy(reinterpret_cast<float*>(memory) + 0, &viewMatrix[0], sizeof(float) * 3);
-		memcpy(reinterpret_cast<float*>(memory) + 4, &viewMatrix[1], sizeof(float) * 3);
-		memcpy(reinterpret_cast<float*>(memory) + 8, &viewMatrix[2], sizeof(float) * 3);
+		float* memory = reinterpret_cast<float*>(m_renderSettingsBuffers[m_currentRenderSettingsBuffer]->MappedMemory());
+		memcpy(memory + 0, &viewMatrix[0], sizeof(float) * 3);
+		memcpy(memory + 4, &viewMatrix[1], sizeof(float) * 3);
+		memcpy(memory + 8, &viewMatrix[2], sizeof(float) * 3);
+		memory[12] = lightInfo.m_position.x;
+		memory[13] = lightInfo.m_position.y;
+		memory[14] = projectionSphereRadius;
 		
-		*(reinterpret_cast<float*>(memory) + 12) = lightInfo.m_position.x;
-		*(reinterpret_cast<float*>(memory) + 13) = lightInfo.m_position.y;
-		*(reinterpret_cast<float*>(memory) + 14) = projectionSphereRadius;
-		
-		glUnmapNamedBuffer(*m_renderSettingsBuffer);
-		
+		m_renderSettingsBuffers[m_currentRenderSettingsBuffer]->FlushMappedMemory(0, SHADOW_RENDER_SETTINGS_SIZE);
 		
 		float CLEAR_VALUE = 0.0f;
 		glClearNamedFramebufferfv(m_shadowPassFramebuffer->GetID(), GL_COLOR, 0, &CLEAR_VALUE);
 		
-		glBindBufferBase(GL_UNIFORM_BUFFER, 3, *m_renderSettingsBuffer);
+		glBindBufferBase(GL_UNIFORM_BUFFER, SHADOW_RENDER_SETTINGS_BUFFER_BINDING,
+		                 m_renderSettingsBuffers[m_currentRenderSettingsBuffer]->GetID());
 	}
 	
 	void ShadowMap::BeginBlurPass() const
@@ -123,34 +125,37 @@ namespace TankGame
 		m_shadowPassTexture->Bind(0);
 	}
 	
-	void ShadowMap::BindDefault()
+	void ShadowMap::BindDefault(int textureBindUnit)
 	{
 		if (s_defaultTexture == nullptr)
 		{
-			s_defaultTexture = std::make_unique<Texture2D>(2, 2, 1, GL_R8);
+			s_defaultTexture = std::make_unique<Texture2D>(1, 1, 1, GL_R8);
 			
 			float COLOR = 0.0f;
-			glClearTexImage(s_defaultTexture->GetID(), 0, GL_RED, GL_FLOAT, &COLOR);
+			glTextureSubImage2D(s_defaultTexture->GetID(), 0, 0, 0, 1, 1, GL_RGBA, GL_FLOAT, &COLOR);
 			
 			float bufferContents[16];
 			std::fill(bufferContents, std::end(bufferContents), 0.0f);
-			s_defaultRenderSettingsBuffer = std::make_unique<Buffer>(sizeof(bufferContents), bufferContents, 0);
+			s_defaultRenderSettingsBuffer = std::make_unique<Buffer>(sizeof(bufferContents), bufferContents, BufferUsage::StaticData);
 			
 			CallOnClose([] { s_defaultTexture = nullptr; s_defaultRenderSettingsBuffer = nullptr; });
 		}
 		
-		s_defaultTexture->Bind(1);
-		glBindBufferBase(GL_UNIFORM_BUFFER, 2, s_defaultRenderSettingsBuffer->GetID());
+		s_defaultTexture->Bind(textureBindUnit);
+		glBindBufferBase(GL_UNIFORM_BUFFER, SHADOW_RENDER_SETTINGS_BUFFER_BINDING, s_defaultRenderSettingsBuffer->GetID());
 	}
 	
-	void ShadowMap::Bind() const
+	void ShadowMap::Bind(int textureBindUnit) const
 	{
 		if (m_blurPassTexture == nullptr)
-			BindDefault();
+		{
+			BindDefault(textureBindUnit);
+		}
 		else
 		{
 			m_blurPassTexture->Bind(1);
-			glBindBufferBase(GL_UNIFORM_BUFFER, 2, *m_renderSettingsBuffer);
+			glBindBufferBase(GL_UNIFORM_BUFFER, SHADOW_RENDER_SETTINGS_BUFFER_BINDING,
+			                 m_renderSettingsBuffers[m_currentRenderSettingsBuffer]->GetID());
 		}
 	}
 }

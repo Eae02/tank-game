@@ -55,8 +55,9 @@ namespace TankGame
 		static std::unique_ptr<Texture2D> s_specularTexture;
 		
 		static std::unique_ptr<ShaderProgram> s_shader;
-		
-		BufferAllocator::UniquePtr m_uniformBuffer;
+		static int s_transformUniformLoc;
+		static int s_sizeUniformLoc;
+		static int s_textureOffsetUniformLoc;
 		
 		float m_speed;
 		bool m_enabled = true;

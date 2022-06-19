@@ -4,6 +4,7 @@
 #include "../../graphics/ui/font.h"
 #include "../../graphics/scissor.h"
 #include "../../settings.h"
+#include "../../platform/common.h"
 #include "../../mouse.h"
 #include "../../utils/utils.h"
 
@@ -42,18 +43,8 @@ namespace TankGame
 	      m_frameQueueComboBox(CreateBoolComboBox()),
 	      m_masterVolumeSlider(0, 100, 5), m_musicVolumeSlider(0, 100, 5), m_sfxVolumeSlider(0, 100, 5)
 	{
-		for (int i = 0; i < Settings::GetResolutionsCount(); i++)
-		{
-			std::ostringstream labelStream;
-			
-			glm::ivec2 res = Settings::GetResolution(i);
-			labelStream << res.x << "x" << res.y;
-			
-			m_resolutionsComboBox.AddEntry(UTF8ToUTF32(labelStream.str()));
-		}
-		
-		m_displayModeIndex = Settings::GetInstance().IsFullscreen() ? 0 : 1;
-		m_currentResolutionIndex = Settings::GetDefaultResolutionIndex();
+		m_displayModeIndex = Settings::instance.IsFullscreen() ? 0 : 1;
+		m_currentResolutionIndex = Settings::instance.GetResolutionIndex();
 	}
 	
 	void OptionsMenu::OnResize(int newWidth, int newHeight)
@@ -75,16 +66,35 @@ namespace TankGame
 	
 	void OptionsMenu::Update(const UpdateInfo& updateInfo)
 	{
+		if (updateInfo.m_videoModes && !m_resolutionsComboBoxInitialized)
+		{
+			m_resolutionsComboBoxInitialized = true;
+			for (const glm::ivec2& res : updateInfo.m_videoModes->resolutions)
+			{
+				std::ostringstream labelStream;
+				labelStream << res.x << "x" << res.y;
+				m_resolutionsComboBox.AddEntry(UTF8ToUTF32(labelStream.str()));
+			}
+		}
+		
 		if (m_backButton.Update(updateInfo) && m_backCallback != nullptr)
 			m_backCallback();
 		
 		if (m_applyButton.Update(updateInfo) && m_applyCallback != nullptr)
 		{
-			glm::ivec2 res = Settings::GetResolution(m_currentResolutionIndex);
+			glm::ivec2 res(-1);
+			if (updateInfo.m_videoModes && m_currentResolutionIndex >= 0)
+			{
+				res = updateInfo.m_videoModes->resolutions[m_currentResolutionIndex];
+				Settings::instance.SetResolution(m_currentResolutionIndex, res);
+			}
+			bool isFullscreen = m_displayModeIndex == 0;
+			Settings::instance.SetIsFullscreen(isFullscreen);
 			m_applyCallback(m_displayModeIndex == 0, res.x, res.y);
 		}
 		
-		bool anyDropDownShown = m_resolutionsComboBox.IsDropDownShown() ||
+		bool anyDropDownShown = 
+		        m_resolutionsComboBox.IsDropDownShown() ||
 		        m_displayModeComboBox.IsDropDownShown() ||
 		        m_vSyncComboBox.IsDropDownShown() ||
 		        m_resolutionScaleComboBox.IsDropDownShown() ||
@@ -112,16 +122,16 @@ namespace TankGame
 		
 		if (!anyDropDownShown || m_vSyncComboBox.IsDropDownShown())
 		{
-			long vSyncEnabled = Settings::GetInstance().EnableVSync();
+			long vSyncEnabled = Settings::instance.EnableVSync();
 			if (m_vSyncComboBox.Update(updateInfo, vSyncEnabled))
-				Settings::GetInstance().SetEnableVSync(vSyncEnabled);
+				Settings::instance.SetEnableVSync(vSyncEnabled);
 		}
 		
 		if (!anyDropDownShown)
 		{
-			float gamma = Settings::GetInstance().GetGamma();
+			float gamma = Settings::instance.GetGamma();
 			if (m_gammaSlider.Update(updateInfo, gamma))
-				Settings::GetInstance().SetGamma(gamma);
+				Settings::instance.SetGamma(gamma);
 		}
 		
 		if (!anyDropDownShown || m_resolutionScaleComboBox.IsDropDownShown())
@@ -137,7 +147,7 @@ namespace TankGame
 			};
 			
 			auto resScaleIt = std::find(resScales.begin(), resScales.end(),
-			                            Settings::GetInstance().GetResolutionScale());
+			                            Settings::instance.GetResolutionScale());
 			
 			if (resScaleIt == resScales.end())
 				resScaleIt = std::find(resScales.begin(), resScales.end(), ResolutionScales::_100);
@@ -145,63 +155,63 @@ namespace TankGame
 			long resScaleIndex = resScaleIt - resScales.begin();
 			
 			if (m_resolutionScaleComboBox.Update(updateInfo, resScaleIndex))
-				Settings::GetInstance().SetResolutionScale(resScales[resScaleIndex]);
+				Settings::instance.SetResolutionScale(resScales[resScaleIndex]);
 		}
 		
 		if (!anyDropDownShown || m_lightingQualityComboBox.IsDropDownShown())
 		{
-			long lightingQuality = static_cast<long>(Settings::GetInstance().GetLightingQuality());
+			long lightingQuality = static_cast<long>(Settings::instance.GetLightingQuality());
 			if (m_lightingQualityComboBox.Update(updateInfo, lightingQuality))
-				Settings::GetInstance().SetLightingQuality(static_cast<QualitySettings>(lightingQuality));
+				Settings::instance.SetLightingQuality(static_cast<QualitySettings>(lightingQuality));
 		}
 		
 		if (!anyDropDownShown || m_particlesQualityComboBox.IsDropDownShown())
 		{
-			long particlesQuality = static_cast<long>(Settings::GetInstance().GetParticleQuality());
+			long particlesQuality = static_cast<long>(Settings::instance.GetParticleQuality());
 			if (m_particlesQualityComboBox.Update(updateInfo, particlesQuality))
-				Settings::GetInstance().SetParticleQuality(static_cast<QualitySettings>(particlesQuality));
+				Settings::instance.SetParticleQuality(static_cast<QualitySettings>(particlesQuality));
 		}
 		
 		if (!anyDropDownShown || m_postQualityComboBox.IsDropDownShown())
 		{
-			long postQuality = static_cast<long>(Settings::GetInstance().GetPostProcessingQuality());
+			long postQuality = static_cast<long>(Settings::instance.GetPostProcessingQuality());
 			if (m_postQualityComboBox.Update(updateInfo, postQuality))
-				Settings::GetInstance().SetPostProcessingQuality(static_cast<QualitySettings>(postQuality));
+				Settings::instance.SetPostProcessingQuality(static_cast<QualitySettings>(postQuality));
 		}
 		
 		if (!anyDropDownShown || m_bloomComboBox.IsDropDownShown())
 		{
-			long bloomEnabled = Settings::GetInstance().EnableBloom();
+			long bloomEnabled = Settings::instance.EnableBloom();
 			if (m_bloomComboBox.Update(updateInfo, bloomEnabled))
-				Settings::GetInstance().SetEnableBloom(bloomEnabled);
+				Settings::instance.SetEnableBloom(bloomEnabled);
 		}
 		
 		if (!anyDropDownShown || m_frameQueueComboBox.IsDropDownShown())
 		{
-			long queueFrames = Settings::GetInstance().QueueFrames();
+			long queueFrames = Settings::instance.QueueFrames();
 			if (m_frameQueueComboBox.Update(updateInfo, queueFrames))
-				Settings::GetInstance().SetQueueFrames(queueFrames);
+				Settings::instance.SetQueueFrames(queueFrames);
 		}
 		
 		if (!anyDropDownShown)
 		{
-			float volume = Settings::GetInstance().GetMasterVolume() * 100.0f;
+			float volume = Settings::instance.GetMasterVolume() * 100.0f;
 			if (m_masterVolumeSlider.Update(updateInfo, volume))
-				Settings::GetInstance().SetMasterVolume(volume / 100.0f);
+				Settings::instance.SetMasterVolume(volume / 100.0f);
 		}
 		
 		if (!anyDropDownShown)
 		{
-			float volume = Settings::GetInstance().GetMusicVolume() * 100.0f;
+			float volume = Settings::instance.GetMusicVolume() * 100.0f;
 			if (m_musicVolumeSlider.Update(updateInfo, volume))
-				Settings::GetInstance().SetMusicVolume(volume / 100.0f);
+				Settings::instance.SetMusicVolume(volume / 100.0f);
 		}
 		
 		if (!anyDropDownShown)
 		{
-			float volume = Settings::GetInstance().GetSFXVolume() * 100.0f;
+			float volume = Settings::instance.GetSFXVolume() * 100.0f;
 			if (m_sfxVolumeSlider.Update(updateInfo, volume))
-				Settings::GetInstance().SetSFXVolume(volume / 100.0f);
+				Settings::instance.SetSFXVolume(volume / 100.0f);
 		}
 	}
 	

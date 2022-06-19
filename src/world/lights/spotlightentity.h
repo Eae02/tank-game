@@ -12,7 +12,11 @@ namespace TankGame
 		    : SpotLightEntity({ 1.0f, 1.0f, 1.0f }, 3.0f, glm::half_pi<float>(), {}) { }
 		
 		SpotLightEntity(glm::vec3 color, float intensity, float cutoffAngle,
-		                Attenuation attenuation, float height = 0.5f);
+		                Attenuation attenuation, float height = 0.5f)
+			: LightSourceEntity(color, intensity, attenuation, height)
+		{
+			SetCutoffAngle(cutoffAngle);
+		}
 		
 		virtual const ShaderProgram& GetShader() const final override;
 		virtual void Bind() const final override;
@@ -27,7 +31,7 @@ namespace TankGame
 		virtual std::unique_ptr<Entity> Clone() const override;
 		
 	protected:
-		virtual void UpdateUniformBuffer(void* memory) const final override;
+		virtual float GetExtraUniformValue() const final override;
 		
 		virtual int GetPositionUniformLocation() const final override
 		{ return s_positionUniformLocation; }

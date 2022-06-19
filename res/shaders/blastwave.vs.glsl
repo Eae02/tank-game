@@ -1,13 +1,15 @@
-#version 420 core
+#version 330 core
 
-#include rendersettings.glh
+#include "rendersettings.glh"
 
 layout(location=0) in vec2 position_in;
 
-layout(location=0) out vec2 worldPos_out;
+uniform vec2 blastOrigin;
+
+out vec2 toOrigin_v;
 
 void main()
 {
-	worldPos_out = (inverseViewMatrix * vec3(position_in, 1.0)).xy;
+	toOrigin_v = blastOrigin - (inverseViewMatrix * vec3(position_in, 1.0)).xy;
 	gl_Position = vec4(position_in, 0.9, 1.0);
 }

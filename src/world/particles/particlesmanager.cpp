@@ -4,11 +4,6 @@
 
 namespace TankGame
 {
-	ParticlesManager::ParticlesManager()
-	{
-		
-	}
-	
 	ParticlePoolHandle ParticlesManager::GetParticlePool()
 	{
 		ParticlePool* particlePool;

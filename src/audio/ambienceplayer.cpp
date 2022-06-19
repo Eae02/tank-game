@@ -30,7 +30,7 @@ namespace TankGame
 		
 		const float volumeMul = 0.5f;
 		
-		float musicVol = Settings::GetInstance().GetMusicGain() * volumeMul;
+		float musicVol = Settings::instance.GetMusicGain() * volumeMul;
 		if (!FloatEqual(m_volume, musicVol))
 		{
 			m_source.SetVolume(musicVol);

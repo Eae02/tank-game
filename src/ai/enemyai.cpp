@@ -7,10 +7,10 @@
 #include "../utils/mathutils.h"
 #include "../utils/utils.h"
 #include "../updateinfo.h"
+#include "../platform/common.h"
 
 #include <glm/gtc/constants.hpp>
 #include <iostream>
-#include <GLFW/glfw3.h>
 
 namespace TankGame
 {
@@ -22,7 +22,7 @@ namespace TankGame
 		             playerPosition, newPath, m_parameters.m_circleRadius))
 		{
 			m_chasePathProgress = 0.0f;
-			m_lastPathUpdateTime = glfwGetTime();
+			m_lastPathUpdateTime = GetTime();
 			m_state = States::Chasing;
 			m_path = std::move(newPath);
 			return true;
@@ -77,7 +77,7 @@ namespace TankGame
 						m_entity.FirePlasmaGun(ParseColorHexCodeSRGB(0xFF564A), 5, updateInfo.m_gameTime, { });
 				}
 				
-				double time = glfwGetTime();
+				double time = GetTime();
 				if (time > m_lastPathUpdateTime + PATH_UPDATE_INTERVAL)
 				{
 					m_chasePathProgress = 0.0f;

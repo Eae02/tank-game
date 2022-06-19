@@ -1,7 +1,7 @@
 #include "saveasdialog.h"
+#include "../keyboard.h"
 
 #include <imgui.h>
-#include <GLFW/glfw3.h>
 
 namespace TankGame
 {
@@ -40,7 +40,7 @@ namespace TankGame
 			}
 			
 			ImGui::SameLine();
-			if (ImGui::Button("Cancel") || (ImGui::IsWindowFocused() && ImGui::IsKeyDown(GLFW_KEY_ESCAPE)))
+			if (ImGui::Button("Cancel") || (ImGui::IsWindowFocused() && ImGui::IsKeyDown((int)Key::Escape)))
 				m_state = States::Hidden;
 		}
 		

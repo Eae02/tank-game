@@ -2,7 +2,7 @@
 #include "sections.h"
 #include "../gameworld.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace TankGame
 {

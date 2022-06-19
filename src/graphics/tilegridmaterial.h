@@ -15,10 +15,7 @@ namespace TankGame
 		friend class TileGridMaterialLoadOperation;
 		
 	public:
-		static TileGridMaterial FromFile(const fs::path& path);
-		
-		void Bind() const;
-		void BindForShadowRender() const;
+		void Bind(glm::ivec2 minVisibleTile, glm::ivec2 maxVisibleTile) const;
 		
 		void SetMaterialSpecularIntensity(uint8_t material, float specularIntensity)
 		{
@@ -42,6 +39,8 @@ namespace TankGame
 		static constexpr GLsizei WIDTH = 512;
 		static constexpr GLsizei HEIGHT = 512;
 		
+		static constexpr GLuint MATERIAL_SETTINGS_BUFFER_BINDING = 1;
+		
 	private:
 		struct MaterialSettings
 		{
@@ -59,8 +58,7 @@ namespace TankGame
 		int m_layerCount;
 		
 		Texture2DArray m_diffuseTextureArray;
-		Texture2DArray m_normalMapTextureArray;
-		Texture2DArray m_specularMapTextureArray;
+		Texture2DArray m_normalSpecTextureArray;
 		
 		MaterialSettings m_materialSettings[256];
 		
@@ -68,11 +66,12 @@ namespace TankGame
 		
 		std::vector<std::string> m_materialNames;
 		
-		std::unique_ptr<Buffer> m_isSolidBuffer;
-		
 		BufferAllocator::UniquePtr m_parametersBuffer;
 		mutable bool m_parametersNeedUpload = true;
 		
 		ShaderProgram m_shader;
+		
+		int m_renderAreaOffsetUniformLoc;
+		int m_renderAreaWidthUniformLoc;
 	};
 }

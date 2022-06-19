@@ -8,7 +8,7 @@
 #include "../../graphics/worldrenderer.h"
 
 #include <memory>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace TankGame
 {
@@ -16,8 +16,7 @@ namespace TankGame
 	{
 		MainMenu,
 		Options,
-		Play,
-		Lobby
+		Play
 	};
 	
 	class MenuManager
@@ -37,7 +36,7 @@ namespace TankGame
 		void Draw(class DeferredRenderer& deferredRenderer, const ShadowRenderer& shadowRenderer, float gameTime) const;
 		
 		inline void SetSettingsApplyCallback(OptionsMenu::ApplyCallback applyCallback)
-		{ m_optionsMenu.SetApplyCallback(std::move(applyCallback)); }
+		{ m_optionsMenu.m_applyCallback = std::move(applyCallback); }
 		
 		inline void SetQuitCallback(std::function<void()> quitCallback)
 		{ m_mainMenu.SetQuitCallback(std::move(quitCallback)); }

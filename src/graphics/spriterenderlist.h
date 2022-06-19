@@ -4,6 +4,7 @@
 #include "gl/bufferallocator.h"
 #include "gl/shaderprogram.h"
 #include "gl/functions.h"
+#include "spritematerial.h"
 #include "frames.h"
 #include "../rectangle.h"
 
@@ -24,18 +25,19 @@ namespace TankGame
 		
 		void Begin();
 		
-		void Add(const class Transform& transform, const class SpriteMaterial& material, float z)
+		void Add(const class Transform& transform, const SpriteMaterial& material, float z)
 		{
 			Add(transform, material, z, { 0, 0, 1, 1 });
 		}
 		
-		void Add(const class Transform& transform, const class SpriteMaterial& material, float z,
+		void Add(const class Transform& transform, const SpriteMaterial& material, float z,
 		         const Rectangle& textureRectangle);
 		
 		void End(bool isTranslucent = false);
 		
 	private:
 		static std::unique_ptr<ShaderProgram> s_shaderProgram;
+		static SpriteMaterial::UniformLocations s_spriteMaterialUniformLocations;
 		static int s_translucentUniformLocation;
 		
 		static size_t s_elementsPerDrawBuffer;
@@ -70,20 +72,10 @@ namespace TankGame
 			    : m_material(material), m_instances{ instanceData } { }
 		};
 		
-		//Manages a persistently mapped buffer for instance data.
-		struct DrawBuffer
-		{
-			Buffer m_instanceDataBuffer;
-			
-			void* m_instanceDataMemory;
-			
-			DrawBuffer();
-		};
-		
 		VertexArray m_vertexArray;
 		
 		std::vector<Batch> m_materialBatches;
 		
-		std::vector<DrawBuffer> m_drawBuffers;
+		std::vector<Buffer> m_drawBuffers;
 	};
 }

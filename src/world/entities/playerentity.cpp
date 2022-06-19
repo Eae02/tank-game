@@ -5,7 +5,6 @@
 #include "../spteams.h"
 #include "../gameworld.h"
 #include "../../settings.h"
-#include "../../inpututils.h"
 #include "../../tanktextures.h"
 #include "../../audio/soundsmanager.h"
 #include "../../updateinfo.h"
@@ -43,7 +42,14 @@ namespace TankGame
 			/* m_cannonYOffset       */ -0.1f
 	};
 	
-	const float PLAYER_MAX_HP = 100;
+	static constexpr float PLAYER_MAX_HP = 100;
+	
+	static constexpr uint64_t KEYS_MOVE_FORWARD = KeyToBitmask(Key::ArrowUp) | KeyToBitmask(Key::W);
+	static constexpr uint64_t KEYS_MOVE_BACK    = KeyToBitmask(Key::ArrowDown) | KeyToBitmask(Key::S);
+	static constexpr uint64_t KEYS_ROTATE_LEFT  = KeyToBitmask(Key::ArrowLeft) | KeyToBitmask(Key::A);
+	static constexpr uint64_t KEYS_ROTATE_RIGHT = KeyToBitmask(Key::ArrowRight) | KeyToBitmask(Key::D);
+	
+	static constexpr Key KEY_INTERACT = Key::E;
 	
 	PlayerEntity::PlayerEntity()
 	    : TankEntity(ParseColorHexCodeSRGB(0xFADD98), textureInfo, PlayerTeamID, PLAYER_MAX_HP),
@@ -101,9 +107,9 @@ namespace TankGame
 	{
 		m_powerUpState.Update(updateInfo.m_dt);
 		
-		if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_1))
+		if (updateInfo.m_keyboard.IsDown(Key::D1))
 			m_weaponState.SelectPlasmaGun();
-		else if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_2))
+		else if (updateInfo.m_keyboard.IsDown(Key::D2))
 			m_weaponState.SelectSpecialWeapon(SpecialWeapons::RocketLauncher);
 		
 		glm::vec2 forward = GetTransform().GetForward();
@@ -125,9 +131,7 @@ namespace TankGame
 				localVel.y = 0;
 		}
 		
-		const Settings& settings = Settings::GetInstance();
-		
-		if (IsButtonPressedNow(updateInfo, settings.GetInteractButton()))
+		if (updateInfo.m_keyboard.IsDown(KEY_INTERACT) && !updateInfo.m_keyboard.WasDown(KEY_INTERACT))
 		{
 			GetGameWorld()->IterateIntersectingEntities(GetInteractRectangle(), [] (Entity& entity)
 			{
@@ -136,10 +140,10 @@ namespace TankGame
 			});
 		}
 		
-		const bool moveForward = IsButtonPressed(updateInfo, settings.GetForwardButton());
-		const bool moveBack =    IsButtonPressed(updateInfo, settings.GetBackButton());
-		const bool rotateLeft =  IsButtonPressed(updateInfo, settings.GetLeftButton());
-		const bool rotateRight = IsButtonPressed(updateInfo, settings.GetRightButton());
+		const bool moveForward = updateInfo.m_keyboard.IsAnyDown(KEYS_MOVE_FORWARD);
+		const bool moveBack =    updateInfo.m_keyboard.IsAnyDown(KEYS_MOVE_BACK);
+		const bool rotateLeft =  updateInfo.m_keyboard.IsAnyDown(KEYS_ROTATE_LEFT);
+		const bool rotateRight = updateInfo.m_keyboard.IsAnyDown(KEYS_ROTATE_RIGHT);
 		
 		if (moveForward == moveBack)
 		{
@@ -234,7 +238,7 @@ namespace TankGame
 		if (intersectInfo.m_intersects)
 			GetTransform().Translate(-intersectInfo.m_penetration);
 		
-		glm::vec2 screenMouseCoords = updateInfo.m_mouse.GetPosition() / glm::vec2(updateInfo.m_windowWidth, updateInfo.m_windowHeight);
+		glm::vec2 screenMouseCoords = updateInfo.m_mouse.pos / glm::vec2(updateInfo.m_windowWidth, updateInfo.m_windowHeight);
 		glm::vec2 mouseWorldPos = updateInfo.m_viewInfo.ScreenToWorld(screenMouseCoords);
 		
 		//Updates the cannon's rotation
@@ -249,7 +253,7 @@ namespace TankGame
 			m_energy = glm::min(m_energy + updateInfo.m_dt * 15, 100.0f);
 		}
 		
-		if (IsButtonPressed(updateInfo, settings.GetFireButton()) && CanFire(updateInfo.m_gameTime))
+		if (updateInfo.m_mouse.IsDown(MouseButton::Left) && CanFire(updateInfo.m_gameTime))
 			FireSelectedWeapon(updateInfo.m_gameTime);
 		
 		TankEntity::Update(updateInfo);

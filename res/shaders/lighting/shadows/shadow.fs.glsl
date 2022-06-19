@@ -1,10 +1,10 @@
-#version 420 core
+#version 330 core
 
-layout(location=0) in float distanceToCaster_in;
+in float distanceToCaster_v;
 
 layout(location=0) out float shadowFactor_out;
 
 void main()
 {
-	shadowFactor_out = distanceToCaster_in;
+	shadowFactor_out = distanceToCaster_v;
 }

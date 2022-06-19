@@ -1,12 +1,22 @@
 #ifndef LIGHTING_H
 #define LIGHTING_H
 
-#include ../rendersettings.glh
+#include "../rendersettings.glh"
 
-layout(binding=0) uniform sampler2D normalsAndSpecSampler;
-layout(binding=1) uniform sampler2D shadowSampler;
+uniform sampler2D normalsAndSpecSampler;
+uniform sampler2D shadowSampler;
 
-layout(std140, binding=2) uniform ShadowRenderSettingsUB
+layout(std140) uniform LightUB
+{
+	vec3 color;
+	float extra;
+	float attenLin;
+	float attenExp;
+	float flickerIntensity;
+	float flickerOffset;
+} light;
+
+layout(std140) uniform ShadowRenderSettingsUB
 {
 	mat3 shadowViewMatrix;
 };
@@ -56,7 +66,7 @@ GBufferData getGBufferData(vec2 texCoord)
 	return data;
 }
 
-float phong(float intensity, vec3 lightIn, vec3 cameraPos, vec2 worldPos, GBufferData data)
+float phong(vec3 lightIn, vec3 cameraPos, vec2 worldPos, GBufferData data)
 {
 	float diffuseFactor = max(dot(data.normal, -lightIn), 0.0);
 	
@@ -65,7 +75,7 @@ float phong(float intensity, vec3 lightIn, vec3 cameraPos, vec2 worldPos, GBuffe
 	
 	float specFactor = max(pow(dot(dirToEye, reflectDir), data.specExponent), 0.0);
 	
-	return intensity * diffuseFactor * (data.specIntensity * specFactor + 1.0);
+	return diffuseFactor * (data.specIntensity * specFactor + 1.0);
 }
 
 #endif

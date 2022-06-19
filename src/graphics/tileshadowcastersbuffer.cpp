@@ -15,11 +15,10 @@ namespace TankGame
 	{
 		if (s_shadowShader == nullptr)
 		{
-			auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "lighting" / "shadows" / "tileshadow.vs.glsl",
-			                                 GL_VERTEX_SHADER);
+			auto vs = ShaderModule::FromFile(
+				GetResDirectory() / "shaders" / "lighting" / "shadows" / "tileshadow.vs.glsl", GL_VERTEX_SHADER);
 			
-			s_shadowShader.reset(new ShaderProgram{ &vs, &ShadowRenderer::GetGeometryShader(),
-			                                        &ShadowRenderer::GetFragmentShader() });
+			s_shadowShader.reset(new ShaderProgram{ &vs, &ShadowRenderer::GetFragmentShader() });
 			
 			CallOnClose([] { s_shadowShader = nullptr; });
 		}
@@ -38,13 +37,13 @@ namespace TankGame
 		glm::vec2 m_normal2;
 	};
 	
-	static Buffer BuildBuffer(const TileGrid& tileGrid, const TileGridMaterial& material, GLuint& vertexCountOut)
+	TileShadowCastersBuffer::Data TileShadowCastersBuffer::BuildBuffers(
+		const TileGrid& tileGrid, const TileGridMaterial& material)
 	{
-		std::vector<ShadowCaster> shadowCasters;
+		std::vector<glm::vec4> vertices;
+		std::vector<uint32_t> indices;
 		
-		glm::ivec2 faceNormals[] = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 } };
-		
-		vertexCountOut = 0;
+		static const glm::ivec2 faceNormals[] = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 } };
 		
 		for (int y = 0; y < tileGrid.GetHeight(); y++)
 		{
@@ -69,28 +68,41 @@ namespace TankGame
 					glm::vec2 left(faceNormals[f].y, -faceNormals[f].x);
 					glm::vec2 centerLine = glm::vec2(x + 0.5f, y + 0.5f) + glm::vec2(faceNormals[f]) * 0.5f;
 					
-					shadowCasters.emplace_back(centerLine + left * 0.5f, centerLine - left * 0.5f, faceNormals[f]);
+					glm::vec2 v1 = centerLine + left * 0.5f;
+					glm::vec2 v2 = centerLine - left * 0.5f;
 					
-					vertexCountOut += 2;
+					for (int relIndex : { 0, 1, 2, 2, 1, 3 })
+						indices.push_back(vertices.size() + relIndex);
+					
+					vertices.emplace_back(v1, faceNormals[f]);
+					vertices.emplace_back(v2, faceNormals[f]);
+					vertices.emplace_back(v1, faceNormals[f]);
+					vertices.emplace_back(v2, faceNormals[f]);
 				}
 			}
 		}
 		
-		return Buffer(shadowCasters.size() * sizeof(ShadowCaster), shadowCasters.data(), 0);
+		return Data {
+			(GLuint)indices.size(),
+			Buffer(vertices.size() * sizeof(glm::vec4), vertices.data(), BufferUsage::StaticData),
+			Buffer(indices.size() * sizeof(uint32_t), indices.data(), BufferUsage::StaticData)
+		};
 	}
 	
 	TileShadowCastersBuffer::TileShadowCastersBuffer(const TileGrid& tileGrid, const TileGridMaterial& material)
-		: m_buffer(BuildBuffer(tileGrid, material, m_numVertices))
+		: m_data(BuildBuffers(tileGrid, material))
 	{
 		glEnableVertexArrayAttrib(m_vertexArray.GetID(), 0);
-		glVertexArrayVertexBuffer(m_vertexArray.GetID(), 0, m_buffer.GetID(), 0, sizeof(glm::vec2) * 2);
+		glVertexArrayVertexBuffer(m_vertexArray.GetID(), 0, m_data.vertexBuffer.GetID(), 0, sizeof(glm::vec2) * 2);
 		glVertexArrayAttribFormat(m_vertexArray.GetID(), 0, 2, GL_FLOAT, GL_FALSE, 0);
 		glVertexArrayAttribBinding(m_vertexArray.GetID(), 0, 0);
 		
 		glEnableVertexArrayAttrib(m_vertexArray.GetID(), 1);
-		glVertexArrayVertexBuffer(m_vertexArray.GetID(), 1, m_buffer.GetID(), sizeof(glm::vec2), sizeof(glm::vec2) * 2);
+		glVertexArrayVertexBuffer(m_vertexArray.GetID(), 1, m_data.vertexBuffer.GetID(), sizeof(glm::vec2), sizeof(glm::vec2) * 2);
 		glVertexArrayAttribFormat(m_vertexArray.GetID(), 1, 2, GL_FLOAT, GL_FALSE, 0);
 		glVertexArrayAttribBinding(m_vertexArray.GetID(), 1, 1);
+		
+		glVertexArrayElementBuffer(m_vertexArray.GetID(), m_data.indexBuffer.GetID());
 	}
 	
 	void TileShadowCastersBuffer::Draw() const
@@ -99,6 +111,6 @@ namespace TankGame
 		
 		m_vertexArray.Bind();
 		
-		glDrawArrays(GL_LINES, 0, m_numVertices);
+		glDrawElements(GL_TRIANGLES, m_data.numIndices, GL_UNSIGNED_INT, nullptr);
 	}
 }

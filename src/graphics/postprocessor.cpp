@@ -3,6 +3,7 @@
 #include "gl/shadermodule.h"
 #include "gl/specializationinfo.h"
 #include "../settings.h"
+#include "../platform/common.h"
 #include "../utils/ioutils.h"
 
 #include <random>
@@ -24,11 +25,31 @@ namespace TankGame
 	      m_noiseTexture(NOISE_TEXTURE_RES, -1.0f, 1.0f),
 	      m_bloomHBlurShader(LoadShader(fs::path("bloom") / "hblur.fs.glsl")),
 	      m_bloomVBlurShader(LoadShader(fs::path("bloom") / "vblur.fs.glsl")),
-	      m_postProcessShader(LoadShader("post.fs.glsl")),
-	      m_blurVectorsBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(float) * 4, GL_MAP_WRITE_BIT)),
-	      m_postSettingsUB(BufferAllocator::GetInstance().AllocateUnique(sizeof(float) * 8, GL_MAP_WRITE_BIT))
+	      m_postProcessShader(LoadShader("post.fs.glsl"))
 	{
 		m_hexagonTexture.SetWrapMode(GL_REPEAT);
+		
+		m_postProcessShader.SetTextureBinding("inputSampler", 0);
+		m_postProcessShader.SetTextureBinding("hexagonSampler", 1);
+		m_postProcessShader.SetTextureBinding("distortionSampler", 2);
+		m_postProcessShader.SetTextureBinding("noiseSampler", 3);
+		
+		m_exposureUniformLoc                   = m_postProcessShader.GetUniformLocation("exposure");
+		m_gammaUniformLoc                      = m_postProcessShader.GetUniformLocation("gamma");
+		m_contrastUniformLoc                   = m_postProcessShader.GetUniformLocation("contrast");
+		m_framebufferARUniformLoc              = m_postProcessShader.GetUniformLocation("framebufferAR");
+		m_damageFlashIntensityUniformLoc       = m_postProcessShader.GetUniformLocation("damageFlashIntensity");
+		m_horizontalDistortionAmountUniformLoc = m_postProcessShader.GetUniformLocation("horizontalDistortionAmount");
+		m_distortionSampleMulUniformLoc        = m_postProcessShader.GetUniformLocation("distortionSampleMul");
+		
+		m_bloomVBlurUniformLocations.blurVector = m_bloomVBlurShader.GetUniformLocation("blurVector");
+		m_bloomVBlurUniformLocations.texCoordOffset = m_bloomVBlurShader.GetUniformLocation("texCoordOffset");
+		m_bloomVBlurShader.SetTextureBinding("inputSampler", 0);
+		m_bloomVBlurShader.SetTextureBinding("bloomInputSampler", 1);
+		
+		m_bloomHBlurUniformLocations.blurVector = m_bloomHBlurShader.GetUniformLocation("blurVector");
+		m_bloomHBlurUniformLocations.texCoordOffset = m_bloomHBlurShader.GetUniformLocation("texCoordOffset");
+		m_bloomHBlurShader.SetTextureBinding("inputSampler", 0);
 	}
 	
 	void PostProcessor::DoPostProcessing(const Texture2D& inputTexture, const Texture2D& distortionsTexture) const
@@ -37,29 +58,9 @@ namespace TankGame
 		
 		const double DAMAGE_FLASH_TIME = 0.5;
 		
-		double time = glfwGetTime();
+		double time = GetTime();
 		if (time < m_damageFlashBeginTime + DAMAGE_FLASH_TIME)
 			damageFlashIntensity = (1.0f - (time - m_damageFlashBeginTime) / DAMAGE_FLASH_TIME) * 0.5f;
-		
-		if (m_postSettingsNeedUpload || damageFlashIntensity != m_oldDamageFlashIntensity)
-		{
-			void* memory = glMapNamedBufferRange(*m_postSettingsUB, 0, sizeof(float) * 8,
-			                                     GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-			
-			reinterpret_cast<float*>(memory)[0] = m_exposure;
-			reinterpret_cast<float*>(memory)[1] = m_gamma;
-			reinterpret_cast<float*>(memory)[2] = m_contrast * (1.0f - damageFlashIntensity * 0.7f);
-			reinterpret_cast<float*>(memory)[3] = m_framebufferAR;
-			reinterpret_cast<float*>(memory)[4] = 0.75f;
-			reinterpret_cast<float*>(memory)[5] = damageFlashIntensity;
-			reinterpret_cast<float*>(memory)[6] = damageFlashIntensity * m_pixelWidth * 6;
-			reinterpret_cast<float*>(memory)[7] = m_distortionSampleMul;
-			
-			glUnmapNamedBuffer(*m_postSettingsUB);
-			
-			m_postSettingsNeedUpload = false;
-			m_oldDamageFlashIntensity = damageFlashIntensity;
-		}
 		
 		QuadMesh::GetInstance().GetVAO().Bind();
 		inputTexture.Bind(0);
@@ -67,14 +68,14 @@ namespace TankGame
 		
 		if (m_bloomHBlurOutput != nullptr)
 		{
-			glBindBufferBase(GL_UNIFORM_BUFFER, 1, *m_blurVectorsBuffer);
-			
 			// ** The horizontal bloom blur pass **
 			Framebuffer::Save();
 			Framebuffer::Bind(*m_bloomHBlurOutputFramebuffer, 0, 0, m_bloomHBlurOutput->GetWidth(),
 			                  m_bloomHBlurOutput->GetHeight());
 			
 			m_bloomHBlurShader.Use();
+			glUniform2f(m_bloomHBlurUniformLocations.blurVector, 2.0f * m_pixelWidth, 0.0f);
+			glUniform2f(m_bloomHBlurUniformLocations.texCoordOffset, 0.5f * m_pixelWidth, 0.5f * m_pixelHeight);
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			
 			
@@ -84,6 +85,8 @@ namespace TankGame
 			
 			m_bloomHBlurOutput->Bind(1);
 			m_bloomVBlurShader.Use();
+			glUniform2f(m_bloomVBlurUniformLocations.blurVector, 0.0f, 2.0f * m_pixelHeight);
+			glUniform2f(m_bloomVBlurUniformLocations.texCoordOffset, -0.5f * m_pixelWidth, -0.5f * m_pixelHeight);
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			
 			m_bloomVBlurOutput->Bind(0);
@@ -97,10 +100,17 @@ namespace TankGame
 			                  m_blurInputBuffer->GetHeight());
 		}
 		
-		glBindBufferBase(GL_UNIFORM_BUFFER, 1, *m_postSettingsUB);
 		m_postProcessShader.Use();
 		m_hexagonTexture.Bind(1);
 		m_noiseTexture.Bind(3);
+		
+		glUniform1f(m_exposureUniformLoc,                   m_exposure);
+		glUniform1f(m_gammaUniformLoc,                      m_gamma);
+		glUniform1f(m_contrastUniformLoc,                   m_contrast * (1.0f - damageFlashIntensity * 0.7f));
+		glUniform1f(m_framebufferARUniformLoc,              m_framebufferAR);
+		glUniform1f(m_damageFlashIntensityUniformLoc,       damageFlashIntensity);
+		glUniform1f(m_horizontalDistortionAmountUniformLoc, damageFlashIntensity * m_pixelWidth * 6);
+		glUniform1f(m_distortionSampleMulUniformLoc,        m_distortionSampleMul);
 		
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		
@@ -113,7 +123,7 @@ namespace TankGame
 	
 	void PostProcessor::DoDamageFlash()
 	{
-		m_damageFlashBeginTime = glfwGetTime();
+		m_damageFlashBeginTime = GetTime();
 	}
 	
 	void PostProcessor::SetBlurAmount(float blurAmount)
@@ -124,7 +134,6 @@ namespace TankGame
 	void PostProcessor::SetGamma(float gamma)
 	{
 		m_gamma = gamma;
-		m_postSettingsNeedUpload = true;
 	}
 	
 	void PostProcessor::OnResize(GLsizei newWidth, GLsizei newHeight)
@@ -134,10 +143,12 @@ namespace TankGame
 		glNamedFramebufferTexture(m_blurInputFramebuffer->GetID(), GL_COLOR_ATTACHMENT0, m_blurInputBuffer->GetID(), 0);
 		glNamedFramebufferDrawBuffer(m_blurInputFramebuffer->GetID(), GL_COLOR_ATTACHMENT0);
 		m_blurInputBuffer->SetWrapMode(GL_CLAMP_TO_EDGE);
+		m_blurInputBuffer->SetMinFilter(GL_LINEAR);
+		m_blurInputBuffer->SetMagFilter(GL_LINEAR);
 		
 		m_blurPostProcess.CreateFramebuffer(*m_blurInputBuffer);
 		
-		if (!Settings::GetInstance().EnableBloom())
+		if (!Settings::instance.EnableBloom())
 		{
 			m_bloomHBlurOutput = nullptr;
 			m_bloomHBlurOutputFramebuffer = nullptr;
@@ -151,17 +162,12 @@ namespace TankGame
 		m_distortionSampleMul = 4.0f * static_cast<float>(newHeight) / static_cast<float>(NOISE_TEXTURE_RES);
 		m_framebufferAR = static_cast<float>(newWidth) / static_cast<float>(newHeight);
 		m_pixelWidth = 1.0f / newWidth;
-		m_postSettingsNeedUpload = true;
+		m_pixelHeight = 1.0f / newHeight;
 		
-		GLsizei hBlurWidth = newWidth / 2;
-		GLsizei hBlurHeight = newHeight / 2;
-		
-		bool uploadBlurVectors = false;
-		
-		if (m_bloomHBlurOutput == nullptr || hBlurWidth != m_bloomHBlurOutput->GetWidth() ||
-			hBlurHeight != m_bloomHBlurOutput->GetHeight())
+		if (m_bloomHBlurOutput == nullptr || newWidth != m_bloomHBlurOutput->GetWidth() ||
+			newHeight != m_bloomHBlurOutput->GetHeight())
 		{
-			m_bloomHBlurOutput = std::make_unique<Texture2D>(hBlurWidth, hBlurHeight, 1, GL_RGB16F);
+			m_bloomHBlurOutput = std::make_unique<Texture2D>(newWidth, newHeight, 1, GL_RGB16F);
 			m_bloomHBlurOutput->SetWrapMode(GL_CLAMP_TO_EDGE);
 			m_bloomHBlurOutput->SetMagFilter(GL_LINEAR);
 			m_bloomHBlurOutput->SetMinFilter(GL_LINEAR);
@@ -170,8 +176,6 @@ namespace TankGame
 			glNamedFramebufferTexture(m_bloomHBlurOutputFramebuffer->GetID(), GL_COLOR_ATTACHMENT0,
 			                          m_bloomHBlurOutput->GetID(), 0);
 			glNamedFramebufferDrawBuffer(m_bloomHBlurOutputFramebuffer->GetID(), GL_COLOR_ATTACHMENT0);
-			
-			uploadBlurVectors = true;
 		}
 		
 		if (m_bloomVBlurOutput == nullptr || newWidth != m_bloomVBlurOutput->GetWidth() ||
@@ -186,20 +190,6 @@ namespace TankGame
 			glNamedFramebufferTexture(m_bloomVBlurOutputFramebuffer->GetID(), GL_COLOR_ATTACHMENT0,
 			                          m_bloomVBlurOutput->GetID(), 0);
 			glNamedFramebufferDrawBuffer(m_bloomVBlurOutputFramebuffer->GetID(), GL_COLOR_ATTACHMENT0);
-			
-			uploadBlurVectors = true;
-		}
-		
-		if (uploadBlurVectors)
-		{
-			glm::vec2* blurVectorsMemory = reinterpret_cast<glm::vec2*>(
-				glMapNamedBufferRange(*m_blurVectorsBuffer, 0, sizeof(float) * 4,
-				                      GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT));
-			
-			blurVectorsMemory[0] = { 2.0f / static_cast<float>(newWidth), 0.0f };
-			blurVectorsMemory[1] = { 0.0f, 2.0f / static_cast<float>(newHeight) };
-			
-			glUnmapNamedBuffer(*m_blurVectorsBuffer);
 		}
 	}
 }

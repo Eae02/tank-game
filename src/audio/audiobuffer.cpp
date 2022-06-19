@@ -4,6 +4,7 @@
 #include <vorbis/vorbisfile.h>
 #include <memory>
 #include <cstdio>
+#include <vector>
 
 namespace TankGame
 {
@@ -50,7 +51,7 @@ namespace TankGame
 		} while (bytes != 0);
 		
 		AudioBuffer audioBuffer;
-		audioBuffer.SetData(format, data.data(), data.size(), info->rate);
+		audioBuffer.SetData(format, data.data(), (ALsizei)data.size(), info->rate);
 		
 		ov_clear(&oggFile);
 		

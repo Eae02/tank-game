@@ -14,9 +14,9 @@
 #include "../utils/utils.h"
 #include "../progress.h"
 #include "../gamemanager.h"
+#include "../platform/common.h"
 
 #include <glm/gtc/constants.hpp>
-#include <GLFW/glfw3.h>
 #include <algorithm>
 #include <limits>
 #include <imgui.h>
@@ -87,7 +87,7 @@ namespace TankGame
 	{
 		glm::vec2 focus = GetFocusLocation();
 		
-		double cameraShakeTime = m_cameraShakeEnd - glfwGetTime();
+		double cameraShakeTime = m_cameraShakeEnd - GetTime();
 		
 		if (cameraShakeTime > 0)
 		{
@@ -139,7 +139,7 @@ namespace TankGame
 	
 	void GameWorld::ShakeCamera(double time, float amount)
 	{
-		m_cameraShakeEnd = glfwGetTime() + time;
+		m_cameraShakeEnd = GetTime() + time;
 		m_cameraShakeMagnitude = amount / time;
 	}
 	

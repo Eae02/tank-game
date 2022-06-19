@@ -25,34 +25,28 @@ namespace TankGame
 	{
 		m_gameWorld->Update(updateInfo);
 		
-		bool isCtrlDown = updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_LEFT_CONTROL) ||
-		                  updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_RIGHT_CONTROL);
-		bool isShiftDown = updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_LEFT_SHIFT) ||
-		                   updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_RIGHT_SHIFT);
-		
 		glm::vec2 worldCursorCoords = m_entityTool.GetNewWorldMouseCoords(updateInfo);
 		
 		//Moves the camera using the middle mouse button
-		if (updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_MIDDLE))
+		if (updateInfo.m_mouse.IsDown(MouseButton::Middle))
 		{
 			m_focusLocation += m_entityTool.GetOldWorldMouseCoords(updateInfo) - worldCursorCoords;
 		}
 		
 		//Moves the camera using the arrow keys
 		const float KEYBOARD_MOVE_SPEED = 7;
-		if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_UP))
+		if (updateInfo.m_keyboard.IsDown(Key::ArrowUp))
 			m_focusLocation.y += updateInfo.m_dt * KEYBOARD_MOVE_SPEED;
-		if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_DOWN))
+		if (updateInfo.m_keyboard.IsDown(Key::ArrowDown))
 			m_focusLocation.y -= updateInfo.m_dt * KEYBOARD_MOVE_SPEED;
-		if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_LEFT))
+		if (updateInfo.m_keyboard.IsDown(Key::ArrowLeft))
 			m_focusLocation.x -= updateInfo.m_dt * KEYBOARD_MOVE_SPEED;
-		if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_RIGHT))
+		if (updateInfo.m_keyboard.IsDown(Key::ArrowRight))
 			m_focusLocation.x += updateInfo.m_dt * KEYBOARD_MOVE_SPEED;
 		
-		if (updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_RIGHT) && 
-		    !updateInfo.m_mouse.WasButtonPressed(GLFW_MOUSE_BUTTON_RIGHT))
+		if (updateInfo.m_mouse.IsDown(MouseButton::Right) && !updateInfo.m_mouse.WasDown(MouseButton::Right))
 		{
-			if (m_tools[m_currentToolIndex]->OnContextMenuOpen(updateInfo.m_viewInfo, updateInfo.m_mouse.GetPosition(),
+			if (m_tools[m_currentToolIndex]->OnContextMenuOpen(updateInfo.m_viewInfo, updateInfo.m_mouse.pos,
 			                                                   worldCursorCoords))
 			{
 				m_contextMenuWorldCoords = worldCursorCoords;
@@ -62,7 +56,7 @@ namespace TankGame
 		
 		if (m_currentToolIndex == 2)
 		{
-			if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_ESCAPE) && !updateInfo.m_keyboard.WasKeyDown(GLFW_KEY_ESCAPE))
+			if (updateInfo.m_keyboard.IsDown(Key::Escape) && !updateInfo.m_keyboard.WasDown(Key::Escape))
 			{
 				m_pathEditTool.StopEditing();
 				m_currentToolIndex = 0;
@@ -70,18 +64,18 @@ namespace TankGame
 		}
 		else
 		{
-			if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_F1) && !updateInfo.m_keyboard.WasKeyDown(GLFW_KEY_F1))
+			if (updateInfo.m_keyboard.IsDown(Key::F1) && !updateInfo.m_keyboard.WasDown(Key::F1))
 				m_currentToolIndex = 0;
-			if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_F2) && !updateInfo.m_keyboard.WasKeyDown(GLFW_KEY_F2))
+			if (updateInfo.m_keyboard.IsDown(Key::F2) && !updateInfo.m_keyboard.WasDown(Key::F2))
 				m_currentToolIndex = 1;
 		}
 		
-		if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_F5) && !updateInfo.m_keyboard.WasKeyDown(GLFW_KEY_F5))
+		if (updateInfo.m_keyboard.IsDown(Key::F5) && !updateInfo.m_keyboard.WasDown(Key::F5))
 			TestLevel();
 		
-		if (isCtrlDown && updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_S) && !updateInfo.m_keyboard.WasKeyDown(GLFW_KEY_S))
+		if (updateInfo.m_keyboard.IsAnyDown(KEY_MASK_CONTROL) && updateInfo.m_keyboard.IsDown(Key::S) && !updateInfo.m_keyboard.WasDown(Key::S))
 		{
-			if (isShiftDown)
+			if (updateInfo.m_keyboard.IsAnyDown(KEY_MASK_SHIFT))
 				SaveAs();
 			else
 				Save();
@@ -97,7 +91,7 @@ namespace TankGame
 		
 		if (!m_sendInputsToPropertyWindow)
 			m_tools[m_currentToolIndex]->Update(updateInfo);
-		if (!updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+		if (!updateInfo.m_mouse.IsDown(MouseButton::Left))
 			m_sendInputsToPropertyWindow = false;
 	}
 	

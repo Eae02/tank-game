@@ -1,7 +1,7 @@
 ﻿#include "progress.h"
 #include "utils/ioutils.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <fstream>
 
 namespace TankGame
@@ -41,7 +41,7 @@ namespace TankGame
 	{
 		nlohmann::json json;
 		
-		for (const std::pair<std::string, int>& levelProgress : m_levelProgresses)
+		for (const auto& levelProgress : m_levelProgresses)
 		{
 			json[levelProgress.first] = levelProgress.second;
 		}

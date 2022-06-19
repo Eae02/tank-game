@@ -34,7 +34,7 @@ namespace TankGame
 		}
 		
 		auto backCallback = [this] { SetCurrentMenu(MenuScreens::MainMenu); };
-		m_optionsMenu.SetBackCallback(backCallback);
+		m_optionsMenu.m_backCallback = backCallback;
 		m_playMenu.SetBackCallback(backCallback);
 		
 		m_mainMenu.SetPlayCallback([this] { SetCurrentMenu(MenuScreens::Play); });
@@ -90,7 +90,7 @@ namespace TankGame
 		SetCurrentMenu(MenuScreens::MainMenu);
 		m_visible = true;
 		
-		m_currentBackgroundIndex = GetBackgroundIndex(Settings::GetInstance().GetLastPlayedLevelName());
+		m_currentBackgroundIndex = GetBackgroundIndex(Settings::instance.GetLastPlayedLevelName());
 		if (m_currentBackgroundIndex == -1)
 			m_currentBackgroundIndex = GetBackgroundIndex("level_1");
 		

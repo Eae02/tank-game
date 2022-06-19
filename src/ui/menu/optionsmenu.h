@@ -21,13 +21,10 @@ namespace TankGame
 		void Update(const class UpdateInfo& updateInfo);
 		void Draw(const class UIRenderer& uiRenderer) const;
 		
-		inline void SetBackCallback(std::function<void()> backCallback)
-		{ m_backCallback = std::move(backCallback); }
-		
-		inline void SetApplyCallback(ApplyCallback applyCallback)
-		{ m_applyCallback = std::move(applyCallback); }
-		
 		void OnOpen();
+		
+		std::function<void()> m_backCallback;
+		ApplyCallback m_applyCallback;
 		
 	private:
 		static constexpr size_t NUM_SECTIONS = 3;
@@ -50,9 +47,6 @@ namespace TankGame
 		
 		std::array<Rectangle, NUM_SECTIONS> m_sectionTitleRectangles;
 		
-		std::function<void()> m_backCallback;
-		ApplyCallback m_applyCallback;
-		
 		Rectangle m_scissorArea;
 		
 		float m_scroll = 0;
@@ -64,13 +58,16 @@ namespace TankGame
 		MenuButton m_backButton;
 		MenuButton m_applyButton;
 		
-		long m_displayModeIndex;
+#ifndef __EMSCRIPTEN__
+		long m_displayModeIndex = 0;
 		ComboBox m_displayModeComboBox;
 		
-		long m_currentResolutionIndex;
+		long m_currentResolutionIndex = -1;
+		bool m_resolutionsComboBoxInitialized = false;
 		ComboBox m_resolutionsComboBox;
 		
 		ComboBox m_vSyncComboBox;
+#endif
 		
 		Slider m_gammaSlider;
 		

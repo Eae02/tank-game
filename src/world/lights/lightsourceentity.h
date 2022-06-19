@@ -66,9 +66,9 @@ namespace TankGame
 		virtual void EditorMoved() override;
 		
 	protected:
-		LightSourceEntity(glm::vec3 color, float intensity, Attenuation attenuation, float height, size_t ubSize);
+		LightSourceEntity(glm::vec3 color, float intensity, Attenuation attenuation, float height);
 		
-		virtual void UpdateUniformBuffer(void* memory) const;
+		virtual float GetExtraUniformValue() const { return 0; }
 		
 		virtual int GetPositionUniformLocation() const = 0;
 		virtual int GetWorldTransformUniformLocation() const = 0;
@@ -85,8 +85,6 @@ namespace TankGame
 		
 	private:
 		static Lua::RegistryReference s_metaTableRef;
-		
-		size_t m_ubSize;
 		
 		bool m_flickers = false;
 		float m_flickerOffset;

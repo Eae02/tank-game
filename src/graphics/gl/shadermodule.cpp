@@ -98,7 +98,12 @@ namespace TankGame
 			if (lineEnd != i && memcmp(line, INCLUDE_DIRECTIVE, std::min(strlen(INCLUDE_DIRECTIVE), lineEnd - i)) == 0)
 			{
 				size_t includePathBegin = i + strlen(INCLUDE_DIRECTIVE);
-				fs::path targetPath = parentPath / source.substr(includePathBegin, lineEnd - includePathBegin);
+				std::string includeTarget = source.substr(includePathBegin, lineEnd - includePathBegin);
+				if (!includeTarget.empty() && includeTarget.front() == '"')
+					includeTarget.erase(includeTarget.begin());
+				if (!includeTarget.empty() && includeTarget.back() == '"')
+					includeTarget.pop_back();
+				fs::path targetPath = parentPath / includeTarget;
 				
 				result << ReadAndPreProcessSource(targetPath) << "\n#line " << lineNumber << "\n";
 			}
@@ -114,7 +119,14 @@ namespace TankGame
 	ShaderModule ShaderModule::FromFile(const fs::path& path, GLenum type,
 	                                    const SpecializationInfo* specializationInfo)
 	{
-		return ShaderModule(ReadAndPreProcessSource(path), type, specializationInfo);
+		try
+		{
+			return ShaderModule(ReadAndPreProcessSource(path), type, specializationInfo);
+		}
+		catch (const std::runtime_error& ex)
+		{
+			throw std::runtime_error("Shader from " + path.string() + " failed to compile:\n" + ex.what());
+		}
 	}
 	
 	void DeleteShaderModule(GLuint id)

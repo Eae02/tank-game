@@ -25,6 +25,15 @@ namespace TankGame
 		return *vertexShader;
 	}
 	
+	ShaderProgram ILightSource::MakeShaderProgram(const std::string& fragmentShaderName)
+	{
+		ShaderModule fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "lighting" / fragmentShaderName, GL_FRAGMENT_SHADER);
+		ShaderProgram program({ &GetVertexShader(), &fs });
+		program.SetTextureBinding("normalsAndSpecSampler", NORMALS_SPECULAR_TEXTURE_BINDING, false);
+		program.SetTextureBinding("shadowSampler", SHADOW_MAP_TEXTURE_BINDING, false);
+		return program;
+	}
+	
 	float ILightSource::GetRange(glm::vec3 color, float intensity, Attenuation attenuation)
 	{
 		float maxChannel = std::max(color.x, std::max(color.y, color.z));

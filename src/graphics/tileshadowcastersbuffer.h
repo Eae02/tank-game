@@ -20,9 +20,16 @@ namespace TankGame
 	private:
 		static std::unique_ptr<ShaderProgram> s_shadowShader;
 		
-		GLuint m_numVertices;
+		struct Data
+		{
+			GLuint numIndices;
+			Buffer vertexBuffer;
+			Buffer indexBuffer;
+		};
 		
-		Buffer m_buffer;
+		static Data BuildBuffers(const class TileGrid& tileGrid, const class TileGridMaterial& material);
+		
+		Data m_data;
 		VertexArray m_vertexArray;
 	};
 }

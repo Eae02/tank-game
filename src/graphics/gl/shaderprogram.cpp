@@ -4,6 +4,14 @@
 
 namespace TankGame
 {
+	static const std::pair<std::string, GLuint> STANDARD_UNIFORM_BLOCK_BINDINGS[] = 
+	{
+		{ "RenderSettingsUB", 0 },
+		{ "ShieldSettingsUB", 1 },
+		{ "ShadowRenderSettingsUB", 2 },
+		{ "LightUB", 1 },
+	};
+	
 	GLint ShaderProgram::s_currentShaderProgram = 0;
 	
 	ShaderProgram::ShaderProgram(std::initializer_list<const ShaderModule*> modules)
@@ -28,6 +36,11 @@ namespace TankGame
 			
 			throw std::runtime_error(log);
 		}
+		
+		for (auto& [blockName, blockBinding] : STANDARD_UNIFORM_BLOCK_BINDINGS)
+		{
+			SetUniformBlockBinding(blockName, blockBinding, false);
+		}
 	}
 	
 	int ShaderProgram::GetUniformLocation(const std::string& name) const
@@ -41,6 +54,24 @@ namespace TankGame
 	int ShaderProgram::GetUniformBlockIndex(const std::string& name) const
 	{
 		return glGetUniformBlockIndex(GetID(), name.c_str());
+	}
+	
+	void ShaderProgram::SetUniformBlockBinding(const std::string& name, GLuint binding, bool failIfMissing)
+	{
+		int index = GetUniformBlockIndex(name);
+		if (index != -1)
+			glUniformBlockBinding(GetID(), index, binding);
+		else if (failIfMissing)
+			throw std::runtime_error("Uniform block not found: '" + name + "'.");
+	}
+	
+	void ShaderProgram::SetTextureBinding(const std::string& name, GLuint binding, bool failIfMissing)
+	{
+		int index = glGetUniformLocation(GetID(), name.c_str());
+		if (index != -1)
+			glProgramUniform1i(GetID(), index, binding);
+		else if (failIfMissing)
+			throw std::runtime_error("Texture not found: '" + name + "'.");
 	}
 	
 	void ShaderProgram::Use() const

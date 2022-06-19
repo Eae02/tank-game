@@ -19,10 +19,14 @@ namespace TankGame
 		
 		void DrawBatch(ParticleBatch& batch);
 		
+		void SetUniforms(bool additiveBlending, float textureAspectRatio);
+		
 	private:
 		std::vector<std::unique_ptr<ParticleBatch>> m_particleBatches;
 		size_t m_usedBatches;
 		
 		ShaderProgram m_shader;
+		int m_additiveBlendingUniformLocation;
+		int m_aspectRatioUniformLocation;
 	};
 }

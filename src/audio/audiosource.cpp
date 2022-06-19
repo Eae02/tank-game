@@ -55,9 +55,9 @@ namespace TankGame
 	void AudioSource::SetVolume(float volume)
 	{
 		if (m_volumeMode == VolumeModes::Music)
-			volume *= Settings::GetInstance().GetMusicGain();
+			volume *= Settings::instance.GetMusicGain();
 		if (m_volumeMode == VolumeModes::Effect)
-			volume *= Settings::GetInstance().GetSFXGain();
+			volume *= Settings::instance.GetSFXGain();
 		
 		alSourcef(GetID(), AL_GAIN, volume);
 	}

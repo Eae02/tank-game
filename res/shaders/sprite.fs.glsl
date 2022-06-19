@@ -1,28 +1,25 @@
-#version 420 core
+#version 330 core
 
-#include material.glh
+#include "material.glh"
 
-layout(std140, binding=1) uniform MaterialUB
-{
-	vec4 shade;
-	float specularIntensity;
-	float specularExponent;
-};
+uniform vec4 shade;
+uniform float specularIntensity;
+uniform float specularExponent;
 
-layout(binding=0) uniform sampler2D diffuseSampler;
-layout(binding=1) uniform sampler2D normalMapSampler;
+uniform sampler2D diffuseSampler;
+uniform sampler2D normalMapSampler;
 
-layout(location=0) in vec2 texCoord_in;
-layout(location=1) in vec2 worldPos_in;
-layout(location=2) in flat mat3 transform_in;
+in vec2 texCoord_v;
+in vec2 worldPos_v;
+flat in mat3 transform_v;
 
 void main()
 {
-	vec4 color = texture(diffuseSampler, texCoord_in) * shade;
-	vec2 normal = toWorldNormal(texture(normalMapSampler, texCoord_in).rgb).xy;
+	vec4 color = texture(diffuseSampler, texCoord_v) * shade;
+	vec2 normal = toWorldNormal(texture(normalMapSampler, texCoord_v).rgb).xy;
 	
 	float normalLen = length(normal);
-	normal = (transform_in * vec3(normal, 0.0)).xy;
+	normal = (transform_v * vec3(normal, 0.0)).xy;
 	normal = normalize(normal) * normalLen;
 	
 	writeMaterialOutputs(color, makeNormal3(normal), specularIntensity, specularExponent);

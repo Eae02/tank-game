@@ -14,36 +14,53 @@ namespace TankGame
 		class UniquePtr final
 		{
 		public:
-			inline UniquePtr(decltype(nullptr) = nullptr) { }
+			friend class BufferAllocator;
 			
-			inline UniquePtr(BufferAllocator& allocator, GLuint buffer)
-			    : m_allocator(&allocator), m_buffer(buffer) { }
+			UniquePtr(decltype(nullptr) = nullptr) { }
 			
-			inline UniquePtr(UniquePtr&& other)
-			    : m_allocator(other.m_allocator), m_buffer(other.m_buffer)
+			UniquePtr(UniquePtr&& other)
+			    : m_allocator(other.m_allocator), m_index(other.m_index)
 			{
 				other.m_allocator = nullptr;
 			}
 			
-			UniquePtr& operator=(UniquePtr&& other);
+			UniquePtr& operator=(UniquePtr&& other)
+			{
+				this->~UniquePtr();
+				m_allocator = other.m_allocator;
+				m_index = other.m_index;
+				other.m_allocator = nullptr;
+				return *this;
+			}
 			
-			~UniquePtr();
+			UniquePtr(const UniquePtr& other) = delete;
+			UniquePtr& operator=(const UniquePtr& other) = delete;
 			
-			inline GLuint operator*() const
-			{ return m_buffer; }
+			~UniquePtr()
+			{
+				if (m_allocator != nullptr)
+					m_allocator->Free(m_index);
+			}
+			
+			TankGame::Buffer& operator*() const
+			{ return m_allocator->m_buffers[m_index].m_buffer; }
+			
+			TankGame::Buffer* operator->() const
+			{ return &m_allocator->m_buffers[m_index].m_buffer; }
+			
+			bool IsNull() const { return m_allocator == nullptr; }
 			
 		private:
+			inline UniquePtr(BufferAllocator& allocator, size_t index)
+			    : m_allocator(&allocator), m_index(index) { }
+			
 			BufferAllocator* m_allocator = nullptr;
-			GLuint m_buffer;
+			size_t m_index;
 		};
 		
-		inline UniquePtr AllocateUnique(GLuint size, GLbitfield flags)
-		{
-			return UniquePtr(*this, Allocate(size, flags));
-		}
+		friend class UniquePtr;
 		
-		GLuint Allocate(GLuint size, GLbitfield flags);
-		void Free(GLuint buffer);
+		UniquePtr AllocateUnique(GLuint size, BufferUsage usage);
 		
 		static void SetInstance(std::unique_ptr<BufferAllocator>&& instance)
 		{ s_instance = std::move(instance); }
@@ -52,17 +69,19 @@ namespace TankGame
 		{ return *s_instance; }
 		
 	private:
+		void Free(size_t index);
+		
 		static std::unique_ptr<BufferAllocator> s_instance;
 		
 		struct Buffer
 		{
 			TankGame::Buffer m_buffer;
 			GLuint m_size;
-			GLbitfield m_flags;
+			BufferUsage m_usage;
 			bool m_isAllocated;
 			
-			inline Buffer(GLuint size, GLbitfield flags)
-				: m_buffer(size, flags), m_size(size), m_flags(flags) { }
+			inline Buffer(GLuint size, BufferUsage usage)
+				: m_buffer(size, usage), m_size(size), m_usage(usage) { }
 		};
 		
 		std::vector<Buffer> m_buffers;

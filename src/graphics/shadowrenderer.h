@@ -26,11 +26,9 @@ namespace TankGame
 		
 		void OnResize(GLsizei width, GLsizei height);
 		
-		static const ShaderModule& GetGeometryShader();
 		static const ShaderModule& GetFragmentShader();
 		
 	private:
-		static std::unique_ptr<ShaderModule> s_geometryShader;
 		static std::unique_ptr<ShaderModule> s_fragmentShader;
 		
 		static ShaderProgram CreateBlurPassShader();

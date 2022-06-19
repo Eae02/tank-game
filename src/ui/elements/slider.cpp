@@ -6,7 +6,6 @@
 #include "../../utils/utils.h"
 #include "../../utils/ioutils.h"
 
-#include <GLFW/glfw3.h>
 #include <iostream>
 #include <sstream>
 #include <memory>
@@ -47,14 +46,13 @@ namespace TankGame
 	{
 		Rectangle clickRectangle(m_rectangle.x, m_rectangle.CenterY() - KNOB_SIZE / 2.0f, m_rectangle.w, KNOB_SIZE);
 		
-		if (clickRectangle.Contains(updateInfo.m_mouse.GetPosition()) &&
-		    updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT) &&
-		    !updateInfo.m_mouse.WasButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+		if (clickRectangle.Contains(updateInfo.m_mouse.pos) &&
+		    updateInfo.m_mouse.IsDown(MouseButton::Left) && !updateInfo.m_mouse.WasDown(MouseButton::Left))
 		{
 			m_isMoving = true;
 		}
 		
-		if (!updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+		if (!updateInfo.m_mouse.IsDown(MouseButton::Left))
 			m_isMoving = false;
 		
 		UpdateTransition(m_grabbedTProgress, m_isMoving ? 1.0f : 0.0f, updateInfo.m_dt * 10.0f);
@@ -63,7 +61,7 @@ namespace TankGame
 		{
 			float oldPosition = m_position;
 			
-			m_position = glm::clamp((updateInfo.m_mouse.GetX() - m_rectangle.x) / WIDTH, 0.0f, 1.0f);
+			m_position = glm::clamp((updateInfo.m_mouse.pos.x - m_rectangle.x) / WIDTH, 0.0f, 1.0f);
 			m_position = std::round(m_position / m_snap) * m_snap;
 			
 			value = glm::mix(m_min, m_max, m_position);

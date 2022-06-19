@@ -16,8 +16,14 @@
 namespace TankGame
 {
 #define GL_FUNC(name, proc) extern proc name;
+#ifndef __EMSCRIPTEN__
 #include "glfunctionslist.inl"
+#endif
+#include "glfunctionslist_dsa.inl"
 #undef GL_FUNC
 	
-	void LoadExtensions(bool useDSAWrapper = false);
+	extern bool hasBufferStorage;
+	extern bool hasTextureStorage;
+	
+	void LoadOpenGLFunctions(bool useDSAWrapper = false);
 }

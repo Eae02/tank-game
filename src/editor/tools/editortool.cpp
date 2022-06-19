@@ -26,7 +26,7 @@ namespace TankGame
 	
 	glm::vec2 EditorTool::GetNewWorldMouseCoords(const UpdateInfo& updateInfo)
 	{
-		glm::vec2 screenSpacePos = updateInfo.m_mouse.GetPosition() / glm::vec2(m_windowWidth, m_windowHeight);
+		glm::vec2 screenSpacePos = updateInfo.m_mouse.pos / glm::vec2(m_windowWidth, m_windowHeight);
 		return updateInfo.m_viewInfo.ScreenToWorld(screenSpacePos);
 	}
 	

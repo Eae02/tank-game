@@ -2,6 +2,7 @@
 
 #include "attenuation.h"
 #include "../../utils/abstract.h"
+#include "../../graphics/gl/shaderprogram.h"
 
 #include <glm/glm.hpp>
 
@@ -21,15 +22,29 @@ namespace TankGame
 	class ILightSource : public Abstract
 	{
 	public:
-		virtual const class ShaderProgram& GetShader() const = 0;
+		virtual const ShaderProgram& GetShader() const = 0;
 		virtual void Bind() const = 0;
 		
 		virtual LightInfo GetLightInfo() const = 0;
 		
-		static const class ShaderModule& GetVertexShader();
+		static const ShaderModule& GetVertexShader();
+		static ShaderProgram MakeShaderProgram(const std::string& fragmentShaderName);
 		
 		static float GetRange(glm::vec3 color, float intensity, Attenuation attenuation);
 		
 		static float GenerateFlickerOffset();
+		
+		static constexpr int NORMALS_SPECULAR_TEXTURE_BINDING = 0;
+		static constexpr int SHADOW_MAP_TEXTURE_BINDING = 1;
+	};
+	
+	struct LightUniformBufferData
+	{
+		float colorTimesIntensity[3];
+		float extra;
+		float attenLin;
+		float attenExp;
+		float flickerIntensity;
+		float flickerOffset;
 	};
 }

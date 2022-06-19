@@ -5,8 +5,6 @@
 #include "../../graphics/ui/font.h"
 #include "../../audio/soundeffectplayer.h"
 
-#include <GLFW/glfw3.h>
-
 namespace TankGame
 {
 	MenuButton::MenuButton(std::u32string label)
@@ -19,16 +17,16 @@ namespace TankGame
 		float targetHoverTransition = 0.0f;
 		bool clicked = false;
 		
-		if (m_area.Contains(updateInfo.m_mouse.GetPosition()))
+		if (m_area.Contains(updateInfo.m_mouse.pos))
 		{
 			if (m_hoverTransition == 0.0f)
 				PlayMouseOverEffect();
 			
 			targetHoverTransition = 1.0f;
 			
-			if (updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+			if (updateInfo.m_mouse.IsDown(MouseButton::Left))
 				targetHoverTransition = 0.75f;
-			else if (updateInfo.m_mouse.WasButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+			else if (updateInfo.m_mouse.WasDown(MouseButton::Left))
 				clicked = true;
 		}
 		

@@ -36,12 +36,12 @@ namespace TankGame
 		float m_framebufferAR = 1.0f;
 		
 		double m_damageFlashBeginTime = 0;
-		mutable float m_oldDamageFlashIntensity = 0;
 		
 		float m_blurAmount = 0;
 		
 		float m_distortionSampleMul = 0;
 		float m_pixelWidth = 0;
+		float m_pixelHeight = 0;
 		
 		Texture2D m_hexagonTexture;
 		NoiseTexture m_noiseTexture;
@@ -60,8 +60,21 @@ namespace TankGame
 		ShaderProgram m_bloomVBlurShader;
 		ShaderProgram m_postProcessShader;
 		
-		BufferAllocator::UniquePtr m_blurVectorsBuffer;
-		BufferAllocator::UniquePtr m_postSettingsUB;
-		mutable bool m_postSettingsNeedUpload = true;
+		struct BloomShaderUniformLocations
+		{
+			int blurVector;
+			int texCoordOffset;
+		};
+		
+		BloomShaderUniformLocations m_bloomHBlurUniformLocations;
+		BloomShaderUniformLocations m_bloomVBlurUniformLocations;
+		
+		int m_exposureUniformLoc;
+		int m_gammaUniformLoc;
+		int m_contrastUniformLoc;
+		int m_framebufferARUniformLoc;
+		int m_damageFlashIntensityUniformLoc;
+		int m_horizontalDistortionAmountUniformLoc;
+		int m_distortionSampleMulUniformLoc;
 	};
 }

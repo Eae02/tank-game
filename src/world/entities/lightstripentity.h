@@ -73,6 +73,7 @@ namespace TankGame
 		static void BindShader();
 		
 		static std::unique_ptr<ShaderProgram> s_shader;
+		static int s_colorUniformLoc;
 		
 		Path m_path;
 		glm::vec2 m_centerPath{ 0.0f, 0.0f };
@@ -85,14 +86,11 @@ namespace TankGame
 		
 		GLsizei m_numIndices = 0;
 		
-		BufferAllocator::UniquePtr m_uniformBuffer;
-		
 		Circle m_boundingCircle;
 		
 		float m_radius;
 		
 		glm::vec3 m_color;
 		float m_glowStrength;
-		mutable bool m_uniformBufferOutOfDate = true;
 	};
 }

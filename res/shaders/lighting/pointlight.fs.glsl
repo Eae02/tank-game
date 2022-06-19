@@ -1,35 +1,25 @@
-#version 420 core
+#version 330 core
 
-#include lighting.glh
-
-layout(std140, binding=1) uniform LightUB
-{
-	vec3 color;
-	float intensity;
-	float attenLin;
-	float attenExp;
-	float flickerIntensity;
-	float flickerOffset;
-} light;
+#include "lighting.glh"
 
 uniform vec3 position;
 
-layout(location=0) in vec2 worldPos_in;
-layout(location=1) in vec2 texCoord_in;
+in vec2 worldPos_v;
+in vec2 texCoord_v;
 
 layout(location=0) out vec3 lighting_out;
 
 void main()
 {
-	GBufferData data = getGBufferData(texCoord_in);
+	GBufferData data = getGBufferData(texCoord_v);
 	
-	vec3 lightIn = vec3(worldPos_in.x, 0, worldPos_in.y) - position;
+	vec3 lightIn = vec3(worldPos_v.x, 0, worldPos_v.y) - position;
 	float dist = length(lightIn);
 	
-	lighting_out = phong(light.intensity, lightIn / dist, eyePosition, worldPos_in, data) * light.color;
+	lighting_out = phong(lightIn / dist, eyePosition, worldPos_v, data) * light.color;
 	
 	lighting_out /= 1.0 + (light.attenLin * dist) + (light.attenExp * dist * dist);
 	
-	lighting_out *= getShadowFactor(worldPos_in);
+	lighting_out *= getShadowFactor(worldPos_v);
 	lighting_out *= getFlickerFactor(light.flickerOffset, light.flickerIntensity);
 }

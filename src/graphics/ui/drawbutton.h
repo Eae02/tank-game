@@ -5,5 +5,5 @@
 
 namespace TankGame
 {
-	void DrawButton(int button, UIRenderer& uiRenderer, glm::vec2 pos, float height, float opacity = 1.0f);
+	void DrawButton(const std::u32string& text, UIRenderer& uiRenderer, glm::vec2 pos, float height, float opacity = 1.0f);
 }

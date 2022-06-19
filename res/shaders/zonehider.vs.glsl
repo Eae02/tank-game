@@ -1,6 +1,6 @@
-#version 420 core
+#version 330 core
 
-#include rendersettings.glh
+#include "rendersettings.glh"
 
 uniform mat3 transform;
 

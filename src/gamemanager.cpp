@@ -6,8 +6,6 @@
 #include "graphics/imainrenderer.h"
 #include "settings.h"
 
-#include <GLFW/glfw3.h>
-
 namespace TankGame
 {
 	GameManager::GameManager(IMainRenderer& renderer)
@@ -66,8 +64,7 @@ namespace TankGame
 				glm::vec2 pos = m_interactButtonPos * glm::vec2(UIRenderer::GetInstance().GetWindowWidth(),
 				                                                UIRenderer::GetInstance().GetWindowHeight());
 				
-				DrawButton(Settings::GetInstance().GetInteractButton(), UIRenderer::GetInstance(), pos, 40,
-				           m_interactButtonOpacity * 0.9f);
+				DrawButton(U"E", UIRenderer::GetInstance(), pos, 40, m_interactButtonOpacity * 0.9f);
 			}
 		}
 	}

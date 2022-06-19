@@ -3,7 +3,7 @@
 #include "../../entity.h"
 
 #include <memory>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace TankGame
 {

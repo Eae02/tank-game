@@ -1,7 +1,7 @@
 #include "soundsmanager.h"
 #include "../utils/ioutils.h"
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace TankGame
 {

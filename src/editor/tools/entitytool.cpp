@@ -9,6 +9,7 @@
 #include "../../utils/ioutils.h"
 #include "../../mouse.h"
 #include "../../keyboard.h"
+#include "../../platform/common.h"
 #include "../../utils/utils.h"
 #include "../../utils/mathutils.h"
 #include "../../world/lights/pointlightentity.h"
@@ -62,18 +63,13 @@ namespace TankGame
 		glm::vec2 selectionCenterVS = updateInfo.m_viewInfo.WorldToScreen(selectionCenterWS) * halfScreenSize * 2.0f;
 		m_moveIconRectangle = Rectangle::CreateCentered(selectionCenterVS, MOVE_ICON_WIDTH / 2, MOVE_ICON_WIDTH / 2);
 		
-		bool isCtrlDown = updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_LEFT_CONTROL) ||
-		                  updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_RIGHT_CONTROL);
-		bool isShiftDown = updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_LEFT_SHIFT) ||
-		                   updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_RIGHT_SHIFT);
-		
 		glm::vec2 mousePositionWS = GetNewWorldMouseCoords(updateInfo);
 		
-		if (updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+		if (updateInfo.m_mouse.IsDown(MouseButton::Left))
 		{
 			if (m_wasMouseLeftPressed)
 			{
-				if (LengthSquared(updateInfo.m_mouse.GetPosition() - updateInfo.m_mouse.GetOldPosition()) > 1E-6)
+				if (LengthSquared(updateInfo.m_mouse.pos - updateInfo.m_mouse.GetOldPosition()) > 1E-6)
 				{
 					if (m_isMovingSelected)
 					{
@@ -83,7 +79,7 @@ namespace TankGame
 						{
 							glm::vec2 newPosition = entity.m_moveBeginLocation + moveVector;
 							
-							if (isShiftDown)
+							if (updateInfo.m_keyboard.IsAnyDown(KEY_MASK_SHIFT))
 							{
 								newPosition.x = std::round(newPosition.x * 2.0f) / 2.0f;
 								newPosition.y = std::round(newPosition.y * 2.0f) / 2.0f;
@@ -95,7 +91,7 @@ namespace TankGame
 					}
 					else
 					{
-						m_selectionRect = Rectangle::FromMinMax(m_selectionBegin, updateInfo.m_mouse.GetPosition());
+						m_selectionRect = Rectangle::FromMinMax(m_selectionBegin, updateInfo.m_mouse.pos);
 						m_isSelecting = true;
 						
 						m_selectedEntities.clear();
@@ -110,14 +106,14 @@ namespace TankGame
 			}
 			else
 			{
-				if (glfwGetTime() <= m_timeOfLastMouseRelease + 0.4 &&
-					LengthSquared(m_positionOfLastMouseRelease - updateInfo.m_mouse.GetPosition()) < 5 * 5)
+				if (GetTime() <= m_timeOfLastMouseRelease + 0.4 &&
+					LengthSquared(m_positionOfLastMouseRelease - updateInfo.m_mouse.pos) < 5 * 5)
 				{
 					Entity* propertiesEntity = nullptr;
 					
 					IterateEntities(*this, updateInfo.m_viewInfo, [&] (Entity& entity, const Rectangle& iconRect)
 					{
-						if (iconRect.Contains(updateInfo.m_mouse.GetPosition()))
+						if (iconRect.Contains(updateInfo.m_mouse.pos))
 							propertiesEntity = &entity;
 					});
 					
@@ -128,21 +124,21 @@ namespace TankGame
 				}
 				else
 				{
-					m_timeOfLastMouseRelease = glfwGetTime();
-					m_positionOfLastMouseRelease = updateInfo.m_mouse.GetPosition();
+					m_timeOfLastMouseRelease = GetTime();
+					m_positionOfLastMouseRelease = updateInfo.m_mouse.pos;
 				}
 				
-				if (!m_selectedEntities.empty() && m_moveIconRectangle.Contains(updateInfo.m_mouse.GetPosition()))
+				if (!m_selectedEntities.empty() && m_moveIconRectangle.Contains(updateInfo.m_mouse.pos))
 				{
 					BeginMovingSelected(mousePositionWS);
 				}
 				else
 				{
-					m_selectionBegin = updateInfo.m_mouse.GetPosition();
+					m_selectionBegin = updateInfo.m_mouse.pos;
 					m_selectionRectOpacity = 1.0f;
 					m_isSelecting = false;
 					
-					if (!isCtrlDown)
+					if (!updateInfo.m_keyboard.IsAnyDown(KEY_MASK_CONTROL))
 					{
 						m_selectedEntities.clear();
 						m_pathEditEntity = nullptr;
@@ -152,7 +148,7 @@ namespace TankGame
 					
 					IterateEntities(*this, updateInfo.m_viewInfo, [&] (Entity& entity, const Rectangle& iconRect)
 					{
-						if (iconRect.Contains(updateInfo.m_mouse.GetPosition()))
+						if (iconRect.Contains(updateInfo.m_mouse.pos))
 							clickedEntity = &entity;
 					});
 					
@@ -179,11 +175,11 @@ namespace TankGame
 			}
 		}
 		
-		if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_X) && !updateInfo.m_keyboard.WasKeyDown(GLFW_KEY_X))
+		if (updateInfo.m_keyboard.IsDown(Key::X) && !updateInfo.m_keyboard.WasDown(Key::X))
 			DespawnSelected();
 		
-		if (!isCtrlDown && updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_C) &&
-		    !updateInfo.m_keyboard.WasKeyDown(GLFW_KEY_C) && !m_isMovingSelected)
+		if (!updateInfo.m_keyboard.IsAnyDown(KEY_MASK_CONTROL) && updateInfo.m_keyboard.IsDown(Key::C) &&
+		    !updateInfo.m_keyboard.WasDown(Key::C) && !m_isMovingSelected)
 		{
 			std::vector<SelectedEntity> newSelection;
 			
@@ -203,8 +199,9 @@ namespace TankGame
 			m_pathEditEntity = nullptr;
 		}
 		
-		if (m_showSpawnMenuNextUpdate || (!isCtrlDown && updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_S) &&
-		    !updateInfo.m_keyboard.WasKeyDown(GLFW_KEY_S) && !m_isMovingSelected))
+		if (m_showSpawnMenuNextUpdate ||
+			(!updateInfo.m_keyboard.IsAnyDown(KEY_MASK_CONTROL) && updateInfo.m_keyboard.IsDown(Key::S) &&
+		     !updateInfo.m_keyboard.WasDown(Key::S) && !m_isMovingSelected))
 		{
 			m_spawnMenu.Show(mousePositionWS);
 			m_selectedEntities.clear();
@@ -212,7 +209,7 @@ namespace TankGame
 			m_showSpawnMenuNextUpdate = false;
 		}
 		
-		m_wasMouseLeftPressed = updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT);
+		m_wasMouseLeftPressed = updateInfo.m_mouse.IsDown(MouseButton::Left);
 	}
 	
 	void EntityTool::BeginMovingSelected(glm::vec2 mouseCoordsWS)

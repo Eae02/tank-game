@@ -1,8 +1,7 @@
 #include "entitiesmanager.h"
 #include "particles/particleemitter.h"
 #include "../updateinfo.h"
-
-#include <GLFW/glfw3.h>
+#include "../platform/common.h"
 
 namespace TankGame
 {
@@ -47,7 +46,7 @@ namespace TankGame
 			m_entitiesToDespawn.clear();
 		}
 		
-		double time = glfwGetTime();
+		double time = GetTime();
 		for (ParticleSystemEntityBase* psEntity : m_particleSystemEntities)
 		{
 			if (time > psEntity->GetDeathTime())

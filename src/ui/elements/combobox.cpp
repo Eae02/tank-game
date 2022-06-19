@@ -6,7 +6,6 @@
 #include "../../mouse.h"
 #include "../../keyboard.h"
 
-#include <GLFW/glfw3.h>
 #include <algorithm>
 
 namespace TankGame
@@ -26,12 +25,17 @@ namespace TankGame
 	{
 		m_entries.emplace_back(std::move(entry));
 		m_scrollBar.SetContentSettings(m_entries.size(), MAX_ITEMS);
+		AreaChanged();
 	}
 	
 	void ComboBox::SetPosition(glm::vec2 position)
 	{
 		m_area = Rectangle::CreateCentered(position, 200, HEIGHT);
-		
+		AreaChanged();
+	}
+	
+	void ComboBox::AreaChanged()
+	{
 		float dropDownHeight = std::min<int>(m_entries.size(), MAX_ITEMS) * DROP_DOWN_ITEM_HEIGHT;
 		m_dropDownArea = Rectangle(m_area.x, m_area.y - dropDownHeight, m_area.w, dropDownHeight);
 		
@@ -40,10 +44,11 @@ namespace TankGame
 	
 	bool ComboBox::Update(const UpdateInfo& updateInfo, long& currentItem)
 	{
+		assert(currentItem >= 0 && currentItem < (long)m_entries.size());
+		
 		bool changed = false;
 		
-		bool clicked = updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT) &&
-		               !updateInfo.m_mouse.WasButtonPressed(GLFW_MOUSE_BUTTON_LEFT);
+		bool clicked = updateInfo.m_mouse.IsDown(MouseButton::Left) && !updateInfo.m_mouse.WasDown(MouseButton::Left);
 		
 		float targetHoverTransition = 0.0f;
 		
@@ -51,19 +56,18 @@ namespace TankGame
 		{
 			targetHoverTransition = 1.0f;
 			
-			if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_ESCAPE) && !updateInfo.m_keyboard.WasKeyDown(GLFW_KEY_ESCAPE))
+			if (updateInfo.m_keyboard.IsDown(Key::Escape) && !updateInfo.m_keyboard.WasDown(Key::Escape))
 			{
 				m_hoveredItem = -1;
 				m_isDropDownShown = false;
 			}
-			else if (m_dropDownArea.Contains(updateInfo.m_mouse.GetPosition()))
+			else if (m_dropDownArea.Contains(updateInfo.m_mouse.pos))
 			{
 				SetScroll(m_dropDownScroll - updateInfo.m_mouse.GetDeltaScroll() * 0.5f);
 				
-				m_hoveredItem = ((m_dropDownArea.FarY() - updateInfo.m_mouse.GetPosition().y) / DROP_DOWN_ITEM_HEIGHT) + m_dropDownScroll;
+				m_hoveredItem = ((m_dropDownArea.FarY() - updateInfo.m_mouse.pos.y) / DROP_DOWN_ITEM_HEIGHT) + m_dropDownScroll;
 				
-				if (!updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT) &&
-				    updateInfo.m_mouse.WasButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+				if (!updateInfo.m_mouse.IsDown(MouseButton::Left) && updateInfo.m_mouse.WasDown(MouseButton::Left))
 				{
 					currentItem = m_hoveredItem;
 					changed = true;
@@ -81,7 +85,7 @@ namespace TankGame
 		}
 		else
 		{
-			if (m_area.Contains(updateInfo.m_mouse.GetPosition()))
+			if (m_area.Contains(updateInfo.m_mouse.pos))
 			{
 				if (m_hoverTransition == 0.0f)
 					PlayMouseOverEffect();

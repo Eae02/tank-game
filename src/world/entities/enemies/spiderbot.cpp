@@ -13,10 +13,9 @@
 #include "../../../ai/aiutils.h"
 #include "../../../utils/mathutils.h"
 #include "../../../utils/utils.h"
+#include "../../../platform/common.h"
 #include "../../../graphics/spriterenderlist.h"
 #include "../../../graphics/ui/uirenderer.h"
-
-#include <GLFW/glfw3.h>
 
 namespace TankGame
 {
@@ -36,7 +35,7 @@ namespace TankGame
 		float legAR = m_legsPropClass.GetTextureHeight() / static_cast<float>(m_legsPropClass.GetTextureWidth());
 		m_legSize = { LEG_SIZE * 0.75f, LEG_SIZE * legAR };
 		
-		if (Settings::GetInstance().GetLightingQuality() != QualitySettings::Low)
+		if (Settings::instance.GetLightingQuality() != QualitySettings::Low)
 			SetShadowMode(EntityShadowModes::Dynamic);
 		else
 			SetShadowMode(EntityShadowModes::None);
@@ -100,7 +99,7 @@ namespace TankGame
 				return;
 			}
 			
-			double time = glfwGetTime();
+			double time = GetTime();
 			if (time > m_pathToPlayerNextUpdateTime)
 			{
 				m_pathToPlayer = Path();

@@ -1,18 +1,18 @@
-#version 420 core
+#version 330 core
 
-#include material.glh
+#include "material.glh"
 
-layout(location=0) in vec3 texCoord_in;
-layout(location=1) in flat vec2 specular_in;
+in vec3 texCoord_v;
+flat in vec2 specular_v;
 
-layout(binding=2) uniform sampler2DArray diffuseMaps;
-layout(binding=3) uniform sampler2DArray normalMaps;
-layout(binding=4) uniform sampler2DArray specularMaps;
+uniform sampler2DArray diffuseMaps;
+uniform sampler2DArray normalSpecMaps;
 
 void main()
 {
-	vec4 color = texture(diffuseMaps, texCoord_in);
-	vec3 normal = toWorldNormal(texture(normalMaps, texCoord_in).rgb).xzy;
+	vec4 color = texture(diffuseMaps, texCoord_v);
+	vec4 tsNormalAndSpecular = texture(normalSpecMaps, texCoord_v);
+	vec3 normal = toWorldNormal(tsNormalAndSpecular.rgb).xzy;
 	
-	writeMaterialOutputs(color, normal, specular_in.x * texture(specularMaps, texCoord_in).r, specular_in.y);
+	writeMaterialOutputs(color, normal, specular_v.x * tsNormalAndSpecular.a, specular_v.y);
 }

@@ -26,8 +26,7 @@ namespace TankGame
 		void UploadGridData();
 		void UploadGridData(int x, int y, int width, int height);
 		
-		void PrepareForRendering(const class ViewInfo& viewInfo) const;
-		void Draw(const class TileGridMaterial& material) const;
+		void Draw(const class ViewInfo& viewInfo, const class TileGridMaterial& material) const;
 		
 		inline int GetWidth() const
 		{ return m_width; }
@@ -55,15 +54,11 @@ namespace TankGame
 		int m_width;
 		int m_height;
 		
-		mutable glm::ivec2 m_renderSize;
-		
 		std::vector<uint8_t> m_gridData;
 		
 		std::vector<glm::vec2> m_rotationData;
 		
 		Texture2D m_idsTexture;
 		Texture2D m_rotationsTexture;
-		
-		BufferAllocator::UniquePtr m_renderAreaBuffer;
 	};
 }

@@ -23,6 +23,7 @@ namespace TankGame
 		ShaderProgram m_shader;
 		
 		int m_blurVectorUniformLocation;
+		int m_sampleOffsetUniformLocation;
 		
 		std::unique_ptr<Framebuffer> m_framebuffer;
 		std::unique_ptr<Texture2D> m_intermidiateBuffer;

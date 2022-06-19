@@ -8,7 +8,6 @@
 #include "../../mouse.h"
 
 #include <imgui.h>
-#include <GLFW/glfw3.h>
 #include <algorithm>
 
 namespace TankGame
@@ -48,7 +47,7 @@ namespace TankGame
 	
 	void TilesTool::Update(const UpdateInfo& updateInfo)
 	{
-		m_isMouseCaptured = updateInfo.m_mouse.IsCaptured();
+		m_isMouseCaptured = updateInfo.m_mouse.isCaptured;
 		
 		TileGrid* grid = GetGameWorld().GetTileGrid();
 		
@@ -61,7 +60,7 @@ namespace TankGame
 		}
 		else
 		{
-			if (updateInfo.m_mouse.IsButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+			if (updateInfo.m_mouse.IsDown(MouseButton::Left))
 			{
 				if (grid->GetTileID(m_selectedTile) != m_currentTileID)
 				{
@@ -70,7 +69,7 @@ namespace TankGame
 					m_tileGridChanged = true;
 				}
 			}
-			else if (updateInfo.m_mouse.WasButtonPressed(GLFW_MOUSE_BUTTON_LEFT) && m_tileGridChanged)
+			else if (updateInfo.m_mouse.WasDown(MouseButton::Left) && m_tileGridChanged)
 			{
 				GetEditor().UpdateShadows();
 				m_tileGridChanged = false;
@@ -140,7 +139,7 @@ namespace TankGame
 		
 		m_gridVertexCount = bufferData.size() * 2;
 		
-		m_gridBuffer = std::make_unique<Buffer>(bufferData.size() * sizeof(GridLine), bufferData.data(), 0);
+		m_gridBuffer = std::make_unique<Buffer>(bufferData.size() * sizeof(GridLine), bufferData.data(), BufferUsage::StaticData);
 		glVertexArrayVertexBuffer(m_gridVAO.GetID(), 0, m_gridBuffer->GetID(), 0, sizeof(float) * 2);
 		
 		EditorTool::SetGameWorld(gameWorld);

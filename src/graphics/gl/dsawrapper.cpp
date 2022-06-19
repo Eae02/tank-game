@@ -42,10 +42,6 @@ namespace TankGame
 			glNamedFramebufferTexture = NamedFramebufferTexture;
 			glNamedFramebufferDrawBuffer = NamedFramebufferDrawBuffer;
 			glNamedFramebufferDrawBuffers = NamedFramebufferDrawBuffers;
-			glNamedFramebufferRenderbuffer = NamedFramebufferRenderbuffer;
-			
-			glCreateRenderbuffers = CreateRenderbuffers;
-			glNamedRenderbufferStorage = NamedRenderbufferStorage;
 			
 			glProgramUniform1f = ProgramUniform1f;
 			glProgramUniform1i = ProgramUniform1i;
@@ -246,27 +242,6 @@ namespace TankGame
 		void APIENTRY NamedFramebufferDrawBuffers(GLuint framebuffer, GLsizei n, const GLenum* bufs)
 		{
 			BindFramebufferAndInvoke(framebuffer, [=] { glDrawBuffers(n, bufs); });
-		}
-		
-		void APIENTRY NamedFramebufferRenderbuffer(GLuint framebuffer, GLenum attachment, GLenum renderbuffertarget,
-		                                  GLuint renderbuffer)
-		{
-			BindFramebufferAndInvoke(framebuffer, [=]
-			{
-				glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, renderbuffertarget, renderbuffer);
-			});
-		}
-		
-		
-		void APIENTRY CreateRenderbuffers(GLsizei n, GLuint* renderbuffers)
-		{
-			glGenRenderbuffers(n, renderbuffers);
-		}
-		
-		void APIENTRY NamedRenderbufferStorage(GLuint renderbuffer, GLenum internalformat, GLsizei width, GLsizei height)
-		{
-			glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
-			glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height);
 		}
 		
 		

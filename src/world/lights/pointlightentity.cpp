@@ -16,20 +16,11 @@ namespace TankGame
 	int PointLightEntity::s_positionUniformLocation;
 	int PointLightEntity::s_worldTransformUniformLocation;
 	
-	PointLightEntity::PointLightEntity(glm::vec3 color, float intensity, Attenuation attenuation, float height)
-	    : LightSourceEntity(color, intensity, attenuation, height, 8 * sizeof(float))
-	{
-		
-	}
-	
 	const ShaderProgram& PointLightEntity::GetShader() const
 	{
 		if (s_shaderProgram== nullptr)
 		{
-			ShaderModule fragmentShader = ShaderModule::FromFile(
-					GetResDirectory() / "shaders" / "lighting" / "pointlight.fs.glsl", GL_FRAGMENT_SHADER);
-			
-			s_shaderProgram.reset(new ShaderProgram{ &GetVertexShader(), &fragmentShader });
+			s_shaderProgram = std::make_unique<ShaderProgram>(MakeShaderProgram("pointlight.fs.glsl"));
 			
 			s_positionUniformLocation = s_shaderProgram->GetUniformLocation("position");
 			s_worldTransformUniformLocation = s_shaderProgram->GetUniformLocation("worldTransform");

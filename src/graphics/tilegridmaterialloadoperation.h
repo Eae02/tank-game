@@ -19,9 +19,14 @@ namespace TankGame
 		virtual void ProcessResult() override;
 		
 	private:
-		using TextureLayerPtr = std::unique_ptr<uint8_t, void(*)(uint8_t*)>;
+		struct TextureLayerDeleter
+		{
+			void operator()(uint8_t* data) const { std::free(data); }
+		};
 		
-		static TextureLayerPtr CreateLayerPtr();
+		using TextureLayerPtr = std::unique_ptr<uint8_t, TextureLayerDeleter>;
+		
+		static TextureLayerPtr AllocateTextureLayer();
 		TextureLayerPtr LoadTextureLayer(const fs::path& path);
 		
 		DoneCallback m_doneCallback;
@@ -34,7 +39,6 @@ namespace TankGame
 		std::vector<bool> m_isSolid;
 		
 		std::vector<TextureLayerPtr> m_diffuseLayers;
-		std::vector<TextureLayerPtr> m_normalMapLayers;
-		std::vector<TextureLayerPtr> m_specularMapLayers;
+		std::vector<TextureLayerPtr> m_normalSpecLayers;
 	};
 }

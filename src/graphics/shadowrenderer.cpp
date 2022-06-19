@@ -10,22 +10,9 @@
 
 namespace TankGame
 {
-	std::unique_ptr<ShaderModule> ShadowRenderer::s_geometryShader;
 	std::unique_ptr<ShaderModule> ShadowRenderer::s_fragmentShader;
 	
 	static const fs::path shaderPath = fs::path("shaders") / "lighting" / "shadows";
-	
-	const ShaderModule& ShadowRenderer::GetGeometryShader()
-	{
-		if (s_geometryShader== nullptr)
-		{
-			const fs::path gsPath = GetResDirectory() / shaderPath / "shadow.gs.glsl";
-			s_geometryShader = std::make_unique<ShaderModule>(ShaderModule::FromFile(gsPath, GL_GEOMETRY_SHADER));
-			CallOnClose([] { s_geometryShader = nullptr; });
-		}
-		
-		return *s_geometryShader;
-	}
 	
 	const ShaderModule& ShadowRenderer::GetFragmentShader()
 	{
@@ -44,7 +31,9 @@ namespace TankGame
 		auto vs = ShaderModule::FromFile(GetResDirectory() / shaderPath / "blur.vs.glsl", GL_VERTEX_SHADER);
 		auto fs = ShaderModule::FromFile(GetResDirectory() / shaderPath / "blur.fs.glsl", GL_FRAGMENT_SHADER);
 		
-		return ShaderProgram({ &vs, &fs });
+		ShaderProgram program({ &vs, &fs });
+		program.SetTextureBinding("shadowMap", 0);
+		return program;
 	}
 	
 	ShadowRenderer::ShadowRenderer()

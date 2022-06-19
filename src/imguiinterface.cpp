@@ -4,17 +4,13 @@
 #include "graphics/gl/texture2d.h"
 #include "graphics/gl/vertexarray.h"
 #include "utils/ioutils.h"
+#include "keyboard.h"
+#include "mouse.h"
+#include "updateinfo.h"
 
 #include <memory>
 
-#ifdef _WIN32
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW\glfw3native.h>
-#endif
-
-namespace TankGame
-{
-namespace ImGuiInterface
+namespace TankGame::ImGuiInterface
 {
 	static std::unique_ptr<Texture2D> theFontTexture;
 	static std::unique_ptr<ShaderProgram> theGuiShader;
@@ -28,53 +24,37 @@ namespace ImGuiInterface
 	static bool isMouseCaptured = false;
 	static bool isKeyboardCaptured = false;
 	
-	static float mouseWheelChange = 0.0f;
-	
 	static std::string iniFilePath;
 	
 	static void RenderDrawLists(ImDrawData* drawData);
 	
-	void Init(GLFWwindow* window)
+	void Init()
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
-		io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
-		io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
-		io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
-		io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
-		io.KeyMap[ImGuiKey_PageUp] = GLFW_KEY_PAGE_UP;
-		io.KeyMap[ImGuiKey_PageDown] = GLFW_KEY_PAGE_DOWN;
-		io.KeyMap[ImGuiKey_Home] = GLFW_KEY_HOME;
-		io.KeyMap[ImGuiKey_End] = GLFW_KEY_END;
-		io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_DELETE;
-		io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
-		io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
-		io.KeyMap[ImGuiKey_Escape] = GLFW_KEY_ESCAPE;
-		io.KeyMap[ImGuiKey_A] = GLFW_KEY_A;
-		io.KeyMap[ImGuiKey_C] = GLFW_KEY_C;
-		io.KeyMap[ImGuiKey_V] = GLFW_KEY_V;
-		io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
-		io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
-		io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
+		io.KeyMap[ImGuiKey_Tab]        = (int)Key::Tab;
+		io.KeyMap[ImGuiKey_LeftArrow]  = (int)Key::ArrowLeft;
+		io.KeyMap[ImGuiKey_RightArrow] = (int)Key::ArrowRight;
+		io.KeyMap[ImGuiKey_UpArrow]    = (int)Key::ArrowUp;
+		io.KeyMap[ImGuiKey_DownArrow]  = (int)Key::ArrowDown;
+		io.KeyMap[ImGuiKey_PageUp]     = (int)Key::PageUp;
+		io.KeyMap[ImGuiKey_PageDown]   = (int)Key::PageDown;
+		io.KeyMap[ImGuiKey_Home]       = (int)Key::Home;
+		io.KeyMap[ImGuiKey_End]        = (int)Key::End;
+		io.KeyMap[ImGuiKey_Delete]     = (int)Key::Delete;
+		io.KeyMap[ImGuiKey_Backspace]  = (int)Key::Backspace;
+		io.KeyMap[ImGuiKey_Enter]      = (int)Key::Enter;
+		io.KeyMap[ImGuiKey_Escape]     = (int)Key::Escape;
+		io.KeyMap[ImGuiKey_A]          = (int)Key::A;
+		io.KeyMap[ImGuiKey_C]          = (int)Key::C;
+		io.KeyMap[ImGuiKey_V]          = (int)Key::V;
+		io.KeyMap[ImGuiKey_X]          = (int)Key::X;
+		io.KeyMap[ImGuiKey_Y]          = (int)Key::Y;
+		io.KeyMap[ImGuiKey_Z]          = (int)Key::Z;
 		
 		io.RenderDrawListsFn = RenderDrawLists;
 		
 		iniFilePath = (GetDataDirectory() / "imgui.ini").string();
 		io.IniFilename = iniFilePath.c_str();
-		
-		io.SetClipboardTextFn = [] (void* data, const char* text)
-		{
-			glfwSetClipboardString(reinterpret_cast<GLFWwindow*>(data), text);
-		};
-		io.GetClipboardTextFn = [] (void* data)
-		{
-			return glfwGetClipboardString(reinterpret_cast<GLFWwindow*>(data));
-		};
-		io.ClipboardUserData = window;
-		
-#ifdef _WIN32
-		io.ImeWindowHandle = glfwGetWin32Window(window);
-#endif
 	}
 	
 	static void CreateFontsTexture()
@@ -208,11 +188,11 @@ namespace ImGuiInterface
 		glViewport(oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);
 	}
 	
-	void NewFrame(GLFWwindow* window, float dt)
+	void NewFrame(const UpdateInfo& updateInfo, float dt)
 	{
-		if (theGuiShader== nullptr)
+		if (theGuiShader == nullptr)
 			CreateDeviceObjects();
-		if (theFontTexture== nullptr)
+		if (theFontTexture == nullptr)
 			CreateFontsTexture();
 		
 		ImGuiIO& io = ImGui::GetIO();
@@ -222,21 +202,15 @@ namespace ImGuiInterface
 		
 		io.DeltaTime = dt;
 		
-		int windowWidth, windowHeight;
-		int displayWidth, displayHeight;
-		glfwGetWindowSize(window, &windowWidth, &windowHeight);
-		glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
+		io.DisplaySize.x = static_cast<float>(updateInfo.m_windowWidth);
+		io.DisplaySize.y = static_cast<float>(updateInfo.m_windowHeight);
+		io.DisplayFramebufferScale.x = 1;
+		io.DisplayFramebufferScale.y = 1;
 		
-		io.DisplaySize = { static_cast<float>(windowWidth), static_cast<float>(windowHeight) };
-		io.DisplayFramebufferScale.x = windowWidth > 0 ? (static_cast<float>(displayWidth) / windowWidth) : 0;
-		io.DisplayFramebufferScale.y = windowHeight > 0 ? (static_cast<float>(displayHeight) / windowHeight) : 0;
-		
-		if (glfwGetWindowAttrib(window, GLFW_FOCUSED))
+		if (updateInfo.m_windowHasFocus)
 		{
-			double mouseX, mouseY;
-			glfwGetCursorPos(window, &mouseX, &mouseY);
-			
-			io.MousePos = { static_cast<float>(mouseX), static_cast<float>(mouseY) };
+			io.MousePos.x = updateInfo.m_mouse.pos.x;
+			io.MousePos.y = updateInfo.m_windowHeight - updateInfo.m_mouse.pos.y;
 		}
 		else
 		{
@@ -245,38 +219,21 @@ namespace ImGuiInterface
 		
 		for (int i = 0; i < 3; i++)
 		{
-			io.MouseDown[i] = glfwGetMouseButton(window, i) != 0;
+			io.MouseDown[i] = updateInfo.m_mouse.m_buttonState & (1 << i);
 		}
 		
-		io.MouseWheel = mouseWheelChange;
-		mouseWheelChange = 0.0f;
+		io.MouseWheel = updateInfo.m_mouse.GetDeltaScroll();
 		
-		glfwSetInputMode(window, GLFW_CURSOR, io.MouseDrawCursor ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL);
+		for (int key = 0; key <= MAX_KEY_ID; key++)
+			io.KeysDown[key] = updateInfo.m_keyboard.IsDown((Key)key, true);
+		io.KeyCtrl  = updateInfo.m_keyboard.IsAnyDown(KEY_MASK_CONTROL, true);
+		io.KeyShift = updateInfo.m_keyboard.IsAnyDown(KEY_MASK_SHIFT, true);
+		io.KeyAlt   = updateInfo.m_keyboard.IsAnyDown(KEY_MASK_ALT, true);
+		io.KeySuper = updateInfo.m_keyboard.IsAnyDown(KEY_MASK_SUPER, true);
+		
+		//glfwSetInputMode(window, GLFW_CURSOR, io.MouseDrawCursor ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL);
 		
 		ImGui::NewFrame();
-	}
-	
-	void HandleKeyEvent(int key, int action)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		io.KeysDown[key] = action == GLFW_PRESS;
-		
-		io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
-		io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
-		io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
-		io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
-	}
-	
-	void HandleCharEvent(unsigned int c)
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		if (c > 0 && c < 0x10000)
-			io.AddInputCharacter(static_cast<unsigned short>(c));
-	}
-	
-	void HandleScrollEvent(double yOffset)
-	{
-		mouseWheelChange += static_cast<float>(yOffset);
 	}
 	
 	bool IsMouseCaptured()
@@ -288,5 +245,4 @@ namespace ImGuiInterface
 	{
 		return isKeyboardCaptured;
 	}
-}
 }

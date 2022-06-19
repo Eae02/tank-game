@@ -24,6 +24,7 @@ namespace TankGame
 		s_spriteShader.m_shader.reset(new ShaderProgram{ &vs, &fs });
 		CallOnClose([] { s_spriteShader.m_shader = nullptr; });
 		
+		s_spriteShader.m_shader->SetTextureBinding("spriteTex", 0);
 		s_spriteShader.m_sampleRectMinLocation = s_spriteShader.m_shader->GetUniformLocation("sampleRectMin");
 		s_spriteShader.m_sampleRectMaxLocation = s_spriteShader.m_shader->GetUniformLocation("sampleRectMax");
 		s_spriteShader.m_targetRectMinLocation = s_spriteShader.m_shader->GetUniformLocation("targetRectMin");
@@ -64,6 +65,7 @@ namespace TankGame
 		s_textShader.m_shader.reset(new ShaderProgram{ &vs, &fs });
 		CallOnClose([] { s_textShader.m_shader = nullptr; });
 		
+		s_textShader.m_shader->SetTextureBinding("glyph", 0);
 		s_textShader.m_offsetLocation = s_textShader.m_shader->GetUniformLocation("offset");
 		s_textShader.m_sizeLocation = s_textShader.m_shader->GetUniformLocation("size");
 		s_textShader.m_colorLocation = s_textShader.m_shader->GetUniformLocation("color");

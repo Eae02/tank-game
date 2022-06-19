@@ -1,34 +1,30 @@
-#version 420 core
+#version 330 core
 
-#include rendersettings.glh
+#include "rendersettings.glh"
 
 layout(location=0) out vec4 color_out;
 
-layout(location=0) in vec2 worldPos_in;
-layout(location=1) in vec3 texCoord_in;
-layout(location=2) in float opacity_in;
+in vec2 worldPos_v;
+in vec3 texCoord_v;
+in float opacity_v;
 
-layout(binding=0) uniform sampler2D lightingSampler;
-layout(binding=1) uniform sampler2DArray diffuseSampler;
+uniform sampler2D lightingSampler;
+uniform sampler2DArray diffuseSampler;
 
-layout(std140, binding=2) uniform EmitterSettingsUB
-{
-	float aspectRatio;
-	bool additiveBlend;
-};
+uniform int additiveBlend;
 
 void main()
 {
-	color_out = texture(diffuseSampler, texCoord_in);
+	color_out = texture(diffuseSampler, texCoord_v);
 	
-	if (additiveBlend)
+	if (additiveBlend == 1)
 	{
 		color_out.a = 0.0;
-		color_out.rgb *= opacity_in;
+		color_out.rgb *= opacity_v;
 	}
 	else
 	{
-		color_out.a *= opacity_in;
+		color_out.a *= opacity_v;
 		color_out.rgb *= color_out.a;
 	}
 	

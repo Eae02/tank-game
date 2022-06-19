@@ -17,7 +17,10 @@ namespace TankGame
 		ShaderModule fragmentShader = ShaderModule::FromFile(
 				GetResDirectory() / "shaders" / "lighting" / "composition.fs.glsl", GL_FRAGMENT_SHADER);
 		
-		return ShaderProgram({ &QuadMesh::GetVertexShader(), &fragmentShader });
+		ShaderProgram program({ &QuadMesh::GetVertexShader(), &fragmentShader });
+		program.SetTextureBinding("colorSampler", 0);
+		program.SetTextureBinding("lightAccSampler", 1);
+		return program;
 	}
 	
 	DeferredRenderer::DeferredRenderer()
@@ -25,15 +28,16 @@ namespace TankGame
 	
 	void DeferredRenderer::CreateFramebuffer(int width, int height)
 	{
-		m_resolutionScale = Settings::GetInstance().GetResolutionScale();
+		m_resolutionScale = Settings::instance.GetResolutionScale();
 		
-		double resScale = static_cast<double>(Settings::GetInstance().GetResolutionScale()) / 100.0;
+		double resScale = static_cast<double>(Settings::instance.GetResolutionScale()) / 100.0;
 		int scaledW = static_cast<double>(width) * resScale;
 		int scaledH = static_cast<double>(height) * resScale;
 		
 		m_geometryFramebuffer = std::make_unique<Framebuffer>();
 		
-		m_depthBuffer = std::make_unique<Renderbuffer>(scaledW, scaledH, GL_DEPTH_COMPONENT16);
+		m_depthBuffer = std::make_unique<Texture2D>(scaledW, scaledH, 1, GL_DEPTH_COMPONENT16);
+		m_depthBuffer->SetupMipmapping(false);
 		
 		m_colorBuffer = std::make_unique<Texture2D>(scaledW, scaledH, 1, COLOR_FORMAT);
 		m_colorBuffer->SetupMipmapping(false);
@@ -49,17 +53,21 @@ namespace TankGame
 		m_normalsAndSpecBuffer->SetMinFilter(GL_LINEAR);
 		m_normalsAndSpecBuffer->SetMagFilter(GL_LINEAR);
 		
+		glNamedFramebufferTexture(m_geometryFramebuffer->GetID(), GL_COLOR_ATTACHMENT0, m_colorBuffer->GetID(), 0);
+		glNamedFramebufferTexture(m_geometryFramebuffer->GetID(), GL_COLOR_ATTACHMENT1, m_normalsAndSpecBuffer->GetID(), 0);
+		glNamedFramebufferTexture(m_geometryFramebuffer->GetID(), GL_DEPTH_ATTACHMENT, m_depthBuffer->GetID(), 0);
+		
+		
+		m_distortionFramebuffer = std::make_unique<Framebuffer>();
+		
 		m_distortionBuffer = std::make_unique<Texture2D>(scaledW, scaledH, 1, DISTORTION_BUFFER_FORMAT);
 		m_distortionBuffer->SetupMipmapping(false);
 		m_distortionBuffer->SetWrapMode(GL_CLAMP_TO_EDGE);
 		m_distortionBuffer->SetMinFilter(GL_LINEAR);
 		m_distortionBuffer->SetMagFilter(GL_LINEAR);
 		
-		glNamedFramebufferTexture(m_geometryFramebuffer->GetID(), GL_COLOR_ATTACHMENT0, m_colorBuffer->GetID(), 0);
-		glNamedFramebufferTexture(m_geometryFramebuffer->GetID(), GL_COLOR_ATTACHMENT1, m_normalsAndSpecBuffer->GetID(), 0);
-		glNamedFramebufferTexture(m_geometryFramebuffer->GetID(), GL_COLOR_ATTACHMENT2, m_distortionBuffer->GetID(), 0);
-		
-		glNamedFramebufferRenderbuffer(m_geometryFramebuffer->GetID(), GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthBuffer->GetID());
+		glNamedFramebufferTexture(m_distortionFramebuffer->GetID(), GL_COLOR_ATTACHMENT0, m_distortionBuffer->GetID(), 0);
+		glNamedFramebufferDrawBuffer(m_distortionFramebuffer->GetID(), GL_COLOR_ATTACHMENT0);
 		
 		
 		m_lightFramebuffer = std::make_unique<Framebuffer>();
@@ -87,7 +95,7 @@ namespace TankGame
 	
 	bool DeferredRenderer::FramebufferOutOfDate() const
 	{
-		return m_resolutionScale != Settings::GetInstance().GetResolutionScale();
+		return m_resolutionScale != Settings::instance.GetResolutionScale();
 	}
 	
 	void DeferredRenderer::Draw(const IRenderer& renderer, const class ViewInfo& viewInfo) const
@@ -111,8 +119,8 @@ namespace TankGame
 		
 		renderer.DrawGeometry(viewInfo);
 		
-		glEnablei(GL_BLEND, 0);
-		glBlendFuncSeparatei(0, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+		glEnable(GL_BLEND);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 		glDepthMask(GL_FALSE);
 		
 		glNamedFramebufferDrawBuffer(m_geometryFramebuffer->GetID(), GL_COLOR_ATTACHMENT0);
@@ -120,10 +128,10 @@ namespace TankGame
 		renderer.DrawTranslucentGeometry(viewInfo);
 		
 		// ** Distortion pass **
-		glNamedFramebufferDrawBuffer(m_geometryFramebuffer->GetID(), GL_COLOR_ATTACHMENT2);
+		Framebuffer::Bind(*m_distortionFramebuffer, 0, 0, m_distortionBuffer->GetWidth(), m_distortionBuffer->GetHeight());
 		
 		//Enables additive blending for this pass and the light accumulation pass
-		glBlendFuncSeparatei(0, GL_ONE, GL_ONE, GL_ZERO, GL_ZERO);
+		glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ZERO, GL_ZERO);
 		
 		glClearBufferfv(GL_COLOR, 0, clearColor);
 		
@@ -140,7 +148,7 @@ namespace TankGame
 		
 		renderer.DrawLighting(viewInfo);
 		
-		glDisablei(GL_BLEND, 0);
+		glDisable(GL_BLEND);
 		
 		// ** Composition pass **
 		Framebuffer::Bind(*m_outputFramebuffer, 0, 0, m_outputBuffer->GetWidth(), m_outputBuffer->GetHeight());

@@ -1,11 +1,8 @@
-#version 420 core
+#version 330 core
 
-#include material.glh
+#include "material.glh"
 
-layout(std140, binding=1) uniform LightStripUB
-{
-	vec3 color;
-};
+uniform vec3 color;
 
 void main()
 {

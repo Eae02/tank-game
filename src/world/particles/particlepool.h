@@ -10,7 +10,7 @@ namespace TankGame
 	class ParticlePool
 	{
 	public:
-		ParticlePool();
+		ParticlePool() = default;
 		
 		bool SpawnParticle(const ParticleInfo& info);
 		

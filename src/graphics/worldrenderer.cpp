@@ -20,10 +20,6 @@ namespace TankGame
 		glm::vec2 centerPos = viewInfo.GetViewRectangle().Center();
 		m_renderSettings.Update(viewInfo, glm::vec3(centerPos.x, 5, centerPos.y), gameTime);
 		m_renderSettings.Bind();
-		
-		const TileGrid* tileGrid = m_gameWorld->GetTileGrid();
-		if (tileGrid != nullptr && m_gameWorld->GetTileGridMaterial() != nullptr)
-			tileGrid->PrepareForRendering(viewInfo);
 	}
 	
 	void WorldRenderer::DrawGeometry(const ViewInfo& viewInfo) const
@@ -66,7 +62,7 @@ namespace TankGame
 		const TileGridMaterial* tileGridMaterial = m_gameWorld->GetTileGridMaterial();
 		
 		if (tileGrid != nullptr && tileGridMaterial != nullptr)
-			tileGrid->Draw(*tileGridMaterial);
+			tileGrid->Draw(viewInfo, *tileGridMaterial);
 	}
 	
 	void WorldRenderer::DrawTranslucentGeometry(const ViewInfo& viewInfo) const

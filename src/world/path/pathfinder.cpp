@@ -11,7 +11,8 @@ namespace std
 	{
 		size_t operator()(const glm::ivec2& v) const
 		{
-			return (static_cast<size_t>(v.x) * 9973) + static_cast<size_t>(v.y);
+			static_assert(sizeof(size_t) == sizeof(int) * 2);
+			return ((size_t)v.x << (size_t)32) | (size_t)v.y;
 		}
 	};
 }
@@ -20,16 +21,10 @@ namespace TankGame
 {
 	struct Node
 	{
-		glm::ivec2 m_toParent;
-		bool m_closed = false;
-		
-		float m_movementCost; //The lowest cost to get to this node from the start node.
-		float m_completionCost; //An estimate of the cost to get from this node to the end node (the heuristic).
-		
-		Node() = default;
-		
-		Node(glm::ivec2 toParent, float movementCost, float completionCost)
-		    : m_toParent(toParent), m_movementCost(movementCost), m_completionCost(completionCost) { }
+		glm::ivec2 toParent;
+		bool processed = false;
+		float minCostToReach = 0;
+		float estCompletionCost = 0;
 	};
 	
 	struct NeighborNode
@@ -53,9 +48,7 @@ namespace TankGame
 	
 	static float CrossProd2D(glm::vec2 a, glm::vec2 b)
 	{
-		glm::vec2 aL(a.y, -a.x);
-		
-		return glm::dot(aL, b);
+		return a.y * b.x - a.x * b.y;
 	}
 	
 	static bool Vec2Equal(glm::vec2 a, glm::vec2 b)
@@ -63,22 +56,48 @@ namespace TankGame
 		return LengthSquared(a - b) < 1E-6f;
 	}
 	
+	static float DistanceHeuristic(glm::ivec2 a, glm::ivec2 b)
+	{
+		int dx = std::abs(a.x - b.x);
+		int dy = std::abs(a.y - b.y);
+		int diagDist = std::min(dx, dy);
+		return diagDist * M_SQRT2f + (dx - diagDist) + (dy - diagDist);
+	}
+	
+	struct NodePQCompare
+	{
+		bool operator()(const std::pair<float, glm::ivec2>& a, const std::pair<float, glm::ivec2>& b) const
+		{
+			return a.first > b.first;
+		}
+	};
+	
 	bool FindPath(const TileGrid& tileGrid, const TileGridMaterial& material, glm::vec2 start, glm::vec2 end,
 	              Path& pathOut, float radius)
 	{
 		std::unordered_map<glm::ivec2, Node> nodes;
+		std::priority_queue<std::pair<float, glm::ivec2>, std::vector<std::pair<float, glm::ivec2>>, NodePQCompare> nodesPQ;
 		
 		glm::ivec2 startTile(std::floor(start.x), std::floor(start.y));
 		glm::ivec2 endTile(std::floor(end.x), std::floor(end.y));
 		
 		//Adds the start node to the open set
-		nodes.emplace(startTile, Node(glm::ivec2(0), 0.0f, glm::distance(glm::vec2(startTile), end)));
-		
-		glm::ivec2 currentNode = startTile;
+		Node& startNodeRef = nodes.emplace(startTile, Node()).first->second;
+		startNodeRef.estCompletionCost = DistanceHeuristic(startTile, endTile);
+		nodesPQ.emplace(startNodeRef.estCompletionCost, startTile);
 		
 		//Uses A* to find a path across the grid
-		while (currentNode != endTile)
+		while (!nodesPQ.empty() && nodesPQ.top().second != endTile)
 		{
+			glm::ivec2 currentNode = nodesPQ.top().second;
+			nodesPQ.pop();
+			
+			Node& currentNodeRef = nodes.at(currentNode);
+			if (currentNodeRef.processed)
+				continue;
+			currentNodeRef.processed = true;
+			const float currentMoveCost = currentNodeRef.minCostToReach;
+			
 			//Iterates this node's neighbors
 			for (const NeighborNode& neighbor : neighborNodes)
 			{
@@ -92,49 +111,31 @@ namespace TankGame
 					continue;
 				
 				//The movement cost (G term) for this neighbor when comming from the current node.
-				float movementCost = nodes.at(currentNode).m_movementCost + neighbor.m_distance;
+				float movementCost = currentMoveCost + neighbor.m_distance;
 				
-				auto it = nodes.find(neighborPos);
+				auto [it, inserted] = nodes.emplace(neighborPos, Node());
 				
-				if (it == nodes.end())
+				if (inserted)
 				{
-					nodes.emplace(neighborPos, Node(neighbor.m_toParent, movementCost,
-					                                glm::distance(glm::vec2(neighborPos), end)));
+					it->second.estCompletionCost = DistanceHeuristic(neighborPos, endTile);
 				}
-				else if (movementCost < it->second.m_movementCost)
-				{
-					it->second.m_movementCost = movementCost;
-					it->second.m_toParent = neighbor.m_toParent;
-				}
-			}
-			
-			nodes.at(currentNode).m_closed = true;
-			
-			//Searches for the node with the lowest cost and makes it the new current node.
-			float lowestCost = std::numeric_limits<float>::quiet_NaN();
-			for (const std::pair<glm::ivec2, Node>& node : nodes)
-			{
-				if (node.second.m_closed)
-					continue;
 				
-				float cost = node.second.m_movementCost + node.second.m_completionCost;
-				
-				if (std::isnan(lowestCost) || cost < lowestCost)
+				if (inserted || movementCost < it->second.minCostToReach)
 				{
-					lowestCost = cost;
-					currentNode = node.first;
+					it->second.minCostToReach = movementCost;
+					it->second.toParent = neighbor.m_toParent;
+					nodesPQ.emplace(startNodeRef.estCompletionCost + movementCost, neighborPos);
 				}
 			}
-			
-			if (std::isnan(lowestCost))
-				return false;
 		}
+		if (nodesPQ.empty())
+			return false;
 		
 		int numPortals = 0;
 		
 		//Reconstructs the path back
 		lastPath.clear();
-		for (glm::ivec2 node = currentNode; node != startTile; node += nodes[node].m_toParent)
+		for (glm::ivec2 node = endTile; node != startTile; node += nodes[node].toParent)
 		{
 			numPortals++;
 			lastPath.push_back(node);
@@ -149,11 +150,10 @@ namespace TankGame
 		
 		std::vector<Portal> portals(numPortals + 1);
 		
-		currentNode = endTile;
 		long i = numPortals - 1;
 		for (glm::ivec2 nodePos = endTile; nodePos != startTile;)
 		{
-			glm::ivec2 toParent = nodes[nodePos].m_toParent;
+			glm::ivec2 toParent = nodes[nodePos].toParent;
 			
 			glm::vec2 centerPortal = glm::vec2(nodePos) + glm::vec2(0.5f) + glm::vec2(toParent) * 0.5f;
 			glm::ivec2 portalL(toParent.y, -toParent.x);

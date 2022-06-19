@@ -17,7 +17,7 @@ namespace TankGame
 	
 	void PauseMenu::Update(const UpdateInfo& updateInfo)
 	{
-		if (updateInfo.m_keyboard.IsKeyDown(GLFW_KEY_ESCAPE) && !updateInfo.m_keyboard.WasKeyDown(GLFW_KEY_ESCAPE))
+		if (updateInfo.m_keyboard.IsDown(Key::Escape) && !updateInfo.m_keyboard.WasDown(Key::Escape))
 		{
 			m_shown = !m_shown;
 			

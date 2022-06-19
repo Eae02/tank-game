@@ -3,9 +3,8 @@
 #include "utils/filesystem.h"
 
 #include <glm/glm.hpp>
-#include <GLFW/glfw3.h>
 #include <vector>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 namespace TankGame
 {
@@ -39,15 +38,10 @@ namespace TankGame
 	class Settings
 	{
 	public:
-		Settings();
-		explicit Settings(const fs::path& jsonPath);
+		Settings() = default;
 		
+		void Load(const fs::path& jsonPath, const struct VideoModes& videoModes);
 		void Save(const fs::path& jsonPath) const;
-		
-		inline glm::ivec2 GetResolution() const
-		{ return m_resolution; }
-		inline void SetResolution(glm::ivec2 resolution)
-		{ m_resolution = resolution; }
 		
 		inline bool IsFullscreen() const
 		{ return m_isFullscreen; }
@@ -59,25 +53,16 @@ namespace TankGame
 		inline void SetEnableVSync(bool enableVSync)
 		{ m_enableVSync = enableVSync; }
 		
-		inline int GetVideoModeIndex() const
-		{ return m_videoModeIndex; }
-		inline void SetVideoModeIndex(int videoModeIndex)
-		{ m_videoModeIndex = videoModeIndex; }
+		inline int GetResolutionIndex() const
+		{ return m_resolutionIndex; }
+		inline const glm::ivec2& GetFullscreenResolution() const
+		{ return m_resolution; }
 		
-		static inline void SetInstance(Settings settings)
-		{ s_instance = std::move(settings); }
-		static inline Settings& GetInstance()
-		{ return s_instance; }
-		
-		static void DetectVideoModes();
-		
-		static inline int GetResolutionsCount()
-		{ return s_resolutions.size(); }
-		static inline glm::ivec2 GetResolution(int n)
-		{ return s_resolutions[n]; }
-		
-		static inline int GetDefaultResolutionIndex()
-		{ return s_defaultResolutionIndex; }
+		inline void SetResolution(int resolutionIndex, const glm::ivec2& resolution)
+		{
+			m_resolutionIndex = resolutionIndex;
+			m_resolution = resolution;
+		}
 		
 		inline float GetGamma() const
 		{ return m_gamma; }
@@ -102,32 +87,6 @@ namespace TankGame
 		{ m_musicVolume = musicVolume; }
 		inline void SetSFXVolume(float sfxVolume)
 		{ m_sfxVolume = sfxVolume; }
-		
-		inline int GetForwardButton() const
-		{ return m_forwardButton; }
-		inline int GetBackButton() const
-		{ return m_backButton; }
-		inline int GetLeftButton() const
-		{ return m_leftButton; }
-		inline int GetRightButton() const
-		{ return m_rightButton; }
-		inline int GetInteractButton() const
-		{ return m_interactButton; }
-		inline int GetFireButton() const
-		{ return m_fireButton; }
-		
-		inline void SetForwardButton(int button)
-		{ m_forwardButton = button; }
-		inline void SetBackButton(int button)
-		{ m_backButton = button; }
-		inline void SetLeftButton(int button)
-		{ m_leftButton = button; }
-		inline void SetRightButton(int button)
-		{ m_rightButton = button; }
-		inline void SetInteractButton(int button)
-		{ m_interactButton = button; }
-		inline void SetFireButton(int button)
-		{ m_fireButton = button; }
 		
 		inline ResolutionScales GetResolutionScale() const
 		{ return m_resolutionScale; }
@@ -162,37 +121,22 @@ namespace TankGame
 		inline const std::string& GetLastPlayedLevelName() const
 		{ return m_lastPlayedLevelName; }
 		
-	private:
-		static void MaybeParseButtonFromJSON(const nlohmann::json& json, const std::string& elementName, int& out);
-		static int ParseButtonString(const std::string& string);
-		static std::string GetButtonString(int button);
+		static Settings instance;
 		
+	private:
 		static QualitySettings ParseQualityString(const std::string& string, QualitySettings def);
 		static std::string GetQualityString(QualitySettings quality);
-		
-		static Settings s_instance;
-		
-		static std::vector<glm::ivec2> s_resolutions;
-		static int s_defaultResolutionIndex;
-		
-		int m_videoModeIndex;
 		
 		float m_gamma = 1.0f;
 		
 		bool m_queueFrames = false;
 		
-		int m_forwardButton = GLFW_KEY_W;
-		int m_backButton = GLFW_KEY_S;
-		int m_leftButton = GLFW_KEY_A;
-		int m_rightButton = GLFW_KEY_D;
-		int m_interactButton = GLFW_KEY_E;
-		int m_fireButton = GLFW_MOUSE_BUTTON_1;
-		
 		float m_masterVolume = 1;
 		float m_musicVolume = 1;
 		float m_sfxVolume = 1;
 		
-		glm::ivec2 m_resolution{ 800, 500 };
+		int m_resolutionIndex = -1;
+		glm::ivec2 m_resolution{ -1, -1 };
 		bool m_isFullscreen = true;
 		
 		bool m_enableVSync = true;

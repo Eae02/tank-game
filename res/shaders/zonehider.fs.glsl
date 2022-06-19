@@ -1,8 +1,8 @@
-#version 420 core
+#version 330 core
 
-#include material.glh
+#include "material.glh"
 
 void main()
 {
-	writeMaterialOutputs(vec4(0, 0, 0, 1), vec2(0), 0, 0);
+	writeMaterialOutputs(vec4(0.0, 0.0, 0.0, 1.0), vec3(0.0), 0.0, 0.0);
 }

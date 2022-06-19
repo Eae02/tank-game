@@ -18,8 +18,7 @@ namespace TankGame
 	TileGrid::TileGrid(int width, int height)
 	    : m_width(width), m_height(height),
 	      m_gridData(width * height, 0), m_rotationData(width * height, glm::vec2(1, 0)),
-	      m_idsTexture(width, height, 1, GL_R8UI), m_rotationsTexture(width, height, 1, GL_RG32F),
-	      m_renderAreaBuffer(BufferAllocator::GetInstance().AllocateUnique(4 * sizeof(int32_t), GL_MAP_WRITE_BIT))
+	      m_idsTexture(width, height, 1, GL_R8UI), m_rotationsTexture(width, height, 1, GL_RG32F)
 	{
 		m_idsTexture.SetMinFilter(GL_NEAREST);
 		m_idsTexture.SetMagFilter(GL_NEAREST);
@@ -51,7 +50,7 @@ namespace TankGame
 		return m_gridData[pos.x + pos.y * m_width];
 	}
 	
-	void TileGrid::PrepareForRendering(const class ViewInfo& viewInfo) const
+	void TileGrid::Draw(const ViewInfo& viewInfo, const TileGridMaterial& material) const
 	{
 		glm::ivec2 minTile = {
 			glm::clamp<int>(static_cast<int>(std::floor(viewInfo.GetViewRectangle().x)), 0, m_width),
@@ -63,33 +62,18 @@ namespace TankGame
 			glm::clamp<int>(static_cast<int>(std::ceil(viewInfo.GetViewRectangle().FarY())), 0, m_height),
 		};
 		
-		m_renderSize = maxTile - minTile;
-		if (m_renderSize.x == 0 || m_renderSize.y == 0)
+		glm::ivec2 renderSize = maxTile - minTile;
+		if (renderSize.x == 0 || renderSize.y == 0)
 			return;
 		
-		int32_t* renderAreaBufferMemory = reinterpret_cast<int32_t*>(glMapNamedBufferRange(*m_renderAreaBuffer, 0,
-				sizeof(int32_t) * 4, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT));
-		
-		renderAreaBufferMemory[0] = minTile.x;
-		renderAreaBufferMemory[1] = minTile.y;
-		renderAreaBufferMemory[2] = m_renderSize.x;
-		renderAreaBufferMemory[3] = m_renderSize.y;
-		
-		glUnmapNamedBuffer(*m_renderAreaBuffer);
-	}
-	
-	void TileGrid::Draw(const TileGridMaterial& material) const
-	{
 		QuadMesh::GetInstance().GetVAO().Bind();
 		
 		m_idsTexture.Bind(0);
 		m_rotationsTexture.Bind(1);
 		
-		glBindBufferBase(GL_UNIFORM_BUFFER, 1, *m_renderAreaBuffer);
+		material.Bind(minTile, maxTile);
 		
-		material.Bind();
-		
-		glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, m_renderSize.x * m_renderSize.y);
+		glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, renderSize.x * renderSize.y);
 	}
 	
 	void TileGrid::UploadGridData(int x, int y, int width, int height)
