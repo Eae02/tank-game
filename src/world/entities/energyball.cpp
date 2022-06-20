@@ -8,6 +8,7 @@
 #include "../../updateinfo.h"
 #include "../../graphics/spriterenderlist.h"
 #include "../../utils/ioutils.h"
+#include "../../utils/random.h"
 #include "../../utils/mathutils.h"
 
 #include <glm/gtc/constants.hpp>
@@ -91,7 +92,7 @@ namespace TankGame
 			explosionEntity->GetTransform().SetPosition(GetTransform().GetPosition());
 			GetGameWorld()->Spawn(std::move(explosionEntity));
 			
-			hitEntity->SetHp(hitEntity->GetHp() - m_damage * damageMulDist(randomGen));
+			hitEntity->SetHp(hitEntity->GetHp() - m_damage * damageMulDist(globalRNG));
 			Despawn();
 		}
 	}

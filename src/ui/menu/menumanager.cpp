@@ -1,5 +1,6 @@
 #include "menumanager.h"
 #include "../../world/serialization/deserializeworld.h"
+#include "../../utils/random.h"
 #include "../../utils/ioutils.h"
 #include "../../utils/jsonparseutils.h"
 #include "../../level.h"
@@ -9,7 +10,6 @@
 
 #include <fstream>
 #include <random>
-#include <chrono>
 #include <algorithm>
 #include <glm/gtc/constants.hpp>
 
@@ -79,13 +79,12 @@ namespace TankGame
 	      m_focusPosition(ParseVec2(element["position"])),
 	      m_requiredProgress(element["requiredProgress"]) { }
 	
-	static std::mt19937 rotationGen(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
 	static std::uniform_real_distribution<float> rotationDist(-glm::pi<float>(), glm::pi<float>());
 	
 	void MenuManager::ShowMainMenu()
 	{
 		if (!m_visible)
-			m_rotation = rotationDist(rotationGen);
+			m_rotation = rotationDist(globalRNG);
 		
 		SetCurrentMenu(MenuScreens::MainMenu);
 		m_visible = true;

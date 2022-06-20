@@ -3,6 +3,7 @@
 #include "../gameworld.h"
 #include "../../updateinfo.h"
 #include "../../utils/utils.h"
+#include "../../utils/random.h"
 #include "../../utils/ioutils.h"
 #include "../../audio/soundeffectplayer.h"
 #include "../../graphics/gl/shadermodule.h"
@@ -102,9 +103,9 @@ namespace TankGame
 		std::uniform_real_distribution<float> decalSizeDist(0.8f, 1.2f);
 		std::uniform_real_distribution<float> decalRotDist(0.0f, glm::two_pi<float>());
 		
-		auto decal = std::make_unique<PropEntity>("ExplosionDecal", decalSizeDist(randomGen));
+		auto decal = std::make_unique<PropEntity>("ExplosionDecal", decalSizeDist(globalRNG));
 		decal->GetTransform().SetPosition(GetTransform().GetPosition());
-		decal->GetTransform().SetRotation(decalRotDist(randomGen));
+		decal->GetTransform().SetRotation(decalRotDist(globalRNG));
 		decal->SetZ(0.8f);
 		gameWorld.Spawn(std::move(decal));
 		

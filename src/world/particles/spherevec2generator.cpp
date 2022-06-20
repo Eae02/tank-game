@@ -12,7 +12,7 @@ namespace TankGame
 	SphereVec2Generator::SphereVec2Generator(float angleMin, float angleMax, float radiusMin, float radiusMax)
 	    : m_angleDistribution(angleMin, angleMax), m_radiusDistribution(radiusMin, radiusMax) { }
 	
-	glm::vec2 SphereVec2Generator::GenerateVec2(std::mt19937& random, float subframeInterpolation) const
+	glm::vec2 SphereVec2Generator::GenerateVec2(RNG& random, float subframeInterpolation) const
 	{
 		float theta = m_angleDistribution(random);
 		float radius = m_radiusDistribution(random);

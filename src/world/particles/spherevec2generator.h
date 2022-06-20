@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ivec2generator.h"
+#include <random>
 
 namespace TankGame
 {
@@ -10,7 +11,7 @@ namespace TankGame
 		SphereVec2Generator();
 		SphereVec2Generator(float angleMin, float angleMax, float radiusMin, float radiusMax);
 		
-		virtual glm::vec2 GenerateVec2(std::mt19937& random, float subframeInterpolation) const override;
+		virtual glm::vec2 GenerateVec2(RNG& random, float subframeInterpolation) const override;
 		
 		inline void SetAngleDistribution(float min, float max)
 		{ m_angleDistribution = std::uniform_real_distribution<float>(min, max); }

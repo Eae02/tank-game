@@ -6,7 +6,7 @@
 #include "../../gameworld.h"
 #include "../../../updateinfo.h"
 #include "../../../utils/mathutils.h"
-#include "../../../utils/utils.h"
+#include "../../../utils/random.h"
 
 #include <random>
 #include <glm/gtc/constants.hpp>
@@ -15,7 +15,7 @@ namespace TankGame
 {
 	ProjectileEntity::ProjectileEntity(int teamID, const Entity* sourceEntity, float speed, float damage, float damageStandardDist)
 	    : m_teamID(teamID), m_sourceEntity(sourceEntity), m_speed(speed),
-	      m_damage(std::normal_distribution<float>(damage, damageStandardDist)(randomGen)) { }
+	      m_damage(std::normal_distribution<float>(damage, damageStandardDist)(globalRNG)) { }
 	
 	bool ProjectileEntity::ShouldDeflect(const class DeflectionFieldEntity& deflectionField) const
 	{

@@ -1,5 +1,5 @@
 #include "ambienceplayer.h"
-#include "../utils/utils.h"
+#include "../utils/random.h"
 #include "../settings.h"
 
 namespace TankGame
@@ -39,7 +39,7 @@ namespace TankGame
 		
 		if (!m_source.IsPlaying())
 		{
-			m_currentTrack = m_trackDistribution(randomGen);
+			m_currentTrack = m_trackDistribution(globalRNG);
 			
 			m_source.SetBuffer(m_tracks[m_currentTrack]);
 			m_source.Play();

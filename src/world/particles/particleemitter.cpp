@@ -6,7 +6,7 @@
 
 namespace TankGame
 {
-	std::mt19937 ParticleEmitter::s_random;
+	IVec2Generator::RNG ParticleEmitter::s_random;
 	
 	ParticleEmitter::ParticleEmitter(ParticlesManager& particlesManager)
 	    : m_particlesManager(particlesManager)

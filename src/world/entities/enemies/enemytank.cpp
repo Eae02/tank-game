@@ -8,7 +8,7 @@
 #include "../../../lua/luavm.h"
 #include "../../../tanktextures.h"
 #include "../../../updateinfo.h"
-#include "../../../utils/utils.h"
+#include "../../../utils/random.h"
 #include "../../../utils/ioutils.h"
 #include "../../../graphics/spritematerial.h"
 
@@ -124,7 +124,7 @@ namespace TankGame
 		if (gameWorld.GetWorldType() != GameWorld::Types::Editor)
 		{
 			std::uniform_real_distribution<float> idlePathProgressDist(0.0f, m_ai.GetIdlePath().GetTotalLength());
-			float idlePathProgress = idlePathProgressDist(randomGen);
+			float idlePathProgress = idlePathProgressDist(globalRNG);
 			
 			m_ai.SetIdlePathProgress(idlePathProgress);
 			

@@ -1,7 +1,7 @@
 #include "hppickupentity.h"
 #include "../playerentity.h"
 #include "../../gameworld.h"
-#include "../../../utils/utils.h"
+#include "../../../utils/random.h"
 #include "../../../audio/soundeffectplayer.h"
 
 namespace TankGame
@@ -27,16 +27,16 @@ namespace TankGame
 	
 	void HpPickupEntity::SpawnEntities(GameWorld& gameWorld, glm::vec2 position, float totalHeal)
 	{
-		int numberToSpawn = amountDist(randomGen);
+		int numberToSpawn = amountDist(globalRNG);
 		float avgHealPerEntity = totalHeal / numberToSpawn;
 		
 		for (int i = 0; i < numberToSpawn; i++)
 		{
-			float healAmount = avgHealPerEntity * healAmountDist(randomGen);
+			float healAmount = avgHealPerEntity * healAmountDist(globalRNG);
 			std::unique_ptr<HpPickupEntity> entity = std::make_unique<HpPickupEntity>(healAmount);
 			
-			float angle = angleDist(randomGen);
-			float mag = magnitudeDist(randomGen);
+			float angle = angleDist(globalRNG);
+			float mag = magnitudeDist(globalRNG);
 			
 			entity->GetTransform().SetPosition(position);
 			entity->SetVelocity({ mag * std::cos(angle), mag * std::sin(angle) });

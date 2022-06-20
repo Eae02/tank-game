@@ -8,8 +8,6 @@
 
 namespace TankGame
 {
-	std::mt19937 randomGen;
-	
 	std::vector<void(*)()> onCloseCallbacks;
 	
 	std::stringstream logStream;

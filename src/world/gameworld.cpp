@@ -11,7 +11,7 @@
 #include "../graphics/tilegridmaterial.h"
 #include "../updateinfo.h"
 #include "../utils/mathutils.h"
-#include "../utils/utils.h"
+#include "../utils/random.h"
 #include "../progress.h"
 #include "../gamemanager.h"
 #include "../platform/common.h"
@@ -94,8 +94,8 @@ namespace TankGame
 			float maxShakeMag = m_cameraShakeMagnitude * cameraShakeTime;
 			std::uniform_real_distribution<float> dist(-maxShakeMag, maxShakeMag);
 			
-			focus.x += dist(randomGen);
-			focus.y += dist(randomGen);
+			focus.x += dist(globalRNG);
+			focus.y += dist(globalRNG);
 		}
 		
 		return ViewInfo(focus, m_cameraRotation + glm::pi<float>(), m_viewWidth, aspectRatio);

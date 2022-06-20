@@ -1,5 +1,5 @@
 #include "noisetexture.h"
-#include "../utils/utils.h"
+#include "../utils/random.h"
 
 #include <vector>
 #include <random>
@@ -13,7 +13,7 @@ namespace TankGame
 		
 		std::vector<float> noise(size);
 		for (int i = 0; i < size; i++)
-			noise[i] = noiseDist(randomGen);
+			noise[i] = noiseDist(globalRNG);
 		
 		glTextureSubImage2D(GetID(), 0, 0, 0, size, 1, GL_RED, GL_FLOAT, noise.data());
 		

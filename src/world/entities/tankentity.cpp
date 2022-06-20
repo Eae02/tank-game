@@ -8,7 +8,7 @@
 #include "../../audio/soundsmanager.h"
 #include "../../graphics/spriterenderlist.h"
 #include "../../updateinfo.h"
-#include "../../utils/utils.h"
+#include "../../utils/random.h"
 #include "../../utils/mathutils.h"
 #include "../../lua/luavm.h"
 
@@ -107,7 +107,7 @@ namespace TankGame
 		Fire(std::move(projectile), gameTime, params.m_rotationOffset);
 		
 		m_audioSource.SetBuffer(SoundsManager::GetInstance().GetSound("PlasmaGun"));
-		m_audioSource.SetPitch(pitchDist(randomGen));
+		m_audioSource.SetPitch(pitchDist(globalRNG));
 		m_audioSource.Play();
 		
 		m_fireCooldown = 0.25f;

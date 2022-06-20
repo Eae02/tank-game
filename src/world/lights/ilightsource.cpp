@@ -1,6 +1,7 @@
 #include "ilightsource.h"
 #include "../../utils/ioutils.h"
 #include "../../utils/utils.h"
+#include "../../utils/random.h"
 #include "../../graphics/gl/shadermodule.h"
 
 #include <memory>
@@ -49,6 +50,6 @@ namespace TankGame
 	
 	float ILightSource::GenerateFlickerOffset()
 	{
-		return flickerOffsetGen(randomGen);
+		return flickerOffsetGen(globalRNG);
 	}
 }

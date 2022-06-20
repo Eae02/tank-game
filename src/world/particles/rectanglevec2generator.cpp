@@ -5,7 +5,7 @@
 
 namespace TankGame
 {
-	glm::vec2 RectangleVec2Generator::GenerateVec2(std::mt19937& random, float subframeInterpolation) const
+	glm::vec2 RectangleVec2Generator::GenerateVec2(RNG& random, float subframeInterpolation) const
 	{
 		glm::vec2 relativeVector(m_xDistribution(random), m_yDistribution(random));
 		

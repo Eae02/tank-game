@@ -70,11 +70,11 @@ namespace TankGame
 		virtual glm::vec2 GeneratePosition(float subframeInterpolation) const = 0;
 		virtual glm::vec2 GenerateVelocity(float subframeInterpolation) const { return glm::vec2(0.0f); }
 		
-		static inline std::mt19937& GetRandom()
+		static inline IVec2Generator::RNG& GetRandom()
 		{ return s_random; } 
 		
 	private:
-		static std::mt19937 s_random;
+		static IVec2Generator::RNG s_random;
 		
 		ParticleInfo GetParticleInfo(float subframeInterpolation);
 		

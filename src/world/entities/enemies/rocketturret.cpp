@@ -7,7 +7,7 @@
 #include "../../props/propsmanager.h"
 #include "../../spteams.h"
 #include "../../gameworld.h"
-#include "../../../utils/utils.h"
+#include "../../../utils/random.h"
 #include "../../../utils/mathutils.h"
 #include "../../../utils/ioutils.h"
 #include "../../../updateinfo.h"
@@ -100,7 +100,7 @@ namespace TankGame
 				SetColor(SCAN_COLOR);
 				
 				auto rocket = std::make_unique<RocketEntity>(GetGameWorld()->GetParticlesManager(), NeutralTeamID,
-				                                             this, rocketDamageDist(randomGen));
+				                                             this, rocketDamageDist(globalRNG));
 				
 				rocket->GetTransform().SetPosition(GetTransform().GetPosition());
 				rocket->GetTransform().SetRotation(GetTransform().GetRotation());
@@ -196,7 +196,7 @@ namespace TankGame
 	void RocketTurret::OnSpawned(GameWorld& gameWorld)
 	{
 		m_baseRotation = GetTransform().GetRotation();
-		GetTransform().Rotate(std::uniform_real_distribution<float>(m_minRotationAngle, m_maxRotationAngle)(randomGen));
+		GetTransform().Rotate(std::uniform_real_distribution<float>(m_minRotationAngle, m_maxRotationAngle)(globalRNG));
 		
 		m_playerEntity = dynamic_cast<const PlayerEntity*>(gameWorld.GetEntityByName("player"));
 		

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ivec2generator.h"
+#include <random>
 
 namespace TankGame
 {
@@ -10,7 +11,7 @@ namespace TankGame
 		RectangleVec2Generator(glm::vec2 min, glm::vec2 max)
 		    : m_xDistribution(min.x, max.x), m_yDistribution(min.y, max.y) { }
 		
-		virtual glm::vec2 GenerateVec2(std::mt19937& random, float subframeInterpolation) const override;
+		virtual glm::vec2 GenerateVec2(RNG& random, float subframeInterpolation) const override;
 		
 		void SetRelativeTransformProvider(const class ITransformationProvider* transformProvider, bool offset = true);
 		

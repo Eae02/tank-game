@@ -1,8 +1,10 @@
 ﻿#pragma once
 
 #include <cstddef>
+#include <vector>
+#include <string>
+#include <iosfwd>
 #include <glm/glm.hpp>
-#include <random>
 
 #ifdef _WIN32
 #define strcasecmp _stricmp
@@ -10,8 +12,6 @@
 
 namespace TankGame
 {
-	extern std::mt19937 randomGen;
-	
 	template <typename T, size_t I>
 	inline constexpr size_t ArrayLength(T (& array)[I])
 	{

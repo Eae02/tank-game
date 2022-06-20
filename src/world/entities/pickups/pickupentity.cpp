@@ -3,7 +3,7 @@
 #include "../../icollidable.h"
 #include "../../gameworld.h"
 #include "../../../utils/mathutils.h"
-#include "../../../utils/utils.h"
+#include "../../../utils/random.h"
 #include "../../../updateinfo.h"
 #include "../../../graphics/spriterenderlist.h"
 
@@ -22,7 +22,7 @@ namespace TankGame
 	    : PointLightEntity(glowColor, INTENSITY, Attenuation(0, 2), 0.1f), PropEntity(propClassName)
 	{
 		GetTransform().SetScale(glm::vec2(0.25f));
-		GetTransform().SetRotation(rotationDist(randomGen));
+		GetTransform().SetRotation(rotationDist(globalRNG));
 		SetZ(0.7f);
 	}
 	

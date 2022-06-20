@@ -14,6 +14,7 @@
 #include "../../mouse.h"
 #include "../../utils/mathutils.h"
 #include "../../utils/utils.h"
+#include "../../utils/random.h"
 #include "../../utils/ioutils.h"
 #include "../../gamemanager.h"
 #include "../../lua/luavm.h"
@@ -266,7 +267,7 @@ namespace TankGame
 		
 		if (m_weaponState.IsUsingPlasmaGun())
 		{
-			float fireCost = s_energyUsageDist(randomGen);
+			float fireCost = s_energyUsageDist(globalRNG);
 			bool hasEnoughEnergy = true;
 			
 			if (fireCost > m_energy)
@@ -279,7 +280,7 @@ namespace TankGame
 			
 			if (hasEnoughEnergy)
 			{
-				fireParams.m_rotationOffset = m_dist(randomGen) * glm::length(m_velocity) * 0.03f;
+				fireParams.m_rotationOffset = m_dist(globalRNG) * glm::length(m_velocity) * 0.03f;
 				
 				FirePlasmaGun(ParseColorHexCodeSRGB(0x50FF4A), 10, gameTime, fireParams);
 				
@@ -380,6 +381,6 @@ namespace TankGame
 	void PlayerEntity::GiveEnergy()
 	{
 		std::uniform_real_distribution<float> dist(30.0f, 50.0f);
-		m_energy = glm::min(m_energy + dist(randomGen), MAX_ENERGY);
+		m_energy = glm::min(m_energy + dist(globalRNG), MAX_ENERGY);
 	}
 }

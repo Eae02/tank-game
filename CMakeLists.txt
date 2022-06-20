@@ -63,6 +63,7 @@ include_directories(SYSTEM
 	${TankGame_SOURCE_DIR}/inc
 	${TankGame_SOURCE_DIR}/deps/imgui
 	${TankGame_SOURCE_DIR}/deps/stb
+	${TankGame_SOURCE_DIR}/deps/pcg/include
 )
 
 add_executable(tankgame
