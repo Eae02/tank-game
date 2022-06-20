@@ -56,7 +56,7 @@ namespace TankGame
 			ImGui::InputText("##search", m_searchBuffer.data(), m_searchBuffer.size());
 			
 			//Sets focus to the search box by default
-			if (ImGui::IsItemHovered() || (ImGui::IsRootWindowOrAnyChildFocused() &&
+			if (ImGui::IsItemHovered() || (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) &&
 			                               !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
 			{
 				ImGui::SetKeyboardFocusHere(-1);

@@ -101,6 +101,9 @@ namespace TankGame
 		
 		windowUP->resizeCallback = [game] (Window&, int newWidth, int newHeight)
 		{
+			game->windowWidth = newWidth;
+			game->windowHeight = newHeight;
+			
 			glViewport(0, 0, newWidth, newHeight);
 			Framebuffer::SetDefaultViewport(0, 0, newWidth, newHeight);
 			
@@ -274,7 +277,7 @@ namespace TankGame
 		
 		console.Render();
 		
-		ImGui::Render();
+		ImGuiInterface::EndFrame();
 		
 		if (window.arguments.m_profiling)
 		{

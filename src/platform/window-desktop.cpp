@@ -40,6 +40,7 @@ namespace TankGame
 		case GLFW_KEY_END: return Key::End;
 		case GLFW_KEY_HOME: return Key::Home;
 		case GLFW_KEY_ENTER: return Key::Enter;
+		case GLFW_KEY_SPACE: return Key::Space;
 		case GLFW_KEY_TAB: return Key::Tab;
 		case GLFW_KEY_BACKSPACE: return Key::Backspace;
 		case GLFW_KEY_DELETE: return Key::Delete;

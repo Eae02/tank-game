@@ -26,10 +26,10 @@ namespace TankGame::ImGuiInterface
 	
 	static std::string iniFilePath;
 	
-	static void RenderDrawLists(ImDrawData* drawData);
-	
 	void Init()
 	{
+		ImGui::CreateContext();
+		
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeyMap[ImGuiKey_Tab]        = (int)Key::Tab;
 		io.KeyMap[ImGuiKey_LeftArrow]  = (int)Key::ArrowLeft;
@@ -40,18 +40,23 @@ namespace TankGame::ImGuiInterface
 		io.KeyMap[ImGuiKey_PageDown]   = (int)Key::PageDown;
 		io.KeyMap[ImGuiKey_Home]       = (int)Key::Home;
 		io.KeyMap[ImGuiKey_End]        = (int)Key::End;
+		io.KeyMap[ImGuiKey_Space]      = (int)Key::Space;
 		io.KeyMap[ImGuiKey_Delete]     = (int)Key::Delete;
 		io.KeyMap[ImGuiKey_Backspace]  = (int)Key::Backspace;
 		io.KeyMap[ImGuiKey_Enter]      = (int)Key::Enter;
 		io.KeyMap[ImGuiKey_Escape]     = (int)Key::Escape;
-		io.KeyMap[ImGuiKey_A]          = (int)Key::A;
 		io.KeyMap[ImGuiKey_C]          = (int)Key::C;
+		io.KeyMap[ImGuiKey_D]          = (int)Key::D;
+		io.KeyMap[ImGuiKey_E]          = (int)Key::E;
+		io.KeyMap[ImGuiKey_A]          = (int)Key::A;
+		io.KeyMap[ImGuiKey_S]          = (int)Key::S;
 		io.KeyMap[ImGuiKey_V]          = (int)Key::V;
+		io.KeyMap[ImGuiKey_W]          = (int)Key::W;
 		io.KeyMap[ImGuiKey_X]          = (int)Key::X;
 		io.KeyMap[ImGuiKey_Y]          = (int)Key::Y;
 		io.KeyMap[ImGuiKey_Z]          = (int)Key::Z;
 		
-		io.RenderDrawListsFn = RenderDrawLists;
+		ImGui::StyleColorsDark(&ImGui::GetStyle());
 		
 		iniFilePath = (GetDataDirectory() / "imgui.ini").string();
 		io.IniFilename = iniFilePath.c_str();
@@ -114,12 +119,16 @@ namespace TankGame::ImGuiInterface
 		
 		theGuiShader = nullptr;
 		theFontTexture = nullptr;
-		
-		ImGui::Shutdown();
 	}
 	
-	static void RenderDrawLists(ImDrawData* drawData)
+	void EndFrame()
 	{
+		ImGui::Render();
+		
+		ImDrawData* drawData = ImGui::GetDrawData();
+		if (drawData->TotalIdxCount == 0)
+			return;
+		
 		ImGuiIO& io = ImGui::GetIO();
 		
 		GLsizei fbWidth = static_cast<GLsizei>(io.DisplaySize.x * io.DisplayFramebufferScale.x);

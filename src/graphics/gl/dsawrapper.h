@@ -16,8 +16,6 @@ namespace TankGame
 		void APIENTRY TextureParameterf(GLuint texture, GLenum pname, GLfloat param);
 		void APIENTRY GenerateTextureMipmap(GLuint texture);
 		void APIENTRY CreateTextures(GLenum target, GLsizei n, GLuint* textures);
-		void APIENTRY TextureStorage1D(GLuint texture, GLsizei levels, GLenum internalformat, GLsizei width);
-		void APIENTRY TextureSubImage1D(GLuint texture, GLint level, GLint xoffset, GLsizei width, GLenum format, GLenum type, const void* pixels);
 		void APIENTRY TextureStorage2D(GLuint texture, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height);
 		void APIENTRY TextureSubImage2D(GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void* pixels);
 		void APIENTRY TextureStorage3D(GLuint texture, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth);
@@ -37,10 +35,6 @@ namespace TankGame
 		void APIENTRY NamedFramebufferTexture(GLuint framebuffer, GLenum attachment, GLuint texture, GLint level);
 		void APIENTRY NamedFramebufferDrawBuffer(GLuint framebuffer, GLenum buf);
 		void APIENTRY NamedFramebufferDrawBuffers(GLuint framebuffer, GLsizei n, const GLenum* bufs);
-		void APIENTRY NamedFramebufferRenderbuffer(GLuint framebuffer, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
-		
-		void APIENTRY CreateRenderbuffers(GLsizei n, GLuint* renderbuffers);
-		void APIENTRY NamedRenderbufferStorage(GLuint renderbuffer, GLenum internalformat, GLsizei width, GLsizei height);
 		
 		void APIENTRY ProgramUniform1f(GLuint program, GLint location, GLfloat v0);
 		void APIENTRY ProgramUniform1i(GLuint program, GLint location, GLint v0);

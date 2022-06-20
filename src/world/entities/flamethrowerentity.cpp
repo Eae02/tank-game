@@ -250,7 +250,7 @@ namespace TankGame
 	{
 		RenderBaseProperties(Transform::Properties::Position | Transform::Properties::Rotation);
 		
-		if (ImGui::InputFloat("Flame Length", &m_flameLength, 0.5f, 1.0f, 1))
+		if (ImGui::InputFloat("Flame Length", &m_flameLength, 0.5f, 1.0f))
 		{
 			m_flameLength = std::max(m_flameLength, 1.0f);
 			SpawnChildEntities();
@@ -266,12 +266,12 @@ namespace TankGame
 		}
 		else
 		{
-			if (ImGui::InputFloat("Enabled Time", &m_enabledTime, 0.1f, 1.0f, 1))
+			if (ImGui::InputFloat("Enabled Time", &m_enabledTime, 0.1f, 1.0f))
 				m_enabledTime = std::max(m_enabledTime, 1.0f);
 			if (ImGui::IsItemHovered())
 				ImGui::SetTooltip("The number of seconds which the flamethrower will be turned on.");
 			
-			if (ImGui::InputFloat("Disabled Time", &m_disabledTime, 0.1f, 1.0f, 1))
+			if (ImGui::InputFloat("Disabled Time", &m_disabledTime, 0.1f, 1.0f))
 				m_disabledTime = std::max(m_disabledTime, 0.0f);
 			if (ImGui::IsItemHovered())
 				ImGui::SetTooltip("The number of seconds which the flamethrower will be turned off.");

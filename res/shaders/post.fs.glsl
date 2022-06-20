@@ -7,7 +7,7 @@ out vec3 color_out;
 uniform sampler2D inputSampler;
 uniform sampler2D hexagonSampler;
 uniform sampler2D distortionSampler;
-uniform sampler1D noiseSampler;
+uniform sampler2D noiseSampler;
 
 vec2 getDistortedTexCoord(vec2 texCoord)
 {
@@ -29,7 +29,7 @@ const vec3 DAMAGE_FLASH_COLOR = vec3(232 / 255.0, 0, 58 / 255.0);
 
 void main()
 {
-	float distortion = texture(noiseSampler, texCoord_v.y * distortionSampleMul).r * horizontalDistortionAmount;
+	float distortion = texture(noiseSampler, vec2(texCoord_v.y * distortionSampleMul, 0)).r * horizontalDistortionAmount;
 	
 	color_out = texture(inputSampler, getDistortedTexCoord(texCoord_v + vec2(distortion, 0.0))).rgb;
 	

@@ -6,7 +6,7 @@
 #include <vector>
 #include <unordered_map>
 
-class ImGuiTextEditCallbackData;
+class ImGuiInputTextCallbackData;
 
 namespace TankGame
 {
@@ -39,7 +39,7 @@ namespace TankGame
 		{ m_isOpen = true; }
 		
 	private:
-		void TextInputCallback(ImGuiTextEditCallbackData* data);
+		void TextInputCallback(ImGuiInputTextCallbackData* data);
 		void RunCommand(const std::string& command);
 		
 		struct CommandEntry

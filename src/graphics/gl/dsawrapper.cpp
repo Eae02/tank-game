@@ -21,8 +21,6 @@ namespace TankGame
 			glTextureParameterf = TextureParameterf;
 			glGenerateTextureMipmap = GenerateTextureMipmap;
 			glCreateTextures = CreateTextures;
-			glTextureStorage1D = TextureStorage1D;
-			glTextureSubImage1D = TextureSubImage1D;
 			glTextureStorage2D = TextureStorage2D;
 			glTextureSubImage2D = TextureSubImage2D;
 			glTextureStorage3D = TextureStorage3D;
@@ -115,19 +113,6 @@ namespace TankGame
 			{
 				textureTargets.emplace(textures[i], target);
 			}
-		}
-		
-		void APIENTRY TextureStorage1D(GLuint texture, GLsizei levels, GLenum internalformat, GLsizei width)
-		{
-			GLenum target = BindTexture(texture);
-			glTexStorage1D(target, levels, internalformat, width);
-		}
-		
-		void APIENTRY TextureSubImage1D(GLuint texture, GLint level, GLint xoffset, GLsizei width, GLenum format, GLenum type,
-		                       const void* pixels)
-		{
-			GLenum target = BindTexture(texture);
-			glTexSubImage1D(target, level, xoffset, width, format, type, pixels);
 		}
 		
 		void APIENTRY TextureStorage2D(GLuint texture, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height)

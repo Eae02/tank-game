@@ -9,7 +9,7 @@ from elftools.elf.elffile import ELFFile
 from elftools.elf.dynamic import DynamicSection
 
 #List of libraries to be included in the archive.
-libs = ["glfw", "openal", "ogg", "vorbis", "vorbisfile", "lua", "glib-2.0", "stdc++"]
+libs = ["glfw", "openal", "ogg", "vorbis", "vorbisfile", "lua", "stdc++"]
 
 binary = "bin/Debug/tankgame"
 

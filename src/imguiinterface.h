@@ -11,6 +11,7 @@ namespace TankGame
 	{
 		void Init();
 		void NewFrame(const UpdateInfo& updateInfo, float dt);
+		void EndFrame();
 		void Close();
 		
 		bool IsMouseCaptured();

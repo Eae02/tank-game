@@ -14,7 +14,7 @@ namespace TankGame
 		m_inputBuffer[0] = '\0';
 	}
 	
-	void Console::TextInputCallback(ImGuiTextEditCallbackData* data)
+	void Console::TextInputCallback(ImGuiInputTextCallbackData* data)
 	{
 		if (data->EventFlag == ImGuiInputTextFlags_CallbackHistory)
 		{
@@ -116,11 +116,12 @@ namespace TankGame
 		if (!m_isOpen)
 			return;
 		
-		if (ImGui::Begin("Console", &m_isOpen, ImVec2(600, 400)))
+		ImGui::SetNextWindowSize(ImVec2(600, 400), ImGuiCond_Appearing);
+		if (ImGui::Begin("Console", &m_isOpen))
 		{
 			ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
 			
-			ImGui::BeginChild("ScrollingRegion", ImVec2(0, -ImGui::GetItemsLineHeightWithSpacing()), false,
+			ImGui::BeginChild("ScrollingRegion", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), false,
 			                  ImGuiWindowFlags_HorizontalScrollbar);
 			
 			logStream.seekg(0, std::ios::beg);
@@ -148,17 +149,17 @@ namespace TankGame
 			ImGui::EndChild();
 			ImGui::Separator();
 			
-			ImGui::PushItemWidth(ImGui::GetContentRegionAvailWidth() - 100);
+			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x - 100);
 			
 			bool invoke = ImGui::InputText("##ConsoleInput", m_inputBuffer.data(), m_inputBuffer.size(),
 			                               ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory,
-			                               [] (ImGuiTextEditCallbackData* data)
+			                               [] (ImGuiInputTextCallbackData* data)
 			{
 				reinterpret_cast<Console*>(data->UserData)->TextInputCallback(data);
 				return 0;
 			}, reinterpret_cast<void*>(this));
 			
-			if (ImGui::IsItemHovered() || (ImGui::IsRootWindowOrAnyChildFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
+			if (ImGui::IsItemHovered() || (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)))
 				ImGui::SetKeyboardFocusHere(-1);
 			
 			ImGui::PopItemWidth();

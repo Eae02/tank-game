@@ -66,7 +66,7 @@ namespace TankGame
 		RenderBaseProperties(Transform::Properties::Position | Transform::Properties::Rotation);
 		
 		ImGui::InputInt("Flame Throwers", &m_count);
-		ImGui::InputFloat("Flame Length", &m_flameLength, 0.5f, 1.0f, 1);
+		ImGui::InputFloat("Flame Length", &m_flameLength, 0.5f, 1.0f);
 	}
 	
 	const char* OmniFlameThrower::GetObjectName() const

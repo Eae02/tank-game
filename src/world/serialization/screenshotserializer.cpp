@@ -1,3 +1,4 @@
+#ifndef __EMSCRIPTEN__
 #include "screenshotserializer.h"
 #include "../gameworld.h"
 
@@ -117,3 +118,5 @@ namespace TankGame
 		return images;
 	}
 }
+
+#endif

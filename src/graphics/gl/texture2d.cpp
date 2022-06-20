@@ -53,7 +53,15 @@ namespace TankGame
 		glCreateTextures(GL_TEXTURE_2D, 1, &texture);
 		SetID(texture);
 		
-		glTextureStorage2D(texture, levels, internalFormat, width, height);
+		if (hasTextureStorage)
+		{
+			glTextureStorage2D(texture, levels, internalFormat, width, height);
+		}
+		else
+		{
+			glBindTexture(GL_TEXTURE_2D, texture);
+			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+		}
 		
 		SetMinFilter(GL_LINEAR);
 		SetMagFilter(GL_LINEAR);

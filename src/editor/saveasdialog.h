@@ -16,14 +16,7 @@ namespace TankGame
 		void Show(std::function<void(const std::string&)> saveCallback);
 		
 	private:
-		enum class States
-		{
-			Hidden,
-			ShownFirstDraw,
-			Shown
-		};
-		
-		States m_state = States::Hidden;
+		bool m_visible = false;
 		
 		std::function<void(const std::string&)> m_saveCallback;
 		

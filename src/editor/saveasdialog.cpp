@@ -12,14 +12,12 @@ namespace TankGame
 	
 	void SaveAsDialog::Render()
 	{
-		if (m_state == States::Hidden)
+		if (!m_visible)
 			return;
 		
-		if (m_state == States::ShownFirstDraw)
-		{
-			ImGui::SetNextWindowPosCenter();
-			m_state = States::Shown;
-		}
+		ImGui::SetNextWindowPos(
+			ImVec2(ImGui::GetIO().DisplaySize.x / 2.0f, ImGui::GetIO().DisplaySize.y / 2.0f),
+			ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 		
 		bool isOpen = true;
 		
@@ -36,23 +34,23 @@ namespace TankGame
 			{
 				m_saveCallback(std::string(m_inputBuffer.data()));
 				m_inputBuffer[0] = '\0';
-				m_state = States::Hidden;
+				m_visible = false;
 			}
 			
 			ImGui::SameLine();
 			if (ImGui::Button("Cancel") || (ImGui::IsWindowFocused() && ImGui::IsKeyDown((int)Key::Escape)))
-				m_state = States::Hidden;
+				m_visible = false;
 		}
 		
 		ImGui::End();
 		
 		if (!isOpen)
-			m_state = States::Hidden;
+			m_visible = false;
 	}
 	
 	void SaveAsDialog::Show(std::function<void(const std::string&)> saveCallback)
 	{
 		m_saveCallback = std::move(saveCallback);
-		m_state = States::ShownFirstDraw;
+		m_visible = true;
 	}
 }

@@ -61,10 +61,14 @@ include_directories(SYSTEM
 	${LUA_INCLUDE_DIR}
 	${ZLIB_INCLUDE_DIRS}
 	${TankGame_SOURCE_DIR}/inc
-	${TankGame_SOURCE_DIR}/imgui
+	${TankGame_SOURCE_DIR}/deps/imgui
+	${TankGame_SOURCE_DIR}/deps/stb
 )
 
-add_executable(tankgame ${SOURCE_FILES} imgui/imgui.cpp imgui/imgui_draw.cpp)
+add_executable(tankgame
+	${SOURCE_FILES}
+	deps/imgui/imgui.cpp deps/imgui/imgui_draw.cpp deps/imgui/imgui_tables.cpp deps/imgui/imgui_widgets.cpp
+)
 
 set_target_properties(tankgame PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}-${CMAKE_SYSTEM_NAME}

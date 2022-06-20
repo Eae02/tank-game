@@ -29,6 +29,7 @@ namespace TankGame
 		End,
 		Home,
 		Enter,
+		Space,
 		Tab,
 		Backspace,
 		Delete,

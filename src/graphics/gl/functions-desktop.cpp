@@ -25,8 +25,7 @@ namespace TankGame
 			DSAWrapper::InstallDSAFunctions();
 		
 		hasBufferStorage = glfwExtensionSupported("GL_ARB_buffer_storage") && glBufferStorage;
-		hasTextureStorage = glfwExtensionSupported("GL_ARB_texture_storage") &&
-			glTexStorage1D && glTexStorage2D && glTexStorage3D;
+		hasTextureStorage = glfwExtensionSupported("GL_ARB_texture_storage") && glTexStorage2D && glTexStorage3D;
 	}
 }
 #endif
