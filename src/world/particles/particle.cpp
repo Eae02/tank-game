@@ -1,10 +1,11 @@
 #include "particle.h"
 #include "../../platform/common.h"
+#include "../../utils/utils.h"
 
 namespace TankGame
 {
 	Particle::Particle(const ParticleInfo& particleInfo)
-	    : ParticleInfo(particleInfo), m_spawnTime(GetTime()) { }
+	    : ParticleInfo(particleInfo), m_spawnTime(frameBeginTime) { }
 	
 	void Particle::Update(float dt)
 	{

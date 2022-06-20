@@ -1,7 +1,5 @@
 #pragma once
 
-#ifndef __EMSCRIPTEN__
-
 #include "../../graphics/worldrenderer.h"
 #include "../../graphics/deferredrenderer.h"
 
@@ -35,5 +33,3 @@ namespace TankGame
 		DeferredRenderer m_deferredRenderer;
 	};
 }
-
-#endif

@@ -11,8 +11,10 @@ namespace std
 	{
 		size_t operator()(const glm::ivec2& v) const
 		{
-			static_assert(sizeof(size_t) == sizeof(int) * 2);
-			return ((size_t)v.x << (size_t)32) | (size_t)v.y;
+			if constexpr (sizeof(size_t) >= sizeof(int) * 2)
+				return ((size_t)v.x << (size_t)32) | (size_t)v.y;
+			else
+				return (size_t)v.x + 0x9e3779b9 + ((size_t)v.y << 6) + ((size_t)v.y >> 2);
 		}
 	};
 }
@@ -56,12 +58,14 @@ namespace TankGame
 		return LengthSquared(a - b) < 1E-6f;
 	}
 	
+	static constexpr float DIAGONAL_DISTANCE = 1.4142135623730951f;
+	
 	static float DistanceHeuristic(glm::ivec2 a, glm::ivec2 b)
 	{
 		int dx = std::abs(a.x - b.x);
 		int dy = std::abs(a.y - b.y);
 		int diagDist = std::min(dx, dy);
-		return diagDist * M_SQRT2f + (dx - diagDist) + (dy - diagDist);
+		return diagDist * DIAGONAL_DISTANCE + (dx - diagDist) + (dy - diagDist);
 	}
 	
 	struct NodePQCompare

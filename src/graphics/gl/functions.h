@@ -10,8 +10,12 @@
 #undef OpenEvent
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include "glplatform-web.h"
+#else
 #include <GL/gl.h>
 #include <GL/glext.h>
+#endif
 
 namespace TankGame
 {
@@ -22,8 +26,13 @@ namespace TankGame
 #include "glfunctionslist_dsa.inl"
 #undef GL_FUNC
 	
+#ifdef __EMSCRIPTEN__
+	constexpr bool hasBufferStorage = false;
+	constexpr bool hasTextureStorage = false;
+#else
 	extern bool hasBufferStorage;
 	extern bool hasTextureStorage;
+#endif
 	
 	void LoadOpenGLFunctions(bool useDSAWrapper = false);
 }

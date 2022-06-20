@@ -221,7 +221,13 @@ namespace TankGame
 		
 		void APIENTRY NamedFramebufferDrawBuffer(GLuint framebuffer, GLenum buf)
 		{
-			BindFramebufferAndInvoke(framebuffer, [=] { glDrawBuffer(buf); });
+			BindFramebufferAndInvoke(framebuffer, [=]
+			{
+				if (glDrawBuffer)
+					glDrawBuffer(buf);
+				else
+					glDrawBuffers(1, &buf);
+			});
 		}
 		
 		void APIENTRY NamedFramebufferDrawBuffers(GLuint framebuffer, GLsizei n, const GLenum* bufs)

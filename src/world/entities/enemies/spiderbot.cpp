@@ -99,8 +99,7 @@ namespace TankGame
 				return;
 			}
 			
-			double time = GetTime();
-			if (time > m_pathToPlayerNextUpdateTime)
+			if (frameBeginTime > m_pathToPlayerNextUpdateTime)
 			{
 				m_pathToPlayer = Path();
 				
@@ -111,7 +110,7 @@ namespace TankGame
 					return;
 				}
 				
-				m_pathToPlayerNextUpdateTime = time + 0.2;
+				m_pathToPlayerNextUpdateTime = frameBeginTime + 0.2;
 				m_pathToPlayerProgress = 0.0f;
 			}
 			

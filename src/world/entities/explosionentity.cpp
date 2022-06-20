@@ -84,7 +84,7 @@ namespace TankGame
 	
 	void ExplosionEntity::Update(const UpdateInfo& updateInfo)
 	{
-		double timeSinceSpawn = GetTime() - (GetDeathTime() - LIFE_TIME);
+		double timeSinceSpawn = frameBeginTime - (GetDeathTime() - LIFE_TIME);
 		float timeInterpol = glm::clamp(timeSinceSpawn / LIFE_TIME, 0.0, 1.0);
 		
 		SetIntensity(LIGHT_INTENSITY * glm::min(2.0f - timeInterpol * 2.0f, 1.0f));

@@ -14,6 +14,8 @@ namespace TankGame
 	class Mouse
 	{
 	public:
+		friend class Window;
+		
 		Mouse() = default;
 		
 		inline float GetOldX() const
@@ -31,7 +33,15 @@ namespace TankGame
 		inline float GetDeltaScroll() const
 		{ return scrollPos - m_oldScroll; }
 		
-		void OnFrameEnd()
+		inline uint8_t GetButtonState() const { return m_buttonState; }
+		
+		bool isCaptured = false;
+		
+		glm::vec2 pos;
+		float scrollPos = 0;
+		
+	private:
+		void OnFrameEnd() //Called by Window
 		{
 			m_oldX = pos.x;
 			m_oldY = pos.y;
@@ -40,14 +50,8 @@ namespace TankGame
 			m_wasCaptured = isCaptured;
 		}
 		
-		bool isCaptured = false;
-		
-		glm::vec2 pos;
-		float scrollPos = 0;
-		
 		uint8_t m_buttonState = 0;
 		
-	private:
 		float m_oldX = 0;
 		float m_oldY = 0;
 		

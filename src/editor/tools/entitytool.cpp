@@ -106,7 +106,7 @@ namespace TankGame
 			}
 			else
 			{
-				if (GetTime() <= m_timeOfLastMouseRelease + 0.4 &&
+				if (frameBeginTime <= m_timeOfLastMouseRelease + 0.4 &&
 					LengthSquared(m_positionOfLastMouseRelease - updateInfo.m_mouse.pos) < 5 * 5)
 				{
 					Entity* propertiesEntity = nullptr;
@@ -124,7 +124,7 @@ namespace TankGame
 				}
 				else
 				{
-					m_timeOfLastMouseRelease = GetTime();
+					m_timeOfLastMouseRelease = frameBeginTime;
 					m_positionOfLastMouseRelease = updateInfo.m_mouse.pos;
 				}
 				

@@ -228,7 +228,7 @@ namespace TankGame::ImGuiInterface
 		
 		for (int i = 0; i < 3; i++)
 		{
-			io.MouseDown[i] = updateInfo.m_mouse.m_buttonState & (1 << i);
+			io.MouseDown[i] = updateInfo.m_mouse.GetButtonState() & (1 << i);
 		}
 		
 		io.MouseWheel = updateInfo.m_mouse.GetDeltaScroll();

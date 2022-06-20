@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.12)
 project(TankGame CXX)
 
 set(BUILD_DIR_NAME ${CMAKE_BUILD_TYPE})
@@ -7,68 +7,85 @@ set(CMAKE_MODULE_PATH "${TankGame_SOURCE_DIR}/cmake")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TankGame_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${TankGame_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 
-add_definitions(-DGLM_FORCE_RADIANS -DZLIB_CONST -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_CTOR_INIT -Wall -Wpedantic -Wfatal-errors)
-
 file(GLOB_RECURSE SOURCE_FILES ${TankGame_SOURCE_DIR}/src/*.cpp)
 
-#Finds other libraries
-find_package(OpenGL REQUIRED)
-find_package(OpenAL REQUIRED)
-find_package(GLM REQUIRED)
-find_package(OGG REQUIRED)
-find_package(Vorbis REQUIRED)
-find_package(VorbisFile REQUIRED)
-find_package(Freetype REQUIRED)
-find_package(ZLIB REQUIRED)
-find_package(Lua REQUIRED)
-find_package(nlohmann_json REQUIRED)
-
-find_path(GLFW_INCLUDE_DIR GLFW/glfw3.h ${HEADER_SEARCH_PATH})
-find_library(GLFW_LIBRARIES NAMES glfw glfw3dll ${LIBRARY_SEARCH_PATH})
-
-if (CMAKE_COMPILER_IS_GNUCXX)
-	find_package(PkgConfig REQUIRED)
-	pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
-	include_directories(${GTK3_INCLUDE_DIRS})
-	link_libraries(stdc++fs dl X11)
-endif()
-
-#Sets link libraries for all projects
-link_libraries(
-	${OPENGL_LIBRARY}
-	${OPENAL_LIBRARY}
-	${OGG_LIBRARY}
-	${VORBIS_LIBRARY}
-	${VORBISFILE_LIBRARY}
-	${GLFW_LIBRARIES}
-	${FREETYPE_LIBRARIES}
-	${ZLIB_LIBRARIES}
-	${LUA_LIBRARIES}
-	${CMAKE_THREAD_LIBS_INIT}
-	nlohmann_json::nlohmann_json
+add_executable(tankgame ${SOURCE_FILES}
+	deps/imgui/imgui.cpp deps/imgui/imgui_draw.cpp deps/imgui/imgui_tables.cpp deps/imgui/imgui_widgets.cpp
 )
 
-#Sets include directories for all projects
-include_directories(SYSTEM
-	${OPENGL_INCLUDE_DIR}
-	${OPENAL_INCLUDE_DIR}
-	${OGG_INCLUDE_DIR}
-	${GLM_INCLUDE_DIRS}
-	${VORBIS_INCLUDE_DIR}
-	${VORBISFILE_INCLUDE_DIR}
-	${GLFW_INCLUDE_DIR}
-	${FREETYPE_INCLUDE_DIRS}
+target_compile_options(tankgame PRIVATE
+	-DGLM_FORCE_RADIANS -DZLIB_CONST -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_CTOR_INIT
+	-Wall -Wpedantic -Wfatal-errors
+)
+
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten")
+	set(USE_FLAGS -sUSE_ZLIB=1 -sUSE_OGG=1 -sUSE_VORBIS=1 -sUSE_FREETYPE=1)
+	
+	target_link_options(tankgame PRIVATE -sEXPORTED_RUNTIME_METHODS=['cwrap'] -sEXPORTED_FUNCTIONS=['_WebMain'])
+	target_link_options(tankgame PRIVATE -sALLOW_MEMORY_GROWTH=1 -sWASM=1 -sUSE_WEBGL2=1 -sFULL_ES3=1 -sFORCE_FILESYSTEM=1 -sFETCH=1 -sDISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0)
+	target_link_options(tankgame PRIVATE -lidbfs.js -lopenal ${USE_FLAGS})
+	
+	target_compile_options(tankgame PRIVATE ${USE_FLAGS} -Wno-sign-conversion -Wno-shorten-64-to-32 -Wno-mismatched-tags -Wno-inconsistent-missing-override)
+	
+	if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+		target_link_options(tankgame PRIVATE "-g4 --source-map-base='http://0.0.0.0:7000/'")
+		target_compile_options(tankgame PRIVATE -gsource-map)
+	endif()
+	
+	set(LUA_LIBRARIES "${LUA_SRC_PATH}/liblua.a")
+	set(LUA_INCLUDE_DIR ${LUA_SRC_PATH})
+else()
+	find_package(OpenGL REQUIRED)
+	find_package(OpenAL REQUIRED)
+	find_package(OGG REQUIRED)
+	find_package(Vorbis REQUIRED)
+	find_package(VorbisFile REQUIRED)
+	find_package(Freetype REQUIRED)
+	find_package(ZLIB REQUIRED)
+	find_package(Lua REQUIRED)
+	find_package(nlohmann_json REQUIRED)
+	find_package(glfw3 REQUIRED)
+	
+	if (CMAKE_COMPILER_IS_GNUCXX)
+		find_package(PkgConfig REQUIRED)
+		pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+		target_include_directories(tankgame PRIVATE ${GTK3_INCLUDE_DIRS})
+		target_link_libraries(tankgame PRIVATE stdc++fs X11)
+	endif()
+	
+	target_link_libraries(tankgame PRIVATE
+		OpenGL::GL
+		glfw
+		Freetype::Freetype
+		ZLIB::ZLIB
+		nlohmann_json::nlohmann_json
+		${OPENAL_LIBRARY}
+		${OGG_LIBRARY}
+		${VORBIS_LIBRARY}
+		${VORBISFILE_LIBRARY}
+		${LUA_LIBRARIES}
+		${CMAKE_DL_LIBS}
+		${CMAKE_THREAD_LIBS_INIT}
+	)
+	
+	target_include_directories(tankgame SYSTEM PRIVATE
+		${OPENAL_INCLUDE_DIR}
+		${OGG_INCLUDE_DIR}
+		${VORBIS_INCLUDE_DIR}
+		${VORBISFILE_INCLUDE_DIR}
+		${LUA_INCLUDE_DIR}
+	)
+endif()
+
+target_link_libraries(tankgame PRIVATE ${LUA_LIBRARIES})
+
+target_include_directories(tankgame SYSTEM PRIVATE
 	${LUA_INCLUDE_DIR}
-	${ZLIB_INCLUDE_DIRS}
 	${TankGame_SOURCE_DIR}/inc
+	${TankGame_SOURCE_DIR}/deps/glm
 	${TankGame_SOURCE_DIR}/deps/imgui
 	${TankGame_SOURCE_DIR}/deps/stb
 	${TankGame_SOURCE_DIR}/deps/pcg/include
-)
-
-add_executable(tankgame
-	${SOURCE_FILES}
-	deps/imgui/imgui.cpp deps/imgui/imgui_draw.cpp deps/imgui/imgui_tables.cpp deps/imgui/imgui_widgets.cpp
 )
 
 set_target_properties(tankgame PROPERTIES
@@ -82,6 +99,3 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 	target_link_options(tankgame PRIVATE "-Wl,-subsystem,windows")
 endif()
-
-set_source_files_properties(imgui/imgui.cpp PROPERTIES COMPILE_FLAGS -w)
-set_source_files_properties(imgui/imgui_draw.cpp PROPERTIES COMPILE_FLAGS -w)

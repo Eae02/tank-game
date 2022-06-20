@@ -23,7 +23,7 @@
 
 namespace TankGame
 {
-	class GameWorld : public EntitiesManager
+	class GameWorld final : public EntitiesManager
 	{
 	public:
 		enum class Types

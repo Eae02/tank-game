@@ -5,6 +5,7 @@
 #include "../settings.h"
 #include "../platform/common.h"
 #include "../utils/ioutils.h"
+#include "../utils/utils.h"
 
 #include <random>
 #include <glm/glm.hpp>
@@ -58,9 +59,8 @@ namespace TankGame
 		
 		const double DAMAGE_FLASH_TIME = 0.5;
 		
-		double time = GetTime();
-		if (time < m_damageFlashBeginTime + DAMAGE_FLASH_TIME)
-			damageFlashIntensity = (1.0f - (time - m_damageFlashBeginTime) / DAMAGE_FLASH_TIME) * 0.5f;
+		if (frameBeginTime < m_damageFlashBeginTime + DAMAGE_FLASH_TIME)
+			damageFlashIntensity = (1.0f - (frameBeginTime - m_damageFlashBeginTime) / DAMAGE_FLASH_TIME) * 0.5f;
 		
 		QuadMesh::GetInstance().GetVAO().Bind();
 		inputTexture.Bind(0);
@@ -123,7 +123,7 @@ namespace TankGame
 	
 	void PostProcessor::DoDamageFlash()
 	{
-		m_damageFlashBeginTime = GetTime();
+		m_damageFlashBeginTime = frameBeginTime;
 	}
 	
 	void PostProcessor::SetBlurAmount(float blurAmount)

@@ -1,4 +1,3 @@
-#ifndef __EMSCRIPTEN__
 #include "screenshotserializer.h"
 #include "../gameworld.h"
 
@@ -22,6 +21,7 @@ namespace TankGame
 	
 	void ScreenShotSerializer::WriteScreenShot(glm::vec2 position)
 	{
+#ifndef __EMSCRIPTEN__
 		ViewInfo viewInfo(position, 0, 20, m_aspectRatio);
 		
 		m_worldRenderer.DrawShadowMaps(m_shadowRenderer, viewInfo);
@@ -61,10 +61,12 @@ namespace TankGame
 		}
 		
 		m_imageDataStrings.push_back(stream.str());
+#endif
 	}
 	
 	void ScreenShotSerializer::WriteResult(std::ostream& outputStream) const
 	{
+#ifndef __EMSCRIPTEN__
 		uint64_t imageCount = m_imageDataStrings.size();
 		outputStream.write(reinterpret_cast<const char*>(&imageCount), sizeof(imageCount));
 		
@@ -75,6 +77,7 @@ namespace TankGame
 			
 			outputStream.write(m_imageDataStrings[i].data(), imageBytes);
 		}
+#endif
 	}
 	
 	std::vector<Texture2D> ScreenShotSerializer::Deserialize(std::istream& stream)
@@ -118,5 +121,3 @@ namespace TankGame
 		return images;
 	}
 }
-
-#endif

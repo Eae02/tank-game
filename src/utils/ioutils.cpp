@@ -20,7 +20,7 @@
 
 namespace TankGame
 {
-	fs::path theExeDirectoryPath;
+	fs::path theResDirectoryPath;
 	fs::path theDataDirectoryPath;
 	
 	std::string ReadFileContents(const fs::path& path)
@@ -43,9 +43,11 @@ namespace TankGame
 	
 	const fs::path& GetResDirectory()
 	{
-		if (theExeDirectoryPath.empty())
+		if (theResDirectoryPath.empty())
 		{
-#if defined(__linux__)
+#if defined(__EMSCRIPTEN__)
+			theResDirectoryPath = "/res/";
+#elif defined(__linux__)
 			char exePathOut[PATH_MAX];
 			ssize_t numBytesWritten = readlink("/proc/self/exe", exePathOut, PATH_MAX);
 			
@@ -54,23 +56,25 @@ namespace TankGame
 			exePathOut[numBytesWritten] = '\0';
 			
 			dirname(exePathOut);
-			theExeDirectoryPath = fs::path(exePathOut) / "res";
+			theResDirectoryPath = fs::path(exePathOut) / "res";
 #elif defined(_WIN32)
 			TCHAR exePathOut[MAX_PATH];
 			GetModuleFileName(nullptr, exePathOut, MAX_PATH);
 			
-			theExeDirectoryPath = fs::path(exePathOut).parent_path() / "res";
+			theResDirectoryPath = fs::path(exePathOut).parent_path() / "res";
 #endif
 		}
 		
-		return theExeDirectoryPath;
+		return theResDirectoryPath;
 	}
 	
 	const fs::path& GetDataDirectory()
 	{
 		if (theDataDirectoryPath.empty())
 		{
-#if defined(__linux__)
+#if defined(__EMSCRIPTEN__)
+			theDataDirectoryPath = "/data/";
+#elif defined(__linux__)
 			const char* LINUX_PATH = ".local/share/TankGame";
 			
 			if (struct passwd* pwd = getpwuid(getuid()))

@@ -46,10 +46,9 @@ namespace TankGame
 			m_entitiesToDespawn.clear();
 		}
 		
-		double time = GetTime();
 		for (ParticleSystemEntityBase* psEntity : m_particleSystemEntities)
 		{
-			if (time > psEntity->GetDeathTime())
+			if (frameBeginTime > psEntity->GetDeathTime())
 			{
 				bool hasParticles = false;
 				for (long i = static_cast<long>(psEntity->GetParticleSystem().GetEmitterCount()) - 1; i >= 0; i--)

@@ -43,13 +43,10 @@ static ArgumentData ParseArguments(int argc, const char** argv)
 	return argumentData;
 }
 
-int main(int argc, const char** argv)
+int Run(int argc, const char** argv)
 {
 	try
 	{
-		if (!fs::exists(GetResDirectory()))
-			throw FatalException("res directory not found. Needs to be in the same directory as the executable!");
-		
 		PlatformInitialize();
 		
 		VideoModes videoModes = DetectVideoModes();
@@ -96,12 +93,26 @@ int main(int argc, const char** argv)
 		return 1;
 	}
 #endif
+	
+	return 0;
 }
  
 #ifdef __EMSCRIPTEN__
 extern "C" void WebMain()
 {
 	const char* args[] = { "tank-game", "-dsawrapper", nullptr };
-	main(2, args);
+	Run(2, args);
+}
+#else
+int main(int argc, const char** argv)
+{
+	if (!fs::exists(GetResDirectory()))
+	{
+		ShowErrorMessage(
+			"res directory not found.\nThe directory needs to be in the same directory as the executable.",
+			"Resource directory not found");
+		return 1;
+	}
+	return Run(argc, argv);
 }
 #endif

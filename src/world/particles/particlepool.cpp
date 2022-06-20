@@ -16,11 +16,9 @@ namespace TankGame
 	
 	void ParticlePool::Update(float dt)
 	{
-		double time = GetTime();
-		
 		for (size_t i = 0; i < m_numParticles;)
 		{
-			if (time >= m_particles[i].GetDeathTime())
+			if (frameBeginTime >= m_particles[i].GetDeathTime())
 			{
 				m_numParticles--;
 				m_particles[i] = m_particles[m_numParticles];

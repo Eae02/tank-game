@@ -12,7 +12,7 @@ namespace TankGame
 {
 	struct Game
 	{
-		float lastFrameStartTime = 0;
+		double lastFrameStartTime = 0;
 		float gameTime = 0;
 		
 		float aspectRatio = 1;

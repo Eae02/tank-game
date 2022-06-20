@@ -58,7 +58,6 @@ namespace TankGame
 		MenuButton m_backButton;
 		MenuButton m_applyButton;
 		
-#ifndef __EMSCRIPTEN__
 		long m_displayModeIndex = 0;
 		ComboBox m_displayModeComboBox;
 		
@@ -67,7 +66,6 @@ namespace TankGame
 		ComboBox m_resolutionsComboBox;
 		
 		ComboBox m_vSyncComboBox;
-#endif
 		
 		Slider m_gammaSlider;
 		

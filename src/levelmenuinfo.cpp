@@ -12,6 +12,7 @@
 
 namespace TankGame
 {
+#ifndef __EMSCRIPTEN__
 	void LevelMenuInfo::WriteMenuInfo(const Level& level, const std::string& name, std::ostream& outputStream)
 	{
 		outputStream.write("lmi0", 4);
@@ -66,6 +67,7 @@ namespace TankGame
 		
 		screenShotSerializer.WriteResult(outputStream);
 	}
+#endif
 	
 	LevelMenuInfo::LevelMenuInfo(std::istream& stream)
 	{

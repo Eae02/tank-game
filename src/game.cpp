@@ -199,9 +199,9 @@ namespace TankGame
 	
 	void Game::RunFrame(Window& window)
 	{
-		float frameStartTime = GetTime();
-		float dt = frameStartTime - lastFrameStartTime;
-		lastFrameStartTime = frameStartTime;
+		frameBeginTime = GetTime();
+		float dt = frameBeginTime - lastFrameStartTime;
+		lastFrameStartTime = frameBeginTime;
 		
 		bool isEditorOpen = editor != nullptr && editor->IsOpen();
 		

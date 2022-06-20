@@ -7,21 +7,9 @@ namespace TankGame
 {
 	enum class Key
 	{
-		A,
-		C,
-		D,
-		E,
-		S,
-		V,
-		W,
-		X,
-		Y,
-		Z,
-		D1,
-		D2,
-		F1,
-		F2,
-		F5,
+		A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+		D1, D2,
+		F1, F2, F3, F4, F5,
 		ArrowUp,
 		ArrowDown,
 		ArrowLeft,
@@ -60,6 +48,8 @@ namespace TankGame
 	class Keyboard
 	{
 	public:
+		friend class Window;
+		
 		Keyboard() = default;
 		
 		bool IsDown(Key key, bool ignoreCapture = false) const
@@ -79,25 +69,15 @@ namespace TankGame
 			return m_preKeyStateBitmask & bitmask;
 		}
 		
-		void SetKeyDown(Key key)
-		{
-			m_keyStateBitmask |= KeyToBitmask(key);
-		}
+		bool isCaptured = false;
 		
-		void SetKeyUp(Key key)
-		{
-			m_keyStateBitmask &= ~KeyToBitmask(key);
-		}
-		
-		void OnFrameEnd()
+	private:
+		void OnFrameEnd() //Called by Window
 		{
 			m_preKeyStateBitmask = m_keyStateBitmask;
 			m_wasCaptured = isCaptured;
 		}
 		
-		bool isCaptured = false;
-		
-	private:
 		uint64_t m_keyStateBitmask = 0;
 		uint64_t m_preKeyStateBitmask = 0;
 		

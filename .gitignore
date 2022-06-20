@@ -3,3 +3,5 @@ bin
 .build
 .vscode
 .idea
+/inc/nlohmann
+/configure_for_emscripten.sh

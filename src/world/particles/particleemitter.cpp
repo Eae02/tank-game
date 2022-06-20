@@ -1,6 +1,7 @@
 #include "particleemitter.h"
 #include "../../platform/common.h"
 #include "../../graphics/particlerenderer.h"
+#include "../../utils/utils.h"
 
 #include <glm/gtc/constants.hpp>
 
@@ -117,8 +118,6 @@ namespace TankGame
 		
 		ParticleBatch* batch = nullptr;
 		
-		double time = GetTime();
-		
 		for (const ParticlePoolHandle& poolHandle : m_particlePools)
 		{
 			poolHandle->IterateParticles([&] (const Particle& particle)
@@ -130,7 +129,7 @@ namespace TankGame
 					batch = &renderer.GetRenderBatch();
 				}
 				
-				batch->AddParticle(particle, particle.GetTimeInterpolation(time));
+				batch->AddParticle(particle, particle.GetTimeInterpolation(frameBeginTime));
 			});
 		}
 		

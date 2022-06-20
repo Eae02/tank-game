@@ -22,7 +22,7 @@ namespace TankGame
 		             playerPosition, newPath, m_parameters.m_circleRadius))
 		{
 			m_chasePathProgress = 0.0f;
-			m_lastPathUpdateTime = GetTime();
+			m_lastPathUpdateTime = frameBeginTime;
 			m_state = States::Chasing;
 			m_path = std::move(newPath);
 			return true;
@@ -77,11 +77,10 @@ namespace TankGame
 						m_entity.FirePlasmaGun(ParseColorHexCodeSRGB(0xFF564A), 5, updateInfo.m_gameTime, { });
 				}
 				
-				double time = GetTime();
-				if (time > m_lastPathUpdateTime + PATH_UPDATE_INTERVAL)
+				if (frameBeginTime > m_lastPathUpdateTime + PATH_UPDATE_INTERVAL)
 				{
 					m_chasePathProgress = 0.0f;
-					m_lastPathUpdateTime = time;
+					m_lastPathUpdateTime = frameBeginTime;
 					
 					Path newPath;
 					

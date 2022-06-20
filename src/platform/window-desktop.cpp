@@ -19,10 +19,26 @@ namespace TankGame
 		switch (key)
 		{
 		case GLFW_KEY_A: return Key::A;
+		case GLFW_KEY_B: return Key::B;
 		case GLFW_KEY_C: return Key::C;
 		case GLFW_KEY_D: return Key::D;
 		case GLFW_KEY_E: return Key::E;
+		case GLFW_KEY_F: return Key::F;
+		case GLFW_KEY_G: return Key::G;
+		case GLFW_KEY_H: return Key::H;
+		case GLFW_KEY_I: return Key::I;
+		case GLFW_KEY_J: return Key::J;
+		case GLFW_KEY_K: return Key::K;
+		case GLFW_KEY_L: return Key::L;
+		case GLFW_KEY_M: return Key::M;
+		case GLFW_KEY_N: return Key::N;
+		case GLFW_KEY_O: return Key::O;
+		case GLFW_KEY_P: return Key::P;
+		case GLFW_KEY_Q: return Key::Q;
+		case GLFW_KEY_R: return Key::R;
 		case GLFW_KEY_S: return Key::S;
+		case GLFW_KEY_T: return Key::T;
+		case GLFW_KEY_U: return Key::U;
 		case GLFW_KEY_V: return Key::V;
 		case GLFW_KEY_W: return Key::W;
 		case GLFW_KEY_X: return Key::X;
@@ -32,6 +48,8 @@ namespace TankGame
 		case GLFW_KEY_2: return Key::D2;
 		case GLFW_KEY_F1: return Key::F1;
 		case GLFW_KEY_F2: return Key::F2;
+		case GLFW_KEY_F3: return Key::F3;
+		case GLFW_KEY_F4: return Key::F4;
 		case GLFW_KEY_F5: return Key::F5;
 		case GLFW_KEY_UP: return Key::ArrowUp;
 		case GLFW_KEY_DOWN: return Key::ArrowDown;
@@ -112,8 +130,7 @@ namespace TankGame
 		}
 	}
 	
-	Window::Window(const ArgumentData& _arguments)
-	    : arguments(_arguments)
+	Window::Window(const ArgumentData& _arguments) : arguments(_arguments)
 	{
 		glfwWindowHint(GLFW_VISIBLE, false);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -156,11 +173,12 @@ namespace TankGame
 		{
 			if (std::optional<Key> key = TranslateGlfwKey(glfwKey))
 			{
+				uint64_t keyMask = KeyToBitmask(*key);
 				Keyboard& keyboard = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window))->keyboard;
 				if (action == GLFW_PRESS)
-					keyboard.SetKeyDown(*key);
+					keyboard.m_keyStateBitmask |= keyMask;
 				else if (action == GLFW_RELEASE)
-					keyboard.SetKeyUp(*key);
+					keyboard.m_keyStateBitmask &= ~keyMask;
 			}
 		});
 		

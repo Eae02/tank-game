@@ -28,6 +28,8 @@ namespace TankGame
 		onCloseCallbacks.clear();
 	}
 	
+	double frameBeginTime;
+	
 	std::ostream& GetLogStream()
 	{
 		return logStream;

@@ -15,7 +15,9 @@ namespace TankGame
 		LevelMenuInfo() = default;
 		explicit LevelMenuInfo(std::istream& stream);
 		
+#ifndef __EMSCRIPTEN__
 		static void WriteMenuInfo(const class Level& level, const std::string& name, std::ostream& outputStream);
+#endif
 		
 		inline const std::string& GetName() const
 		{ return m_name; }

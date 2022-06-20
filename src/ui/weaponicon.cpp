@@ -4,7 +4,7 @@
 #include "../graphics/ui/uirenderer.h"
 #include "../graphics/ui/font.h"
 #include "../utils/ioutils.h"
-#include "../platform/common.h"
+#include "../utils/utils.h"
 #include "../world/entities/playerweaponstate.h"
 
 #include <sstream>
@@ -33,7 +33,7 @@ namespace TankGame
 			if (ammoCount > m_lastAmmoCount)
 			{
 				m_incrementString = UTF8ToUTF32("+" + std::to_string(ammoCount - m_lastAmmoCount));
-				m_incrementStringHideTime = GetTime() + 2.0;
+				m_incrementStringHideTime = frameBeginTime + 2.0;
 			}
 			
 			m_lastAmmoCount = ammoCount;
@@ -46,7 +46,7 @@ namespace TankGame
 		
 		uiRenderer.DrawSprite(s_icons[m_weaponIndex], m_rectangle, color);
 		
-		double incrementStringTimeLeft = m_incrementStringHideTime - GetTime();
+		double incrementStringTimeLeft = m_incrementStringHideTime - frameBeginTime;
 		if (incrementStringTimeLeft > 0 && !m_incrementString.empty())
 		{
 			const Font& font = Font::GetNamedFont(FontNames::ButtonFont);
@@ -86,7 +86,7 @@ namespace TankGame
 		
 		if (m_weaponIndex != 0 && weaponState != nullptr)
 		{
-			m_incrementStringHideTime = GetTime();
+			m_incrementStringHideTime = frameBeginTime;
 			m_lastAmmoCount = weaponState->GetAmmoCount(static_cast<SpecialWeapons>(m_weaponIndex - 1));
 		}
 	}

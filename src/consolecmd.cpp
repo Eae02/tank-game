@@ -82,6 +82,7 @@ namespace TankGame
 		
 		console.AddCommand("level", [=] (const std::string* argv, size_t argc) { game->LoadLevel(argv[0]); }, 1);
 		
+#ifndef __EMSCRIPTEN__
 		console.AddCommand("newlevel", [=] (const std::string* argv, size_t argc)
 		{
 			int width = std::stoi(argv[1]);
@@ -104,6 +105,7 @@ namespace TankGame
 			std::ofstream stream(Level::GetLevelsPath() / (argv[0] + ".mi"), std::ios::binary);
 			LevelMenuInfo::WriteMenuInfo(level, argv[1], stream);
 		}, 2);
+#endif
 		
 		console.AddCommand("menu", [=] (const std::string* argv, size_t argc)
 		{

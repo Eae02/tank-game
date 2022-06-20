@@ -87,7 +87,7 @@ namespace TankGame
 	{
 		glm::vec2 focus = GetFocusLocation();
 		
-		double cameraShakeTime = m_cameraShakeEnd - GetTime();
+		double cameraShakeTime = m_cameraShakeEnd - frameBeginTime;
 		
 		if (cameraShakeTime > 0)
 		{
@@ -139,7 +139,7 @@ namespace TankGame
 	
 	void GameWorld::ShakeCamera(double time, float amount)
 	{
-		m_cameraShakeEnd = GetTime() + time;
+		m_cameraShakeEnd = frameBeginTime + time;
 		m_cameraShakeMagnitude = amount / time;
 	}
 	

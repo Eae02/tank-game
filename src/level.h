@@ -27,7 +27,7 @@ namespace TankGame
 		const class CheckpointEntity* GetCheckpointFromIndex(int index) const;
 		bool TryJumpToCheckpoint(int index);
 		
-		virtual void Update(const class UpdateInfo& updateInfo);
+		void Update(const class UpdateInfo& updateInfo);
 		
 		void RunScript(const fs::path& path);
 		
