@@ -28,7 +28,7 @@ namespace TankGame
 		SpecializationInfo specInfo;
 		specInfo.SetConstant("LAYER_COUNT", std::to_string(layerCount));
 		
-		fs::path shaderPath = GetResDirectory() / "shaders";
+		fs::path shaderPath = resDirectoryPath / "shaders";
 		auto vs = ShaderModule::FromFile(shaderPath / "tilegrid.vs.glsl", GL_VERTEX_SHADER, &specInfo);
 		auto fs = ShaderModule::FromFile(shaderPath / "tilegrid.fs.glsl", GL_FRAGMENT_SHADER);
 		

@@ -20,4 +20,6 @@ namespace TankGame
 	
 	void PlatformInitialize();
 	void PlatformShutdown();
+	
+	void SyncFileSystem();
 }

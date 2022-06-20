@@ -8,6 +8,7 @@
 #include "platform/messagebox.h"
 #include "platform/window.h"
 #include "platform/common.h"
+#include "platform/paths.h"
 #include "game.h"
 #include "orientedrectangle.h"
 #include "lua/luavm.h"
@@ -26,53 +27,82 @@ extern "C"
 
 using namespace TankGame;
 
-static ArgumentData ParseArguments(int argc, const char** argv)
+static VideoModes videoModes;
+
+static bool Initialize()
 {
-	ArgumentData argumentData;
+	resDirectoryPath = GetResPath();
+	dataDirectoryPath = GetDataPath();
 	
-	for (int i = 1; i < argc; i++)
+	if (!fs::exists(resDirectoryPath))
 	{
-		if (strcmp(argv[i], "-prof") == 0)
-			argumentData.m_profiling = true;
-		if (strcmp(argv[i], "-nocursorgrab") == 0)
-			argumentData.m_noCursorGrab = true;
-		if (strcmp(argv[i], "-dsawrapper") == 0)
-			argumentData.m_useDSAWrapper = true;
+		resDirectoryPath = fs::current_path() / "res";
+		if (!fs::exists(resDirectoryPath))
+		{
+			ShowErrorMessage(
+				"res directory not found.\nThe directory needs to be in the same directory as the executable.",
+				"Resource directory not found");
+			return false;
+		}
 	}
 	
-	return argumentData;
+	if (!fs::exists(dataDirectoryPath))
+		fs::create_directories(dataDirectoryPath);
+	
+	PlatformInitialize();
+	
+	videoModes = DetectVideoModes();
+	
+	if (FT_Init_FreeType(&TankGame::theFTLibrary) != 0)
+		throw FatalException("Error initializing freetype.");
+	
+	InitOpenAL();
+	
+	fs::path progressPath(dataDirectoryPath / "progress.json");
+	if (fs::exists(progressPath))
+		Progress::SetInstance({ progressPath });
+	
+	fs::path settingsPath(dataDirectoryPath / "settings.json");
+	if (fs::exists(settingsPath))
+		Settings::instance.Load(settingsPath, videoModes);
+	else
+		Settings::instance.SetToDefaultVideoMode(videoModes);
+	
+	Lua::Init();
+	
+	return true;
 }
 
-int Run(int argc, const char** argv)
+#ifdef __EMSCRIPTEN__
+extern "C" void WebMain()
+{
+	if (Initialize())
+		RunGame(ArgumentData(), videoModes);
+}
+#else
+int main(int argc, const char** argv)
 {
 	try
 	{
-		PlatformInitialize();
+		if (!Initialize()) return 1;
 		
-		VideoModes videoModes = DetectVideoModes();
+		ArgumentData argumentData;
+		for (int i = 1; i < argc; i++)
+		{
+			if (strcmp(argv[i], "-prof") == 0)
+				argumentData.m_profiling = true;
+			if (strcmp(argv[i], "-nocursorgrab") == 0)
+				argumentData.m_noCursorGrab = true;
+			if (strcmp(argv[i], "-dsawrapper") == 0)
+				argumentData.m_useDSAWrapper = true;
+		}
 		
-		if (FT_Init_FreeType(&TankGame::theFTLibrary) != 0)
-			throw FatalException("Error initializing freetype.");
-		
-		InitOpenAL();
-		
-		fs::path progressPath(GetDataDirectory() / "progress.json");
-		if (fs::exists(progressPath))
-			Progress::SetInstance({ progressPath });
-		
-		fs::path settingsPath(GetDataDirectory() / "settings.json");
-		
-		if (fs::exists(settingsPath))
-			Settings::instance.Load(settingsPath, videoModes);
-		
-		Lua::Init();
-		
-		RunGame(ParseArguments(argc, argv), videoModes);
+		RunGame(argumentData, videoModes);
 		
 		Lua::Destroy();
 		
-		Settings::instance.Save(settingsPath);
-		Progress::GetInstance().Save(progressPath);
+		Settings::instance.Save(dataDirectoryPath / "settings.json");
+		Progress::GetInstance().Save(dataDirectoryPath / "progress.json");
 		
 		SoundsManager::SetInstance(nullptr);
 		CloseOpenAL();
@@ -93,26 +123,5 @@ int Run(int argc, const char** argv)
 		return 1;
 	}
 #endif
-	
-	return 0;
-}
- 
-#ifdef __EMSCRIPTEN__
-extern "C" void WebMain()
-{
-	const char* args[] = { "tank-game", "-dsawrapper", nullptr };
-	Run(2, args);
-}
-#else
-int main(int argc, const char** argv)
-{
-	if (!fs::exists(GetResDirectory()))
-	{
-		ShowErrorMessage(
-			"res directory not found.\nThe directory needs to be in the same directory as the executable.",
-			"Resource directory not found");
-		return 1;
-	}
-	return Run(argc, argv);
 }
 #endif

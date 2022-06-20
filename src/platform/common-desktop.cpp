@@ -63,10 +63,9 @@ namespace TankGame
 		});
 	}
 	
-	void PlatformShutdown()
-	{
-		
-	}
+	void PlatformShutdown() { }
+	
+	void SyncFileSystem() { }
 }
 
 #endif

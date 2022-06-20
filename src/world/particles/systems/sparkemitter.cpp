@@ -15,7 +15,7 @@ namespace TankGame
 		if (s_sparkTextureArray == nullptr)
 		{
 			s_sparkTextureArray = std::make_unique<Texture2DArray>(128, 128 / 8, 1, Texture::GetMipmapCount(128), GL_RGBA8);
-			s_sparkTextureArray->LoadLayerFromFile(0, GetResDirectory() / "particles" / "spark.png");
+			s_sparkTextureArray->LoadLayerFromFile(0, resDirectoryPath / "particles" / "spark.png");
 			s_sparkTextureArray->SetupMipmapping(true);
 			
 			CallOnClose([] { s_sparkTextureArray = nullptr; });

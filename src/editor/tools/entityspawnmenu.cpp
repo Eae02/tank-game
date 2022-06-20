@@ -19,7 +19,7 @@ namespace TankGame
 	{
 		m_searchBuffer[0] = '\0';
 		
-		nlohmann::json presetsDoc = nlohmann::json::parse(ReadFileContents(GetResDirectory() / "entitypresets.json"));
+		nlohmann::json presetsDoc = nlohmann::json::parse(ReadFileContents(resDirectoryPath / "entitypresets.json"));
 		
 		for (nlohmann::json::iterator it = presetsDoc.begin(); it != presetsDoc.end(); ++it)
 		{

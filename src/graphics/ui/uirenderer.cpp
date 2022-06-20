@@ -18,8 +18,8 @@ namespace TankGame
 	
 	void UIRenderer::LoadSpriteShader()
 	{
-		auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "ui" / "uisprite.vs.glsl", GL_VERTEX_SHADER);
-		auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "ui" / "uisprite.fs.glsl", GL_FRAGMENT_SHADER);
+		auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "ui" / "uisprite.vs.glsl", GL_VERTEX_SHADER);
+		auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "ui" / "uisprite.fs.glsl", GL_FRAGMENT_SHADER);
 		
 		s_spriteShader.m_shader.reset(new ShaderProgram{ &vs, &fs });
 		CallOnClose([] { s_spriteShader.m_shader = nullptr; });
@@ -34,8 +34,8 @@ namespace TankGame
 	
 	void UIRenderer::LoadQuadShader()
 	{
-		auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "ui" / "uiquad.vs.glsl", GL_VERTEX_SHADER);
-		auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "ui" / "uiquad.fs.glsl", GL_FRAGMENT_SHADER);
+		auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "ui" / "uiquad.vs.glsl", GL_VERTEX_SHADER);
+		auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "ui" / "uiquad.fs.glsl", GL_FRAGMENT_SHADER);
 		
 		s_quadShader.m_shader.reset(new ShaderProgram{ &vs, &fs });
 		CallOnClose([] { s_quadShader.m_shader = nullptr; });
@@ -46,8 +46,8 @@ namespace TankGame
 	
 	void UIRenderer::LoadLineShader()
 	{
-		auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "ui" / "uiline.vs.glsl", GL_VERTEX_SHADER);
-		auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "ui" / "uiquad.fs.glsl", GL_FRAGMENT_SHADER);
+		auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "ui" / "uiline.vs.glsl", GL_VERTEX_SHADER);
+		auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "ui" / "uiquad.fs.glsl", GL_FRAGMENT_SHADER);
 		
 		s_lineShader.m_shader.reset(new ShaderProgram{ &vs, &fs });
 		CallOnClose([] { s_lineShader.m_shader = nullptr; });
@@ -59,8 +59,8 @@ namespace TankGame
 	
 	void UIRenderer::LoadTextShader()
 	{
-		auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "ui" / "text.vs.glsl", GL_VERTEX_SHADER);
-		auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "ui" / "text.fs.glsl", GL_FRAGMENT_SHADER);
+		auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "ui" / "text.vs.glsl", GL_VERTEX_SHADER);
+		auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "ui" / "text.fs.glsl", GL_FRAGMENT_SHADER);
 		
 		s_textShader.m_shader.reset(new ShaderProgram{ &vs, &fs });
 		CallOnClose([] { s_textShader.m_shader = nullptr; });

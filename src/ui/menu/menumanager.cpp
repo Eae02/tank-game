@@ -19,7 +19,7 @@ namespace TankGame
 {
 	MenuManager::MenuManager()
 	{
-		auto backgroundsJson = nlohmann::json::parse(ReadFileContents(GetResDirectory() / "menubackgrounds.json"));
+		auto backgroundsJson = nlohmann::json::parse(ReadFileContents(resDirectoryPath / "menubackgrounds.json"));
 		
 		for (const auto& menuBackgroundEl : backgroundsJson)
 		{

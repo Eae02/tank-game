@@ -9,7 +9,7 @@
 namespace TankGame
 {
 	GameManager::GameManager(IMainRenderer& renderer)
-	    : m_mainRenderer(renderer), m_hudManager(renderer), m_ambiencePlayer(GetResDirectory() / "audio" / "ambient")
+	    : m_mainRenderer(renderer), m_hudManager(renderer), m_ambiencePlayer(resDirectoryPath / "audio" / "ambient")
 	{
 		m_hudManager.SetQuitCallback([this] 
 		{

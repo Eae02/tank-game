@@ -90,8 +90,8 @@ namespace TankGame
 		//Creates the sprite shader if it hasn't been created already
 		if (s_shaderProgram == nullptr)
 		{
-			auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "sprite.vs.glsl", GL_VERTEX_SHADER);
-			auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "sprite.fs.glsl", GL_FRAGMENT_SHADER);
+			auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "sprite.vs.glsl", GL_VERTEX_SHADER);
+			auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "sprite.fs.glsl", GL_FRAGMENT_SHADER);
 			
 			s_shaderProgram.reset(new ShaderProgram{ &vs, &fs });
 			
@@ -175,11 +175,6 @@ namespace TankGame
 		
 		m_vertexArray.Bind();
 		
-		static const GLsizei instanceStrides[5] =
-		{
-			INSTANCE_DATA_STRIDE, INSTANCE_DATA_STRIDE, INSTANCE_DATA_STRIDE, INSTANCE_DATA_STRIDE, INSTANCE_DATA_STRIDE
-		};
-		
 		for (size_t i = 0; i <= currentDrawBuffer; i++)
 		{
 			const GLuint usedLength = i == currentDrawBuffer ? currentBufferOffset : s_elementsPerDrawBuffer;
@@ -204,8 +199,10 @@ namespace TankGame
 					static_cast<GLintptr>(instanceByteOffset + INSTANCE_MATRIX_OFF + sizeof(float) * 4 * 1),
 					static_cast<GLintptr>(instanceByteOffset + INSTANCE_MATRIX_OFF + sizeof(float) * 4 * 2)
 				};
-				
-				glBindVertexBuffers(1, instanceBuffers.size(), instanceBuffers.data(), instanceOffsets, instanceStrides);
+				for (size_t b = 0; b < 5; b++)
+				{
+					glBindVertexBuffer(b + 1, m_drawBuffers[i].GetID(), instanceOffsets[b], INSTANCE_DATA_STRIDE);
+				}
 				
 				materialBatch.m_material.Bind(s_spriteMaterialUniformLocations);
 				

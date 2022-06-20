@@ -30,8 +30,8 @@ namespace TankGame
 	{
 		if (s_shader == nullptr)
 		{
-			auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "conveyor.vs.glsl", GL_VERTEX_SHADER);
-			auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "conveyor.fs.glsl", GL_FRAGMENT_SHADER);
+			auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "conveyor.vs.glsl", GL_VERTEX_SHADER);
+			auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "conveyor.fs.glsl", GL_FRAGMENT_SHADER);
 			
 			s_shader.reset(new ShaderProgram{ &vs, &fs });
 			s_shader->SetTextureBinding("diffuseSampler", 0);
@@ -145,26 +145,23 @@ namespace TankGame
 	
 	void ConveyorBeltEntity::LoadResources(ASyncWorkList& workList)
 	{
-		workList.SubmitWork(std::make_unique<TextureLoadOperation>(GetResDirectory() / "conveyor-diffuse.png",
-		                                                           [] (Texture2D&& result)
+		workList.Add(TextureLoadOperation::Start(resDirectoryPath / "conveyor-diffuse.png"), [] (TextureLoadOperation op)
 		{
-			s_diffuseTexture = std::make_unique<Texture2D>(std::move(result));
+			s_diffuseTexture = std::make_unique<Texture2D>(op.CreateTexture());
 			s_diffuseTexture->SetWrapMode(GL_REPEAT);
-		}));
+		});
 		
-		workList.SubmitWork(std::make_unique<TextureLoadOperation>(GetResDirectory() / "conveyor-normals.png",
-		                                                           [] (Texture2D&& result)
+		workList.Add(TextureLoadOperation::Start(resDirectoryPath / "conveyor-normals.png"), [] (TextureLoadOperation op)
 		{
-			s_normalMap = std::make_unique<Texture2D>(std::move(result));
+			s_normalMap = std::make_unique<Texture2D>(op.CreateTexture());
 			s_normalMap->SetWrapMode(GL_REPEAT);
-		}));
+		});
 		
-		workList.SubmitWork(std::make_unique<TextureLoadOperation>(GetResDirectory() / "conveyor-specular.png",
-		                                                           [] (Texture2D&& result)
+		workList.Add(TextureLoadOperation::Start(resDirectoryPath / "conveyor-specular.png"), [] (TextureLoadOperation op)
 		{
-			s_specularTexture = std::make_unique<Texture2D>(std::move(result));
+			s_specularTexture = std::make_unique<Texture2D>(op.CreateTexture());
 			s_specularTexture->SetWrapMode(GL_REPEAT);
-		}));
+		});
 		
 		CallOnClose([] { s_diffuseTexture = nullptr; s_normalMap = nullptr; s_specularTexture = nullptr; });
 	}

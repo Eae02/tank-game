@@ -15,7 +15,7 @@ namespace TankGame
 	static ShaderProgram LoadCompositionShader()
 	{
 		ShaderModule fragmentShader = ShaderModule::FromFile(
-				GetResDirectory() / "shaders" / "lighting" / "composition.fs.glsl", GL_FRAGMENT_SHADER);
+				resDirectoryPath / "shaders" / "lighting" / "composition.fs.glsl", GL_FRAGMENT_SHADER);
 		
 		ShaderProgram program({ &QuadMesh::GetVertexShader(), &fragmentShader });
 		program.SetTextureBinding("colorSampler", 0);

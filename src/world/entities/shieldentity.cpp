@@ -88,9 +88,9 @@ namespace TankGame
 	{
 		if (s_distortionShader== nullptr)
 		{
-			auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "shield.vs.glsl", GL_VERTEX_SHADER);
-			auto distFs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "shield-dist.fs.glsl", GL_FRAGMENT_SHADER);
-			auto spriteFs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "shield-sprite.fs.glsl", GL_FRAGMENT_SHADER);
+			auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "shield.vs.glsl", GL_VERTEX_SHADER);
+			auto distFs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "shield-dist.fs.glsl", GL_FRAGMENT_SHADER);
+			auto spriteFs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "shield-sprite.fs.glsl", GL_FRAGMENT_SHADER);
 			
 			s_distortionShader.reset(new ShaderProgram{ &vs, &distFs });
 			s_spriteShader.reset(new ShaderProgram{ &vs, &spriteFs });

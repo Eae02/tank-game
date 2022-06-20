@@ -11,7 +11,7 @@ namespace TankGame
 	{
 		if (s_quadVertexShaderModule == nullptr)
 		{
-			const fs::path vsPath = GetResDirectory() / "shaders" / "fullscreenquad.vs.glsl";
+			const fs::path vsPath = resDirectoryPath / "shaders" / "fullscreenquad.vs.glsl";
 			
 			s_quadVertexShaderModule = std::make_unique<ShaderModule>(ShaderModule::FromFile(vsPath, GL_VERTEX_SHADER));
 			CallOnClose([] { s_quadVertexShaderModule = nullptr; });

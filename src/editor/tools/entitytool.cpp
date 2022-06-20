@@ -22,8 +22,8 @@
 namespace TankGame
 {
 	EntityTool::EntityTool(Editor& editor)
-	    : EditorTool(editor), m_entityIcon(Texture2D::FromFile(GetResDirectory() / "ui" / "entity.png")),
-	      m_moveIcon(Texture2D::FromFile(GetResDirectory() / "ui" / "move.png"))
+	    : EditorTool(editor), m_entityIcon(Texture2D::FromFile(resDirectoryPath / "ui" / "entity.png")),
+	      m_moveIcon(Texture2D::FromFile(resDirectoryPath / "ui" / "move.png"))
 	{
 		
 	}

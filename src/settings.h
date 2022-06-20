@@ -64,6 +64,8 @@ namespace TankGame
 			m_resolution = resolution;
 		}
 		
+		void SetToDefaultVideoMode(const struct VideoModes& videoModes);
+		
 		inline float GetGamma() const
 		{ return m_gamma; }
 		inline void SetGamma(float gamma)
@@ -137,7 +139,7 @@ namespace TankGame
 		
 		int m_resolutionIndex = -1;
 		glm::ivec2 m_resolution{ -1, -1 };
-		bool m_isFullscreen = true;
+		bool m_isFullscreen = false;
 		
 		bool m_enableVSync = true;
 		

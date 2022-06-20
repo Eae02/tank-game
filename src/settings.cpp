@@ -11,6 +11,20 @@ namespace TankGame
 {
 	Settings Settings::instance;
 	
+	void Settings::SetToDefaultVideoMode(const VideoModes& videoModes)
+	{
+		if (videoModes.resolutions.empty() || videoModes.defaultResolutionIndex < 0)
+		{
+			m_resolution = { 800, 600 };
+			m_resolutionIndex = -1;
+		}
+		else
+		{
+			m_resolution = videoModes.resolutions[videoModes.defaultResolutionIndex];
+			m_resolutionIndex = videoModes.defaultResolutionIndex;
+		}
+	}
+	
 	void Settings::Load(const fs::path& jsonPath, const VideoModes& videoModes)
 	{
 		nlohmann::json settingsDocument = nlohmann::json::parse(ReadFileContents(jsonPath));
@@ -100,6 +114,8 @@ namespace TankGame
 		
 		std::ofstream stream(jsonPath);
 		stream << std::setw(4) << json;
+		stream.close();
+		SyncFileSystem();
 	}
 	
 	QualitySettings Settings::ParseQualityString(const std::string& string, QualitySettings def)

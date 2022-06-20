@@ -2,8 +2,8 @@
 
 #include "graphics/gl/texture2d.h"
 #include "graphics/spritematerial.h"
-#include "iasyncoperation.h"
 
+#include <array>
 #include <memory>
 
 namespace TankGame
@@ -11,28 +11,25 @@ namespace TankGame
 	class TankTextures
 	{
 	public:
-		TankTextures(Texture2D&& baseDiffuse0, Texture2D&& baseDiffuse1, Texture2D&& baseDiffuse2,
-		             Texture2D&& baseDiffuse3, Texture2D&& baseDiffuse4, Texture2D&& baseDiffuse5,
-		             Texture2D&& baseDiffuse6, Texture2D&& baseDiffuse7, Texture2D&& baseDiffuse8,
-		             Texture2D&& baseNormals);
-		
 		inline const Texture2D& GetBaseDiffuse(int frame) const
-		{ return m_baseDiffuse[frame]; }
+		{ return m_baseDiffuse.at(frame); }
 		inline const Texture2D& GetBaseNormals() const
 		{ return m_baseNormals; }
 		
 		inline const SpriteMaterial& GetBaseMaterial(int frame) const
-		{ return m_baseMaterials[frame]; }
+		{ return m_baseMaterials.at(frame); }
 		
-		static std::unique_ptr<IASyncOperation> CreateInstance();
-		static const TankTextures& GetInstance();
+		static void LoadAndCreateInstance(class ASyncWorkList& asyncWorkList);
+		static const TankTextures& GetInstance() { return *s_instance; }
 		
 	private:
+		TankTextures(std::vector<Texture2D> baseDiffuse, Texture2D baseNormals);
+		
 		static std::unique_ptr<TankTextures> s_instance;
 		
-		Texture2D m_baseDiffuse[9];
+		std::vector<Texture2D> m_baseDiffuse;
 		Texture2D m_baseNormals;
 		
-		SpriteMaterial m_baseMaterials[9];
+		std::vector<SpriteMaterial> m_baseMaterials;
 	};
 }

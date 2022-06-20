@@ -58,7 +58,7 @@ namespace TankGame::ImGuiInterface
 		
 		ImGui::StyleColorsDark(&ImGui::GetStyle());
 		
-		iniFilePath = (GetDataDirectory() / "imgui.ini").string();
+		iniFilePath = (dataDirectoryPath / "imgui.ini").string();
 		io.IniFilename = iniFilePath.c_str();
 	}
 	
@@ -68,10 +68,10 @@ namespace TankGame::ImGuiInterface
 		unsigned char* pixels;
 		int width, height;
 		
-		std::string uiFontFilePath = (GetResDirectory() / "fonts" / "ui.ttf").string();
+		std::string uiFontFilePath = (resDirectoryPath / "fonts" / "ui.ttf").string();
 		io.Fonts->AddFontFromFileTTF(uiFontFilePath.c_str(), 16);
 		
-		std::string monoFontFilePath = (GetResDirectory() / "fonts" / "mono.ttf").string();
+		std::string monoFontFilePath = (resDirectoryPath / "fonts" / "mono.ttf").string();
 		io.Fonts->AddFontFromFileTTF(monoFontFilePath.c_str(), 16);
 		
 		io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
@@ -84,8 +84,8 @@ namespace TankGame::ImGuiInterface
 	
 	static void CreateDeviceObjects()
 	{
-		auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "imgui.vs.glsl", GL_VERTEX_SHADER);
-		auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "imgui.fs.glsl", GL_FRAGMENT_SHADER);
+		auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "imgui.vs.glsl", GL_VERTEX_SHADER);
+		auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "imgui.fs.glsl", GL_FRAGMENT_SHADER);
 		
 		theGuiShader.reset(new ShaderProgram{ &vs, &fs });
 		

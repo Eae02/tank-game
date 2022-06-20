@@ -11,7 +11,7 @@ namespace TankGame
 	{
 		if (blankButtonTexture== nullptr)
 		{
-			blankButtonTexture = std::make_unique<Texture2D>(Texture2D::FromFile(GetResDirectory() / "ui" / "key.png"));
+			blankButtonTexture = std::make_unique<Texture2D>(Texture2D::FromFile(resDirectoryPath / "ui" / "key.png"));
 			CallOnClose([] { blankButtonTexture = nullptr; });
 		}
 		

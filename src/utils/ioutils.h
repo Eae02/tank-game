@@ -7,7 +7,6 @@ namespace TankGame
 {
 	std::string ReadFileContents(const fs::path& path);
 	
-	const fs::path& GetResDirectory();
-	
-	const fs::path& GetDataDirectory();
+	extern fs::path resDirectoryPath;
+	extern fs::path dataDirectoryPath;
 }

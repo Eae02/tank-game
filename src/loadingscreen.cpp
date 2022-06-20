@@ -1,6 +1,7 @@
 #include "loadingscreen.h"
 #include "updateinfo.h"
 #include "tanktextures.h"
+#include "world/props/propclassloadoperation.h"
 #include "world/props/propsmanager.h"
 #include "world/entities/conveyorbeltentity.h"
 #include "graphics/ui/uirenderer.h"
@@ -8,44 +9,39 @@
 #include "graphics/tilegridmaterialloadoperation.h"
 #include "utils/ioutils.h"
 #include "audio/soundsmanager.h"
-#include "audio/soundloadoperation.h"
 
 #include <cmath>
 
 namespace TankGame
 {
 	LoadingScreen::LoadingScreen()
-	    : m_loadingSprite(Texture2D::FromFile(GetResDirectory() / "ui" / "loading.png"))
+	    : m_loadingSprite(Texture2D::FromFile(resDirectoryPath / "ui" / "loading.png"))
 	{
 		
 	}
 	
 	void LoadingScreen::Initialize()
 	{
-		m_workList.SubmitWork(std::make_unique<SoundLoadOperation>(GetResDirectory() / "audio" / "audio.json",
-		                                                           [] (SoundsManager&& soundsManager)
+		m_workList.Add(std::async([]
 		{
-			SoundsManager::SetInstance(std::make_unique<SoundsManager>(std::move(soundsManager)));
-		}));
+			return std::make_unique<SoundsManager>(resDirectoryPath / "audio" / "audio.json");
+		}), SoundsManager::SetInstance);
 		
-		m_workList.SubmitWork(PropsManager::GetInstance().LoadPropClasses(GetResDirectory() / "props"));
+		m_workList.Add(PropClassLoadOperation::Load(resDirectoryPath / "props"),
+			[] (PropClassLoadOperation op) { PropsManager::SetInstance(op.FinishLoading()); });
 		
-		m_workList.SubmitWork(TankTextures::CreateInstance());
+		TankTextures::LoadAndCreateInstance(m_workList);
 		
-		m_workList.SubmitWork(std::make_unique<TileGridMaterialLoadOperation>(GetResDirectory() / "tiles" / "tiles.json",
-		                                                                      [] (TileGridMaterial&& material)
-		{
-			TileGridMaterial::SetInstance(std::make_unique<TileGridMaterial>(std::move(material)));
-		}));
+		m_workList.Add(
+			TileGridMaterialLoadOperation::Load(resDirectoryPath / "tiles" / "tiles.json"),
+			[] (TileGridMaterialLoadOperation op) { TileGridMaterial::SetInstance(op.FinishLoading()); });
 		
 		ConveyorBeltEntity::LoadResources(m_workList);
-		
-		m_workList.BeginProcessing();
 	}
 	
 	void LoadingScreen::RunFrame()
 	{
-		m_workList.ProcessSingleResult();
+		m_workList.Poll();
 		
 		glm::vec4 clearColor(ParseColorHexCodeSRGB(0x224E57), 1.0f);
 		glClearBufferfv(GL_COLOR, 0, reinterpret_cast<const GLfloat*>(&clearColor));

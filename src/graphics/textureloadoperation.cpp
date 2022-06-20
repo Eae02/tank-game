@@ -3,26 +3,23 @@
 
 namespace TankGame
 {
-	TextureLoadOperation::TextureLoadOperation(std::string path, TextureLoadOperation::DoneCallback doneCallback)
-	    : m_doneCallback(doneCallback), m_path(std::move(path)), m_data(nullptr, &STBIDataDeleter) { }
-	
-	TextureLoadOperation::TextureLoadOperation(const fs::path& path, TextureLoadOperation::DoneCallback doneCallback)
-	    : TextureLoadOperation(path.string(), doneCallback) { }
-	
-	void TextureLoadOperation::DoWork()
+	std::future<TextureLoadOperation> TextureLoadOperation::Start(std::string path)
 	{
-		m_data.reset(stbi_load(m_path.c_str(), &m_width, &m_height, &m_numComponents, 0));
-		
-		if (m_data == nullptr)
-			throw std::runtime_error("Error loading image from '" + m_path + "': " + stbi_failure_reason() + ".");
-		
-		m_numMipmaps = Texture2D::GetMipmapCount(std::max(m_width, m_height));
+		return std::async(std::launch::async, [p=std::move(path)]
+		{
+			return TextureLoadOperation::Load(p);
+		});
 	}
 	
-	void TextureLoadOperation::ProcessResult()
+	TextureLoadOperation TextureLoadOperation::Load(std::string path)
 	{
-		if (m_doneCallback != nullptr)
-			m_doneCallback(CreateTexture());
+		TextureLoadOperation op;
+		op.m_data.reset(stbi_load(path.c_str(), &op.m_width, &op.m_height, &op.m_numComponents, 0));
+		if (op.m_data == nullptr)
+			throw std::runtime_error("Error loading image from '" + path + "': " + stbi_failure_reason() + ".");
+		op.m_numMipmaps = Texture2D::GetMipmapCount(std::max(op.m_width, op.m_height));
+		op.m_path = std::move(path);
+		return op;
 	}
 	
 	Texture2D TextureLoadOperation::CreateTexture() const
@@ -40,10 +37,5 @@ namespace TankGame
 		texture.SetWrapMode(GL_CLAMP_TO_EDGE);
 		
 		return texture;
-	}
-	
-	void TextureLoadOperation::STBIDataDeleter(uint8_t* data)
-	{
-		stbi_image_free(data);
 	}
 }

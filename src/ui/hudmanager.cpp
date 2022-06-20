@@ -27,7 +27,7 @@ namespace TankGame
 	
 	static ShaderProgram LoadShader()
 	{
-		fs::path shaderPath = GetResDirectory() / "shaders" / "ui";
+		fs::path shaderPath = resDirectoryPath / "shaders" / "ui";
 		auto vs = ShaderModule::FromFile(shaderPath / "hud.vs.glsl", GL_VERTEX_SHADER);
 		auto fs = ShaderModule::FromFile(shaderPath / "hud.fs.glsl", GL_FRAGMENT_SHADER);
 		ShaderProgram program({ &vs, &fs });
@@ -77,7 +77,7 @@ namespace TankGame
 	    : m_mainRenderer(mainRenderer),
 	      m_weaponIcons{ WeaponIcon(0), WeaponIcon(1) },
 	      m_vertexBuffer(CreateVertexBuffer(m_vertexCount)),
-	      m_textures(GetResDirectory() / "ui"), m_shader(LoadShader())
+	      m_textures(resDirectoryPath / "ui"), m_shader(LoadShader())
 	{
 		WeaponIcon::MaybeLoadIcons();
 		

@@ -14,8 +14,8 @@ namespace TankGame
 {
 	static ShaderProgram LoadGridShader()
 	{
-		auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "editor" / "grid.vs.glsl", GL_VERTEX_SHADER);
-		auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "editor" / "grid.fs.glsl", GL_FRAGMENT_SHADER);
+		auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "editor" / "grid.vs.glsl", GL_VERTEX_SHADER);
+		auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "editor" / "grid.fs.glsl", GL_FRAGMENT_SHADER);
 		
 		return ShaderProgram({ &vs, &fs });
 	}

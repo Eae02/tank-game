@@ -5,7 +5,7 @@
 namespace TankGame
 {
 	MainMenu::MainMenu()
-	    : m_title(Texture2D::FromFile(GetResDirectory() / "ui" / "title.png")),
+	    : m_title(Texture2D::FromFile(resDirectoryPath / "ui" / "title.png")),
 	      m_playButton(U"Play"), m_optionsButton(U"Options"), m_quitButton(U"Quit")
 	{
 		

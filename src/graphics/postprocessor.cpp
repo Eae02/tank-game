@@ -15,14 +15,14 @@ namespace TankGame
 {
 	ShaderProgram PostProcessor::LoadShader(const fs::path& path)
 	{
-		ShaderModule fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / path, GL_FRAGMENT_SHADER);
+		ShaderModule fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / path, GL_FRAGMENT_SHADER);
 		return ShaderProgram({ &QuadMesh::GetVertexShader(), &fs });
 	}
 	
 	const int NOISE_TEXTURE_RES = 64;
 	
 	PostProcessor::PostProcessor()
-	    : m_hexagonTexture(Texture2D::FromFile(GetResDirectory() / "hex.png")),
+	    : m_hexagonTexture(Texture2D::FromFile(resDirectoryPath / "hex.png")),
 	      m_noiseTexture(NOISE_TEXTURE_RES, -1.0f, 1.0f),
 	      m_bloomHBlurShader(LoadShader(fs::path("bloom") / "hblur.fs.glsl")),
 	      m_bloomVBlurShader(LoadShader(fs::path("bloom") / "vblur.fs.glsl")),

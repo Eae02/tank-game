@@ -31,11 +31,6 @@ namespace TankGame
 		return result;
 	}
 	
-	std::unique_ptr<IASyncOperation> PropsManager::LoadPropClasses(const fs::path& directoryPath)
-	{
-		return std::make_unique<PropClassLoadOperation>(*this, directoryPath);
-	}
-	
 	bool PropsManager::RenderPropClassSeletor(const char* label, const PropClass** propClass) const
 	{
 		auto pos = std::find_if(m_propClasses.begin(), m_propClasses.end(), [&] (const auto& entry)

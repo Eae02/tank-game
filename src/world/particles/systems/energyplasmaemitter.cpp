@@ -15,7 +15,7 @@ namespace TankGame
 		if (s_texture== nullptr)
 		{
 			s_texture = std::make_unique<Texture2DArray>(64, 64, 1, Texture::GetMipmapCount(64), GL_RGBA8);
-			s_texture->LoadLayerFromFile(0, GetResDirectory() / "particles" / "plasma_orb.png");
+			s_texture->LoadLayerFromFile(0, resDirectoryPath / "particles" / "plasma_orb.png");
 			s_texture->SetupMipmapping(true);
 			
 			CallOnClose([] { s_texture = nullptr; });

@@ -15,7 +15,7 @@ namespace TankGame
 		if (s_flameTexture== nullptr)
 		{
 			s_flameTexture = std::make_unique<Texture2DArray>(512, 512, 1, Texture::GetMipmapCount(512), GL_RGBA8);
-			s_flameTexture->LoadLayerFromFile(0, GetResDirectory() / "particles" / "flame.png");
+			s_flameTexture->LoadLayerFromFile(0, resDirectoryPath / "particles" / "flame.png");
 			s_flameTexture->SetupMipmapping(true);
 			
 			CallOnClose([] { s_flameTexture = nullptr; });

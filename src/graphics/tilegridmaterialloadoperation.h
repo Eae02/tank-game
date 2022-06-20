@@ -1,36 +1,28 @@
 #pragma once
 
-#include "../iasyncoperation.h"
 #include "../utils/filesystem.h"
+#include "../utils/utils.h"
 #include "tilegridmaterial.h"
 
 #include <vector>
+#include <future>
 
 namespace TankGame
 {
-	class TileGridMaterialLoadOperation : public IASyncOperation
+	class TileGridMaterialLoadOperation
 	{
 	public:
-		using DoneCallback = void(*)(TileGridMaterial&&);
+		static std::future<TileGridMaterialLoadOperation> Load(fs::path jsonPath);
 		
-		TileGridMaterialLoadOperation(fs::path jsonPath, DoneCallback doneCallback);
-		
-		virtual void DoWork() override;
-		virtual void ProcessResult() override;
+		std::unique_ptr<TileGridMaterial> FinishLoading();
 		
 	private:
-		struct TextureLayerDeleter
-		{
-			void operator()(uint8_t* data) const { std::free(data); }
-		};
+		TileGridMaterialLoadOperation() = default;
 		
-		using TextureLayerPtr = std::unique_ptr<uint8_t, TextureLayerDeleter>;
+		using TextureLayerPtr = std::unique_ptr<uint8_t, FreeDeleter>;
 		
 		static TextureLayerPtr AllocateTextureLayer();
 		TextureLayerPtr LoadTextureLayer(const fs::path& path);
-		
-		DoneCallback m_doneCallback;
-		fs::path m_jsonPath;
 		
 		int m_layers = 0;
 		

@@ -28,13 +28,13 @@ namespace TankGame
 	{
 		if (s_knobTexture== nullptr)
 		{
-			s_knobTexture = std::make_unique<Texture2D>(Texture2D::FromFile(GetResDirectory() / "ui" / "slider-knob.png"));
+			s_knobTexture = std::make_unique<Texture2D>(Texture2D::FromFile(resDirectoryPath / "ui" / "slider-knob.png"));
 			CallOnClose([] { s_knobTexture = nullptr; });
 		}
 		
 		if (s_labelTexture== nullptr)
 		{
-			s_labelTexture = std::make_unique<Texture2D>(Texture2D::FromFile(GetResDirectory() / "ui" / "slider-label.png"));
+			s_labelTexture = std::make_unique<Texture2D>(Texture2D::FromFile(resDirectoryPath / "ui" / "slider-label.png"));
 			CallOnClose([] { s_labelTexture = nullptr; });
 			
 			s_labelTextureAR = s_labelTexture->GetHeight() / static_cast<float>(s_labelTexture->GetWidth());;

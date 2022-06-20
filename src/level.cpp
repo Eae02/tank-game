@@ -16,7 +16,7 @@ namespace TankGame
 	const fs::path& Level::GetLevelsPath()
 	{
 		if (theLevelsPath.empty())
-			theLevelsPath = GetResDirectory() / "levels";
+			theLevelsPath = resDirectoryPath / "levels";
 		return theLevelsPath;
 	}
 	

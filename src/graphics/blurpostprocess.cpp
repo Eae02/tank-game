@@ -9,7 +9,7 @@ namespace TankGame
 {
 	static ShaderProgram LoadShader()
 	{
-		auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "postblur.fs.glsl", GL_FRAGMENT_SHADER);
+		auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "postblur.fs.glsl", GL_FRAGMENT_SHADER);
 		
 		ShaderProgram program({ &QuadMesh::GetVertexShader(), &fs });
 		program.SetTextureBinding("inputSampler", 0);

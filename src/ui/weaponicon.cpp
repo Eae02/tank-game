@@ -96,7 +96,7 @@ namespace TankGame
 		if (!s_icons.empty())
 			return;
 		
-		s_icons.push_back(Texture2D::FromFile(GetResDirectory() / "ui" / "weapon-plasma-gun.png"));
-		s_icons.push_back(Texture2D::FromFile(GetResDirectory() / "ui" / "weapon-rocket-launcher.png"));
+		s_icons.push_back(Texture2D::FromFile(resDirectoryPath / "ui" / "weapon-plasma-gun.png"));
+		s_icons.push_back(Texture2D::FromFile(resDirectoryPath / "ui" / "weapon-rocket-launcher.png"));
 	}
 }

@@ -7,7 +7,6 @@
 
 #include "propclass.h"
 #include "../../graphics/gl/texture2d.h"
-#include "../../iasyncoperation.h"
 
 namespace TankGame
 {
@@ -16,11 +15,11 @@ namespace TankGame
 		friend class PropClassLoadOperation;
 		
 	public:
+		PropsManager() = default;
+		
 		const Texture2D* GetTexture(const std::string& path);
 		
 		const PropClass* GetPropClassByName(const std::string& name) const;
-		
-		std::unique_ptr<IASyncOperation> LoadPropClasses(const fs::path& directoryPath);
 		
 		inline static void SetInstance(std::unique_ptr<PropsManager>&& instance)
 		{ s_instance = std::move(instance); }

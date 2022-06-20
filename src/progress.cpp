@@ -1,5 +1,6 @@
 ﻿#include "progress.h"
 #include "utils/ioutils.h"
+#include "platform/common.h"
 
 #include <nlohmann/json.hpp>
 #include <fstream>
@@ -48,5 +49,7 @@ namespace TankGame
 		
 		std::ofstream stream(path);
 		stream << json;
+		stream.close();
+		SyncFileSystem();
 	}
 }

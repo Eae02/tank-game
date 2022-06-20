@@ -9,7 +9,7 @@
 namespace TankGame
 {
 	PauseMenu::PauseMenu()
-	    : m_title(Texture2D::FromFile(GetResDirectory() / "ui" / "paused.png")),
+	    : m_title(Texture2D::FromFile(resDirectoryPath / "ui" / "paused.png")),
 	      m_resumeButton(U"Resume"), m_optionsButton(U"Options"), m_quitButton(U"Quit to Menu")
 	{
 		

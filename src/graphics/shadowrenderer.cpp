@@ -18,7 +18,7 @@ namespace TankGame
 	{
 		if (s_fragmentShader== nullptr)
 		{
-			const fs::path fsPath = GetResDirectory() / shaderPath / "shadow.fs.glsl";
+			const fs::path fsPath = resDirectoryPath / shaderPath / "shadow.fs.glsl";
 			s_fragmentShader = std::make_unique<ShaderModule>(ShaderModule::FromFile(fsPath, GL_FRAGMENT_SHADER));
 			CallOnClose([] { s_fragmentShader = nullptr; });
 		}
@@ -28,8 +28,8 @@ namespace TankGame
 	
 	ShaderProgram ShadowRenderer::CreateBlurPassShader()
 	{
-		auto vs = ShaderModule::FromFile(GetResDirectory() / shaderPath / "blur.vs.glsl", GL_VERTEX_SHADER);
-		auto fs = ShaderModule::FromFile(GetResDirectory() / shaderPath / "blur.fs.glsl", GL_FRAGMENT_SHADER);
+		auto vs = ShaderModule::FromFile(resDirectoryPath / shaderPath / "blur.vs.glsl", GL_VERTEX_SHADER);
+		auto fs = ShaderModule::FromFile(resDirectoryPath / shaderPath / "blur.fs.glsl", GL_FRAGMENT_SHADER);
 		
 		ShaderProgram program({ &vs, &fs });
 		program.SetTextureBinding("shadowMap", 0);

@@ -24,6 +24,13 @@ namespace TankGame
 	{
 		
 	}
+	
+	void SyncFileSystem()
+	{
+		EM_ASM(
+			FS.syncfs(false, function (err) { });
+		);
+	}
 }
 
 #endif

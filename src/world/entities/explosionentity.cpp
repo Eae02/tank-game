@@ -32,8 +32,8 @@ namespace TankGame
 	{
 		if (s_distortionShader == nullptr)
 		{
-			auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "blastwave.vs.glsl", GL_VERTEX_SHADER);
-			auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "blastwave.fs.glsl", GL_FRAGMENT_SHADER);
+			auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "blastwave.vs.glsl", GL_VERTEX_SHADER);
+			auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "blastwave.fs.glsl", GL_FRAGMENT_SHADER);
 			
 			s_distortionShader.reset(new ShaderProgram{ &vs, &fs });
 			

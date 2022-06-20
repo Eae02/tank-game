@@ -1,15 +1,18 @@
 #include "messagebox.h"
 
-#if !defined(__linux__) && !defined(_WIN32)
+#ifdef __EMSCRIPTEN__
 
 #include <iostream>
+#include <emscripten/emscripten.h>
 
 namespace TankGame
 {
 	void ShowErrorMessage(const std::string& message, const std::string& title)
 	{
-		std::cerr << message << std::endl;
-		std::abort();
+		EM_ASM({
+			setInfoLabel(UTF8ToString($0));
+		}, message.c_str());
+		std::exit(0);
 	}
 }
 

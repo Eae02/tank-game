@@ -65,7 +65,7 @@ namespace Lua
 		
 		if (!standardCodeLoaded)
 		{
-			standardLuaCode = ReadFileContents(GetResDirectory() / "std.lua");
+			standardLuaCode = ReadFileContents(resDirectoryPath / "std.lua");
 			standardCodeLoaded = true;
 		}
 		

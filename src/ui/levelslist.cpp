@@ -34,13 +34,13 @@ namespace TankGame
 		
 		if (s_playIcon== nullptr)
 		{
-			s_playIcon = std::make_unique<Texture2D>(Texture2D::FromFile(GetResDirectory() / "ui" / "play.png"));
+			s_playIcon = std::make_unique<Texture2D>(Texture2D::FromFile(resDirectoryPath / "ui" / "play.png"));
 			CallOnClose([] { s_playIcon = nullptr; });
 		}
 		
 		if (s_lockIcon== nullptr)
 		{
-			s_lockIcon = std::make_unique<Texture2D>(Texture2D::FromFile(GetResDirectory() / "ui" / "lock.png"));
+			s_lockIcon = std::make_unique<Texture2D>(Texture2D::FromFile(resDirectoryPath / "ui" / "lock.png"));
 			CallOnClose([] { s_lockIcon = nullptr; });
 		}
 	}

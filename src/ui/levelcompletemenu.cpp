@@ -9,7 +9,7 @@
 namespace TankGame
 {
 	LevelCompleteMenu::LevelCompleteMenu()
-	    : m_title(Texture2D::FromFile(GetResDirectory() / "ui" / "level-complete.png")),
+	    : m_title(Texture2D::FromFile(resDirectoryPath / "ui" / "level-complete.png")),
 	      m_nextLevelButton(U"Next Level"), m_quitButton(U"Quit")
 	{
 		

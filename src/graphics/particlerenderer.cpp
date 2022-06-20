@@ -8,8 +8,8 @@ namespace TankGame
 {
 	static ShaderProgram LoadShader()
 	{
-		auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "particle.vs.glsl", GL_VERTEX_SHADER);
-		auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "particle.fs.glsl", GL_FRAGMENT_SHADER);
+		auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "particle.vs.glsl", GL_VERTEX_SHADER);
+		auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "particle.fs.glsl", GL_FRAGMENT_SHADER);
 		
 		ShaderProgram program({ &vs, &fs });
 		program.SetUniformBlockBinding("ParticlesUB", 1);

@@ -23,6 +23,11 @@ namespace TankGame
 		return std::abs(a - b) < 1E-6f;
 	}
 	
+	struct FreeDeleter
+	{
+		void operator()(void* data) const { std::free(data); }
+	};
+	
 	extern double frameBeginTime;
 	
 	std::vector<std::string> Split(const std::string& string, const std::string& delimiters = " ",

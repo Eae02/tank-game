@@ -13,6 +13,4 @@ typedef float GLclampf;
 #define glMapBuffer     ((void*(*)(...))nullptr)
 #define glUnmapBuffer   ((GLboolean(*)(...))nullptr)
 
-#define glBindVertexBuffers ((void*(*)(...))nullptr)
-
 #define APIENTRY

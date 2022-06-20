@@ -23,8 +23,8 @@ namespace TankGame
 	{
 		if (s_shader== nullptr)
 		{
-			auto vs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "lightstrip.vs.glsl", GL_VERTEX_SHADER);
-			auto fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "lightstrip.fs.glsl", GL_FRAGMENT_SHADER);
+			auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "lightstrip.vs.glsl", GL_VERTEX_SHADER);
+			auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "lightstrip.fs.glsl", GL_FRAGMENT_SHADER);
 			
 			s_shader.reset(new ShaderProgram{ &vs, &fs });
 			s_colorUniformLoc = s_shader->GetUniformLocation("color");

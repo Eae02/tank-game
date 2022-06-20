@@ -92,7 +92,7 @@ namespace TankGame
 		
 		if (namedFonts[index]== nullptr)
 		{
-			const fs::path fontPath = GetResDirectory() / "fonts" / fontFileNames[index];
+			const fs::path fontPath = resDirectoryPath / "fonts" / fontFileNames[index];
 			namedFonts[index] = std::make_unique<Font>(fontPath, namedFontSizes[index]);
 		}
 		

@@ -17,7 +17,7 @@ namespace TankGame
 	{
 		if (vertexShader== nullptr)
 		{
-			const fs::path vsPath = GetResDirectory() / "shaders" / "lighting" / "light.vs.glsl";
+			const fs::path vsPath = resDirectoryPath / "shaders" / "lighting" / "light.vs.glsl";
 			vertexShader = std::make_unique<ShaderModule>(ShaderModule::FromFile(vsPath, GL_VERTEX_SHADER));
 			
 			CallOnClose([] { vertexShader = nullptr; });
@@ -28,7 +28,7 @@ namespace TankGame
 	
 	ShaderProgram ILightSource::MakeShaderProgram(const std::string& fragmentShaderName)
 	{
-		ShaderModule fs = ShaderModule::FromFile(GetResDirectory() / "shaders" / "lighting" / fragmentShaderName, GL_FRAGMENT_SHADER);
+		ShaderModule fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "lighting" / fragmentShaderName, GL_FRAGMENT_SHADER);
 		ShaderProgram program({ &GetVertexShader(), &fs });
 		program.SetTextureBinding("normalsAndSpecSampler", NORMALS_SPECULAR_TEXTURE_BINDING, false);
 		program.SetTextureBinding("shadowSampler", SHADOW_MAP_TEXTURE_BINDING, false);

@@ -1,23 +1,24 @@
 #pragma once
 
-#include "../../iasyncoperation.h"
+#include "propsmanager.h"
 #include "../../utils/filesystem.h"
 #include "../../graphics/textureloadoperation.h"
 
 #include <nlohmann/json.hpp>
+#include <future>
 
 namespace TankGame
 {
-	class PropClassLoadOperation : public IASyncOperation
+	class PropClassLoadOperation
 	{
 	public:
-		inline PropClassLoadOperation(class PropsManager& propsManager, fs::path dirPath)
-		    : m_propsManager(propsManager), m_dirPath(dirPath) { }
+		static std::future<PropClassLoadOperation> Load(fs::path dirPath);
 		
-		virtual void DoWork() override;
-		virtual void ProcessResult() override;
+		std::unique_ptr<PropsManager> FinishLoading();
 		
 	private:
+		PropClassLoadOperation() = default;
+		
 		void MaybeLoadTexture(const std::string& path);
 		
 		struct ClassToLoad
@@ -29,7 +30,7 @@ namespace TankGame
 			    : m_json(json), m_parentPath(parentPath) { }
 		};
 		
-		class PropsManager& m_propsManager;
+		std::unique_ptr<PropsManager> m_propsManager;
 		
 		fs::path m_dirPath;
 		

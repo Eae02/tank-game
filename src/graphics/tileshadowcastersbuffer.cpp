@@ -16,7 +16,7 @@ namespace TankGame
 		if (s_shadowShader == nullptr)
 		{
 			auto vs = ShaderModule::FromFile(
-				GetResDirectory() / "shaders" / "lighting" / "shadows" / "tileshadow.vs.glsl", GL_VERTEX_SHADER);
+				resDirectoryPath / "shaders" / "lighting" / "shadows" / "tileshadow.vs.glsl", GL_VERTEX_SHADER);
 			
 			s_shadowShader.reset(new ShaderProgram{ &vs, &ShadowRenderer::GetFragmentShader() });
 			
