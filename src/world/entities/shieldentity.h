@@ -2,7 +2,7 @@
 
 #include "../../graphics/gl/shaderprogram.h"
 #include "../../graphics/gl/bufferallocator.h"
-#include "../../graphics/gl/vertexarray.h"
+#include "../../graphics/gl/vertexinputstate.h"
 #include "../entity.h"
 #include "hittable.h"
 
@@ -50,7 +50,7 @@ namespace TankGame
 		static std::unique_ptr<ShaderProgram> s_spriteShader;
 		
 		static std::unique_ptr<Buffer> s_vertexBuffer;
-		static std::unique_ptr<VertexArray> s_vertexArray;
+		static std::unique_ptr<VertexInputState> s_vertexInputState;
 		static GLsizei s_numVertices;
 		
 		static void CreateVertexBuffer();

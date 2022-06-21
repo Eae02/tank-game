@@ -66,7 +66,7 @@ namespace TankGame
 		if (renderSize.x == 0 || renderSize.y == 0)
 			return;
 		
-		QuadMesh::GetInstance().GetVAO().Bind();
+		QuadMesh::GetInstance().BindVAO();
 		
 		m_idsTexture.Bind(0);
 		m_rotationsTexture.Bind(1);

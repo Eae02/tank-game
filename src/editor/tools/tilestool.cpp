@@ -23,10 +23,6 @@ namespace TankGame
 	TilesTool::TilesTool(class Editor& editor)
 	    : EditorTool(editor), m_gridShader(LoadGridShader())
 	{
-		glEnableVertexArrayAttrib(m_gridVAO.GetID(), 0);
-		glVertexArrayAttribFormat(m_gridVAO.GetID(), 0, 2, GL_FLOAT, GL_FALSE, 0);
-		glVertexArrayAttribBinding(m_gridVAO.GetID(), 0, 0);
-		
 		for (int i = 0; i < TileGridMaterial::GetInstance().GetMaterialCount() && i < 255; i++)
 		{
 			m_tileMaterials.emplace_back(TileGridMaterial::GetInstance().GetMaterialName(i), static_cast<uint8_t>(i));
@@ -82,7 +78,7 @@ namespace TankGame
 		if (m_drawGrid)
 		{
 			m_gridShader.Use();
-			m_gridVAO.Bind();
+			m_gridVertexInputState.Bind();
 			glDrawArrays(GL_LINES, 0, m_gridVertexCount);
 		}
 		
@@ -140,7 +136,8 @@ namespace TankGame
 		m_gridVertexCount = bufferData.size() * 2;
 		
 		m_gridBuffer = std::make_unique<Buffer>(bufferData.size() * sizeof(GridLine), bufferData.data(), BufferUsage::StaticData);
-		glVertexArrayVertexBuffer(m_gridVAO.GetID(), 0, m_gridBuffer->GetID(), 0, sizeof(float) * 2);
+		
+		m_gridVertexInputState.UpdateAttribute(0, m_gridBuffer->GetID(), VertexAttribFormat::Float32_2, 0, sizeof(float) * 2);
 		
 		EditorTool::SetGameWorld(gameWorld);
 	}

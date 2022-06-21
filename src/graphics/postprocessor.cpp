@@ -62,7 +62,7 @@ namespace TankGame
 		if (frameBeginTime < m_damageFlashBeginTime + DAMAGE_FLASH_TIME)
 			damageFlashIntensity = (1.0f - (frameBeginTime - m_damageFlashBeginTime) / DAMAGE_FLASH_TIME) * 0.5f;
 		
-		QuadMesh::GetInstance().GetVAO().Bind();
+		QuadMesh::GetInstance().BindVAO();
 		inputTexture.Bind(0);
 		distortionsTexture.Bind(2);
 		

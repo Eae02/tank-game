@@ -2,7 +2,7 @@
 #include "graphics/gl/shaderprogram.h"
 #include "graphics/gl/shadermodule.h"
 #include "graphics/gl/texture2d.h"
-#include "graphics/gl/vertexarray.h"
+#include "graphics/gl/vertexinputstate.h"
 #include "utils/ioutils.h"
 #include "keyboard.h"
 #include "mouse.h"
@@ -14,7 +14,7 @@ namespace TankGame::ImGuiInterface
 {
 	static std::unique_ptr<Texture2D> theFontTexture;
 	static std::unique_ptr<ShaderProgram> theGuiShader;
-	static std::unique_ptr<VertexArray> theGuiVAO;
+	static std::unique_ptr<VertexInputState> theGuiVAO;
 	
 	static int theTextureUniformLoc = 0;
 	static int theProjectionMatrixUniformLoc = 0;
@@ -95,16 +95,11 @@ namespace TankGame::ImGuiInterface
 		glGenBuffers(1, &theGuiVBO);
 		glGenBuffers(1, &theGuiIBO);
 		
-		theGuiVAO = std::make_unique<VertexArray>();
-		theGuiVAO->Bind();
-		glBindBuffer(GL_ARRAY_BUFFER, theGuiVBO);
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
+		theGuiVAO = std::make_unique<VertexInputState>();
 		
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)offsetof(ImDrawVert, pos));
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid*)offsetof(ImDrawVert, uv));
-		glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid*)offsetof(ImDrawVert, col));
+		theGuiVAO->UpdateAttribute(0, theGuiVBO, VertexAttribFormat::Float32_2, offsetof(ImDrawVert, pos), sizeof(ImDrawVert));
+		theGuiVAO->UpdateAttribute(1, theGuiVBO, VertexAttribFormat::Float32_2, offsetof(ImDrawVert, uv), sizeof(ImDrawVert));
+		theGuiVAO->UpdateAttribute(2, theGuiVBO, VertexAttribFormat::UNorm8_4, offsetof(ImDrawVert, col), sizeof(ImDrawVert));
 	}
 	
 	void Close()

@@ -16,21 +16,19 @@ namespace TankGame
 		class IShadowMapGeometryProvider : public Abstract
 		{
 		public:
-			virtual void DrawShadowCasters(glm::vec2 lightPos, const class ViewInfo& viewInfo) const = 0;
+			virtual void DrawShadowCasters(const LightInfo& lightInfo, const class ViewInfo& viewInfo) const = 0;
 		};
 		
 		ShadowRenderer();
 		
 		void RenderShadowMap(class ShadowMap& shadowMap, LightInfo lightInfo, const class ViewInfo& viewInfo,
-		                     const IShadowMapGeometryProvider& geometryProvider) const;
+		                     const IShadowMapGeometryProvider& geometryProvider);
 		
 		void OnResize(GLsizei width, GLsizei height);
 		
-		static const ShaderModule& GetFragmentShader();
+		uint32_t lastFrameShadowMapUpdates = 0;
 		
 	private:
-		static std::unique_ptr<ShaderModule> s_fragmentShader;
-		
 		static ShaderProgram CreateBlurPassShader();
 		
 		ShaderProgram m_blurPassShader;

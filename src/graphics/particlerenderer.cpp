@@ -2,6 +2,7 @@
 #include "deferredrenderer.h"
 #include "gl/shadermodule.h"
 #include "quadmesh.h"
+#include "../platform/common.h"
 #include "../utils/ioutils.h"
 
 namespace TankGame
@@ -28,12 +29,15 @@ namespace TankGame
 	
 	void ParticleRenderer::Begin(const Texture2D& lightBufferTexture)
 	{
+		if (measureDrawCPUTime)
+			m_drawBeginTime = GetTime();
 		m_usedBatches = 0;
+		m_numRenderedParticles = 0;
 		m_shader.Use();
 		
 		lightBufferTexture.Bind(0);
 		
-		QuadMesh::GetInstance().GetVAO().Bind();
+		QuadMesh::GetInstance().BindVAO();
 		
 		glEnable(GL_BLEND);
 		glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
@@ -61,7 +65,7 @@ namespace TankGame
 	void ParticleRenderer::DrawBatch(ParticleBatch& batch)
 	{
 		batch.End();
-		
+		m_numRenderedParticles += batch.GetParticleCount();
 		if (batch.GetParticleCount() != 0)
 		{
 			batch.Bind();
@@ -72,5 +76,6 @@ namespace TankGame
 	void ParticleRenderer::End()
 	{
 		glDisable(GL_BLEND);
+		m_lastDrawCPUTime = measureDrawCPUTime ? (GetTime() - m_drawBeginTime) : 0;
 	}
 }

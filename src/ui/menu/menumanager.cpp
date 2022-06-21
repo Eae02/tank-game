@@ -127,8 +127,7 @@ namespace TankGame
 			m_playMenu.Update(updateInfo);
 	}
 	
-	void MenuManager::Draw(DeferredRenderer& deferredRenderer, const ShadowRenderer& shadowRenderer,
-	                       float gameTime) const
+	void MenuManager::Draw(DeferredRenderer& deferredRenderer, ShadowRenderer& shadowRenderer, float gameTime) const
 	{
 		if (m_backgroundWorld == nullptr)
 		{

@@ -2,7 +2,6 @@
 
 #include "../gl/texture2d.h"
 #include "../gl/shaderprogram.h"
-#include "../gl/vertexarray.h"
 #include "../../rectangle.h"
 
 #include <glm/glm.hpp>
@@ -102,8 +101,6 @@ namespace TankGame
 			int m_colorLocation;
 		};
 		static TextShader s_textShader;
-		
-		VertexArray m_lineVAO;
 		
 		int m_windowWidth = 1;
 		int m_windowHeight = 1;

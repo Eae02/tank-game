@@ -5,7 +5,9 @@
 namespace TankGame
 {
 	Particle::Particle(const ParticleInfo& particleInfo)
-	    : ParticleInfo(particleInfo), m_spawnTime(frameBeginTime) { }
+	    : ParticleInfo(particleInfo), m_spawnTime(frameBeginTime),
+		  m_boundingSize(std::max(particleInfo.m_beginSize, particleInfo.m_endSize) * std::sqrt(2.0f))
+	{ }
 	
 	void Particle::Update(float dt)
 	{

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "particle.h"
+#include "../../rectangle.h"
 #include "../../utils/objectpool.h"
 
 #include <array>
@@ -28,8 +29,12 @@ namespace TankGame
 				callback(m_particles[i]);
 		}
 		
+		const Rectangle& GetBoundingRectangle() { return m_bounds; }
+		
 	private:
 		std::array<Particle, 1024> m_particles;
 		size_t m_numParticles = 0;
+		
+		Rectangle m_bounds;
 	};
 }

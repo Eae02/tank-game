@@ -4,7 +4,7 @@
 #include "../graphics/gl/framebuffer.h"
 #include "../graphics/gl/texture2d.h"
 #include "../graphics/gl/buffer.h"
-#include "../graphics/gl/vertexarray.h"
+#include "../graphics/gl/vertexinputstate.h"
 #include "../utils/filesystem.h"
 #include "../world/entities/playerweaponstate.h"
 #include "weaponicon.h"
@@ -102,7 +102,7 @@ namespace TankGame
 		
 		GLsizei m_vertexCount;
 		Buffer m_vertexBuffer;
-		VertexArray m_vertexArray;
+		VertexInputState m_vertexInputState;
 		
 		Textures m_textures;
 		

@@ -41,9 +41,12 @@ namespace TankGame
 		
 		glm::mat3 GetWorldMatrix(float timeInterpolation) const;
 		
+		inline float GetBoundingSize() const { return m_boundingSize; }
+		
 		void Update(float dt);
 		
 	private:
 		double m_spawnTime;
+		float m_boundingSize;
 	};
 }

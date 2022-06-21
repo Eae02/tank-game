@@ -22,14 +22,6 @@ namespace TankGame
 		void APIENTRY TextureSubImage3D(GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const void* pixels);
 		void APIENTRY GetTextureImage(GLuint texture, GLint level, GLenum format, GLenum type, GLsizei bufSize, void* pixels);
 		
-		void APIENTRY CreateVertexArrays(GLsizei n, GLuint* arrays);
-		void APIENTRY EnableVertexArrayAttrib(GLuint vaobj, GLuint index);
-		void APIENTRY VertexArrayAttribBinding(GLuint vaobj, GLuint attribindex, GLuint bindingindex);
-		void APIENTRY VertexArrayAttribFormat(GLuint vaobj, GLuint attribindex, GLint size, GLenum type, GLboolean normalized, GLuint relativeoffset);
-		void APIENTRY VertexArrayVertexBuffer(GLuint vaobj, GLuint bindingindex, GLuint buffer, GLintptr offset, GLsizei stride);
-		void APIENTRY VertexArrayElementBuffer(GLuint vaobj, GLuint buffer);
-		void APIENTRY VertexArrayBindingDivisor(GLuint vaobj, GLuint bindingindex, GLuint divisor);
-		
 		void APIENTRY CreateFramebuffers(GLsizei n, GLuint* framebuffers);
 		void APIENTRY ClearNamedFramebufferfv(GLuint framebuffer, GLenum buffer, GLint drawbuffer, const GLfloat* value);
 		void APIENTRY NamedFramebufferTexture(GLuint framebuffer, GLenum attachment, GLuint texture, GLint level);

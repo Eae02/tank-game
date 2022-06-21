@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gl/vertexarray.h"
+#include "gl/vertexinputstate.h"
 #include "gl/bufferallocator.h"
 #include "gl/shaderprogram.h"
 #include "gl/functions.h"
@@ -72,7 +72,7 @@ namespace TankGame
 			    : m_material(material), m_instances{ instanceData } { }
 		};
 		
-		VertexArray m_vertexArray;
+		VertexInputState m_vertexInputState;
 		
 		std::vector<Batch> m_materialBatches;
 		

@@ -48,7 +48,7 @@ namespace TankGame
 		glm::vec2 blurVector(blurAmount2 / m_input->GetWidth(), blurAmount2 / m_input->GetHeight());
 		glm::vec2 sampleOffset(0.5f / m_input->GetWidth(), 0.5f / m_input->GetHeight());
 		
-		QuadMesh::GetInstance().GetVAO().Bind();
+		QuadMesh::GetInstance().BindVAO();
 		
 		Framebuffer::Save();
 		Framebuffer::Bind(*m_framebuffer, 0, 0, m_input->GetWidth(), m_input->GetHeight());

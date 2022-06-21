@@ -2,6 +2,7 @@
 #include "../../platform/common.h"
 #include "../../graphics/particlerenderer.h"
 #include "../../utils/utils.h"
+#include "../../graphics/viewinfo.h"
 
 #include <glm/gtc/constants.hpp>
 
@@ -110,7 +111,7 @@ namespace TankGame
 		return false;
 	}
 	
-	void ParticleEmitter::Render(ParticleRenderer& renderer) const
+	void ParticleEmitter::Render(ParticleRenderer& renderer, const ViewInfo& viewInfo) const
 	{
 		m_textureArray->Bind(1);
 		
@@ -120,6 +121,9 @@ namespace TankGame
 		
 		for (const ParticlePoolHandle& poolHandle : m_particlePools)
 		{
+			if (!poolHandle->GetBoundingRectangle().Intersects(viewInfo.GetViewRectangle()))
+				continue;
+			
 			poolHandle->IterateParticles([&] (const Particle& particle)
 			{
 				if (batch == nullptr || batch->IsFull())

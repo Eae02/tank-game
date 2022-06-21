@@ -64,7 +64,7 @@ namespace TankGame
 		
 		void SpawnParticles(float elapsedTime);
 		
-		void Render(class ParticleRenderer& renderer) const;
+		void Render(class ParticleRenderer& renderer, const struct ViewInfo& viewInfo) const;
 		
 	protected:
 		virtual glm::vec2 GeneratePosition(float subframeInterpolation) const = 0;

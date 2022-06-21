@@ -7,7 +7,7 @@
 #include "path/path.h"
 #include "../graphics/gl/texture2d.h"
 #include "../graphics/gl/bufferallocator.h"
-#include "../graphics/gl/vertexarray.h"
+#include "../graphics/gl/vertexinputstate.h"
 #include "../graphics/gl/shaderprogram.h"
 #include "../circle.h"
 

@@ -28,6 +28,17 @@ namespace TankGame
 		void operator()(void* data) const { std::free(data); }
 	};
 	
+	struct IVec2Hash
+	{
+		size_t operator()(const glm::ivec2& v) const
+		{
+			if constexpr (sizeof(size_t) >= sizeof(int) * 2)
+				return ((size_t)v.x << (size_t)32) | (size_t)v.y;
+			else
+				return (size_t)v.x + 0x9e3779b9 + ((size_t)v.y << 6) + ((size_t)v.y >> 2);
+		}
+	};
+	
 	extern double frameBeginTime;
 	
 	std::vector<std::string> Split(const std::string& string, const std::string& delimiters = " ",

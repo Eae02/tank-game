@@ -4,7 +4,7 @@
 #include "../path/path.h"
 #include "../../graphics/gl/buffer.h"
 #include "../../graphics/gl/shaderprogram.h"
-#include "../../graphics/gl/vertexarray.h"
+#include "../../graphics/gl/vertexinputstate.h"
 #include "../../graphics/gl/bufferallocator.h"
 #include "../../editor/ieditablepathprovider.h"
 
@@ -16,10 +16,11 @@ namespace TankGame
 	class LightStripEntity : public Entity, public Entity::ISpriteDrawable, public IEditablePathProvider
 	{
 	public:
-		inline LightStripEntity()
+		LightStripEntity()
 		    : LightStripEntity({ 1, 1, 1 }, 5, 0.5f) { }
 		
-		LightStripEntity(glm::vec3 color, float glowStrength, float radius);
+		LightStripEntity(glm::vec3 color, float glowStrength, float radius)
+			: m_radius(radius), m_color(color), m_glowStrength(glowStrength) { }
 		
 		virtual void Draw(class SpriteRenderList& spriteRenderList) const override;
 		
@@ -82,7 +83,7 @@ namespace TankGame
 		
 		std::unique_ptr<Buffer> m_vertexBuffer;
 		std::unique_ptr<Buffer> m_indexBuffer;
-		VertexArray m_vertexArray;
+		VertexInputState m_vertexInputState;
 		
 		GLsizei m_numIndices = 0;
 		

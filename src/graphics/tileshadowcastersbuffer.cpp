@@ -1,11 +1,13 @@
 #include "tileshadowcastersbuffer.h"
-
-#include "../world/tilegrid.h"
-#include "../utils/ioutils.h"
-#include "../utils/utils.h"
 #include "gl/shadermodule.h"
 #include "shadowrenderer.h"
 #include "tilegridmaterial.h"
+#include "../world/tilegrid.h"
+#include "../utils/ioutils.h"
+#include "../utils/utils.h"
+#include "../world/lights/ilightsource.h"
+
+#include <unordered_map>
 
 namespace TankGame
 {
@@ -18,7 +20,7 @@ namespace TankGame
 			auto vs = ShaderModule::FromFile(
 				resDirectoryPath / "shaders" / "lighting" / "shadows" / "tileshadow.vs.glsl", GL_VERTEX_SHADER);
 			
-			s_shadowShader.reset(new ShaderProgram{ &vs, &ShadowRenderer::GetFragmentShader() });
+			s_shadowShader.reset(new ShaderProgram{ &vs });
 			
 			CallOnClose([] { s_shadowShader = nullptr; });
 		}
@@ -37,80 +39,165 @@ namespace TankGame
 		glm::vec2 m_normal2;
 	};
 	
+	struct __attribute__((packed)) Vertex
+	{
+		float x;
+		float y;
+		int8_t pairOffsetX;
+		int8_t pairOffsetY;
+		int8_t project;
+		int8_t _padding;
+	};
+	
 	TileShadowCastersBuffer::Data TileShadowCastersBuffer::BuildBuffers(
 		const TileGrid& tileGrid, const TileGridMaterial& material)
 	{
-		std::vector<glm::vec4> vertices;
+		uint32_t numRegionsX = (tileGrid.GetWidth() + REGION_SIZE - 1) / REGION_SIZE;
+		uint32_t numRegionsY = (tileGrid.GetHeight() + REGION_SIZE - 1) / REGION_SIZE;
+		std::unique_ptr<RegionRange[]> regionRanges = std::make_unique<RegionRange[]>(numRegionsX * numRegionsY);
+		
+		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
 		
-		static const glm::ivec2 faceNormals[] = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 } };
+		std::unordered_map<glm::ivec2, uint32_t, IVec2Hash> pushedVerticesMap;
 		
-		for (int y = 0; y < tileGrid.GetHeight(); y++)
+		auto PushVertexPair = [&] (glm::ivec2 pos) -> uint32_t
 		{
-			for (int x = 0; x < tileGrid.GetWidth(); x++)
+			auto it = pushedVerticesMap.find(pos);
+			if (it != pushedVerticesMap.end())
+				return it->second;
+			uint32_t idx = vertices.size();
+			pushedVerticesMap.emplace(pos, idx);
+			vertices.push_back(Vertex { .x=static_cast<float>(pos.x), .y=static_cast<float>(pos.y), .project=0 });
+			vertices.push_back(Vertex { .x=static_cast<float>(pos.x), .y=static_cast<float>(pos.y), .project=1 });
+			return idx;
+		};
+		
+		auto PushTriangle = [&] (uint32_t startLoVertex, uint32_t endLoVertex)
+		{
+			uint32_t helperVertexIdx = vertices.size();
+			Vertex& helperVertex = vertices.emplace_back();
+			helperVertex.x = vertices[startLoVertex].x;
+			helperVertex.y = vertices[startLoVertex].y;
+			helperVertex.pairOffsetX = static_cast<int8_t>(vertices[endLoVertex].x - vertices[startLoVertex].x);
+			helperVertex.pairOffsetY = static_cast<int8_t>(vertices[endLoVertex].y - vertices[startLoVertex].y);
+			helperVertex.project = 1;
+			
+			indices.push_back(startLoVertex);
+			indices.push_back(startLoVertex + 1);
+			indices.push_back(helperVertexIdx);
+			
+			indices.push_back(startLoVertex);
+			indices.push_back(helperVertexIdx);
+			indices.push_back(endLoVertex);
+			
+			indices.push_back(endLoVertex);
+			indices.push_back(helperVertexIdx);
+			indices.push_back(endLoVertex + 1);
+		};
+		
+		auto IsShadowCaster = [&] (int x, int y)
+		{
+			glm::ivec2 pos(x, y);
+			return !tileGrid.InRange(pos) || material.IsSolid(tileGrid.GetTileID(pos));
+		};
+		
+		for (uint32_t ry = 0; ry < numRegionsY; ry++)
+		{
+			int regMaxY = std::min<int>((ry + 1) * REGION_SIZE, tileGrid.GetHeight());
+			for (uint32_t rx = 0; rx < numRegionsX; rx++)
 			{
-				uint8_t tileID = tileGrid.GetTileID({ x, y });
-				if (!material.IsSolid(tileID))
-					continue;
+				RegionRange& regionRange = regionRanges[rx + ry * numRegionsX];
+				regionRange.firstIndex = indices.size();
 				
-				for (int f = 0; f < 4; f++)
+				int regMaxX = std::min<int>((rx + 1) * REGION_SIZE, tileGrid.GetWidth());
+				
+				//Edges parallel to the x axis
+				for (int y = ry * REGION_SIZE; y < regMaxY; y++)
 				{
-					glm::ivec2 forwardTilePos = glm::ivec2(x, y) + faceNormals[f];
-					if (forwardTilePos.x < 0 || forwardTilePos.y < 0 || forwardTilePos.x >= tileGrid.GetWidth()
-					    || forwardTilePos.y >= tileGrid.GetHeight())
+					bool hasActiveEdge = false;
+					uint32_t edgeStartLoVertex;
+					for (int x = rx * REGION_SIZE; x <= regMaxX; x++)
 					{
-						continue;
+						bool edge = x != regMaxX && (IsShadowCaster(x, y) != IsShadowCaster(x, y - 1));
+						if (edge && !hasActiveEdge)
+						{
+							edgeStartLoVertex = PushVertexPair(glm::ivec2(x, y));
+						}
+						else if (!edge && hasActiveEdge)
+						{
+							uint32_t edgeEndLoVertex = PushVertexPair(glm::ivec2(x, y));
+							PushTriangle(edgeStartLoVertex, edgeEndLoVertex);
+						}
+						hasActiveEdge = edge;
 					}
-					
-					if (material.IsSolid(tileGrid.GetTileID(forwardTilePos)))
-						continue;
-					
-					glm::vec2 left(faceNormals[f].y, -faceNormals[f].x);
-					glm::vec2 centerLine = glm::vec2(x + 0.5f, y + 0.5f) + glm::vec2(faceNormals[f]) * 0.5f;
-					
-					glm::vec2 v1 = centerLine + left * 0.5f;
-					glm::vec2 v2 = centerLine - left * 0.5f;
-					
-					for (int relIndex : { 0, 1, 2, 2, 1, 3 })
-						indices.push_back(vertices.size() + relIndex);
-					
-					vertices.emplace_back(v1, faceNormals[f]);
-					vertices.emplace_back(v2, faceNormals[f]);
-					vertices.emplace_back(v1, faceNormals[f]);
-					vertices.emplace_back(v2, faceNormals[f]);
 				}
+				
+				//Edges parallel to the y axis
+				for (int x = rx * REGION_SIZE; x < regMaxX; x++)
+				{
+					bool hasActiveEdge = false;
+					uint32_t edgeStartLoVertex;
+					for (int y = ry * REGION_SIZE; y <= regMaxY; y++)
+					{
+						bool edge = y != regMaxY && (IsShadowCaster(x, y) != IsShadowCaster(x - 1, y));
+						if (edge && !hasActiveEdge)
+						{
+							edgeStartLoVertex = PushVertexPair(glm::ivec2(x, y));
+						}
+						else if (!edge && hasActiveEdge)
+						{
+							uint32_t edgeEndLoVertex = PushVertexPair(glm::ivec2(x, y));
+							PushTriangle(edgeStartLoVertex, edgeEndLoVertex);
+						}
+						hasActiveEdge = edge;
+					}
+				}
+				
+				regionRange.lastIndex = indices.size();
 			}
 		}
 		
 		return Data {
-			(GLuint)indices.size(),
-			Buffer(vertices.size() * sizeof(glm::vec4), vertices.data(), BufferUsage::StaticData),
-			Buffer(indices.size() * sizeof(uint32_t), indices.data(), BufferUsage::StaticData)
+			.regionRanges = std::move(regionRanges),
+			.numRegionsX  = numRegionsX,
+			.numRegionsY  = numRegionsY,
+			.vertexBuffer = Buffer(vertices.size() * sizeof(Vertex), vertices.data(), BufferUsage::StaticData),
+			.indexBuffer  = Buffer(indices.size() * sizeof(uint32_t), indices.data(), BufferUsage::StaticData)
 		};
 	}
 	
 	TileShadowCastersBuffer::TileShadowCastersBuffer(const TileGrid& tileGrid, const TileGridMaterial& material)
 		: m_data(BuildBuffers(tileGrid, material))
 	{
-		glEnableVertexArrayAttrib(m_vertexArray.GetID(), 0);
-		glVertexArrayVertexBuffer(m_vertexArray.GetID(), 0, m_data.vertexBuffer.GetID(), 0, sizeof(glm::vec2) * 2);
-		glVertexArrayAttribFormat(m_vertexArray.GetID(), 0, 2, GL_FLOAT, GL_FALSE, 0);
-		glVertexArrayAttribBinding(m_vertexArray.GetID(), 0, 0);
-		
-		glEnableVertexArrayAttrib(m_vertexArray.GetID(), 1);
-		glVertexArrayVertexBuffer(m_vertexArray.GetID(), 1, m_data.vertexBuffer.GetID(), sizeof(glm::vec2), sizeof(glm::vec2) * 2);
-		glVertexArrayAttribFormat(m_vertexArray.GetID(), 1, 2, GL_FLOAT, GL_FALSE, 0);
-		glVertexArrayAttribBinding(m_vertexArray.GetID(), 1, 1);
-		
-		glVertexArrayElementBuffer(m_vertexArray.GetID(), m_data.indexBuffer.GetID());
+		m_vertexInputState.UpdateAttribute(0, m_data.vertexBuffer.GetID(), VertexAttribFormat::Float32_2, 0, sizeof(Vertex));
+		m_vertexInputState.UpdateAttribute(1, m_data.vertexBuffer.GetID(), VertexAttribFormat::UInt8_3, 8, sizeof(Vertex));
 	}
 	
-	void TileShadowCastersBuffer::Draw() const
+	void TileShadowCastersBuffer::Draw(const LightInfo& lightInfo) const
 	{
 		BindShadowShader();
 		
-		m_vertexArray.Bind();
+		glm::ivec2 regRangeLo(glm::floor((lightInfo.m_position - lightInfo.m_range) / static_cast<float>(REGION_SIZE)));
+		glm::ivec2 regRangeHi(glm::ceil((lightInfo.m_position + lightInfo.m_range) / static_cast<float>(REGION_SIZE)));
 		
-		glDrawElements(GL_TRIANGLES, m_data.numIndices, GL_UNSIGNED_INT, nullptr);
+		regRangeLo = glm::clamp(regRangeLo, glm::ivec2(0), glm::ivec2(m_data.numRegionsX, m_data.numRegionsY));
+		regRangeHi = glm::clamp(regRangeHi, glm::ivec2(0), glm::ivec2(m_data.numRegionsX - 1, m_data.numRegionsY - 1));
+		
+		m_vertexInputState.Bind();
+		
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_data.indexBuffer.GetID());
+		
+		for (int ry = regRangeLo.y; ry <= regRangeHi.y; ry++)
+		{
+			uint32_t regRowBegin = m_data.numRegionsX * (uint32_t)ry;
+			uint32_t firstIndex = m_data.regionRanges[regRowBegin + regRangeLo.x].firstIndex;
+			uint32_t lastIndex = m_data.regionRanges[regRowBegin + regRangeHi.x].lastIndex;
+			if (lastIndex > firstIndex)
+			{
+				uintptr_t indexBufferOffset = static_cast<uintptr_t>(firstIndex * sizeof(uint32_t));
+				glDrawElements(GL_TRIANGLES, lastIndex - firstIndex, GL_UNSIGNED_INT, reinterpret_cast<void*>(indexBufferOffset));
+			}
+		}
 	}
 }

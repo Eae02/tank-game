@@ -97,7 +97,7 @@ namespace TankGame
 		if (m_gameWorld == nullptr)
 			throw InvalidStateException("Game world not set.");
 		
-		QuadMesh::GetInstance().GetVAO().Bind();
+		QuadMesh::GetInstance().BindVAO();
 		
 		for (size_t i = 0; i < m_lightSources.size(); i++)
 		{
@@ -136,7 +136,7 @@ namespace TankGame
 		
 		m_gameWorld->IterateParticleEmitters([&] (const ParticleEmitter& emitter)
 		{
-			emitter.Render(renderer);
+			emitter.Render(renderer, viewInfo);
 		});
 	}
 	
@@ -148,7 +148,7 @@ namespace TankGame
 		m_renderSettings.OnResize(width, height);
 	}
 	
-	void WorldRenderer::DrawShadowCasters(glm::vec2 lightPos, const class ViewInfo& viewInfo) const
+	void WorldRenderer::DrawShadowCasters(const LightInfo& lightInfo, const class ViewInfo& viewInfo) const
 	{
 		if (m_gameWorld == nullptr)
 			throw InvalidStateException("Game world not set.");
@@ -157,14 +157,16 @@ namespace TankGame
 		
 		if (shadowCastersBuffer != nullptr)
 		{
-			shadowCastersBuffer->Draw();
+			shadowCastersBuffer->Draw(lightInfo);
 		}
 	}
 	
-	void WorldRenderer::DrawShadowMaps(const class ShadowRenderer& shadowRenderer, const ViewInfo& viewInfo) const
+	void WorldRenderer::DrawShadowMaps(class ShadowRenderer& shadowRenderer, const ViewInfo& viewInfo) const
 	{
 		if (m_gameWorld == nullptr)
 			throw InvalidStateException("Game world not set.");
+		
+		shadowRenderer.lastFrameShadowMapUpdates = 0;
 		
 		m_gameWorld->IterateIntersectingEntities(viewInfo.GetViewRectangle(), [&] (const Entity& entity)
 		{

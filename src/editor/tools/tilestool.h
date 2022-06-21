@@ -3,7 +3,7 @@
 #include "editortool.h"
 #include "../../graphics/gl/texture2d.h"
 #include "../../graphics/gl/buffer.h"
-#include "../../graphics/gl/vertexarray.h"
+#include "../../graphics/gl/vertexinputstate.h"
 #include "../../graphics/gl/shaderprogram.h"
 
 #include <cstdint>
@@ -51,6 +51,6 @@ namespace TankGame
 		std::unique_ptr<Buffer> m_gridBuffer;
 		GLsizei m_gridVertexCount;
 		
-		VertexArray m_gridVAO;
+		VertexInputState m_gridVertexInputState;
 	};
 }

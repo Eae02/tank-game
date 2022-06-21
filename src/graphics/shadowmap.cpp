@@ -21,14 +21,13 @@ namespace TankGame
 		GLsizei shadowPassTextureWidth = static_cast<GLsizei>(width * SHADOW_PASS_RESOLUTION_MUL);
 		GLsizei shadowPassTextureHeight = static_cast<GLsizei>(height * SHADOW_PASS_RESOLUTION_MUL);
 		
-		m_shadowPassTexture = std::make_unique<Texture2D>(shadowPassTextureWidth, shadowPassTextureHeight, 1, GL_R8);
+		m_shadowPassTexture = std::make_unique<Texture2D>(shadowPassTextureWidth, shadowPassTextureHeight, 1, GL_DEPTH_COMPONENT16);
 		m_shadowPassTexture->SetWrapMode(GL_CLAMP_TO_EDGE);
 		m_shadowPassTexture->SetMagFilter(GL_LINEAR);
 		m_shadowPassTexture->SetMinFilter(GL_LINEAR);
 		
 		m_shadowPassFramebuffer = std::make_unique<Framebuffer>();
-		glNamedFramebufferTexture(m_shadowPassFramebuffer->GetID(), GL_COLOR_ATTACHMENT0, m_shadowPassTexture->GetID(), 0);
-		glNamedFramebufferDrawBuffer(m_shadowPassFramebuffer->GetID(), GL_COLOR_ATTACHMENT0);
+		glNamedFramebufferTexture(m_shadowPassFramebuffer->GetID(), GL_DEPTH_ATTACHMENT, m_shadowPassTexture->GetID(), 0);
 		
 		m_blurPassTexture = std::make_unique<Texture2D>(width, height, 1, GL_R8);
 		m_blurPassTexture->SetWrapMode(GL_CLAMP_TO_EDGE);
@@ -72,23 +71,7 @@ namespace TankGame
 	{
 		Framebuffer::Bind(*m_shadowPassFramebuffer, 0, 0, m_shadowPassTexture->GetWidth(), m_shadowPassTexture->GetHeight());
 		
-		float projectionSphereRadius;
-		
-		if (m_isStatic)
-		{
-			projectionSphereRadius = std::sqrt(2.0f) * lightInfo.m_range;
-		}
-		else
-		{
-			float maxDistToViewCornerSq = 0;
-			for (size_t i = 0; i < 4; i++)
-			{
-				float distSq = LengthSquared(viewInfo.GetWorldViewCorners()[i] - lightInfo.m_position);
-				if (distSq > maxDistToViewCornerSq)
-					maxDistToViewCornerSq = distSq;
-			}
-			projectionSphereRadius = std::sqrt(maxDistToViewCornerSq);
-		}
+		float projectionSphereRadius = std::sqrt(2.0f) * lightInfo.m_range;
 		
 		glm::mat3 viewMatrix = m_isStatic ? GetStaticViewMatrix(lightInfo) : viewInfo.GetViewMatrix();
 		
@@ -112,7 +95,7 @@ namespace TankGame
 		m_renderSettingsBuffers[m_currentRenderSettingsBuffer]->FlushMappedMemory(0, SHADOW_RENDER_SETTINGS_SIZE);
 		
 		float CLEAR_VALUE = 0.0f;
-		glClearNamedFramebufferfv(m_shadowPassFramebuffer->GetID(), GL_COLOR, 0, &CLEAR_VALUE);
+		glClearNamedFramebufferfv(m_shadowPassFramebuffer->GetID(), GL_DEPTH, 0, &CLEAR_VALUE);
 		
 		glBindBufferBase(GL_UNIFORM_BUFFER, SHADOW_RENDER_SETTINGS_BUFFER_BINDING,
 		                 m_renderSettingsBuffers[m_currentRenderSettingsBuffer]->GetID());

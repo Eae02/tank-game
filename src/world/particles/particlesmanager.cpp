@@ -1,4 +1,5 @@
 #include "particlesmanager.h"
+#include "../../platform/common.h"
 
 #include <algorithm>
 
@@ -42,8 +43,12 @@ namespace TankGame
 	
 	void ParticlesManager::Update(float dt)
 	{
+		float updateBeginTime = measureUpdateTime ? GetTime() : 0;
+		
 		for (const std::unique_ptr<ParticlePool>& pool : m_activeParticlePools)
 			pool->Update(dt);
+		
+		m_updateTime = measureUpdateTime ? (GetTime() - updateBeginTime) : 0;
 	}
 	
 	long ParticlesManager::GetParticleCount() const

@@ -28,11 +28,14 @@ namespace TankGame
 		1.0f,  1.0f
 	};
 	
-	QuadMesh::QuadMesh() : m_vbo(sizeof(vertices), vertices, BufferUsage::StaticData)
+	QuadMesh::QuadMesh()
+		: m_vbo(sizeof(vertices), vertices, BufferUsage::StaticData)
 	{
-		glEnableVertexArrayAttrib(m_vertexArray.GetID(), 0);
-		glVertexArrayVertexBuffer(m_vertexArray.GetID(), 0, m_vbo.GetID(), 0, sizeof(float) * 2);
-		glVertexArrayAttribFormat(m_vertexArray.GetID(), 0, 2, GL_FLOAT, GL_FALSE, 0);
-		glVertexArrayAttribBinding(m_vertexArray.GetID(), 0, 0);
+		InitializeVertexAttribute(m_vertexInputState, 0);
+	}
+	
+	void QuadMesh::InitializeVertexAttribute(VertexInputState& vertexInputState, uint32_t attribIndex)
+	{
+		vertexInputState.UpdateAttribute(attribIndex, m_vbo.GetID(), VertexAttribFormat::Float32_2, 0, sizeof(float) * 2);
 	}
 }

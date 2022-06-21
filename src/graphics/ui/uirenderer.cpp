@@ -1,6 +1,7 @@
 #include "uirenderer.h"
 #include "font.h"
 #include "../gl/shadermodule.h"
+#include "../gl/vertexinputstate.h"
 #include "../quadmesh.h"
 #include "../../utils/utils.h"
 #include "../../utils/mathutils.h"
@@ -98,7 +99,7 @@ namespace TankGame
 		
 		glProgramUniform4fv(shaderID, s_spriteShader.m_shadeLocation, 1, reinterpret_cast<const GLfloat*>(&shade));
 		
-		QuadMesh::GetInstance().GetVAO().Bind();
+		QuadMesh::GetInstance().BindVAO();
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	}
 	
@@ -151,7 +152,7 @@ namespace TankGame
 		glProgramUniform4fv(s_quadShader.m_shader->GetID(), s_quadShader.m_colorLocation, 1,
 		                    reinterpret_cast<const GLfloat*>(&color));
 		
-		QuadMesh::GetInstance().GetVAO().Bind();
+		QuadMesh::GetInstance().BindVAO();
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	}
 	
@@ -181,7 +182,7 @@ namespace TankGame
 		glProgramUniform4fv(s_lineShader.m_shader->GetID(), s_lineShader.m_colorLocation, 1,
 		                    reinterpret_cast<const GLfloat*>(&color));
 		
-		m_lineVAO.Bind();
+		VertexInputState::BindEmpty();
 		glDrawArrays(GL_LINES, 0, 2);
 	}
 	
@@ -209,7 +210,7 @@ namespace TankGame
 		GLuint shaderID = s_textShader.m_shader->GetID();
 		glProgramUniform4fv(shaderID, s_textShader.m_colorLocation, 1, reinterpret_cast<const GLfloat*>(&color));
 		
-		QuadMesh::GetInstance().GetVAO().Bind();
+		QuadMesh::GetInstance().BindVAO();
 		
 		for (size_t i = 0; i < string.length(); i++)
 		{

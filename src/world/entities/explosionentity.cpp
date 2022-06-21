@@ -72,7 +72,7 @@ namespace TankGame
 		glUniform1f(blastRadiusUniformLoc, m_blastRadiusUniformValue);
 		glUniform1f(blastIntensityUniformLoc, m_blastIntensityUniformValue);
 		
-		QuadMesh::GetInstance().GetVAO().Bind();
+		QuadMesh::GetInstance().BindVAO();
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	}
 	

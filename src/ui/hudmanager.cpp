@@ -35,37 +35,34 @@ namespace TankGame
 		return program;
 	}
 	
+	struct ColumnVertex
+	{
+		glm::vec3 pos;
+		glm::vec2 texCoord;
+	};
+	
 	static Buffer CreateVertexBuffer(GLsizei& vertexCountOut)
 	{
 		const int COLUMNS = 30;
 		
-		struct ColumnVertices
-		{
-			glm::vec3 m_bottomVertexPos;
-			glm::vec2 m_bottomVertexTC;
-			
-			glm::vec3 m_topVertexPos;
-			glm::vec2 m_topVertexTC;
-		};
+		ColumnVertex vertices[COLUMNS * 2 + 2];
 		
-		ColumnVertices vertices[COLUMNS + 1];
-		
-		for (int i = 0; i < COLUMNS + 1; i++)
+		for (int i = 0; i <= COLUMNS; i++)
 		{
 			float theta = glm::mix(glm::radians(20.0f), glm::radians(160.0f), i / static_cast<float>(COLUMNS));
 			
 			float x = std::cos(theta);
 			float z = glm::mix(1.0f, 1.2f, std::sin(theta));
 			
-			vertices[i].m_topVertexTC.x = vertices[i].m_bottomVertexTC.x = 1.0f - i / static_cast<float>(COLUMNS);
-			vertices[i].m_topVertexTC.y = 1;
-			vertices[i].m_bottomVertexTC.y = 0;
+			ColumnVertex& btmVertex = vertices[i * 2 + 0];
+			ColumnVertex& topVertex = vertices[i * 2 + 1];
 			
-			vertices[i].m_topVertexPos.x = vertices[i].m_bottomVertexPos.x = x;
-			vertices[i].m_topVertexPos.z = vertices[i].m_bottomVertexPos.z = z;
+			float tcx = 1.0f - i / static_cast<float>(COLUMNS);
+			topVertex.texCoord = glm::vec2(tcx, 1);
+			btmVertex.texCoord = glm::vec2(tcx, 0);
 			
-			vertices[i].m_bottomVertexPos.y = -1;
-			vertices[i].m_topVertexPos.y = 1;
+			topVertex.pos = glm::vec3(x, 1, z);
+			btmVertex.pos = glm::vec3(x, -1, z);
 		}
 		
 		vertexCountOut = (COLUMNS + 1) * 2;
@@ -81,18 +78,10 @@ namespace TankGame
 	{
 		WeaponIcon::MaybeLoadIcons();
 		
-		int attribSizes[] = { 3, 2 };
-		int offset = 0;
-		for (GLuint i = 0; i < ArrayLength(attribSizes); i++)
-		{
-			glEnableVertexArrayAttrib(m_vertexArray.GetID(), i);
-			glVertexArrayVertexBuffer(m_vertexArray.GetID(), i, m_vertexBuffer.GetID(),
-			                          sizeof(float) * offset, sizeof(float) * 5);
-			glVertexArrayAttribFormat(m_vertexArray.GetID(), i, attribSizes[i], GL_FLOAT, GL_FALSE, 0);
-			glVertexArrayAttribBinding(m_vertexArray.GetID(), i, i);
-			
-			offset += attribSizes[i];
-		}
+		m_vertexInputState.UpdateAttribute(0, m_vertexBuffer.GetID(),
+			VertexAttribFormat::Float32_3, offsetof(ColumnVertex, pos), sizeof(ColumnVertex));
+		m_vertexInputState.UpdateAttribute(1, m_vertexBuffer.GetID(),
+			VertexAttribFormat::Float32_2, offsetof(ColumnVertex, texCoord), sizeof(ColumnVertex));
 	}
 	
 	void HUDManager::OnResize(GLsizei width, GLsizei height)
@@ -210,7 +199,7 @@ namespace TankGame
 		m_shader.Use();
 		m_fbTexture->Bind(0);
 		
-		m_vertexArray.Bind();
+		m_vertexInputState.Bind();
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, m_vertexCount);
 		
 		if (m_levelCompleteMenu.IsShown())

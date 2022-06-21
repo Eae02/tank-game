@@ -33,7 +33,7 @@ namespace TankGame
 		{ return m_visible; }
 		
 		void Update(const class UpdateInfo& updateInfo);
-		void Draw(class DeferredRenderer& deferredRenderer, const ShadowRenderer& shadowRenderer, float gameTime) const;
+		void Draw(class DeferredRenderer& deferredRenderer, ShadowRenderer& shadowRenderer, float gameTime) const;
 		
 		inline void SetSettingsApplyCallback(OptionsMenu::ApplyCallback applyCallback)
 		{ m_optionsMenu.m_applyCallback = std::move(applyCallback); }

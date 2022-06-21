@@ -3,20 +3,24 @@
 #include "shadowrendersettings.glh"
 
 layout(location=0) in vec2 position_in;
+layout(location=1) in vec3 pairOffsetAndProject_in;
 
-out float distanceToCaster_v;
+float vertexProjectionDistance = 0;
+
+vec2 project(vec2 pos)
+{
+	vec2 dir = pos - lightPosition;
+	float dst = vertexProjectionDistance / max(length(dir), 1E-5);
+	return pos + dir * dst;
+}
 
 void main()
 {
-	vec2 position = position_in;
+	vertexProjectionDistance = pairOffsetAndProject_in.z * projectionDistance;
 	
-	if ((gl_VertexID & 2) != 0)
-	{
-		vec2 toVertex = position_in - lightPosition;
-		toVertex.y = max(abs(toVertex.y), 1E-6) * (toVertex.y < -1E-6 ? -1 : 1);
-		position = position_in + normalize(toVertex) * projectionDistance;
-	}
+	vec2 proj1 = project(position_in);
+	vec2 proj2 = project(position_in + pairOffsetAndProject_in.xy);
+	vec2 projectedPos = project((proj1 + proj2) / 2.0);
 	
-	distanceToCaster_v = distance(position, position_in);
-	gl_Position = vec4((shadowViewMatrix * vec3(position, 1.0)).xy, 0.0, 1.0);
+	gl_Position = vec4((shadowViewMatrix * vec3(projectedPos, 1.0)).xy, mix(-0.5, 1.0, vertexProjectionDistance), 1.0);
 }

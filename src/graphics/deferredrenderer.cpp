@@ -24,7 +24,7 @@ namespace TankGame
 	}
 	
 	DeferredRenderer::DeferredRenderer()
-	    : m_compositionShader(LoadCompositionShader()) { }
+	    : m_compositionShader(LoadCompositionShader()) { m_particleRenderer.measureDrawCPUTime = true; }
 	
 	void DeferredRenderer::CreateFramebuffer(int width, int height)
 	{
@@ -158,7 +158,7 @@ namespace TankGame
 		
 		m_compositionShader.Use();
 		
-		QuadMesh::GetInstance().GetVAO().Bind();
+		QuadMesh::GetInstance().BindVAO();
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		
 		m_particleRenderer.Begin(*m_lightAccBuffer);

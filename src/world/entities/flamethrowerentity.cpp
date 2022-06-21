@@ -197,7 +197,7 @@ namespace TankGame
 		                   m_enableProgress * 40.0f);
 		
 		//Draws the quad
-		QuadMesh::GetInstance().GetVAO().Bind();
+		QuadMesh::GetInstance().BindVAO();
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	}
 	

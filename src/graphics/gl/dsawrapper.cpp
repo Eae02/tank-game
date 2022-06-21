@@ -27,14 +27,6 @@ namespace TankGame
 			glTextureSubImage3D = TextureSubImage3D;
 			glGetTextureImage = GetTextureImage;
 			
-			glCreateVertexArrays = CreateVertexArrays;
-			glEnableVertexArrayAttrib = EnableVertexArrayAttrib;
-			glVertexArrayAttribBinding = VertexArrayAttribBinding;
-			glVertexArrayAttribFormat = VertexArrayAttribFormat;
-			glVertexArrayVertexBuffer = VertexArrayVertexBuffer;
-			glVertexArrayElementBuffer = VertexArrayElementBuffer;
-			glVertexArrayBindingDivisor = VertexArrayBindingDivisor;
-			
 			glCreateFramebuffers = CreateFramebuffers;
 			glClearNamedFramebufferfv = ClearNamedFramebufferfv;
 			glNamedFramebufferTexture = NamedFramebufferTexture;
@@ -146,48 +138,6 @@ namespace TankGame
 		{
 			GLenum target = BindTexture(texture);
 			glGetnTexImage(target, level, format, type, bufSize, pixels);
-		}
-		
-		void APIENTRY CreateVertexArrays(GLsizei n, GLuint* arrays)
-		{
-			glGenVertexArrays(n, arrays);
-		}
-		
-		void APIENTRY EnableVertexArrayAttrib(GLuint vaobj, GLuint index)
-		{
-			glBindVertexArray(vaobj);
-			glEnableVertexAttribArray(index);
-		}
-		
-		void APIENTRY VertexArrayAttribBinding(GLuint vaobj, GLuint attribindex, GLuint bindingindex)
-		{
-			glBindVertexArray(vaobj);
-			glVertexAttribBinding(attribindex, bindingindex);
-		}
-		
-		void APIENTRY VertexArrayAttribFormat(GLuint vaobj, GLuint attribindex, GLint size, GLenum type, GLboolean normalized,
-		                             GLuint relativeoffset)
-		{
-			glBindVertexArray(vaobj);
-			glVertexAttribFormat(attribindex, size, type, normalized, relativeoffset);
-		}
-		
-		void APIENTRY VertexArrayVertexBuffer(GLuint vaobj, GLuint bindingindex, GLuint buffer, GLintptr offset, GLsizei stride)
-		{
-			glBindVertexArray(vaobj);
-			glBindVertexBuffer(bindingindex, buffer, offset, stride);
-		}
-		
-		void APIENTRY VertexArrayElementBuffer(GLuint vaobj, GLuint buffer)
-		{
-			glBindVertexArray(vaobj);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer);
-		}
-		
-		void APIENTRY VertexArrayBindingDivisor(GLuint vaobj, GLuint bindingindex, GLuint divisor)
-		{
-			glBindVertexArray(vaobj);
-			glVertexBindingDivisor(bindingindex, divisor);
 		}
 		
 		void APIENTRY CreateFramebuffers(GLsizei n, GLuint* framebuffers)

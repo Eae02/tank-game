@@ -5,20 +5,6 @@
 
 #include <unordered_map>
 
-namespace std
-{
-	template<> struct hash<glm::ivec2>
-	{
-		size_t operator()(const glm::ivec2& v) const
-		{
-			if constexpr (sizeof(size_t) >= sizeof(int) * 2)
-				return ((size_t)v.x << (size_t)32) | (size_t)v.y;
-			else
-				return (size_t)v.x + 0x9e3779b9 + ((size_t)v.y << 6) + ((size_t)v.y >> 2);
-		}
-	};
-}
-
 namespace TankGame
 {
 	struct Node
@@ -79,7 +65,7 @@ namespace TankGame
 	bool FindPath(const TileGrid& tileGrid, const TileGridMaterial& material, glm::vec2 start, glm::vec2 end,
 	              Path& pathOut, float radius)
 	{
-		std::unordered_map<glm::ivec2, Node> nodes;
+		std::unordered_map<glm::ivec2, Node, IVec2Hash> nodes;
 		std::priority_queue<std::pair<float, glm::ivec2>, std::vector<std::pair<float, glm::ivec2>>, NodePQCompare> nodesPQ;
 		
 		glm::ivec2 startTile(std::floor(start.x), std::floor(start.y));

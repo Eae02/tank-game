@@ -36,9 +36,14 @@ namespace TankGame
 		
 		long GetParticleCount() const;
 		
+		bool measureUpdateTime = false;
+		double LastUpdateTime() const { return m_updateTime; }
+		
 	private:
 		std::vector<std::unique_ptr<ParticlePool>> m_activeParticlePools;
 		std::vector<std::unique_ptr<ParticlePool>> m_freeParticlePools;
+		
+		double m_updateTime = 0;
 	};
 	
 	using ParticlePoolHandle = ParticlesManager::ParticlePoolHandle;

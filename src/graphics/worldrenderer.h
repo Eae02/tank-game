@@ -16,7 +16,7 @@ namespace TankGame
 		inline void SetWorld(const class GameWorld* gameWorld)
 		{ m_gameWorld = gameWorld; }
 		
-		void DrawShadowMaps(const class ShadowRenderer& shadowRenderer, const class ViewInfo& viewInfo) const;
+		void DrawShadowMaps(class ShadowRenderer& shadowRenderer, const class ViewInfo& viewInfo) const;
 		
 		void Prepare(const class ViewInfo& viewInfo, float gameTime) const;
 		
@@ -33,7 +33,7 @@ namespace TankGame
 		void UpdateResolution(int width, int height) const;
 		
 	private:
-		virtual void DrawShadowCasters(glm::vec2 lightPos, const class ViewInfo& viewInfo) const override;
+		virtual void DrawShadowCasters(const LightInfo& lightInfo, const class ViewInfo& viewInfo) const override;
 		
 		const class GameWorld* m_gameWorld = nullptr;
 		

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "gl/buffer.h"
-#include "gl/vertexarray.h"
+#include "gl/vertexinputstate.h"
 #include "gl/shaderprogram.h"
 
 #include <memory>
@@ -15,14 +15,24 @@ namespace TankGame
 		
 		static void BindShadowShader();
 		
-		void Draw() const;
+		void Draw(const struct LightInfo& lightInfo) const;
 		
 	private:
+		static constexpr uint32_t REGION_SIZE = 16;
+		
 		static std::unique_ptr<ShaderProgram> s_shadowShader;
+		
+		struct RegionRange
+		{
+			uint32_t firstIndex;
+			uint32_t lastIndex;
+		};
 		
 		struct Data
 		{
-			GLuint numIndices;
+			std::unique_ptr<RegionRange[]> regionRanges;
+			uint32_t numRegionsX;
+			uint32_t numRegionsY;
 			Buffer vertexBuffer;
 			Buffer indexBuffer;
 		};
@@ -30,6 +40,6 @@ namespace TankGame
 		static Data BuildBuffers(const class TileGrid& tileGrid, const class TileGridMaterial& material);
 		
 		Data m_data;
-		VertexArray m_vertexArray;
+		VertexInputState m_vertexInputState;
 	};
 }

@@ -16,36 +16,11 @@ namespace TankGame
 	
 	size_t SpriteRenderList::s_elementsPerDrawBuffer = 1024;
 	
-	static const int POSITION_ATTRIBUTE_INDEX = 0;
-	static const int Z_ATTRIBUTE_INDEX = 1;
-	static const int TEX_AREA_ATTRIBUTE_INDEX = 2;
-	
 	SpriteRenderList::SpriteRenderList()
 	{
-		for (GLuint i = 0; i < 6; i++)
-			glEnableVertexArrayAttrib(m_vertexArray.GetID(), i);
-		
-		glVertexArrayVertexBuffer(m_vertexArray.GetID(), POSITION_ATTRIBUTE_INDEX,
-		                          QuadMesh::GetInstance().GetVBO(), 0, sizeof(float) * 2);
-		glVertexArrayAttribFormat(m_vertexArray.GetID(), POSITION_ATTRIBUTE_INDEX, 2, GL_FLOAT, GL_FALSE, 0);
-		glVertexArrayAttribBinding(m_vertexArray.GetID(), POSITION_ATTRIBUTE_INDEX, POSITION_ATTRIBUTE_INDEX);
-		
-		glVertexArrayBindingDivisor(m_vertexArray.GetID(), Z_ATTRIBUTE_INDEX, 1);
-		glVertexArrayAttribFormat(m_vertexArray.GetID(), Z_ATTRIBUTE_INDEX, 1, GL_FLOAT, GL_FALSE, 0);
-		glVertexArrayAttribBinding(m_vertexArray.GetID(), Z_ATTRIBUTE_INDEX, Z_ATTRIBUTE_INDEX);
-		
-		glVertexArrayBindingDivisor(m_vertexArray.GetID(), TEX_AREA_ATTRIBUTE_INDEX, 1);
-		glVertexArrayAttribFormat(m_vertexArray.GetID(), TEX_AREA_ATTRIBUTE_INDEX, 4, GL_FLOAT, GL_FALSE, 0);
-		glVertexArrayAttribBinding(m_vertexArray.GetID(), TEX_AREA_ATTRIBUTE_INDEX, TEX_AREA_ATTRIBUTE_INDEX);
-		
-		for (GLuint i = 0; i < 3; i++)
-		{
-			const GLuint location = 3 + i;
-			
-			glVertexArrayBindingDivisor(m_vertexArray.GetID(), location, 1);
-			glVertexArrayAttribFormat(m_vertexArray.GetID(), location, 3, GL_FLOAT, GL_FALSE, 0);
-			glVertexArrayAttribBinding(m_vertexArray.GetID(), location, location);
-		}
+		QuadMesh::GetInstance().InitializeVertexAttribute(m_vertexInputState, 0);
+		for (uint32_t i = 1; i <= 5; i++)
+			m_vertexInputState.SetAttributeInstanceStep(i);
 	}
 	
 	void SpriteRenderList::Begin()
@@ -173,7 +148,7 @@ namespace TankGame
 		
 		// ** Renders sprites **
 		
-		m_vertexArray.Bind();
+		m_vertexInputState.Bind();
 		
 		for (size_t i = 0; i <= currentDrawBuffer; i++)
 		{
@@ -199,9 +174,18 @@ namespace TankGame
 					static_cast<GLintptr>(instanceByteOffset + INSTANCE_MATRIX_OFF + sizeof(float) * 4 * 1),
 					static_cast<GLintptr>(instanceByteOffset + INSTANCE_MATRIX_OFF + sizeof(float) * 4 * 2)
 				};
+				static const VertexAttribFormat vertexAttribFormats[5] = 
+				{
+					VertexAttribFormat::Float32_1,
+					VertexAttribFormat::Float32_4,
+					VertexAttribFormat::Float32_3,
+					VertexAttribFormat::Float32_3,
+					VertexAttribFormat::Float32_3,
+				};
 				for (size_t b = 0; b < 5; b++)
 				{
-					glBindVertexBuffer(b + 1, m_drawBuffers[i].GetID(), instanceOffsets[b], INSTANCE_DATA_STRIDE);
+					m_vertexInputState.UpdateAttribute(b + 1, m_drawBuffers[i].GetID(), vertexAttribFormats[b],
+					                                   instanceOffsets[b], INSTANCE_DATA_STRIDE);
 				}
 				
 				materialBatch.m_material.Bind(s_spriteMaterialUniformLocations);

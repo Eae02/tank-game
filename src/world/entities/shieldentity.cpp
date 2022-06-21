@@ -16,7 +16,7 @@ namespace TankGame
 	std::unique_ptr<ShaderProgram> ShieldEntity::s_spriteShader;
 	
 	std::unique_ptr<Buffer> ShieldEntity::s_vertexBuffer;
-	std::unique_ptr<VertexArray> ShieldEntity::s_vertexArray;
+	std::unique_ptr<VertexInputState> ShieldEntity::s_vertexInputState;
 	GLsizei ShieldEntity::s_numVertices;
 	
 	constexpr float ShieldEntity::RIPPLE_TIME;
@@ -33,8 +33,9 @@ namespace TankGame
 	{
 		struct Vertex
 		{
-			glm::vec2 m_position;
-			float m_angle;
+			float x;
+			float y;
+			float angle;
 		};
 		
 		static_assert(sizeof(Vertex) == sizeof(float) * 3, "Invalid structure size.");
@@ -48,25 +49,19 @@ namespace TankGame
 			float angle = i * ANGLE;
 			glm::vec2 vertexVec(std::cos(angle), std::sin(angle));
 			
-			vertices[i * 2].m_angle = angle;
-			vertices[i * 2].m_position = vertexVec * CLOSE_VERTEX_DIST;
+			vertices[i * 2].angle = angle;
+			vertices[i * 2].x = vertexVec.x * CLOSE_VERTEX_DIST;
+			vertices[i * 2].y = vertexVec.y * CLOSE_VERTEX_DIST;
 			
-			vertices[i * 2 + 1].m_angle = angle;
-			vertices[i * 2 + 1].m_position = vertexVec * OUTER_VERTEX_DIST;
+			vertices[i * 2 + 1].angle = angle;
+			vertices[i * 2 + 1].x = vertexVec.x * OUTER_VERTEX_DIST;
+			vertices[i * 2 + 1].y = vertexVec.y * OUTER_VERTEX_DIST;
 		}
 		
 		s_vertexBuffer = std::make_unique<Buffer>(vertices.size() * sizeof(Vertex), vertices.data(), BufferUsage::StaticData);
-		s_vertexArray = std::make_unique<VertexArray>();
+		s_vertexInputState = std::make_unique<VertexInputState>();
 		
-		glEnableVertexArrayAttrib(s_vertexArray->GetID(), 0);
-		glVertexArrayVertexBuffer(s_vertexArray->GetID(), 0, s_vertexBuffer->GetID(), 0, sizeof(Vertex));
-		glVertexArrayAttribFormat(s_vertexArray->GetID(), 0, 2, GL_FLOAT, GL_FALSE, 0);
-		glVertexArrayAttribBinding(s_vertexArray->GetID(), 0, 0);
-		
-		glEnableVertexArrayAttrib(s_vertexArray->GetID(), 1);
-		glVertexArrayVertexBuffer(s_vertexArray->GetID(), 1, s_vertexBuffer->GetID(), sizeof(float) * 2, sizeof(Vertex));
-		glVertexArrayAttribFormat(s_vertexArray->GetID(), 1, 1, GL_FLOAT, GL_FALSE, 0);
-		glVertexArrayAttribBinding(s_vertexArray->GetID(), 1, 1);
+		s_vertexInputState->UpdateAttribute(0, s_vertexBuffer->GetID(), VertexAttribFormat::Float32_3, 0, sizeof(Vertex));
 	}
 	
 	struct SettingsBufferData
@@ -150,7 +145,7 @@ namespace TankGame
 		glBindBufferRange(GL_UNIFORM_BUFFER, 1, m_settingsBuffer->GetID(),
 		                  m_settingsBuffer->CurrentFrameOffset(), sizeof(SettingsBufferData));
 		
-		s_vertexArray->Bind();
+		s_vertexInputState->Bind();
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, s_numVertices);
 	}
 	
@@ -161,7 +156,7 @@ namespace TankGame
 		glBindBufferRange(GL_UNIFORM_BUFFER, 1, m_settingsBuffer->GetID(),
 		                  m_settingsBuffer->CurrentFrameOffset(), sizeof(SettingsBufferData));
 		
-		s_vertexArray->Bind();
+		s_vertexInputState->Bind();
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, s_numVertices);
 	}
 	

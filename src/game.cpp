@@ -42,6 +42,8 @@ namespace TankGame
 	{
 		std::unique_ptr<Window> windowUP = std::make_unique<Window>(arguments);
 		
+		VertexInputState::InitEmpty();
+		
 		BufferAllocator::SetInstance(std::make_unique<BufferAllocator>());
 		QuadMesh::SetInstance(std::make_unique<QuadMesh>());
 		
@@ -223,7 +225,9 @@ namespace TankGame
 		if (isEditorOpen)
 			editor->Update(updateInfo);
 		
+		double gameUpdateBegin = window.arguments.m_profiling ? GetTime() : 0;
 		gameManager->Update(updateInfo);
+		double gameUpdateTime = window.arguments.m_profiling ? (GetTime() - gameUpdateBegin) : 0;
 		
 		//Shows the console when tilde is pressed
 		if (window.keyboard.IsDown(Key::GraveAccent) && !window.keyboard.WasDown(Key::GraveAccent))
@@ -282,20 +286,38 @@ namespace TankGame
 		if (window.arguments.m_profiling)
 		{
 			std::ostringstream profileTextStream;
-			profileTextStream << "FPS: " << static_cast<int>(1.0f / dt);
-			profileTextStream << ", Frame Time: " << std::setprecision(3) << (dt * 1000) << "ms";
+			
+			profileTextStream
+				<< "FPS: " << static_cast<int>(1.0f / dt)
+				<< ", Frame Time: " << std::setprecision(3) << (dt * 1000) << "ms"
+				<< ", Game Update Time: " << std::setprecision(3) << (gameUpdateTime * 1000) << "ms\n";
+			
+			profileTextStream << "SM Updates: " << shadowRenderer.lastFrameShadowMapUpdates << "\n";
+			
 			if (gameManager->GetLevel() != nullptr)
 			{
-				profileTextStream << ", Lights: " << gameManager->GetRenderer().GetRenderedLights();
-				profileTextStream << ", Particles: " <<
-						gameManager->GetLevel()->GetGameWorld().GetParticlesManager().GetParticleCount();
+				auto& particlesManager = gameManager->GetLevel()->GetGameWorld().GetParticlesManager();
+				particlesManager.measureUpdateTime = true;
+				
+				profileTextStream << "Particle Update: " << std::setprecision(3) << (particlesManager.LastUpdateTime() * 1000.0) << "ms\n";
+				profileTextStream << "Particle Draw (CPU): " << std::setprecision(3) << (deferredRenderer.GetParticleRenderer().LastDrawCPUTime() * 1000.0) << "ms\n";
+				
+				profileTextStream << "Lights: " << gameManager->GetRenderer().GetRenderedLights() << "\n";
+				profileTextStream << "Particles: " << particlesManager.GetParticleCount() << "\n";
+				profileTextStream << "Drawn Particles: " << deferredRenderer.GetParticleRenderer().GetNumRenderedParticles() << "\n";
 			}
 			
 			Rectangle viewRect(0, 0, window.width, window.height);
 			viewRect.Inflate(-5);
 			
-			UIRenderer::GetInstance().DrawString(Font::GetNamedFont(FontNames::StandardUI), profileTextStream.str(),
-			                                     viewRect, Alignment::Left, Alignment::Bottom, glm::vec4(1.0f));
+			std::vector<std::string> profInfoLines = Split(profileTextStream.str(), "\n");
+			
+			for (const std::string& line : profInfoLines)
+			{
+				UIRenderer::GetInstance().DrawString(Font::GetNamedFont(FontNames::StandardUI), line,
+			                                      	 viewRect, Alignment::Left, Alignment::Top, glm::vec4(1.0f));
+				viewRect.y -= 20;
+			}
 		}
 		
 		glDisable(GL_BLEND);

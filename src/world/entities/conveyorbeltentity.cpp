@@ -64,7 +64,7 @@ namespace TankGame
 		s_normalMap->Bind(1);
 		s_specularTexture->Bind(2);
 		
-		QuadMesh::GetInstance().GetVAO().Bind();
+		QuadMesh::GetInstance().BindVAO();
 		
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	}

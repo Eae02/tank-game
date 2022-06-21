@@ -10,21 +10,7 @@
 
 namespace TankGame
 {
-	std::unique_ptr<ShaderModule> ShadowRenderer::s_fragmentShader;
-	
 	static const fs::path shaderPath = fs::path("shaders") / "lighting" / "shadows";
-	
-	const ShaderModule& ShadowRenderer::GetFragmentShader()
-	{
-		if (s_fragmentShader== nullptr)
-		{
-			const fs::path fsPath = resDirectoryPath / shaderPath / "shadow.fs.glsl";
-			s_fragmentShader = std::make_unique<ShaderModule>(ShaderModule::FromFile(fsPath, GL_FRAGMENT_SHADER));
-			CallOnClose([] { s_fragmentShader = nullptr; });
-		}
-		
-		return *s_fragmentShader;
-	}
 	
 	ShaderProgram ShadowRenderer::CreateBlurPassShader()
 	{
@@ -44,7 +30,7 @@ namespace TankGame
 	}
 	
 	void ShadowRenderer::RenderShadowMap(ShadowMap& shadowMap, LightInfo lightInfo, const ViewInfo& viewInfo,
-	                                     const ShadowRenderer::IShadowMapGeometryProvider& geometryProvider) const
+	                                     const ShadowRenderer::IShadowMapGeometryProvider& geometryProvider)
 	{
 		const float STATIC_SM_RESOLUTION_PER_UNIT = 16;
 		
@@ -69,13 +55,14 @@ namespace TankGame
 		shadowMap.ClearNeedsRedraw();
 		
 		Framebuffer::Save();
+		
+		glEnable(GL_DEPTH_TEST);
+		glDepthMask(GL_TRUE);
+		glEnable(GL_DEPTH_CLAMP);
+		//glEnable(GL_CULL_FACE);
+		glDepthFunc(GL_GREATER);
+		
 		shadowMap.BeginShadowPass(viewInfo, lightInfo);
-		
-		glDisable(GL_DEPTH_TEST);
-		
-		glEnable(GL_BLEND);
-		glBlendFuncSeparate(GL_ONE, GL_ONE, GL_ZERO, GL_ZERO);
-		glBlendEquation(GL_FUNC_ADD);
 		
 		glm::mat3 invStaticViewMatrix;
 		
@@ -83,12 +70,18 @@ namespace TankGame
 		{
 			invStaticViewMatrix = shadowMap.GetInverseStaticViewMatrix(lightInfo);
 			ViewInfo staticViewInfo(shadowMap.GetStaticViewMatrix(lightInfo), &invStaticViewMatrix);
-			geometryProvider.DrawShadowCasters(lightInfo.m_position, staticViewInfo);
+			geometryProvider.DrawShadowCasters(lightInfo, staticViewInfo);
 		}
 		else
-			geometryProvider.DrawShadowCasters(lightInfo.m_position, viewInfo);
+		{
+			geometryProvider.DrawShadowCasters(lightInfo, viewInfo);
+		}
 		
-		glDisable(GL_BLEND);
+		//glDisable(GL_CULL_FACE);
+		glDisable(GL_DEPTH_CLAMP);
+		glDisable(GL_DEPTH_TEST);
+		glDepthMask(GL_FALSE);
+		glDepthFunc(GL_LEQUAL);
 		
 		shadowMap.BeginBlurPass();
 		
@@ -105,12 +98,12 @@ namespace TankGame
 			                          reinterpret_cast<const GLfloat*>(&viewInfo.GetInverseViewMatrix()));
 		}
 		
-		QuadMesh::GetInstance().GetVAO().Bind();
+		QuadMesh::GetInstance().BindVAO();
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		
-		glEnable(GL_DEPTH_TEST);
-		
 		Framebuffer::Restore();
+		
+		lastFrameShadowMapUpdates++;
 	}
 	
 	void ShadowRenderer::OnResize(GLsizei width, GLsizei height)

@@ -35,14 +35,6 @@ namespace TankGame
 		s_shader->Use();
 	}
 	
-	LightStripEntity::LightStripEntity(glm::vec3 color, float glowStrength, float radius)
-	    : m_radius(radius), m_color(color), m_glowStrength(glowStrength)
-	{
-		glEnableVertexArrayAttrib(m_vertexArray.GetID(), 0);
-		glVertexArrayAttribFormat(m_vertexArray.GetID(), 0, 2, GL_FLOAT, GL_FALSE, 0);
-		glVertexArrayAttribBinding(m_vertexArray.GetID(), 0, 0);
-	}
-	
 	void LightStripEntity::Draw(class SpriteRenderList& spriteRenderList) const
 	{
 		if (m_numIndices != 0)
@@ -52,7 +44,8 @@ namespace TankGame
 			glm::vec3 colorMulStrength = m_color * m_glowStrength;
 			glUniform3fv(s_colorUniformLoc, 1, &colorMulStrength.x);
 			
-			m_vertexArray.Bind();
+			m_vertexInputState.Bind();
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer->GetID());
 			glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_SHORT, nullptr);
 		}
 	}
@@ -206,8 +199,7 @@ namespace TankGame
 			m_vertexBuffer = std::make_unique<Buffer>(vertices.size() * sizeof(glm::vec2), vertices.data(), BufferUsage::StaticData);
 			m_indexBuffer = std::make_unique<Buffer>(indices.size() * sizeof(uint16_t), indices.data(), BufferUsage::StaticData);
 			
-			glVertexArrayVertexBuffer(m_vertexArray.GetID(), 0, m_vertexBuffer->GetID(), 0, sizeof(float) * 2);
-			glVertexArrayElementBuffer(m_vertexArray.GetID(), m_indexBuffer->GetID());
+			m_vertexInputState.UpdateAttribute(0, m_vertexBuffer->GetID(), VertexAttribFormat::Float32_2, 0, sizeof(float) * 2);
 		}
 		
 		if (GetGameWorld() != nullptr)
