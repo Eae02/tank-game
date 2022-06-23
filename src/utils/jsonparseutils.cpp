@@ -12,7 +12,7 @@ namespace TankGame
 			return glm::vec2(json.get<float>());
 		if (json.is_array() && json.size() == 2)
 			return { json[0].get<float>(), json[1].get<float>() };
-		throw std::runtime_error("Invalid vec2 in json.");
+		Panic("Invalid vec2 in json.");
 	}
 	
 	void ParseTransform(const nlohmann::json& json, Transform& transform)
@@ -48,6 +48,6 @@ namespace TankGame
 			return glm::convertSRGBToLinear(colorSrgb);
 		}
 		
-		throw std::runtime_error("Invalid color in json.");
+		Panic("Invalid color in json.");
 	}
 }

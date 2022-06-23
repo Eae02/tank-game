@@ -1,10 +1,8 @@
-#version 330 core
-
 #include "shield-common.glh"
 
 layout(location=0) out vec2 distortion_out;
 
-const float DISTORTION_vTENSITY = 5;
+const float DISTORTION_vTENSITY = 5.0;
 
 void main()
 {

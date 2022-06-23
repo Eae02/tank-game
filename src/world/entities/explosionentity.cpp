@@ -32,10 +32,8 @@ namespace TankGame
 	{
 		if (s_distortionShader == nullptr)
 		{
-			auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "blastwave.vs.glsl", GL_VERTEX_SHADER);
-			auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "blastwave.fs.glsl", GL_FRAGMENT_SHADER);
-			
-			s_distortionShader.reset(new ShaderProgram{ &vs, &fs });
+			s_distortionShader = std::make_unique<ShaderProgram>(
+				ShaderModule::FromResFile("blastwave.vs.glsl"), ShaderModule::FromResFile("blastwave.fs.glsl"));
 			
 			blastIntensityUniformLoc = s_distortionShader->GetUniformLocation("blastIntensity");
 			blastRadiusUniformLoc    = s_distortionShader->GetUniformLocation("blastRadius");

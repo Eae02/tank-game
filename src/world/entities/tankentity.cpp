@@ -3,7 +3,6 @@
 #include "projectiles/rocketentity.h"
 #include "shieldentity.h"
 #include "../gameworld.h"
-#include "../../exceptions/invalidstateexception.h"
 #include "../../settings.h"
 #include "../../audio/soundsmanager.h"
 #include "../../graphics/spriterenderlist.h"
@@ -126,7 +125,7 @@ namespace TankGame
 	void TankEntity::SpawnShield(float hp)
 	{
 		if (GetGameWorld() == nullptr)
-			throw InvalidStateException("SpawnShield called before OnSpawned.");
+			Panic("SpawnShield called before OnSpawned.");
 		if (m_shieldHandle.IsAlive())
 			m_shieldHandle->Despawn();
 		

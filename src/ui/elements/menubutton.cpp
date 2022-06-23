@@ -7,7 +7,7 @@
 
 namespace TankGame
 {
-	MenuButton::MenuButton(std::u32string label)
+	MenuButton::MenuButton(std::string label)
 	{
 		SetLabel(std::move(label));
 	}
@@ -55,7 +55,7 @@ namespace TankGame
 		                      Alignment::Center, glm::vec4(1.0f), scale);
 	}
 	
-	void MenuButton::SetLabel(std::u32string label)
+	void MenuButton::SetLabel(std::string label)
 	{
 		m_label = std::move(label);
 		

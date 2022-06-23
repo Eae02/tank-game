@@ -8,6 +8,7 @@
 
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
+#include <EGL/egl.h>
 #include <imgui.h>
 
 #include <unordered_map>
@@ -39,7 +40,7 @@ namespace TankGame
 		{ "KeyR", Key::R },
 		{ "KeyS", Key::S },
 		{ "KeyT", Key::T },
-		{ "KeyU", Key::U },
+		{ "Key", Key::U },
 		{ "KeyV", Key::V },
 		{ "KeyW", Key::W },
 		{ "KeyX", Key::X },
@@ -89,14 +90,41 @@ namespace TankGame
 	
 	std::unique_ptr<Window> theWindow;
 	
-	void RunOneFrame()
-	{
-		
-	}
+	static EGLDisplay eglDisplay;
+	static EGLSurface eglSurface;
+	static EGLContext eglContext;
 	
 	Window::Window(const ArgumentData& _arguments) : arguments(_arguments)
 	{
+		eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 		
+		eglInitialize(eglDisplay, nullptr, nullptr);
+		
+		EGLConfig eglConfig;
+		int numEglConfigs;
+		eglGetConfigs(eglDisplay, &eglConfig, 1, &numEglConfigs);
+		
+		EGLint surfaceAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 3, EGL_NONE, EGL_NONE };
+		eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, 0, surfaceAttribs);
+		if (eglSurface == EGL_NO_SURFACE)
+		{
+			Panic("eglCreateWindowSurface failed: " + std::to_string(eglGetError()));
+		}
+		
+		std::vector<EGLint> contextAttribs = { EGL_CONTEXT_CLIENT_VERSION, 3 };
+		contextAttribs.push_back(EGL_NONE);
+		contextAttribs.push_back(EGL_NONE);
+		
+		eglContext = eglCreateContext(eglDisplay, eglConfig, EGL_NO_CONTEXT, contextAttribs.data());
+		if (eglContext == EGL_NO_CONTEXT)
+		{
+			Panic("eglCreateContext failed: " + std::to_string(eglGetError()));
+		}
+		
+		if (!eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext))
+		{
+			Panic("eglMakeCurrent failed: " + std::to_string(eglGetError()));
+		}
 	}
 	
 	void Window::RunGameLoop(std::unique_ptr<Window> window)
@@ -163,7 +191,17 @@ namespace TankGame
 		
 		emscripten_set_main_loop([]
 		{
-			theWindow->mouse.pos = mouseCursorPos;
+			int width, height;
+			eglQuerySurface(eglDisplay, eglSurface, EGL_WIDTH, &width);
+			eglQuerySurface(eglDisplay, eglSurface, EGL_HEIGHT, &height);
+			if (width != theWindow->width || height != theWindow->height)
+			{
+				theWindow->width = width;
+				theWindow->height = height;
+				theWindow->resizeCallback(*theWindow, width, height);
+			}
+			
+			theWindow->mouse.pos = glm::vec2(mouseCursorPos.x, (float)height - mouseCursorPos.y);
 			theWindow->mouse.m_buttonState = mouseButtonState;
 			theWindow->keyboard.m_keyStateBitmask = keyState;
 			
@@ -172,6 +210,8 @@ namespace TankGame
 			theWindow->keyboard.OnFrameEnd();
 			theWindow->mouse.OnFrameEnd();
 		}, 0, 0);
+		
+		EM_ASM( loadingComplete(); );
 	}
 	
 	void Window::Platform_CursorCapturedChanged() { }

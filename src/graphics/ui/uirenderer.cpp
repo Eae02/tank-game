@@ -19,10 +19,8 @@ namespace TankGame
 	
 	void UIRenderer::LoadSpriteShader()
 	{
-		auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "ui" / "uisprite.vs.glsl", GL_VERTEX_SHADER);
-		auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "ui" / "uisprite.fs.glsl", GL_FRAGMENT_SHADER);
-		
-		s_spriteShader.m_shader.reset(new ShaderProgram{ &vs, &fs });
+		s_spriteShader.m_shader = std::make_unique<ShaderProgram>(
+			ShaderModule::FromResFile("ui/uisprite.vs.glsl"), ShaderModule::FromResFile("ui/uisprite.fs.glsl"));
 		CallOnClose([] { s_spriteShader.m_shader = nullptr; });
 		
 		s_spriteShader.m_shader->SetTextureBinding("spriteTex", 0);
@@ -35,10 +33,8 @@ namespace TankGame
 	
 	void UIRenderer::LoadQuadShader()
 	{
-		auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "ui" / "uiquad.vs.glsl", GL_VERTEX_SHADER);
-		auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "ui" / "uiquad.fs.glsl", GL_FRAGMENT_SHADER);
-		
-		s_quadShader.m_shader.reset(new ShaderProgram{ &vs, &fs });
+		s_quadShader.m_shader = std::make_unique<ShaderProgram>(
+			ShaderModule::FromResFile("ui/uiquad.vs.glsl"), ShaderModule::FromResFile("ui/uiquad.fs.glsl"));
 		CallOnClose([] { s_quadShader.m_shader = nullptr; });
 		
 		s_quadShader.m_colorLocation = s_quadShader.m_shader->GetUniformLocation("color");
@@ -47,10 +43,8 @@ namespace TankGame
 	
 	void UIRenderer::LoadLineShader()
 	{
-		auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "ui" / "uiline.vs.glsl", GL_VERTEX_SHADER);
-		auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "ui" / "uiquad.fs.glsl", GL_FRAGMENT_SHADER);
-		
-		s_lineShader.m_shader.reset(new ShaderProgram{ &vs, &fs });
+		s_lineShader.m_shader = std::make_unique<ShaderProgram>(
+			ShaderModule::FromResFile("ui/uiline.vs.glsl"), ShaderModule::FromResFile("ui/uiquad.fs.glsl"));
 		CallOnClose([] { s_lineShader.m_shader = nullptr; });
 		
 		s_lineShader.m_vertex1Location = s_lineShader.m_shader->GetUniformLocation("vertices[0]");
@@ -60,10 +54,8 @@ namespace TankGame
 	
 	void UIRenderer::LoadTextShader()
 	{
-		auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "ui" / "text.vs.glsl", GL_VERTEX_SHADER);
-		auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "ui" / "text.fs.glsl", GL_FRAGMENT_SHADER);
-		
-		s_textShader.m_shader.reset(new ShaderProgram{ &vs, &fs });
+		s_textShader.m_shader = std::make_unique<ShaderProgram>(
+			ShaderModule::FromResFile("ui/text.vs.glsl"), ShaderModule::FromResFile("ui/text.fs.glsl"));
 		CallOnClose([] { s_textShader.m_shader = nullptr; });
 		
 		s_textShader.m_shader->SetTextureBinding("glyph", 0);
@@ -186,13 +178,7 @@ namespace TankGame
 		glDrawArrays(GL_LINES, 0, 2);
 	}
 	
-	glm::vec2 UIRenderer::DrawString(const class Font& font, const std::string& string, Rectangle rectangle,
-	                                 Alignment alignX, Alignment alignY, const glm::vec4& color, float scale) const
-	{
-		return DrawString(font, UTF8ToUTF32(string), rectangle, alignX, alignY, color, scale);
-	}
-	
-	glm::vec2 UIRenderer::DrawString(const Font& font, const std::u32string& string, Rectangle rectangle,
+	glm::vec2 UIRenderer::DrawString(const Font& font, const std::string& string, Rectangle rectangle,
 	                                 Alignment alignX, Alignment alignY, const glm::vec4& color, float scale) const
 	{
 		if (s_textShader.m_shader== nullptr)

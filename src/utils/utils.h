@@ -6,6 +6,11 @@
 #include <iosfwd>
 #include <glm/glm.hpp>
 
+#include <version>
+#ifdef __cpp_lib_source_location
+#include <source_location>
+#endif
+
 #ifdef _WIN32
 #define strcasecmp _stricmp
 #endif
@@ -52,11 +57,15 @@ namespace TankGame
 	
 	uint32_t RgbColorToSRGBHex(glm::vec3 color);
 
-	std::u32string UTF8ToUTF32(const std::string& utf8String);
-	
 	extern const std::string LOG_ERROR;
 	extern const std::string LOG_WARNING;
 	extern const std::string LOG_PERFORMANCE;
 	
 	std::ostream& GetLogStream();
+	
+#ifdef __cpp_lib_source_location
+	[[noreturn]] void Panic(const std::string& message, std::source_location location = std::source_location::current());
+#else
+	[[noreturn]] void Panic(const std::string& message);
+#endif
 }

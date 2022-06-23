@@ -5,11 +5,8 @@
 namespace TankGame
 {
 	MainMenu::MainMenu()
-	    : m_title(Texture2D::FromFile(resDirectoryPath / "ui" / "title.png")),
-	      m_playButton(U"Play"), m_optionsButton(U"Options"), m_quitButton(U"Quit")
-	{
-		
-	}
+	    : m_title(Texture2D::FromFile(resDirectoryPath / "ui" / "title.png", 4)),
+	      m_playButton("Play"), m_optionsButton("Options") { }
 	
 	void MainMenu::Update(const UpdateInfo& updateInfo)
 	{
@@ -19,15 +16,19 @@ namespace TankGame
 		if (m_optionsButton.Update(updateInfo) && m_optionsCallback != nullptr)
 			m_optionsCallback();
 		
+#ifndef __EMSCRIPTEN__
 		if (m_quitButton.Update(updateInfo) && m_quitCallback != nullptr)
 			m_quitCallback();
+#endif
 	}
 	
 	void MainMenu::Draw(const UIRenderer& uiRenderer) const
 	{
 		m_playButton.Draw(uiRenderer);
 		m_optionsButton.Draw(uiRenderer);
+#ifndef __EMSCRIPTEN__
 		m_quitButton.Draw(uiRenderer);
+#endif
 		
 		uiRenderer.DrawSprite(m_title, m_titleRectangle, glm::vec4(1.0f));
 	}
@@ -36,7 +37,9 @@ namespace TankGame
 	{
 		m_playButton.OnShown();
 		m_optionsButton.OnShown();
+#ifndef __EMSCRIPTEN__
 		m_quitButton.OnShown();
+#endif
 	}
 	
 	void MainMenu::OnResize(int newWidth, int newHeight)
@@ -50,7 +53,14 @@ namespace TankGame
 	{
 		const float ITEM_SPACING = 10;
 		
-		MenuButton* buttons[] = { &m_playButton, &m_optionsButton, &m_quitButton };
+		MenuButton* buttons[] =
+		{
+			&m_playButton,
+			&m_optionsButton,
+#ifndef __EMSCRIPTEN__
+			&m_quitButton
+#endif
+		};
 		
 		float height = -ITEM_SPACING;
 		for (const MenuButton* button : buttons)

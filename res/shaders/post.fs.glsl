@@ -1,5 +1,3 @@
-#version 330 core
-
 in vec2 texCoord_v;
 
 out vec3 color_out;
@@ -24,8 +22,8 @@ uniform float damageFlashIntensity;
 uniform float horizontalDistortionAmount;
 uniform float distortionSampleMul;
 
-const int NUM_HEX_TEXTURES_Y = 5;
-const vec3 DAMAGE_FLASH_COLOR = vec3(232 / 255.0, 0, 58 / 255.0);
+const float NUM_HEX_TEXTURES_Y = 5.0;
+const vec3 DAMAGE_FLASH_COLOR = vec3(232.0 / 255.0, 0.0, 58.0 / 255.0);
 
 void main()
 {

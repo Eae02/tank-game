@@ -17,7 +17,7 @@ namespace TankGame
 		auto vs = ShaderModule::FromFile(resDirectoryPath / shaderPath / "blur.vs.glsl", GL_VERTEX_SHADER);
 		auto fs = ShaderModule::FromFile(resDirectoryPath / shaderPath / "blur.fs.glsl", GL_FRAGMENT_SHADER);
 		
-		ShaderProgram program({ &vs, &fs });
+		ShaderProgram program(vs, fs);
 		program.SetTextureBinding("shadowMap", 0);
 		return program;
 	}
@@ -56,11 +56,13 @@ namespace TankGame
 		
 		Framebuffer::Save();
 		
-		glEnable(GL_DEPTH_TEST);
-		glDepthMask(GL_TRUE);
-		glEnable(GL_DEPTH_CLAMP);
-		//glEnable(GL_CULL_FACE);
-		glDepthFunc(GL_GREATER);
+		if (ShadowMap::useDepthShadowMaps)
+		{
+			glEnable(GL_DEPTH_TEST);
+			glDepthMask(GL_TRUE);
+			glDepthFunc(GL_GREATER);
+			glEnable(GL_DEPTH_CLAMP);
+		}
 		
 		shadowMap.BeginShadowPass(viewInfo, lightInfo);
 		
@@ -77,11 +79,13 @@ namespace TankGame
 			geometryProvider.DrawShadowCasters(lightInfo, viewInfo);
 		}
 		
-		//glDisable(GL_CULL_FACE);
-		glDisable(GL_DEPTH_CLAMP);
-		glDisable(GL_DEPTH_TEST);
-		glDepthMask(GL_FALSE);
-		glDepthFunc(GL_LEQUAL);
+		if (ShadowMap::useDepthShadowMaps)
+		{
+			glDisable(GL_DEPTH_TEST);
+			glDepthMask(GL_FALSE);
+			glDepthFunc(GL_LEQUAL);
+			glDisable(GL_DEPTH_CLAMP);
+		}
 		
 		shadowMap.BeginBlurPass();
 		

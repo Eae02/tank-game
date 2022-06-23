@@ -3,7 +3,6 @@
 #include "audio/almanager.h"
 #include "audio/soundsmanager.h"
 #include "utils/ioutils.h"
-#include "exceptions/fatalexception.h"
 #include "graphics/ui/font.h"
 #include "platform/messagebox.h"
 #include "platform/window.h"
@@ -54,7 +53,10 @@ static bool Initialize()
 	videoModes = DetectVideoModes();
 	
 	if (FT_Init_FreeType(&TankGame::theFTLibrary) != 0)
-		throw FatalException("Error initializing freetype.");
+	{
+		ShowErrorMessage("Error initializing freetype", "Error");
+		return false;
+	}
 	
 	InitOpenAL();
 	
@@ -77,51 +79,38 @@ static bool Initialize()
 extern "C" void WebMain()
 {
 	if (Initialize())
+	{
 		RunGame(ArgumentData(), videoModes);
+	}
 }
 #else
 int main(int argc, const char** argv)
 {
-	try
+	if (!Initialize()) return 1;
+	
+	ArgumentData argumentData;
+	for (int i = 1; i < argc; i++)
 	{
-		if (!Initialize()) return 1;
-		
-		ArgumentData argumentData;
-		for (int i = 1; i < argc; i++)
-		{
-			if (strcmp(argv[i], "-prof") == 0)
-				argumentData.m_profiling = true;
-			if (strcmp(argv[i], "-nocursorgrab") == 0)
-				argumentData.m_noCursorGrab = true;
-			if (strcmp(argv[i], "-dsawrapper") == 0)
-				argumentData.m_useDSAWrapper = true;
-		}
-		
-		RunGame(argumentData, videoModes);
-		
-		Lua::Destroy();
-		
-		Settings::instance.Save(dataDirectoryPath / "settings.json");
-		Progress::GetInstance().Save(dataDirectoryPath / "progress.json");
-		
-		SoundsManager::SetInstance(nullptr);
-		CloseOpenAL();
-		
-		FT_Done_FreeType(TankGame::theFTLibrary);
-		
-		PlatformShutdown();
+		if (strcmp(argv[i], "-prof") == 0)
+			argumentData.m_profiling = true;
+		if (strcmp(argv[i], "-nocursorgrab") == 0)
+			argumentData.m_noCursorGrab = true;
+		if (strcmp(argv[i], "-dsawrapper") == 0)
+			argumentData.m_useDSAWrapper = true;
 	}
-	catch (const FatalException& exception)
-	{
-		ShowErrorMessage(exception.what(), "Error");
-		return 1;
-	}
-#ifdef NDEBUG
-	catch (const std::exception& exception)
-	{
-		ShowErrorMessage(exception.what(), "Unexpected Error");
-		return 1;
-	}
-#endif
+	
+	RunGame(argumentData, videoModes);
+	
+	Lua::Destroy();
+	
+	Settings::instance.Save(dataDirectoryPath / "settings.json");
+	Progress::GetInstance().Save(dataDirectoryPath / "progress.json");
+	
+	SoundsManager::SetInstance(nullptr);
+	CloseOpenAL();
+	
+	FT_Done_FreeType(TankGame::theFTLibrary);
+	
+	PlatformShutdown();
 }
 #endif

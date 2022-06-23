@@ -131,7 +131,7 @@ namespace TankGame
 		
 		float m_gamma = 1.0f;
 		
-		bool m_queueFrames = false;
+		bool m_queueFrames = true;
 		
 		float m_masterVolume = 1;
 		float m_musicVolume = 1;

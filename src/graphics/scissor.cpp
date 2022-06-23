@@ -1,5 +1,4 @@
 #include "scissor.h"
-#include "../exceptions/invalidstateexception.h"
 
 #include <stack>
 

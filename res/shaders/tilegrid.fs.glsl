@@ -1,5 +1,3 @@
-#version 330 core
-
 #include "material.glh"
 
 in vec3 texCoord_v;

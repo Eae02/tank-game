@@ -22,4 +22,10 @@ namespace TankGame
 	void PlatformShutdown();
 	
 	void SyncFileSystem();
+	
+#ifdef __EMSCRIPTEN__
+	constexpr bool PLATFORM_CAN_CHANGE_VSYNC = false;
+#else
+	constexpr bool PLATFORM_CAN_CHANGE_VSYNC = true;
+#endif
 }

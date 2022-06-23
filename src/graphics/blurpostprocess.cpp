@@ -9,9 +9,7 @@ namespace TankGame
 {
 	static ShaderProgram LoadShader()
 	{
-		auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "postblur.fs.glsl", GL_FRAGMENT_SHADER);
-		
-		ShaderProgram program({ &QuadMesh::GetVertexShader(), &fs });
+		ShaderProgram program(QuadMesh::GetVertexShader(), ShaderModule::FromResFile("postblur.fs.glsl"));
 		program.SetTextureBinding("inputSampler", 0);
 		return program;
 	}
@@ -30,7 +28,7 @@ namespace TankGame
 		
 		m_framebuffer = std::make_unique<Framebuffer>();
 		
-		m_intermidiateBuffer = std::make_unique<Texture2D>(inputTexture.GetWidth(), inputTexture.GetHeight(), 1, GL_RGBA16F);
+		m_intermidiateBuffer = std::make_unique<Texture2D>(inputTexture.GetWidth(), inputTexture.GetHeight(), 1, TextureFormat::RGBA16F);
 		glNamedFramebufferTexture(m_framebuffer->GetID(), GL_COLOR_ATTACHMENT0, m_intermidiateBuffer->GetID(), 0);
 		glNamedFramebufferDrawBuffer(m_framebuffer->GetID(), GL_COLOR_ATTACHMENT0);
 		

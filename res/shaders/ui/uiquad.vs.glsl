@@ -1,5 +1,3 @@
-#version 330 core
-
 uniform vec2 corners[4];
 
 void main()

@@ -1,5 +1,6 @@
 #ifdef __linux__
 #include "paths.h"
+#include "../utils/utils.h"
 
 #include <libgen.h>
 #include <linux/limits.h>
@@ -16,7 +17,7 @@ namespace TankGame
 		char pathOut[PATH_MAX];
 		ssize_t numBytesWritten = readlink("/proc/self/exe", pathOut, PATH_MAX);
 		if (numBytesWritten == -1)
-			throw std::runtime_error("Error getting path to executable.");
+			Panic("Error getting path to executable.");
 		pathOut[numBytesWritten] = '\0';
 		dirname(pathOut);
 		return fs::path(pathOut) / "res";

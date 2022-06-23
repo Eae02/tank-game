@@ -14,10 +14,7 @@ namespace TankGame
 {
 	static ShaderProgram LoadGridShader()
 	{
-		auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "editor" / "grid.vs.glsl", GL_VERTEX_SHADER);
-		auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "editor" / "grid.fs.glsl", GL_FRAGMENT_SHADER);
-		
-		return ShaderProgram({ &vs, &fs });
+		return ShaderProgram(ShaderModule::FromResFile("editor/grid.vs.glsl"), ShaderModule::FromResFile("editor/grid.fs.glsl"));
 	}
 	
 	TilesTool::TilesTool(class Editor& editor)
@@ -135,7 +132,7 @@ namespace TankGame
 		
 		m_gridVertexCount = bufferData.size() * 2;
 		
-		m_gridBuffer = std::make_unique<Buffer>(bufferData.size() * sizeof(GridLine), bufferData.data(), BufferUsage::StaticData);
+		m_gridBuffer = std::make_unique<Buffer>(bufferData.size() * sizeof(GridLine), bufferData.data(), BufferUsage::StaticVertex);
 		
 		m_gridVertexInputState.UpdateAttribute(0, m_gridBuffer->GetID(), VertexAttribFormat::Float32_2, 0, sizeof(float) * 2);
 		

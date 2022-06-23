@@ -1,5 +1,3 @@
-#version 420
-
 #include "shadowrendersettings.glh"
 
 in vec2 texCoord_v;
@@ -28,7 +26,7 @@ void main()
 	
 	for (int i = 1; i <= SAMPLE_COUNT; i++)
 	{
-		float a = i / float(SAMPLE_COUNT);
+		float a = float(i) / float(SAMPLE_COUNT);
 		
 		vec2 samplePosL = texCoordNdc - sampleVecVS * a;
 		vec2 samplePosR = texCoordNdc + sampleVecVS * a;

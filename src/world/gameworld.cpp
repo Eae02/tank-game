@@ -15,6 +15,7 @@
 #include "../progress.h"
 #include "../gamemanager.h"
 #include "../platform/common.h"
+#include "../profiling.h"
 
 #include <glm/gtc/constants.hpp>
 #include <algorithm>
@@ -32,6 +33,8 @@ namespace TankGame
 	
 	void GameWorld::Update(const UpdateInfo& updateInfo)
 	{
+		FUNC_TIMER
+		
 		EntitiesManager::Update(updateInfo);
 		
 		float targetRotation = 0;

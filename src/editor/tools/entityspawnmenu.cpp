@@ -23,15 +23,7 @@ namespace TankGame
 		
 		for (nlohmann::json::iterator it = presetsDoc.begin(); it != presetsDoc.end(); ++it)
 		{
-			try
-			{
-				m_entries.emplace_back(it.key(), it.value());
-			}
-			catch (const std::exception& exception)
-			{
-				GetLogStream() << "[error] Error parsing entity preset '" << it.key() << "': "
-				               << exception.what() << "\n";
-			}
+			m_entries.emplace_back(it.key(), it.value());
 		}
 		
 		std::sort(m_entries.begin(), m_entries.end(), [] (const EntityEntry& a, const EntityEntry& b)
@@ -114,6 +106,6 @@ namespace TankGame
 		m_entityParser = GetEntityParser(entityClass);
 		
 		if (m_entityParser == nullptr)
-			throw std::runtime_error("There is no parser for entity class '" + entityClass + "'.");
+			Panic("There is no parser for entity class '" + entityClass + "'.");
 	}
 }

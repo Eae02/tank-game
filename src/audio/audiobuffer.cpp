@@ -1,5 +1,6 @@
 #include "audiobuffer.h"
 #include "../utils/ioutils.h"
+#include "../utils/utils.h"
 
 #include <vorbis/vorbisfile.h>
 #include <memory>
@@ -29,7 +30,7 @@ namespace TankGame
 	{
 		FILE* file = fopen(path.c_str(), "rb");
 		if (file == nullptr)
-			throw std::runtime_error("Error opening file for reading: '" + path + "'.");
+			Panic("Error opening audio file for reading: '" + path + "'.");
 		
 		OggVorbis_File oggFile;
 		ov_open(file, &oggFile, nullptr, 0);

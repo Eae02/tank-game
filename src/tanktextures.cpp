@@ -1,5 +1,4 @@
 #include "tanktextures.h"
-#include "exceptions/invalidstateexception.h"
 #include "utils/utils.h"
 #include "utils/ioutils.h"
 #include "graphics/textureloadoperation.h"
@@ -30,16 +29,16 @@ namespace TankGame
 	
 	void TankTextures::LoadAndCreateInstance(ASyncWorkList& asyncWorkList)
 	{
-		asyncWorkList.Add(std::async([]
+		asyncWorkList.Add(std::async(LOADING_LAUNCH_POLICY, []
 		{
 			TankTextureLoadOperations ops;
 			for (int i = 0; i < 9; i++)
 			{
 				char name[] = "base0.png";
 				name[4] += i;
-				ops.baseDiffuse[i] = TextureLoadOperation::Load(resDirectoryPath / "tank" / name);
+				ops.baseDiffuse[i] = TextureLoadOperation::Load(resDirectoryPath / "tank" / name, 4);
 			}
-			ops.baseNormals = TextureLoadOperation::Load(resDirectoryPath / "tank" / "base-normals.png");
+			ops.baseNormals = TextureLoadOperation::Load(resDirectoryPath / "tank" / "base-normals.png", 4);
 			return ops;
 		}), [] (TankTextureLoadOperations ops)
 		{

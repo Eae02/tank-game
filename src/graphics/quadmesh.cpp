@@ -29,7 +29,7 @@ namespace TankGame
 	};
 	
 	QuadMesh::QuadMesh()
-		: m_vbo(sizeof(vertices), vertices, BufferUsage::StaticData)
+		: m_vbo(sizeof(vertices), vertices, BufferUsage::StaticVertex)
 	{
 		InitializeVertexAttribute(m_vertexInputState, 0);
 	}

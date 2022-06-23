@@ -38,17 +38,16 @@ namespace TankGame
 		inline float GetGamma() const
 		{ return m_postProcessor.GetGamma(); }
 		
-		void SetMeasureParticleDrawCPUTime(bool v) { m_particleRenderer.measureDrawCPUTime = v; }
 		const ParticleRenderer& GetParticleRenderer() const
 		{ return m_particleRenderer; }
 		
 	private:
-		static constexpr GLenum COLOR_FORMAT = GL_RGBA8;
-		static constexpr GLenum NORMALS_AND_SPECULAR_FORMAT = GL_RGBA8;
+		static constexpr TextureFormat COLOR_FORMAT = TextureFormat::RGBA8;
+		static constexpr TextureFormat NORMALS_AND_SPECULAR_FORMAT = TextureFormat::RGBA8;
 		
-		static constexpr GLenum DISTORTION_BUFFER_FORMAT = GL_RG16F;
+		static constexpr TextureFormat DISTORTION_BUFFER_FORMAT = TextureFormat::RG16F;
 		
-		static constexpr GLenum LIGHT_ACC_FORMAT = GL_RGB16F;
+		static constexpr TextureFormat LIGHT_ACC_FORMAT = TextureFormat::RGBA16F;
 		
 		std::unique_ptr<Framebuffer> m_geometryFramebuffer;
 		std::unique_ptr<Texture2D> m_depthBuffer;

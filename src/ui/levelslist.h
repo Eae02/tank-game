@@ -29,10 +29,6 @@ namespace TankGame
 	private:
 		struct ListLevelMenuInfo : public LevelMenuInfo
 		{
-		public:
-			inline explicit ListLevelMenuInfo(std::istream& stream, std::string levelFileName)
-			    : LevelMenuInfo(stream), m_levelFileName(std::move(levelFileName)) { }
-			
 			inline bool operator==(const ListLevelMenuInfo& other) const
 			{
 				return m_levelFileName == other.m_levelFileName;

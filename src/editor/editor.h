@@ -32,7 +32,7 @@ namespace TankGame
 		
 		void Update(const UpdateInfo& updateInfo);
 		
-		void LoadLevel(std::string name);
+		[[nodiscard]] bool LoadLevel(std::string name);
 		void Close();
 		
 		void StopTest()

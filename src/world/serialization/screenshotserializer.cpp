@@ -8,7 +8,7 @@ namespace TankGame
 {
 	ScreenShotSerializer::ScreenShotSerializer(const GameWorld& gameWorld, int width, int height)
 	    : m_aspectRatio(width / static_cast<float>(height)), m_imageWriteBuffer(width * height * 4),
-	      m_outputTexture(width, height, 1, GL_RGBA8)
+	      m_outputTexture(width, height, 1, TextureFormat::RGBA8)
 	{
 		glNamedFramebufferTexture(m_framebuffer.GetID(), GL_COLOR_ATTACHMENT0, m_outputTexture.GetID(), 0);
 		glNamedFramebufferDrawBuffer(m_framebuffer.GetID(), GL_COLOR_ATTACHMENT0);
@@ -57,7 +57,7 @@ namespace TankGame
 			reinterpret_cast<std::ostringstream*>(stream)->write(reinterpret_cast<char*>(data), size);
 		}, &stream, m_outputTexture.GetWidth(), m_outputTexture.GetHeight(), 4, m_imageWriteBuffer.data(), 0) == 0)
 		{
-			throw std::runtime_error("Error writing screenshot.");
+			Panic("Error writing screenshot.");
 		}
 		
 		m_imageDataStrings.push_back(stream.str());
@@ -104,16 +104,18 @@ namespace TankGame
 			);
 			
 			if (imageData == nullptr)
-				throw std::runtime_error("Invalid screen shot data.");
+				Panic("Invalid screen shot data.");
 			
-			Texture2D texture(width, height, 1, GL_RGBA8);
+			//Set alpha to 255
+			for (int i = width * height - 1; i >= 0; i--)
+				imageData.get()[i * 4 + 3] = 255;
 			
-			glTextureSubImage2D(texture.GetID(), 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, imageData.get());
+			Texture2D texture(width, height, 1, TextureFormat::RGBA8);
+			
+			texture.SetData({ reinterpret_cast<char*>(imageData.get()), (size_t)width * (size_t)height * 4 });
 			
 			texture.SetWrapMode(GL_CLAMP_TO_EDGE);
 			texture.SetupMipmapping(true);
-			
-			glTextureParameteri(texture.GetID(), GL_TEXTURE_SWIZZLE_A, GL_ONE);
 			
 			images.emplace_back(std::move(texture));
 		}

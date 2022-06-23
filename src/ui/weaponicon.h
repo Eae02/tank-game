@@ -27,7 +27,7 @@ namespace TankGame
 		
 		const class PlayerWeaponState* m_weaponState = nullptr;
 		
-		std::u32string m_incrementString;
+		std::string m_incrementString;
 		double m_incrementStringHideTime = 0;
 		
 		int m_lastAmmoCount = 0;

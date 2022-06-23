@@ -2,6 +2,7 @@
 #include "particles/particleemitter.h"
 #include "../updateinfo.h"
 #include "../platform/common.h"
+#include "../profiling.h"
 
 namespace TankGame
 {
@@ -22,12 +23,41 @@ namespace TankGame
 	
 	void EntitiesManager::Update(const UpdateInfo& updateInfo)
 	{
+		FUNC_TIMER
+		
 		m_particlesManager.Update(updateInfo.m_dt);
 		
 		if (!updateInfo.m_isEditorOpen)
 		{
+			SCOPE_TIMER("Update Entities")
+			
+			std::unordered_map<std::string_view, EntityUpdateTimeStatistics> updateTimes;
+			
 			for (long i = m_updateableEntities.size() - 1; i >= 0; i--)
+			{
+				double startTime;
+				if (collectUpdateTimeStatistics)
+					startTime = GetTime();
 				m_updateableEntities[i]->Update(updateInfo);
+				if (collectUpdateTimeStatistics)
+				{
+					double endTime = GetTime();
+					std::string_view name = typeid(*m_updateableEntities[i]).name();
+					auto it = updateTimes.emplace(name, EntityUpdateTimeStatistics { }).first;
+					it->second.typeName = name;
+					it->second.count++;
+					it->second.totalTime += endTime - startTime;
+				}
+			}
+			
+			if (collectUpdateTimeStatistics)
+			{
+				m_updateTimeStatistics.clear();
+				for (const auto& x : updateTimes)
+				{
+					m_updateTimeStatistics.push_back(x.second);
+				}
+			}
 		}
 		
 		if (!m_entitiesToDespawn.empty())
@@ -46,6 +76,7 @@ namespace TankGame
 			m_entitiesToDespawn.clear();
 		}
 		
+		SCOPE_TIMER("Spawn Particles")
 		for (ParticleSystemEntityBase* psEntity : m_particleSystemEntities)
 		{
 			if (frameBeginTime > psEntity->GetDeathTime())

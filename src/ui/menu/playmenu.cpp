@@ -4,7 +4,7 @@
 
 namespace TankGame
 {
-	PlayMenu::PlayMenu() : m_backButton(U"Back")
+	PlayMenu::PlayMenu() : m_backButton("Back")
 	{
 		
 	}

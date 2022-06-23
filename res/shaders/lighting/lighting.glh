@@ -31,14 +31,14 @@ struct GBufferData
 float getShadowFactor(vec2 worldPos)
 {
 	vec2 samplePos = (shadowViewMatrix * vec3(worldPos, 1.0)).xy / 2.0 + vec2(0.5);
-	if (samplePos.x < 0 || samplePos.y < 0 || samplePos.x > 1 || samplePos.y > 1)
+	if (samplePos.x < 0.0 || samplePos.y < 0.0 || samplePos.x > 1.0 || samplePos.y > 1.0)
 		return 0.0;
 	return 1.0 - texture(shadowSampler, samplePos).r;
 }
 
 float getFlickerFactor(float offset, float intensity)
 {
-	return 1.0 - (sin(time * 40 + offset) + 1) * 0.5 * intensity;
+	return 1.0 - (sin(time * 40.0 + offset) + 1.0) * 0.5 * intensity;
 }
 
 vec3 smDecode(vec2 enc)

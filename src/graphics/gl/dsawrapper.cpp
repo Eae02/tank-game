@@ -52,12 +52,12 @@ namespace TankGame
 			glProgramUniformMatrix3fv = ProgramUniformMatrix3fv;
 			glProgramUniformMatrix4fv = ProgramUniformMatrix4fv;
 			
-			glCreateBuffers = CreateBuffers;
-			glNamedBufferStorage = NamedBufferStorage;
-			glMapNamedBuffer = MapNamedBuffer;
-			glMapNamedBufferRange = MapNamedBufferRange;
-			glUnmapNamedBuffer = UnmapNamedBuffer;
-			glFlushMappedNamedBufferRange = FlushMappedNamedBufferRange;
+			glCreateBuffers = glGenBuffers;
+			glMapNamedBuffer = nullptr;
+			glMapNamedBufferRange = nullptr;
+			glUnmapNamedBuffer = nullptr;
+			glFlushMappedNamedBufferRange = nullptr;
+			glNamedBufferSubData = nullptr;
 		}
 		
 		static std::unordered_map<GLuint, GLenum> textureTargets;
@@ -165,7 +165,7 @@ namespace TankGame
 		{
 			BindFramebufferAndInvoke(framebuffer, [=]
 			{
-				glFramebufferTexture(GL_FRAMEBUFFER, attachment, texture, level);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, texture, level);
 			});
 		}
 		
@@ -285,41 +285,6 @@ namespace TankGame
 		void APIENTRY ProgramUniformMatrix4fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat* value)
 		{
 			UseProgramAndInvoke(program, [=] { glUniformMatrix4fv(location, count, transpose, value); });
-		}
-		
-		void APIENTRY CreateBuffers(GLsizei n, GLuint* buffers)
-		{
-			glGenBuffers(n, buffers);
-		}
-		
-		void APIENTRY NamedBufferStorage(GLuint buffer, GLsizeiptr size, const void* data, GLbitfield flags)
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, buffer);
-			glBufferStorage(GL_ARRAY_BUFFER, size, data, flags);
-		}
-		
-		void* APIENTRY MapNamedBuffer(GLuint buffer, GLenum access)
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, buffer);
-			return glMapBuffer(GL_ARRAY_BUFFER, access);
-		}
-		
-		void* APIENTRY MapNamedBufferRange(GLuint buffer, GLintptr offset, GLsizeiptr length, GLbitfield access)
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, buffer);
-			return glMapBufferRange(GL_ARRAY_BUFFER, offset, length, access);
-		}
-		
-		GLboolean APIENTRY UnmapNamedBuffer(GLuint buffer)
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, buffer);
-			return glUnmapBuffer(GL_ARRAY_BUFFER);
-		}
-
-		void APIENTRY FlushMappedNamedBufferRange(GLuint buffer, GLintptr offset, GLintptr length)
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, buffer);
-			glFlushMappedBufferRange(GL_ARRAY_BUFFER, offset, length);
 		}
 	}
 }

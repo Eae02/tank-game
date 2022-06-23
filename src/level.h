@@ -6,6 +6,7 @@
 
 #include <string>
 #include <memory>
+#include <optional>
 
 namespace TankGame
 {
@@ -14,7 +15,7 @@ namespace TankGame
 	public:
 		explicit Level(std::istream& stream, GameWorld::Types worldType = GameWorld::Types::Game);
 		
-		static Level FromName(const std::string& name, GameWorld::Types worldType = GameWorld::Types::Game);
+		static std::optional<Level> FromName(const std::string& name, GameWorld::Types worldType = GameWorld::Types::Game);
 		
 		inline GameWorld& GetGameWorld() const
 		{ return *m_gameWorld; }

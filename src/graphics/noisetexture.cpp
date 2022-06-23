@@ -7,7 +7,7 @@
 namespace TankGame
 {
 	NoiseTexture::NoiseTexture(int size, float min, float max)
-	    : Texture2D(size, 1, 1, GL_R32F)
+	    : Texture2D(size, 1, 1, TextureFormat::R32F)
 	{
 		std::uniform_real_distribution<float> noiseDist(min, max);
 		
@@ -15,7 +15,7 @@ namespace TankGame
 		for (int i = 0; i < size; i++)
 			noise[i] = noiseDist(globalRNG);
 		
-		glTextureSubImage2D(GetID(), 0, 0, 0, size, 1, GL_RED, GL_FLOAT, noise.data());
+		SetData({ reinterpret_cast<const char*>(noise.data()), noise.size() * sizeof(float) });
 		
 		SetupMipmapping(false);
 		SetMagFilter(GL_LINEAR);

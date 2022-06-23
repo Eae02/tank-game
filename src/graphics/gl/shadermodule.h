@@ -15,6 +15,8 @@ namespace TankGame
 		ShaderModule(const std::string& source, GLenum type,
 		             const class SpecializationInfo* specializationInfo = nullptr);
 		
+		static ShaderModule FromResFile(const std::string& name, const class SpecializationInfo* specializationInfo = nullptr);
+		
 		static ShaderModule FromFile(const fs::path& path, GLenum type,
 		                             const class SpecializationInfo* specializationInfo = nullptr);
 		

@@ -1,5 +1,3 @@
-#version 330 core
-
 #ifndef LAYER_COUNT
 #define LAYER_COUNT 8
 #endif

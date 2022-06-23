@@ -1,5 +1,3 @@
-#version 330 core
-
 #include "rendersettings.glh"
 #include "shield-settings.glh"
 

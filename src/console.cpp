@@ -99,14 +99,7 @@ namespace TankGame
 			}
 			else
 			{
-				try
-				{
-					commandPos->second.m_callback(tokens.data() + 1, tokens.size() - 1);
-				}
-				catch (const CommandException& exception)
-				{
-					logStream << LOG_ERROR << exception.GetMessage() << "\n";
-				}
+				commandPos->second.m_callback(tokens.data() + 1, tokens.size() - 1);
 			}
 		}
 	}

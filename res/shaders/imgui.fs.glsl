@@ -1,5 +1,3 @@
-#version 330 core
-
 uniform sampler2D Texture;
 
 in vec2 Frag_UV;

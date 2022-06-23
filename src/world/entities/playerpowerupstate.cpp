@@ -16,14 +16,14 @@ namespace TankGame
 		}
 	}
 	
-	std::u32string GetPowerUpName(PowerUps powerUp)
+	std::string GetPowerUpName(PowerUps powerUp)
 	{
 		switch (powerUp)
 		{
 		case PowerUps::HomingBullets:
-			return U"Homing Bullets";
+			return "Homing Bullets";
 		default:
-			return U"";
+			return "";
 		}
 	}
 	

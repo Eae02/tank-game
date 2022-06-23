@@ -34,13 +34,13 @@ namespace TankGame
 		
 		if (s_playIcon== nullptr)
 		{
-			s_playIcon = std::make_unique<Texture2D>(Texture2D::FromFile(resDirectoryPath / "ui" / "play.png"));
+			s_playIcon = std::make_unique<Texture2D>(Texture2D::FromFile(resDirectoryPath / "ui" / "play.png", 4));
 			CallOnClose([] { s_playIcon = nullptr; });
 		}
 		
 		if (s_lockIcon== nullptr)
 		{
-			s_lockIcon = std::make_unique<Texture2D>(Texture2D::FromFile(resDirectoryPath / "ui" / "lock.png"));
+			s_lockIcon = std::make_unique<Texture2D>(Texture2D::FromFile(resDirectoryPath / "ui" / "lock.png", 4));
 			CallOnClose([] { s_lockIcon = nullptr; });
 		}
 	}
@@ -54,10 +54,15 @@ namespace TankGame
 			fs::path miPath = entry.path();
 			miPath += ".mi";
 			
-			if (fs::exists(miPath))
+			std::ifstream stream(miPath, std::ios::binary);
+			if (!stream)
+				continue;
+			
+			ListLevelMenuInfo menuInfo;
+			if (menuInfo.Load(stream))
 			{
-				std::ifstream stream(miPath, std::ios::binary);
-				s_levelMenuInfos.emplace_back(stream, entry.path().filename().string());
+				menuInfo.m_levelFileName = entry.path().filename().string();
+				s_levelMenuInfos.push_back(std::move(menuInfo));
 			}
 		}
 		

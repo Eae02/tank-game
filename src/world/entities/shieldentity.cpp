@@ -58,7 +58,7 @@ namespace TankGame
 			vertices[i * 2 + 1].y = vertexVec.y * OUTER_VERTEX_DIST;
 		}
 		
-		s_vertexBuffer = std::make_unique<Buffer>(vertices.size() * sizeof(Vertex), vertices.data(), BufferUsage::StaticData);
+		s_vertexBuffer = std::make_unique<Buffer>(vertices.size() * sizeof(Vertex), vertices.data(), BufferUsage::StaticVertex);
 		s_vertexInputState = std::make_unique<VertexInputState>();
 		
 		s_vertexInputState->UpdateAttribute(0, s_vertexBuffer->GetID(), VertexAttribFormat::Float32_3, 0, sizeof(Vertex));
@@ -78,7 +78,7 @@ namespace TankGame
 	
 	ShieldEntity::ShieldEntity(float hp, int teamID, float radius)
 	    : Hittable(hp, teamID),
-	      m_settingsBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(SettingsBufferData), BufferUsage::MapWritePersistentMultiFrame)),
+	      m_settingsBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(SettingsBufferData), BufferUsage::MapWritePersistentUBO_MultiFrame)),
 	      m_radius(radius)
 	{
 		if (s_distortionShader== nullptr)
@@ -87,8 +87,8 @@ namespace TankGame
 			auto distFs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "shield-dist.fs.glsl", GL_FRAGMENT_SHADER);
 			auto spriteFs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "shield-sprite.fs.glsl", GL_FRAGMENT_SHADER);
 			
-			s_distortionShader.reset(new ShaderProgram{ &vs, &distFs });
-			s_spriteShader.reset(new ShaderProgram{ &vs, &spriteFs });
+			s_distortionShader = std::make_unique<ShaderProgram>(vs, distFs);
+			s_spriteShader = std::make_unique<ShaderProgram>(vs, spriteFs);
 			
 			glm::vec3 color = ParseColorHexCodeSRGB(0x90C3D4) * 3.0f;
 			glProgramUniform3fv(s_spriteShader->GetID(), s_spriteShader->GetUniformLocation("color"), 1,

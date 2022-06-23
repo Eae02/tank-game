@@ -10,7 +10,7 @@ namespace TankGame
 	class Texture2DArray : public Texture
 	{
 	public:
-		Texture2DArray(GLsizei width, GLsizei height, GLsizei layers, GLsizei levels, GLenum internalFormat);
+		Texture2DArray(GLsizei width, GLsizei height, GLsizei layers, GLsizei levels, TextureFormat format);
 		
 		inline void SetWrapS(int wrapS)
 		{ glTextureParameteri(GetID(), GL_TEXTURE_WRAP_S, wrapS); }

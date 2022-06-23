@@ -15,8 +15,8 @@ vec3 makeNormal3(vec2 normal2)
 vec2 smEncode(vec3 n)
 {
 	if (n.z < -0.999)
-		n = normalize(n + vec3(0, 0.05, 0));
-	float p = sqrt(n.z * 8 + 8);
+		n = normalize(n + vec3(0.0, 0.05, 0.0));
+	float p = sqrt(n.z * 8.0 + 8.0);
 	return n.xy / p + 0.5;
 }
 

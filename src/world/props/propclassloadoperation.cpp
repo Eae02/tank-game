@@ -1,5 +1,6 @@
 #include "propclassloadoperation.h"
 #include "propsmanager.h"
+#include "../../asyncworklist.h"
 #include "../../utils/ioutils.h"
 
 #include <algorithm>
@@ -8,7 +9,7 @@ namespace TankGame
 {
 	std::future<PropClassLoadOperation> PropClassLoadOperation::Load(fs::path dirPath)
 	{
-		return std::async([path=std::move(dirPath)]
+		return std::async(LOADING_LAUNCH_POLICY, [path=std::move(dirPath)]
 		{
 			PropClassLoadOperation op;
 			op.m_propsManager = std::make_unique<PropsManager>();
@@ -65,6 +66,6 @@ namespace TankGame
 				return;
 		}
 		
-		m_textureLoadOperations.push_back(TextureLoadOperation::Load(path));
+		m_textureLoadOperations.push_back(TextureLoadOperation::Load(path, 4));
 	}
 }

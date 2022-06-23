@@ -21,7 +21,7 @@ namespace TankGame
 		
 		GetLogStream() << LOG_WARNING << "Loading prop texture lazily (path: '" << path << "'\n";
 		
-		std::unique_ptr<Texture2D> texture = std::make_unique<Texture2D>(Texture2D::FromFile(path));
+		std::unique_ptr<Texture2D> texture = std::make_unique<Texture2D>(Texture2D::FromFile(path, 4));
 		texture->SetWrapMode(GL_CLAMP_TO_EDGE);
 		
 		const Texture2D* result = texture.get();
@@ -39,7 +39,7 @@ namespace TankGame
 		});
 		
 		if (pos == m_propClasses.end())
-			throw std::runtime_error("Invalid prop class.");
+			Panic("Invalid prop class.");
 		
 		int currentIndex = pos - m_propClasses.begin();
 		

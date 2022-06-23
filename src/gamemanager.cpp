@@ -5,6 +5,7 @@
 #include "world/entities/playerentity.h"
 #include "graphics/imainrenderer.h"
 #include "settings.h"
+#include "profiling.h"
 
 namespace TankGame
 {
@@ -26,6 +27,7 @@ namespace TankGame
 	
 	void GameManager::Update(const UpdateInfo& updateInfo)
 	{
+		FUNC_TIMER
 		if (m_level == nullptr)
 			return;
 		
@@ -64,7 +66,7 @@ namespace TankGame
 				glm::vec2 pos = m_interactButtonPos * glm::vec2(UIRenderer::GetInstance().GetWindowWidth(),
 				                                                UIRenderer::GetInstance().GetWindowHeight());
 				
-				DrawButton(U"E", UIRenderer::GetInstance(), pos, 40, m_interactButtonOpacity * 0.9f);
+				DrawButton("E", UIRenderer::GetInstance(), pos, 40, m_interactButtonOpacity * 0.9f);
 			}
 		}
 	}

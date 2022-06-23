@@ -33,7 +33,7 @@ namespace TankGame
 	{
 #ifndef NDEBUG
 		if (z < 0 || z > 1)
-			throw std::runtime_error("Z out of range.");
+			Panic("Z out of range.");
 #endif
 		
 		auto batchPos = std::find_if(m_materialBatches.begin(), m_materialBatches.end(), [&] (const Batch& batch)
@@ -65,10 +65,8 @@ namespace TankGame
 		//Creates the sprite shader if it hasn't been created already
 		if (s_shaderProgram == nullptr)
 		{
-			auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "sprite.vs.glsl", GL_VERTEX_SHADER);
-			auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "sprite.fs.glsl", GL_FRAGMENT_SHADER);
-			
-			s_shaderProgram.reset(new ShaderProgram{ &vs, &fs });
+			s_shaderProgram = std::make_unique<ShaderProgram>(
+				ShaderModule::FromResFile("sprite.vs.glsl"), ShaderModule::FromResFile("sprite.fs.glsl"));
 			
 			s_shaderProgram->SetTextureBinding("diffuseSampler", SpriteMaterial::DIFFUSE_TEXTURE_UNIT);
 			s_shaderProgram->SetTextureBinding("normalMapSampler", SpriteMaterial::NORMAL_MAP_TEXTURE_UNIT);
@@ -109,7 +107,7 @@ namespace TankGame
 				
 				//Creates more buffers as neccesary
 				if (currentDrawBuffer >= m_drawBuffers.size())
-					m_drawBuffers.emplace_back(GetInstanceBufferSize(), BufferUsage::MapWritePersistent);
+					m_drawBuffers.emplace_back(GetInstanceBufferSize(), BufferUsage::MapWritePersistentUBO);
 				
 				instanceDataMemory = m_drawBuffers[currentDrawBuffer].MappedMemory() +
 				                     drawBufferOffset * INSTANCE_DATA_STRIDE;

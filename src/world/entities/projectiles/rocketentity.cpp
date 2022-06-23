@@ -24,8 +24,8 @@ namespace TankGame
 	{
 		if (s_material== nullptr)
 		{
-			s_diffuse = std::make_unique<Texture2D>(Texture2D::FromFile(resDirectoryPath / "rocket-diffuse.png"));
-			s_normalMap = std::make_unique<Texture2D>(Texture2D::FromFile(resDirectoryPath / "rocket-normals.png"));
+			s_diffuse = std::make_unique<Texture2D>(Texture2D::FromFile(resDirectoryPath / "rocket-diffuse.png", 4));
+			s_normalMap = std::make_unique<Texture2D>(Texture2D::FromFile(resDirectoryPath / "rocket-normals.png", 4));
 			
 			s_diffuse->SetWrapMode(GL_CLAMP_TO_EDGE);
 			s_normalMap->SetWrapMode(GL_CLAMP_TO_EDGE);

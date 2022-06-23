@@ -30,17 +30,15 @@ namespace TankGame
 	{
 		if (s_shader == nullptr)
 		{
-			auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "conveyor.vs.glsl", GL_VERTEX_SHADER);
-			auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "conveyor.fs.glsl", GL_FRAGMENT_SHADER);
-			
-			s_shader.reset(new ShaderProgram{ &vs, &fs });
+			s_shader = std::make_unique<ShaderProgram>(
+				ShaderModule::FromResFile("conveyor.vs.glsl"), ShaderModule::FromResFile("conveyor.fs.glsl"));
 			s_shader->SetTextureBinding("diffuseSampler", 0);
 			s_shader->SetTextureBinding("normalMapSampler", 1);
 			s_shader->SetTextureBinding("specularMapSampler", 2);
 			
 			s_transformUniformLoc     = s_shader->GetUniformLocation("transform");
 			s_sizeUniformLoc          = s_shader->GetUniformLocation("size");
-			s_textureOffsetUniformLoc = s_shader->GetUniformLocation("textureOffset");
+			s_textureOffsetUniformLoc = s_shader->GetUniformLocation("texCoordOffset");
 			
 			CallOnClose([] { s_shader = nullptr; });
 		}
@@ -145,19 +143,19 @@ namespace TankGame
 	
 	void ConveyorBeltEntity::LoadResources(ASyncWorkList& workList)
 	{
-		workList.Add(TextureLoadOperation::Start(resDirectoryPath / "conveyor-diffuse.png"), [] (TextureLoadOperation op)
+		workList.Add(TextureLoadOperation::Start(resDirectoryPath / "conveyor-diffuse.png", 4), [] (TextureLoadOperation op)
 		{
 			s_diffuseTexture = std::make_unique<Texture2D>(op.CreateTexture());
 			s_diffuseTexture->SetWrapMode(GL_REPEAT);
 		});
 		
-		workList.Add(TextureLoadOperation::Start(resDirectoryPath / "conveyor-normals.png"), [] (TextureLoadOperation op)
+		workList.Add(TextureLoadOperation::Start(resDirectoryPath / "conveyor-normals.png", 4), [] (TextureLoadOperation op)
 		{
 			s_normalMap = std::make_unique<Texture2D>(op.CreateTexture());
 			s_normalMap->SetWrapMode(GL_REPEAT);
 		});
 		
-		workList.Add(TextureLoadOperation::Start(resDirectoryPath / "conveyor-specular.png"), [] (TextureLoadOperation op)
+		workList.Add(TextureLoadOperation::Start(resDirectoryPath / "conveyor-specular.png", 1), [] (TextureLoadOperation op)
 		{
 			s_specularTexture = std::make_unique<Texture2D>(op.CreateTexture());
 			s_specularTexture->SetWrapMode(GL_REPEAT);

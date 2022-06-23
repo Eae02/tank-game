@@ -5,6 +5,7 @@
 #include "../elements/slider.h"
 
 #include <functional>
+#include <optional>
 #include <array>
 
 namespace TankGame
@@ -27,25 +28,19 @@ namespace TankGame
 		ApplyCallback m_applyCallback;
 		
 	private:
-		static constexpr size_t NUM_SECTIONS = 3;
-		static const std::array<std::u32string, NUM_SECTIONS> SECTION_TITLES;
-		
 		static constexpr float CONTENTS_HEIGHT = 700;
 		
 		void LayoutContentWidgets();
 		
 		struct Label
 		{
-			std::u32string m_string;
-			Rectangle m_rectangle;
-			
-			inline explicit Label(std::u32string string)
-			    : m_string(string + U":") { }
+			std::string string;
+			Rectangle rectangle;
 		};
 		
+		size_t m_numSettingLabels = 0;
 		std::array<Label, 13> m_settingLabels;
-		
-		std::array<Rectangle, NUM_SECTIONS> m_sectionTitleRectangles;
+		std::array<Label, 3> m_sectionTitleLabels;
 		
 		Rectangle m_scissorArea;
 		
@@ -59,11 +54,10 @@ namespace TankGame
 		MenuButton m_applyButton;
 		
 		long m_displayModeIndex = 0;
-		ComboBox m_displayModeComboBox;
+		std::optional<ComboBox> m_displayModeComboBox;
 		
 		long m_currentResolutionIndex = -1;
-		bool m_resolutionsComboBoxInitialized = false;
-		ComboBox m_resolutionsComboBox;
+		std::optional<ComboBox> m_resolutionsComboBox;
 		
 		ComboBox m_vSyncComboBox;
 		
@@ -75,7 +69,6 @@ namespace TankGame
 		ComboBox m_particlesQualityComboBox;
 		ComboBox m_postQualityComboBox;
 		ComboBox m_bloomComboBox;
-		ComboBox m_frameQueueComboBox;
 		
 		Slider m_masterVolumeSlider;
 		Slider m_musicVolumeSlider;

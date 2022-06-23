@@ -1,4 +1,5 @@
 #include "sections.h"
+#include "../../utils/utils.h"
 
 #include <zlib.h>
 #include <algorithm>
@@ -15,7 +16,7 @@ namespace TankGame
 		deflateStream.next_in = reinterpret_cast<const Bytef*>(data);
 		
 		if (deflateInit(&deflateStream, Z_DEFAULT_COMPRESSION) != Z_OK)
-			throw std::runtime_error("Error initializing ZLIB.");
+			Panic("Error initializing ZLIB.");
 		
 		char outBuffer[256];
 		int status;
@@ -98,9 +99,9 @@ namespace TankGame
 				assert(status != Z_STREAM_ERROR);
 				
 				if (status == Z_MEM_ERROR)
-					throw std::bad_alloc();
+					Panic("ZLib out of memory");
 				if (status == Z_DATA_ERROR || status == Z_NEED_DICT)
-					throw std::runtime_error("Invalid deflate stream.");
+					Panic("Invalid deflate stream.");
 				
 				int bytesCompressed = static_cast<int>(sizeof(outBuffer)) - inflateStream.avail_out;
 				for (int i = 0; i < bytesCompressed; i++)

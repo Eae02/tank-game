@@ -1,5 +1,6 @@
 #include "quadtree.h"
 #include "../../utils/utils.h"
+#include "../../profiling.h"
 
 #include <algorithm>
 #include <cmath>
@@ -66,6 +67,7 @@ namespace TankGame
 	//Updates the layout of the quadtree to account for moved entries. Called at the end of each frame.
 	void QuadTree::Update()
 	{
+		FUNC_TIMER
 		for (Entry& entry : m_entries)
 		{
 			Rectangle newRectangle = entry.m_entry->GetBoundingRectangle();

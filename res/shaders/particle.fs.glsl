@@ -1,5 +1,3 @@
-#version 330 core
-
 #include "rendersettings.glh"
 
 layout(location=0) out vec4 color_out;

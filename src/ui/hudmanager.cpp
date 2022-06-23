@@ -7,6 +7,7 @@
 #include "../graphics/ui/font.h"
 #include "../graphics/imainrenderer.h"
 #include "../updateinfo.h"
+#include "../profiling.h"
 
 #include <glm/gtc/constants.hpp>
 
@@ -30,7 +31,7 @@ namespace TankGame
 		fs::path shaderPath = resDirectoryPath / "shaders" / "ui";
 		auto vs = ShaderModule::FromFile(shaderPath / "hud.vs.glsl", GL_VERTEX_SHADER);
 		auto fs = ShaderModule::FromFile(shaderPath / "hud.fs.glsl", GL_FRAGMENT_SHADER);
-		ShaderProgram program({ &vs, &fs });
+		ShaderProgram program(vs, fs);
 		program.SetTextureBinding("inputSampler", 0);
 		return program;
 	}
@@ -67,7 +68,7 @@ namespace TankGame
 		
 		vertexCountOut = (COLUMNS + 1) * 2;
 		
-		return Buffer(sizeof(vertices), vertices, BufferUsage::StaticData);
+		return Buffer(sizeof(vertices), vertices, BufferUsage::StaticVertex);
 	}
 	
 	HUDManager::HUDManager(IMainRenderer& mainRenderer)
@@ -89,7 +90,7 @@ namespace TankGame
 		if (m_fbTexture != nullptr && m_fbTexture->GetWidth() == width && m_fbTexture->GetHeight() == height)
 			return;
 		
-		m_fbTexture = std::make_unique<Texture2D>(width, height, 1, GL_RGBA8);
+		m_fbTexture = std::make_unique<Texture2D>(width, height, 1, TextureFormat::RGBA8);
 		m_fbTexture->SetWrapMode(GL_CLAMP_TO_EDGE);
 		
 		m_framebuffer = std::make_unique<Framebuffer>();
@@ -104,6 +105,8 @@ namespace TankGame
 	
 	void HUDManager::Update(const UpdateInfo& updateInfo)
 	{
+		FUNC_TIMER
+		
 		if (m_playerEntity != nullptr)
 		{
 			float deltaHp = m_playerEntity->GetHp() - m_hp;
@@ -350,13 +353,13 @@ namespace TankGame
 	}
 	
 	HUDManager::Textures::Textures(const fs::path& dirPath)
-	    : m_hpBarFull(Texture2D::FromFile(dirPath / "hp-full.png")),
-	      m_hpBarEmpty(Texture2D::FromFile(dirPath / "hp-empty.png")),
-	      m_energyBarFull(Texture2D::FromFile(dirPath / "energy-full.png")),
-	      m_energyBarEmpty(Texture2D::FromFile(dirPath / "energy-empty.png")),
-	      m_hpBarGlobalFull(Texture2D::FromFile(dirPath / "hp-global-full.png")),
-	      m_hpBarGlobalEmpty(Texture2D::FromFile(dirPath / "hp-global-empty.png")),
-	      m_noAmmo(Texture2D::FromFile(dirPath / "no-ammo.png"))
+	    : m_hpBarFull(Texture2D::FromFile(dirPath / "hp-full.png", 4)),
+	      m_hpBarEmpty(Texture2D::FromFile(dirPath / "hp-empty.png", 4)),
+	      m_energyBarFull(Texture2D::FromFile(dirPath / "energy-full.png", 4)),
+	      m_energyBarEmpty(Texture2D::FromFile(dirPath / "energy-empty.png", 4)),
+	      m_hpBarGlobalFull(Texture2D::FromFile(dirPath / "hp-global-full.png", 4)),
+	      m_hpBarGlobalEmpty(Texture2D::FromFile(dirPath / "hp-global-empty.png", 4)),
+	      m_noAmmo(Texture2D::FromFile(dirPath / "no-ammo.png", 4))
 	{
 		
 	}

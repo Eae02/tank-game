@@ -65,6 +65,18 @@ namespace TankGame
 				callback(*collidable);
 		}
 		
+		struct EntityUpdateTimeStatistics
+		{
+			double totalTime;
+			int count;
+			std::string_view typeName;
+		};
+		
+		bool collectUpdateTimeStatistics = false;
+		
+		const std::vector<EntityUpdateTimeStatistics>& GetUpdateTimeStatistics() const
+		{ return m_updateTimeStatistics; }
+		
 	protected:
 		virtual void OnEntityDespawn(Entity& entity) { }
 		
@@ -95,5 +107,7 @@ namespace TankGame
 		std::vector<Entity::IUpdateable*> m_updateableEntities;
 		std::vector<const ICollidable*> m_collidableEntities;
 		std::vector<ParticleSystemEntityBase*> m_particleSystemEntities;
+		
+		std::vector<EntityUpdateTimeStatistics> m_updateTimeStatistics;
 	};
 }

@@ -15,14 +15,15 @@ namespace TankGame
 {
 	ShaderProgram PostProcessor::LoadShader(const fs::path& path)
 	{
-		ShaderModule fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / path, GL_FRAGMENT_SHADER);
-		return ShaderProgram({ &QuadMesh::GetVertexShader(), &fs });
+		return ShaderProgram(
+			QuadMesh::GetVertexShader(),
+			ShaderModule::FromFile(resDirectoryPath / "shaders" / path, GL_FRAGMENT_SHADER));
 	}
 	
 	const int NOISE_TEXTURE_RES = 64;
 	
 	PostProcessor::PostProcessor()
-	    : m_hexagonTexture(Texture2D::FromFile(resDirectoryPath / "hex.png")),
+	    : m_hexagonTexture(Texture2D::FromFile(resDirectoryPath / "hex.png", 1)),
 	      m_noiseTexture(NOISE_TEXTURE_RES, -1.0f, 1.0f),
 	      m_bloomHBlurShader(LoadShader(fs::path("bloom") / "hblur.fs.glsl")),
 	      m_bloomVBlurShader(LoadShader(fs::path("bloom") / "vblur.fs.glsl")),
@@ -139,7 +140,7 @@ namespace TankGame
 	void PostProcessor::OnResize(GLsizei newWidth, GLsizei newHeight)
 	{
 		m_blurInputFramebuffer = std::make_unique<Framebuffer>();
-		m_blurInputBuffer = std::make_unique<Texture2D>(newWidth, newHeight, 1, GL_RGBA8);
+		m_blurInputBuffer = std::make_unique<Texture2D>(newWidth, newHeight, 1, TextureFormat::RGBA8);
 		glNamedFramebufferTexture(m_blurInputFramebuffer->GetID(), GL_COLOR_ATTACHMENT0, m_blurInputBuffer->GetID(), 0);
 		glNamedFramebufferDrawBuffer(m_blurInputFramebuffer->GetID(), GL_COLOR_ATTACHMENT0);
 		m_blurInputBuffer->SetWrapMode(GL_CLAMP_TO_EDGE);
@@ -167,7 +168,7 @@ namespace TankGame
 		if (m_bloomHBlurOutput == nullptr || newWidth != m_bloomHBlurOutput->GetWidth() ||
 			newHeight != m_bloomHBlurOutput->GetHeight())
 		{
-			m_bloomHBlurOutput = std::make_unique<Texture2D>(newWidth, newHeight, 1, GL_RGB16F);
+			m_bloomHBlurOutput = std::make_unique<Texture2D>(newWidth, newHeight, 1, TextureFormat::RGBA16F);
 			m_bloomHBlurOutput->SetWrapMode(GL_CLAMP_TO_EDGE);
 			m_bloomHBlurOutput->SetMagFilter(GL_LINEAR);
 			m_bloomHBlurOutput->SetMinFilter(GL_LINEAR);
@@ -181,7 +182,7 @@ namespace TankGame
 		if (m_bloomVBlurOutput == nullptr || newWidth != m_bloomVBlurOutput->GetWidth() ||
 			newHeight != m_bloomVBlurOutput->GetHeight())
 		{
-			m_bloomVBlurOutput = std::make_unique<Texture2D>(newWidth, newHeight, 1, GL_RGB16F);
+			m_bloomVBlurOutput = std::make_unique<Texture2D>(newWidth, newHeight, 1, TextureFormat::RGBA16F);
 			m_bloomVBlurOutput->SetWrapMode(GL_CLAMP_TO_EDGE);
 			m_bloomVBlurOutput->SetMagFilter(GL_LINEAR);
 			m_bloomVBlurOutput->SetMinFilter(GL_LINEAR);

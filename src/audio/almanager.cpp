@@ -1,6 +1,6 @@
 #include "almanager.h"
 #include "../world/entities/playerentity.h"
-#include "../exceptions/fatalexception.h"
+#include "../utils/utils.h"
 
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -15,11 +15,11 @@ namespace TankGame
 	{
 		theALDevice = alcOpenDevice(nullptr);
 		if (theALDevice == nullptr)
-			throw FatalException("Error opening OpenAL device.");
+			Panic("Error opening OpenAL device.");
 		
 		theALContext = alcCreateContext(theALDevice, nullptr);
 		if (theALContext == nullptr)
-			throw FatalException("Error creating OpenAL context.");
+			Panic("Error creating OpenAL context.");
 		alcMakeContextCurrent(theALContext);
 	}
 	

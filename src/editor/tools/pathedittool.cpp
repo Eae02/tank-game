@@ -16,8 +16,8 @@ namespace TankGame
 	static const float PATH_ARROW_WIDTH = 32;
 	
 	PathEditTool::PathEditTool(class Editor& editor)
-	    : EditorTool(editor), m_pathPoint(Texture2D::FromFile(resDirectoryPath / "ui" / "path-point.png")),
-	      m_pathArrow(Texture2D::FromFile(resDirectoryPath / "ui" / "path-arrow.png"))
+	    : EditorTool(editor), m_pathPoint(Texture2D::FromFile(resDirectoryPath / "ui" / "path-point.png", 4)),
+	      m_pathArrow(Texture2D::FromFile(resDirectoryPath / "ui" / "path-arrow.png", 4))
 	{
 		
 	}

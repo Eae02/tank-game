@@ -14,9 +14,9 @@ namespace TankGame
 	{
 	public:
 		ComboBox() = default;
-		ComboBox(std::initializer_list<std::u32string> entries);
+		ComboBox(std::initializer_list<std::string> entries);
 		
-		void AddEntry(std::u32string entry);
+		void AddEntry(std::string entry);
 		
 		virtual void SetPosition(glm::vec2 position) override;
 		
@@ -36,7 +36,7 @@ namespace TankGame
 		
 		ScrollBar m_scrollBar;
 		
-		std::vector<std::u32string> m_entries;
+		std::vector<std::string> m_entries;
 		
 		Rectangle m_area;
 		Rectangle m_dropDownArea;

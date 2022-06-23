@@ -1,5 +1,3 @@
-#version 330 core
-
 in vec2 texCoord_v;
 
 uniform sampler2D diffuseSampler;
@@ -10,8 +8,8 @@ uniform mat3 transform;
 
 #include "material.glh"
 
-const float SPECULAR_vTENSITY = 5;
-const float SPECULAR_EXPONENT = 30;
+const float SPECULAR_vTENSITY = 5.0;
+const float SPECULAR_EXPONENT = 30.0;
 
 void main()
 {

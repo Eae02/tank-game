@@ -1,6 +1,7 @@
 #include "shadermodule.h"
 #include "specializationinfo.h"
 #include "../../utils/ioutils.h"
+#include "../../utils/utils.h"
 
 #include <cstddef>
 #include <cstring>
@@ -12,53 +13,25 @@ namespace TankGame
 	ShaderModule::ShaderModule(const std::string& source, GLenum type, const SpecializationInfo* specializationInfo)
 	    : GLResource(glCreateShader(type))
 	{
-		int numStrings;
+		std::string fullSource;
+#ifdef __EMSCRIPTEN__
+		fullSource +=
+			"#version 300 es\n"
+			"precision lowp sampler2DArray;\n"
+			"precision lowp usampler2D;\n"
+			"precision highp float;\n"
+			"precision highp int;\n";
+#else
+		fullSource += "#version 330 core\n";
+#endif
 		
-		GLint lengths[3];
-		const GLchar* strings[3];
-		
-		std::string specString;
 		if (specializationInfo != nullptr)
-		{
-			const char* VERSION_DIRECTIVE = "#version";
-			bool hasVersion = source.compare(0, strlen(VERSION_DIRECTIVE), VERSION_DIRECTIVE) == 0;
-			
-			specString = specializationInfo->GetSourceString();
-			
-			if (hasVersion)
-			{
-				size_t firstLineLen = source.find('\n');
-				
-				lengths[0] = static_cast<GLint>(firstLineLen + 1);
-				strings[0] = source.c_str();
-				
-				lengths[1] = static_cast<GLint>(specString.length());
-				strings[1] = specString.c_str();
-				
-				lengths[2] = static_cast<GLint>(source.length() - firstLineLen);
-				strings[2] = source.c_str() + firstLineLen;
-				
-				numStrings = 3;
-			}
-			else
-			{
-				lengths[0] = static_cast<GLint>(specString.length());
-				strings[0] = specString.c_str();
-				
-				lengths[1] = static_cast<GLint>(source.length());
-				strings[1] = source.c_str();
-				
-				numStrings = 2;
-			}
-		}
-		else
-		{
-			lengths[0] = static_cast<GLint>(source.length());
-			strings[0] = source.c_str();
-			numStrings = 1;
-		}
+			fullSource += specializationInfo->GetSourceString();
+		fullSource += "\n#line 1\n";
+		fullSource += source;
 		
-		glShaderSource(GetID(), numStrings, strings, lengths);
+		const GLchar* stringPtr = fullSource.c_str();
+		glShaderSource(GetID(), 1, &stringPtr, nullptr);
 		glCompileShader(GetID());
 		
 		GLint compileStatus;
@@ -71,7 +44,7 @@ namespace TankGame
 			
 			glGetShaderInfoLog(GetID(), sizeof(log), &length, log);
 			
-			throw std::runtime_error(log);
+			Panic(log);
 		}
 	}
 	
@@ -116,17 +89,22 @@ namespace TankGame
 		return result.str();
 	}
 	
-	ShaderModule ShaderModule::FromFile(const fs::path& path, GLenum type,
-	                                    const SpecializationInfo* specializationInfo)
+	ShaderModule ShaderModule::FromFile(const fs::path& path, GLenum type, const SpecializationInfo* specializationInfo)
 	{
-		try
-		{
-			return ShaderModule(ReadAndPreProcessSource(path), type, specializationInfo);
-		}
-		catch (const std::runtime_error& ex)
-		{
-			throw std::runtime_error("Shader from " + path.string() + " failed to compile:\n" + ex.what());
-		}
+		return ShaderModule(ReadAndPreProcessSource(path), type, specializationInfo);
+	}
+	
+	ShaderModule ShaderModule::FromResFile(const std::string& name, const class SpecializationInfo* specializationInfo)
+	{
+		GLenum type;
+		if (name.ends_with(".fs.glsl"))
+			type = GL_FRAGMENT_SHADER;
+		else if (name.ends_with(".vs.glsl"))
+			type = GL_VERTEX_SHADER;
+		else
+			Panic("Unknown shader type: '" + name + "'.");
+		
+		return ShaderModule::FromFile(resDirectoryPath / "shaders" / name, type, specializationInfo);
 	}
 	
 	void DeleteShaderModule(GLuint id)

@@ -2,6 +2,8 @@
 
 #include "gl/texture2d.h"
 #include "../utils/utils.h"
+#include "../utils/filesystem.h"
+#include "../loadimage.h"
 
 #include <future>
 
@@ -12,24 +14,21 @@ namespace TankGame
 	public:
 		TextureLoadOperation() = default;
 		
-		static std::future<TextureLoadOperation> Start(std::string path);
+		static std::future<TextureLoadOperation> Start(fs::path path, int numChannels);
 		
-		static TextureLoadOperation Load(std::string path);
+		static TextureLoadOperation Load(fs::path path, int numChannels);
 		
 		Texture2D CreateTexture() const;
 		
-		inline const std::string& GetPath() const
+		inline const fs::path& GetPath() const
 		{ return m_path; }
 		
 	private:
-		std::string m_path;
+		fs::path m_path;
 		
-		std::unique_ptr<uint8_t, FreeDeleter> m_data;
-		
-		int m_width = 0;
-		int m_height = 0;
+		ImageData m_imageData;
 		
 		int m_numMipmaps = 1;
-		int m_numComponents = 0;
+		int m_numChannels = 0;
 	};
 }

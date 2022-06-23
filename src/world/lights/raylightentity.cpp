@@ -15,7 +15,7 @@ namespace TankGame
 	int RayLightEntity::s_worldTransformUniformLocation;
 	
 	RayLightEntity::RayLightEntity(glm::vec3 color, float intensity, Attenuation attenuation, float length, float height)
-	    : m_uniformBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(LightUniformBufferData), BufferUsage::DynamicData)),
+	    : m_uniformBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(LightUniformBufferData), BufferUsage::DynamicUBO)),
 	      m_flickerOffset(GenerateFlickerOffset()), m_height(height), m_length(length), m_color(color),
 	      m_intensity(intensity), m_attenuation(attenuation)
 	{

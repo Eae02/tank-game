@@ -10,12 +10,17 @@ namespace TankGame
 	
 	void DeleteBuffer(GLuint id);
 	
-	enum class BufferUsage
+	static constexpr uint32_t BUFFER_USAGE_STATIC_BIT    = 1 << 8;
+	static constexpr uint32_t BUFFER_USAGE_MAP_WRITE_BIT = 1 << 9;
+	
+	enum class BufferUsage : uint32_t
 	{
-		StaticData,
-		DynamicData,
-		MapWritePersistent,
-		MapWritePersistentMultiFrame
+		StaticVertex                     = 0 | BUFFER_USAGE_STATIC_BIT,
+		StaticIndex                      = 1 | BUFFER_USAGE_STATIC_BIT,
+		StaticUBO                        = 2 | BUFFER_USAGE_STATIC_BIT,
+		DynamicUBO                       = 3,
+		MapWritePersistentUBO            = 4 | BUFFER_USAGE_MAP_WRITE_BIT,
+		MapWritePersistentUBO_MultiFrame = 5 | BUFFER_USAGE_MAP_WRITE_BIT
 	};
 	
 	class Buffer : public GLResource<DeleteBuffer>
@@ -42,6 +47,7 @@ namespace TankGame
 	private:
 		char* m_mappedMemory;
 		std::unique_ptr<char[]> m_fakeMemoryMapping;
+		GLenum m_target;
 		size_t m_size;
 		size_t m_sizePerFrame;
 		size_t m_fullSize;

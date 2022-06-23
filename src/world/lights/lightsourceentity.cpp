@@ -14,7 +14,7 @@ namespace TankGame
 	
 	LightSourceEntity::LightSourceEntity(glm::vec3 color, float intensity, Attenuation attenuation, float height)
 	    : m_flickerOffset(GenerateFlickerOffset()),
-	      m_uniformBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(LightUniformBufferData), BufferUsage::DynamicData)),
+	      m_uniformBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(LightUniformBufferData), BufferUsage::DynamicUBO)),
 	      m_color(color), m_intensity(intensity), m_attenuation(attenuation), m_height(height),
 	      m_range(GetRange(color, intensity, attenuation)) { }
 	

@@ -9,7 +9,7 @@ namespace TankGame
 {
 	Buffer::Buffer(size_t size, const void* data, BufferUsage usage) : m_size(size)
 	{
-		if (usage == BufferUsage::MapWritePersistentMultiFrame)
+		if (usage == BufferUsage::MapWritePersistentUBO_MultiFrame)
 		{
 			m_sizePerFrame = RoundToNextMultiple(size, GetUniformBufferOffsetAlignment());
 			m_fullSize = m_sizePerFrame * MAX_QUEUED_FRAMES;
@@ -24,30 +24,37 @@ namespace TankGame
 		glCreateBuffers(1, &buffer);
 		SetID(buffer);
 		
-		bool persistentMap = usage == BufferUsage::MapWritePersistent || usage == BufferUsage::MapWritePersistentMultiFrame;
+		if (usage == BufferUsage::StaticVertex)
+			m_target = GL_ARRAY_BUFFER;
+		else if (usage == BufferUsage::StaticIndex)
+			m_target = GL_ELEMENT_ARRAY_BUFFER;
+		else
+			m_target = GL_UNIFORM_BUFFER;
+		glBindBuffer(m_target, buffer);
+		
+		bool persistentMap = (uint32_t)usage & BUFFER_USAGE_MAP_WRITE_BIT;
 		
 		if (hasBufferStorage)
 		{
 			GLbitfield flags = 0;
-			if (usage == BufferUsage::DynamicData)
+			if (usage == BufferUsage::DynamicUBO)
 				flags = GL_DYNAMIC_STORAGE_BIT;
 			else if (persistentMap)
 				flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT;
 			
-			glNamedBufferStorage(buffer, m_fullSize, data, flags);
+			glBufferStorage(m_target, m_fullSize, data, flags);
 			
 			if (persistentMap)
 			{
-				static constexpr GLbitfield MAP_FLAGS = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT;
-				m_mappedMemory = static_cast<char*>(glMapNamedBufferRange(buffer, 0, m_fullSize, MAP_FLAGS));
+				static constexpr GLbitfield MAP_FLAGS = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT | GL_MAP_UNSYNCHRONIZED_BIT;
+				m_mappedMemory = static_cast<char*>(glMapBufferRange(m_target, 0, m_fullSize, MAP_FLAGS));
 			}
 		}
 		else
 		{
-			GLenum flags = usage == BufferUsage::StaticData ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
+			GLenum flags = ((uint32_t)usage & BUFFER_USAGE_STATIC_BIT) ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
 			
-			glBindBuffer(GL_ARRAY_BUFFER, buffer);
-			glBufferData(GL_ARRAY_BUFFER, m_fullSize, data, flags);
+			glBufferData(m_target, m_fullSize, data, flags);
 			
 			if (persistentMap)
 			{
@@ -71,7 +78,8 @@ namespace TankGame
 	{
 		if (m_fakeMemoryMapping)
 		{
-			glNamedBufferSubData(GetID(), offset, range, m_fakeMemoryMapping.get() + offset);
+			glBindBuffer(m_target, GetID());
+			glBufferSubData(m_target, offset, range, m_fakeMemoryMapping.get() + offset);
 		}
 		else
 		{
@@ -81,7 +89,15 @@ namespace TankGame
 	
 	void Buffer::Update(size_t offset, size_t range, const void* data)
 	{
-		glNamedBufferSubData(GetID(), offset, range, data);
+		if (glNamedBufferSubData)
+		{
+			glNamedBufferSubData(GetID(), offset, range, data);
+		}
+		else
+		{
+			glBindBuffer(m_target, GetID());
+			glBufferSubData(m_target, offset, range, data);
+		}
 	}
 	
 	void DeleteBuffer(GLuint id)

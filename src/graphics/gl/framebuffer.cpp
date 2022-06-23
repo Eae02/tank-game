@@ -1,5 +1,5 @@
 #include "framebuffer.h"
-#include "../../exceptions/invalidstateexception.h"
+#include "../../utils/utils.h"
 
 namespace TankGame
 {
@@ -46,7 +46,7 @@ namespace TankGame
 	void Framebuffer::SetDefaultViewport(int vpX, int vpY, int vpWidth, int vpHeight)
 	{
 		if (!s_framebufferStack.empty())
-			throw InvalidStateException("The default framebuffer must be bound when SetDefaultViewport() is called.");
+			Panic("Invalid state: the default framebuffer must be bound when SetDefaultViewport() is called.");
 		
 		s_currentFramebuffer.m_viewportX = vpX;
 		s_currentFramebuffer.m_viewportY = vpY;

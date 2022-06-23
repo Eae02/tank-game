@@ -1,6 +1,6 @@
 #include "shaderprogram.h"
 #include "shadermodule.h"
-#include <stdexcept>
+#include "../../utils/utils.h"
 
 namespace TankGame
 {
@@ -14,13 +14,12 @@ namespace TankGame
 	
 	GLint ShaderProgram::s_currentShaderProgram = 0;
 	
-	ShaderProgram::ShaderProgram(std::initializer_list<const ShaderModule*> modules)
-	    : GLResource(glCreateProgram())
+	ShaderProgram::ShaderProgram(const ShaderModule& vertexShader, const ShaderModule* fragmentShader)
+		: GLResource(glCreateProgram())
 	{
-		for (const ShaderModule* shaderModule : modules)
-		{
-			glAttachShader(GetID(), shaderModule->GetID());
-		}
+		glAttachShader(GetID(), vertexShader.GetID());
+		if (fragmentShader != nullptr)
+			glAttachShader(GetID(), fragmentShader->GetID());
 		
 		glLinkProgram(GetID());
 		
@@ -34,7 +33,7 @@ namespace TankGame
 			
 			glGetProgramInfoLog(GetID(), sizeof(log), &length, log);
 			
-			throw std::runtime_error(log);
+			Panic(log);
 		}
 		
 		for (auto& [blockName, blockBinding] : STANDARD_UNIFORM_BLOCK_BINDINGS)
@@ -47,7 +46,7 @@ namespace TankGame
 	{
 		int location = glGetUniformLocation(GetID(), name.c_str());
 		if (location == -1)
-			throw std::runtime_error("Uniform not found: '" + name + "'.");
+			Panic("Uniform not found: '" + name + "'.");
 		return location;
 	}
 	
@@ -61,8 +60,10 @@ namespace TankGame
 		int index = GetUniformBlockIndex(name);
 		if (index != -1)
 			glUniformBlockBinding(GetID(), index, binding);
-		else if (failIfMissing)
-			throw std::runtime_error("Uniform block not found: '" + name + "'.");
+#ifndef NDEBUG
+		if (index == -1 && failIfMissing)
+			Panic("Uniform block not found: '" + name + "'.");
+#endif
 	}
 	
 	void ShaderProgram::SetTextureBinding(const std::string& name, GLuint binding, bool failIfMissing)
@@ -70,8 +71,10 @@ namespace TankGame
 		int index = glGetUniformLocation(GetID(), name.c_str());
 		if (index != -1)
 			glProgramUniform1i(GetID(), index, binding);
-		else if (failIfMissing)
-			throw std::runtime_error("Texture not found: '" + name + "'.");
+#ifndef NDEBUG
+		if (index == -1 && failIfMissing)
+			Panic("Texture not found: '" + name + "'.");
+#endif
 	}
 	
 	void ShaderProgram::Use() const

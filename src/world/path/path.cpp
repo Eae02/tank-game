@@ -1,5 +1,5 @@
 #include "path.h"
-#include "../../exceptions/invalidstateexception.h"
+#include "../../utils/utils.h"
 
 #include <stdexcept>
 #include <algorithm>
@@ -62,15 +62,6 @@ namespace TankGame
 		m_nodes.back().m_distanceToNext = 0.0f;
 	}
 	
-	Buffer Path::CreateGLBuffer() const
-	{
-		std::vector<glm::vec2> bufferData(m_nodes.size());
-		std::transform(m_nodes.begin(), m_nodes.end(), bufferData.begin(),
-		               [] (const Node& node) { return node.m_position; });
-		
-		return Buffer(bufferData.size() * sizeof(glm::vec2), bufferData.data(), BufferUsage::StaticData);
-	}
-	
 	void Path::RemoveNodes(size_t firstIndex, size_t count)
 	{
 		for (size_t i = 0; i < count; i++)
@@ -109,7 +100,7 @@ namespace TankGame
 	Path::ClosestPointOnPathResult Path::GetClosestPointOnPath(glm::vec2 point) const
 	{
 		if (m_nodes.empty())
-			throw InvalidStateException("Path cannot be empty.");
+			Panic("Path cannot be empty.");
 		
 		float closestDistanceToLine = std::numeric_limits<float>::max();
 		

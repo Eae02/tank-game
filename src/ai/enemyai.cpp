@@ -36,6 +36,9 @@ namespace TankGame
 	
 	void EnemyAI::Update(glm::vec2 playerPosition, const UpdateInfo& updateInfo)
 	{
+		//if (m_state == States::Idle && glm::distance(updateInfo.m_viewInfo.GetViewRectangle().Center(), m_entity.GetTransform().GetPosition()) > 50)
+		//	return;
+		
 		glm::vec2 toPlayer = playerPosition - m_entity.GetTransform().GetPosition();
 		const float SIGHT_RADIUS = 8;
 		const float FIRE_RADIUS = 7;

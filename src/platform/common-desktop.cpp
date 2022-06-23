@@ -1,6 +1,6 @@
 #ifndef __EMSCRIPTEN__
 #include "common.h"
-#include "../exceptions/fatalexception.h"
+#include "../utils/utils.h"
 
 #include <GLFW/glfw3.h>
 #include <algorithm>
@@ -54,12 +54,12 @@ namespace TankGame
 	{
 		if (!glfwInit())
 		{
-			throw FatalException("Error initializing GLFW.");
+			Panic("Error initializing GLFW.");
 		}
 		
 		glfwSetErrorCallback([] (int error, const char* description)
 		{
-			throw FatalException(std::to_string(error) + " " + description);
+			Panic(std::to_string(error) + " " + description);
 		});
 	}
 	

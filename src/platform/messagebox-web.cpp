@@ -10,7 +10,7 @@ namespace TankGame
 	void ShowErrorMessage(const std::string& message, const std::string& title)
 	{
 		EM_ASM({
-			setInfoLabel(UTF8ToString($0));
+			displayError(UTF8ToString($0));
 		}, message.c_str());
 		std::exit(0);
 	}

@@ -85,8 +85,8 @@ namespace TankGame
 		if (!s_areTexturesLoaded)
 		{
 			fs::path texturePath = resDirectoryPath / "tank" / "enemy";
-			s_cannonTexture = std::make_unique<Texture2D>(Texture2D::FromFile(texturePath / "cannon.png"));
-			s_cannonNormalMap = std::make_unique<Texture2D>(Texture2D::FromFile(texturePath / "cannon-normals.png"));
+			s_cannonTexture = std::make_unique<Texture2D>(Texture2D::FromFile(texturePath / "cannon.png", 4));
+			s_cannonNormalMap = std::make_unique<Texture2D>(Texture2D::FromFile(texturePath / "cannon-normals.png", 4));
 			s_cannonMaterial = std::make_unique<SpriteMaterial>(*s_cannonTexture, *s_cannonNormalMap, 1, 30);
 			
 			s_cannonTexture->SetWrapMode(GL_CLAMP_TO_EDGE);

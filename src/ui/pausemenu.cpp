@@ -9,8 +9,8 @@
 namespace TankGame
 {
 	PauseMenu::PauseMenu()
-	    : m_title(Texture2D::FromFile(resDirectoryPath / "ui" / "paused.png")),
-	      m_resumeButton(U"Resume"), m_optionsButton(U"Options"), m_quitButton(U"Quit to Menu")
+	    : m_title(Texture2D::FromFile(resDirectoryPath / "ui" / "paused.png", 4)),
+	      m_resumeButton("Resume"), m_optionsButton("Options"), m_quitButton("Quit to Menu")
 	{
 		
 	}
@@ -85,7 +85,7 @@ namespace TankGame
 	
 	void PauseMenu::SetShouldQuitToEditor(bool shouldQuitToEditor)
 	{
-		m_quitButton.SetLabel(shouldQuitToEditor ? U"Quit to Editor" : U"Quit to Menu");
+		m_quitButton.SetLabel(shouldQuitToEditor ? "Quit to Editor" : "Quit to Menu");
 		LayoutEntries();
 	}
 	

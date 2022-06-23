@@ -25,7 +25,7 @@ namespace TankGame
 			else if (shadowsStr == "dynamic")
 				entity->SetShadowMode(EntityShadowModes::Dynamic);
 			else
-				throw std::runtime_error("Invalid shadow mode: '" + shadowsStr + "'.");
+				Panic("Invalid shadow mode: '" + shadowsStr + "'.");
 		}
 		*/
 		auto colorIt = json.find("color");

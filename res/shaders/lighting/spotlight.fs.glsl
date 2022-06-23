@@ -1,5 +1,3 @@
-#version 330 core
-
 #include "lighting.glh"
 
 uniform vec2 direction;

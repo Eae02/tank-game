@@ -1,7 +1,6 @@
 #include "particlebatch.h"
 #include "frames.h"
 #include "../world/particles/particle.h"
-#include "../exceptions/invalidstateexception.h"
 
 #include <iostream>
 #include <cstring>
@@ -14,7 +13,7 @@ namespace TankGame
 	constexpr size_t ParticleBatch::BUFFER_SIZE;
 	
 	ParticleBatch::ParticleBatch()
-	    : m_buffer(BUFFER_SIZE * MAX_QUEUED_FRAMES, BufferUsage::MapWritePersistent)
+	    : m_buffer(BUFFER_SIZE * MAX_QUEUED_FRAMES, BufferUsage::MapWritePersistentUBO)
 	{
 		for (uint32_t i = 0; i < MAX_QUEUED_FRAMES; i++)
 		{

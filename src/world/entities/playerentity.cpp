@@ -18,6 +18,7 @@
 #include "../../utils/ioutils.h"
 #include "../../gamemanager.h"
 #include "../../lua/luavm.h"
+#include "../../profiling.h"
 
 #include <glm/gtc/color_space.hpp>
 
@@ -59,8 +60,8 @@ namespace TankGame
 		if (!s_areTexturesLoaded)
 		{
 			fs::path texturePath = resDirectoryPath / "tank" / "player";
-			s_cannonTexture = std::make_unique<Texture2D>(Texture2D::FromFile(texturePath / "cannon.png"));
-			s_cannonNormalMap = std::make_unique<Texture2D>(Texture2D::FromFile(texturePath / "cannon-normals.png"));
+			s_cannonTexture = std::make_unique<Texture2D>(Texture2D::FromFile(texturePath / "cannon.png", 4));
+			s_cannonNormalMap = std::make_unique<Texture2D>(Texture2D::FromFile(texturePath / "cannon-normals.png", 4));
 			s_cannonMaterial = std::make_unique<SpriteMaterial>(*s_cannonTexture, *s_cannonNormalMap, 1, 30);
 			
 			s_cannonTexture->SetWrapMode(GL_CLAMP_TO_EDGE);
@@ -106,6 +107,8 @@ namespace TankGame
 	
 	void PlayerEntity::Update(const UpdateInfo& updateInfo)
 	{
+		FUNC_TIMER
+		
 		m_powerUpState.Update(updateInfo.m_dt);
 		
 		if (updateInfo.m_keyboard.IsDown(Key::D1))

@@ -15,14 +15,11 @@
 namespace TankGame
 {
 	LoadingScreen::LoadingScreen()
-	    : m_loadingSprite(Texture2D::FromFile(resDirectoryPath / "ui" / "loading.png"))
-	{
-		
-	}
+	    : m_loadingSprite(Texture2D::FromFile(resDirectoryPath / "ui" / "loading.png", 4)) { }
 	
 	void LoadingScreen::Initialize()
 	{
-		m_workList.Add(std::async([]
+		m_workList.Add(std::async(LOADING_LAUNCH_POLICY, []
 		{
 			return std::make_unique<SoundsManager>(resDirectoryPath / "audio" / "audio.json");
 		}), SoundsManager::SetInstance);

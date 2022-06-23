@@ -1,36 +1,38 @@
 #include "textureloadoperation.h"
-#include <stb_image.h>
+#include "../asyncworklist.h"
 
 namespace TankGame
 {
-	std::future<TextureLoadOperation> TextureLoadOperation::Start(std::string path)
+	std::future<TextureLoadOperation> TextureLoadOperation::Start(fs::path _path, int _numChannels)
 	{
-		return std::async(std::launch::async, [p=std::move(path)]
+		return std::async(LOADING_LAUNCH_POLICY, [path=std::move(_path), numChannels=_numChannels]
 		{
-			return TextureLoadOperation::Load(p);
+			return TextureLoadOperation::Load(path, numChannels);
 		});
 	}
 	
-	TextureLoadOperation TextureLoadOperation::Load(std::string path)
+	TextureLoadOperation TextureLoadOperation::Load(fs::path path, int numChannels)
 	{
 		TextureLoadOperation op;
-		op.m_data.reset(stbi_load(path.c_str(), &op.m_width, &op.m_height, &op.m_numComponents, 0));
-		if (op.m_data == nullptr)
-			throw std::runtime_error("Error loading image from '" + path + "': " + stbi_failure_reason() + ".");
-		op.m_numMipmaps = Texture2D::GetMipmapCount(std::max(op.m_width, op.m_height));
+		op.m_imageData = LoadImageData(path, numChannels);
+		op.m_numMipmaps = Texture2D::GetMipmapCount(std::max(op.m_imageData.width, op.m_imageData.height));
+		op.m_numChannels = numChannels;
 		op.m_path = std::move(path);
 		return op;
 	}
 	
 	Texture2D TextureLoadOperation::CreateTexture() const
 	{
-		const GLenum INTERNAL_FORMATS[] = { GL_R8, GL_RG8, GL_RGB8, GL_RGBA8 };
-		const GLenum FORMATS[] = { GL_RED, GL_RG, GL_RGB, GL_RGBA };
+		TextureFormat format = TextureFormat::RGBA8;
+		if (m_numChannels != 4)
+			format = static_cast<TextureFormat>((int)TextureFormat::R8 + m_numChannels - 1);
 		
-		Texture2D texture(m_width, m_height, m_numMipmaps, INTERNAL_FORMATS[m_numComponents - 1]);
+		Texture2D texture(m_imageData.width, m_imageData.height, m_numMipmaps, format);
 		
-		glTextureSubImage2D(texture.GetID(), 0, 0, 0, m_width, m_height, FORMATS[m_numComponents - 1],
-		                    GL_UNSIGNED_BYTE, m_data.get());
+		texture.SetData({
+			reinterpret_cast<char*>(m_imageData.data.get()),
+			m_imageData.width * m_imageData.height * (size_t)m_numChannels
+		});
 		
 		texture.SetupMipmapping(true);
 		

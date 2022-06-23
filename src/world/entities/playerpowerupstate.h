@@ -11,7 +11,7 @@ namespace TankGame
 	
 	constexpr int POWER_UP_COUNT = 1;
 	
-	std::u32string GetPowerUpName(PowerUps powerUp);
+	std::string GetPowerUpName(PowerUps powerUp);
 	float GetPowerUpTime(PowerUps powerUp);
 	
 	class PlayerPowerUpState

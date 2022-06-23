@@ -2,9 +2,10 @@
 #include "textureloadoperation.h"
 #include "../utils/jsonparseutils.h"
 #include "../utils/ioutils.h"
+#include "../asyncworklist.h"
+#include "../loadimage.h"
 
 #include <nlohmann/json.hpp>
-#include <stb_image.h>
 #include <stb_image_resize.h>
 
 namespace TankGame
@@ -13,7 +14,7 @@ namespace TankGame
 	
 	std::future<TileGridMaterialLoadOperation> TileGridMaterialLoadOperation::Load(fs::path _jsonPath)
 	{
-		return std::async([jsonPath=std::move(_jsonPath)]
+		return std::async(LOADING_LAUNCH_POLICY, [jsonPath=std::move(_jsonPath)]
 		{
 			TileGridMaterialLoadOperation op;
 			
@@ -27,7 +28,7 @@ namespace TankGame
 			{
 				int id = tileElement["id"].get<int>();
 				if (id < 0 || id > 255)
-					throw std::runtime_error("Tile id out of range (" + std::to_string(id) + ").");
+					Panic("Tile id out of range (" + std::to_string(id) + ").");
 				
 				if (id >= op.m_layers)
 				{
@@ -97,7 +98,7 @@ namespace TankGame
 					op.m_diffuseLayers.emplace_back(op.LoadTextureLayer(parentPath / diffusePaths[i]));
 				}
 				
-				TextureLayerPtr normalSpecData;
+				std::unique_ptr<uint8_t, FreeDeleter> normalSpecData;
 				
 				if (!normalMapPaths[i].empty())
 				{
@@ -111,7 +112,7 @@ namespace TankGame
 				
 				if (!specularMapPaths[i].empty())
 				{
-					TextureLayerPtr specularData = op.LoadTextureLayer(parentPath / specularMapPaths[i]);
+					std::unique_ptr<uint8_t, FreeDeleter> specularData = op.LoadTextureLayer(parentPath / specularMapPaths[i]);
 					for (size_t i = 0; i < BYTES_PER_LAYER; i += 4)
 						normalSpecData.get()[i + 3] = specularData.get()[i];
 				}
@@ -123,28 +124,30 @@ namespace TankGame
 		});
 	}
 	
-	TileGridMaterialLoadOperation::TextureLayerPtr TileGridMaterialLoadOperation::AllocateTextureLayer()
+	std::unique_ptr<uint8_t, FreeDeleter> TileGridMaterialLoadOperation::AllocateTextureLayer()
 	{
-		return TextureLayerPtr(reinterpret_cast<uint8_t*>(malloc(BYTES_PER_LAYER)));
+		return std::unique_ptr<uint8_t, FreeDeleter>(reinterpret_cast<uint8_t*>(malloc(BYTES_PER_LAYER)));
 	}
 	
-	TileGridMaterialLoadOperation::TextureLayerPtr TileGridMaterialLoadOperation::LoadTextureLayer(const fs::path& path)
+	std::unique_ptr<uint8_t, FreeDeleter> TileGridMaterialLoadOperation::LoadTextureLayer(const fs::path& path)
 	{
-		int width, height;
+		ImageData imageData = LoadImageData(path, 4);
 		
-		std::string pathString = path.string();
+		if (imageData.width == TileGridMaterial::WIDTH && imageData.height == TileGridMaterial::HEIGHT)
+			return std::move(imageData.data);
 		
-		TextureLayerPtr layerData(stbi_load(pathString.c_str(), &width, &height, nullptr, 4));
+#if defined(NDEBUG) || defined(__EMSCRIPTEN__)
+		Panic("Cannot resize image for tile grid material: '" + path.string() + "'.");
+#else
+		GetLogStream() << LOG_WARNING << "Resizing image '" << path.string() << "' from "
+			<< imageData.width << "x" << imageData.height << " to " << TileGridMaterial::WIDTH << "x" << TileGridMaterial::HEIGHT << "\n";
 		
-		if (width == TileGridMaterial::WIDTH && height == TileGridMaterial::HEIGHT)
-			return layerData;
-		
-		TextureLayerPtr resizedData = AllocateTextureLayer();
-		
-		stbir_resize_uint8(layerData.get(), width, height, 0, resizedData.get(),
+		std::unique_ptr<uint8_t, FreeDeleter> resizedData = AllocateTextureLayer();
+		stbir_resize_uint8(imageData.data.get(), imageData.width, imageData.height, 0, resizedData.get(),
 		                   TileGridMaterial::WIDTH, TileGridMaterial::HEIGHT, 0, 4);
 		
 		return resizedData;
+#endif
 	}
 	
 	std::unique_ptr<TileGridMaterial> TileGridMaterialLoadOperation::FinishLoading()

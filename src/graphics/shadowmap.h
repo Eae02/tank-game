@@ -49,6 +49,8 @@ namespace TankGame
 		
 		static constexpr int SHADOW_RENDER_SETTINGS_BUFFER_BINDING = 2;
 		
+		static bool useDepthShadowMaps;
+		
 	private:
 		static std::unique_ptr<Texture2D> s_defaultTexture;
 		static std::unique_ptr<Buffer> s_defaultRenderSettingsBuffer;

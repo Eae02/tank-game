@@ -16,8 +16,8 @@ vec3 getBloomColor(vec2 texCoord, int passIndex)
 	
 	for (int i = 1; i <= SAMPLE_COUNT; i++)
 	{
-		color += sampleInput(texCoord + blurVector * i).rgb * KERNEL[i];
-		color += sampleInput(texCoord - blurVector * i).rgb * KERNEL[i];
+		color += sampleInput(texCoord + blurVector * float(i)).rgb * KERNEL[i];
+		color += sampleInput(texCoord - blurVector * float(i)).rgb * KERNEL[i];
 	}
 	
 	return color;

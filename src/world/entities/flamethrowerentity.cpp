@@ -145,14 +145,14 @@ namespace TankGame
 			auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "heat-dist.vs.glsl", GL_VERTEX_SHADER);
 			auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "heat-dist.fs.glsl", GL_FRAGMENT_SHADER);
 			
-			ShaderProgram program({ &vs, &fs });
+			ShaderProgram program(vs, fs);
 			program.SetUniformBlockBinding("TextureMatricesUB", 1);
 			program.SetTextureBinding("dudvMap", 0);
 			
 			int intensityLocation = program.GetUniformLocation("intensity");
 			int transformLocation = program.GetUniformLocation("transform");
 			
-			Texture2D dudvMap = Texture2D::FromFile(resDirectoryPath / "heat-distortion.png");
+			Texture2D dudvMap = Texture2D::FromFile(resDirectoryPath / "heat-distortion.png", 2);
 			dudvMap.SetWrapMode(GL_REPEAT);
 			
 			std::array<glm::mat2, 3> textureMatrices;
@@ -168,7 +168,7 @@ namespace TankGame
 				textureMatrices[i] = glm::mat2(cosR * scale, -sinR, sinR, cosR * scale);
 			}
 			
-			Buffer texureMatricesBuffer(textureMatrices.size() * sizeof(float) * 4, textureMatrices.data(), BufferUsage::StaticData);
+			Buffer texureMatricesBuffer(textureMatrices.size() * sizeof(float) * 4, textureMatrices.data(), BufferUsage::StaticUBO);
 			
 			s_distortionShader.reset(new DistortionShader { std::move(program), transformLocation, intensityLocation,
 			                                                std::move(dudvMap), std::move(texureMatricesBuffer) });

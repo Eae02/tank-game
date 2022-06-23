@@ -1,5 +1,3 @@
-#version 330 core
-
 #include "lighting.glh"
 
 uniform vec2 position;
@@ -19,7 +17,7 @@ float getProjectionMul(vec2 v, vec2 projTarget)
 vec2 getClosestPointOnLightLine(vec2 point)
 {
 	float p = getProjectionMul(point - position, direction);
-	return position + direction * clamp(p, 0, 1);
+	return position + direction * clamp(p, 0.0, 1.0);
 }
 
 void main()

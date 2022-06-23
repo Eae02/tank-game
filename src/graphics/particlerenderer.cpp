@@ -9,14 +9,10 @@ namespace TankGame
 {
 	static ShaderProgram LoadShader()
 	{
-		auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "particle.vs.glsl", GL_VERTEX_SHADER);
-		auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "particle.fs.glsl", GL_FRAGMENT_SHADER);
-		
-		ShaderProgram program({ &vs, &fs });
+		ShaderProgram program(ShaderModule::FromResFile("particle.vs.glsl"), ShaderModule::FromResFile("particle.fs.glsl"));
 		program.SetUniformBlockBinding("ParticlesUB", 1);
 		program.SetTextureBinding("lightingSampler", 0);
 		program.SetTextureBinding("diffuseSampler", 1);
-		
 		return program;
 	}
 	
@@ -29,8 +25,6 @@ namespace TankGame
 	
 	void ParticleRenderer::Begin(const Texture2D& lightBufferTexture)
 	{
-		if (measureDrawCPUTime)
-			m_drawBeginTime = GetTime();
 		m_usedBatches = 0;
 		m_numRenderedParticles = 0;
 		m_shader.Use();
@@ -76,6 +70,5 @@ namespace TankGame
 	void ParticleRenderer::End()
 	{
 		glDisable(GL_BLEND);
-		m_lastDrawCPUTime = measureDrawCPUTime ? (GetTime() - m_drawBeginTime) : 0;
 	}
 }

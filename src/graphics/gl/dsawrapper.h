@@ -46,12 +46,5 @@ namespace TankGame
 		void APIENTRY ProgramUniform4iv(GLuint program, GLint location, GLsizei count, const GLint* value);
 		void APIENTRY ProgramUniformMatrix3fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
 		void APIENTRY ProgramUniformMatrix4fv(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
-		
-		void APIENTRY CreateBuffers(GLsizei n, GLuint* buffers);
-		void APIENTRY NamedBufferStorage(GLuint buffer, GLsizeiptr size, const void* data, GLbitfield flags);
-		void* APIENTRY MapNamedBuffer(GLuint buffer, GLenum access);
-		void* APIENTRY MapNamedBufferRange(GLuint buffer, GLintptr offset, GLsizeiptr length, GLbitfield access);
-		GLboolean APIENTRY UnmapNamedBuffer(GLuint buffer);
-		void APIENTRY FlushMappedNamedBufferRange(GLuint buffer, GLintptr offset, GLintptr length);
 	}
 }

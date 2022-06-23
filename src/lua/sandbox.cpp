@@ -1,6 +1,7 @@
 #include "sandbox.h"
 #include "luavm.h"
 #include "../utils/ioutils.h"
+#include "../profiling.h"
 
 namespace TankGame
 {
@@ -74,6 +75,8 @@ namespace Lua
 	
 	void Sandbox::Update(float dt)
 	{
+		FUNC_TIMER
+		
 		for (auto it = m_updateCallbacks.begin(); it != m_updateCallbacks.end(); ++it)
 		{
 			it->m_callback.Load(GetState());

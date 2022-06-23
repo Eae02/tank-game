@@ -34,7 +34,7 @@ namespace TankGame
 		      m_objectsAllocated(numObjects, false)
 		{
 			if (numObjects == 0)
-				throw std::runtime_error("An object pool cannot have 0 elements.");
+				Panic("An object pool cannot have 0 elements.");
 		}
 		
 		virtual ~ObjectPool()
@@ -96,7 +96,7 @@ namespace TankGame
 		{
 			size_t index = object - m_objects;
 			if (index > m_objectsAllocated.size())
-				throw std::runtime_error("Attempted to delete an invalid object.");
+				Panic("Attempted to delete an invalid object.");
 			
 			object->~T();
 			

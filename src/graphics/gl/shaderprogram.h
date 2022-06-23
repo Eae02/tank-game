@@ -9,10 +9,14 @@ namespace TankGame
 {
 	void DeleteShaderProgram(GLuint id);
 	
+	class ShaderModule;
+	
 	class ShaderProgram : public GLResource<DeleteShaderProgram>
 	{
 	public:
-		explicit ShaderProgram(std::initializer_list<const class ShaderModule*> modules);
+		explicit ShaderProgram(const ShaderModule& vertexShader, const ShaderModule* fragmentShader = nullptr);
+		explicit ShaderProgram(const ShaderModule& vertexShader, const ShaderModule& fragmentShader)
+			: ShaderProgram(vertexShader, &fragmentShader) { }
 		
 		int GetUniformLocation(const std::string& name) const;
 		int GetUniformBlockIndex(const std::string& name) const;

@@ -35,8 +35,8 @@ namespace TankGame
 		
 		void Initialize(class Window& window);
 		
-		void LoadLevel(const std::string& name);
-		void EditLevel(const std::string& name);
+		[[nodiscard]] bool LoadLevel(const std::string& name);
+		[[nodiscard]] bool EditLevel(const std::string& name);
 		
 		void RunFrame(class Window& window);
 	};

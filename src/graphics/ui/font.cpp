@@ -14,9 +14,9 @@ namespace TankGame
 		
 		FT_Error state = FT_New_Face(theFTLibrary, path.c_str(), 0, &fontFace);
 		if (state == FT_Err_Unknown_File_Format)
-			throw std::runtime_error("Unsupported font format.");
+			Panic("Unsupported font format: '" + path + "'.");
 		else if (state != 0)
-			throw std::runtime_error("Error reading font file.");
+			Panic("Error reading font file: '" + path + "'.");
 		
 		FT_Set_Pixel_Sizes(fontFace, 0, size);
 		
@@ -52,9 +52,12 @@ namespace TankGame
 		
 		if (ftGlyph->bitmap.width != 0 && ftGlyph->bitmap.rows != 0)
 		{
-			glyph.m_texture = std::make_unique<Texture2D>(ftGlyph->bitmap.width, ftGlyph->bitmap.rows, 1, GL_R8);
-			glTextureSubImage2D(glyph.m_texture->GetID(), 0, 0, 0, ftGlyph->bitmap.width, ftGlyph->bitmap.rows,
-			                    GL_RED, GL_UNSIGNED_BYTE, ftGlyph->bitmap.buffer);
+			glyph.m_texture = std::make_unique<Texture2D>(ftGlyph->bitmap.width, ftGlyph->bitmap.rows, 1, TextureFormat::R8);
+			
+			glyph.m_texture->SetData({
+				reinterpret_cast<char*>(ftGlyph->bitmap.buffer),
+				ftGlyph->bitmap.width * ftGlyph->bitmap.rows
+			});
 			
 			glyph.m_texture->SetWrapMode(GL_CLAMP_TO_EDGE);
 		}
@@ -70,6 +73,7 @@ namespace TankGame
 		"ui.ttf",
 		"orbitron.ttf",
 		"orbitron.ttf",
+		"mono.ttf"
 	};
 	
 	static FT_UInt namedFontSizes[Font::NUM_NAMED_FONTS] =
@@ -77,7 +81,8 @@ namespace TankGame
 		16,
 		24,
 		20,
-		40
+		40,
+		12
 	};
 	
 	void Font::DestroyFonts()
@@ -90,7 +95,7 @@ namespace TankGame
 	{
 		int index = static_cast<int>(name);
 		
-		if (namedFonts[index]== nullptr)
+		if (namedFonts[index] == nullptr)
 		{
 			const fs::path fontPath = resDirectoryPath / "fonts" / fontFileNames[index];
 			namedFonts[index] = std::make_unique<Font>(fontPath, namedFontSizes[index]);
@@ -99,7 +104,7 @@ namespace TankGame
 		return *namedFonts[index];
 	}
 	
-	glm::vec2 Font::MeasureString(const std::u32string& string) const
+	glm::vec2 Font::MeasureString(const std::string& string) const
 	{
 		float x = 0;
 		float maxHeight = 0;

@@ -10,6 +10,8 @@ namespace TankGame
 	
 	static constexpr size_t SHADOW_RENDER_SETTINGS_SIZE = sizeof(float) * 16;
 	
+	bool ShadowMap::useDepthShadowMaps = false;
+	
 	void ShadowMap::SetResolution(GLsizei width, GLsizei height)
 	{
 		if (m_width == width && m_height == height)
@@ -21,15 +23,19 @@ namespace TankGame
 		GLsizei shadowPassTextureWidth = static_cast<GLsizei>(width * SHADOW_PASS_RESOLUTION_MUL);
 		GLsizei shadowPassTextureHeight = static_cast<GLsizei>(height * SHADOW_PASS_RESOLUTION_MUL);
 		
-		m_shadowPassTexture = std::make_unique<Texture2D>(shadowPassTextureWidth, shadowPassTextureHeight, 1, GL_DEPTH_COMPONENT16);
+		m_shadowPassTexture = std::make_unique<Texture2D>(
+			shadowPassTextureWidth, shadowPassTextureHeight, 1,
+			useDepthShadowMaps ? TextureFormat::Depth16 : TextureFormat::R8);
 		m_shadowPassTexture->SetWrapMode(GL_CLAMP_TO_EDGE);
 		m_shadowPassTexture->SetMagFilter(GL_LINEAR);
 		m_shadowPassTexture->SetMinFilter(GL_LINEAR);
 		
 		m_shadowPassFramebuffer = std::make_unique<Framebuffer>();
-		glNamedFramebufferTexture(m_shadowPassFramebuffer->GetID(), GL_DEPTH_ATTACHMENT, m_shadowPassTexture->GetID(), 0);
+		glNamedFramebufferTexture(m_shadowPassFramebuffer->GetID(), 
+			useDepthShadowMaps ? GL_DEPTH_ATTACHMENT : GL_COLOR_ATTACHMENT0,
+			m_shadowPassTexture->GetID(), 0);
 		
-		m_blurPassTexture = std::make_unique<Texture2D>(width, height, 1, GL_R8);
+		m_blurPassTexture = std::make_unique<Texture2D>(width, height, 1, TextureFormat::R8);
 		m_blurPassTexture->SetWrapMode(GL_CLAMP_TO_EDGE);
 		m_blurPassTexture->SetMagFilter(GL_NEAREST);
 		m_blurPassTexture->SetMinFilter(GL_NEAREST);
@@ -81,7 +87,7 @@ namespace TankGame
 		if (m_renderSettingsBuffers[m_currentRenderSettingsBuffer].IsNull())
 		{
 			m_renderSettingsBuffers[m_currentRenderSettingsBuffer] =
-				BufferAllocator::GetInstance().AllocateUnique(SHADOW_RENDER_SETTINGS_SIZE, BufferUsage::MapWritePersistent);
+				BufferAllocator::GetInstance().AllocateUnique(SHADOW_RENDER_SETTINGS_SIZE, BufferUsage::MapWritePersistentUBO);
 		}
 		
 		float* memory = reinterpret_cast<float*>(m_renderSettingsBuffers[m_currentRenderSettingsBuffer]->MappedMemory());
@@ -94,8 +100,8 @@ namespace TankGame
 		
 		m_renderSettingsBuffers[m_currentRenderSettingsBuffer]->FlushMappedMemory(0, SHADOW_RENDER_SETTINGS_SIZE);
 		
-		float CLEAR_VALUE = 0.0f;
-		glClearNamedFramebufferfv(m_shadowPassFramebuffer->GetID(), GL_DEPTH, 0, &CLEAR_VALUE);
+		float CLEAR_VALUES[4] = { };
+		glClearNamedFramebufferfv(m_shadowPassFramebuffer->GetID(), useDepthShadowMaps ? GL_DEPTH : GL_COLOR, 0, CLEAR_VALUES);
 		
 		glBindBufferBase(GL_UNIFORM_BUFFER, SHADOW_RENDER_SETTINGS_BUFFER_BINDING,
 		                 m_renderSettingsBuffers[m_currentRenderSettingsBuffer]->GetID());
@@ -112,14 +118,14 @@ namespace TankGame
 	{
 		if (s_defaultTexture == nullptr)
 		{
-			s_defaultTexture = std::make_unique<Texture2D>(1, 1, 1, GL_R8);
+			s_defaultTexture = std::make_unique<Texture2D>(1, 1, 1, TextureFormat::R8);
 			
-			float COLOR = 0.0f;
-			glTextureSubImage2D(s_defaultTexture->GetID(), 0, 0, 0, 1, 1, GL_RGBA, GL_FLOAT, &COLOR);
+			const uint8_t COLOR = 0;
+			s_defaultTexture->SetData({ reinterpret_cast<const char*>(&COLOR), sizeof(COLOR) });
 			
 			float bufferContents[16];
 			std::fill(bufferContents, std::end(bufferContents), 0.0f);
-			s_defaultRenderSettingsBuffer = std::make_unique<Buffer>(sizeof(bufferContents), bufferContents, BufferUsage::StaticData);
+			s_defaultRenderSettingsBuffer = std::make_unique<Buffer>(sizeof(bufferContents), bufferContents, BufferUsage::StaticUBO);
 			
 			CallOnClose([] { s_defaultTexture = nullptr; s_defaultRenderSettingsBuffer = nullptr; });
 		}

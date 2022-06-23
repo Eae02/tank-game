@@ -39,7 +39,9 @@ namespace TankGame
 		
 		MenuButton m_playButton;
 		MenuButton m_optionsButton;
-		MenuButton m_quitButton;
+#ifndef __EMSCRIPTEN__
+		MenuButton m_quitButton { "Quit" };
+#endif
 		
 		int m_screenWidth;
 		int m_screenHeight;

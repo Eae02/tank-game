@@ -10,7 +10,7 @@ namespace TankGame
 	static const size_t BUFFER_SIZE = sizeof(float) * 32;
 	
 	RenderSettingsBuffer::RenderSettingsBuffer()
-	    : m_uniformBuffer(BUFFER_SIZE, BufferUsage::MapWritePersistentMultiFrame) { }
+	    : m_uniformBuffer(BUFFER_SIZE, BufferUsage::MapWritePersistentUBO_MultiFrame) { }
 	
 	void RenderSettingsBuffer::Update(const ViewInfo& viewInfo, glm::vec3 eyePosition, float time)
 	{

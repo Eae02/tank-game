@@ -8,39 +8,27 @@
 #include "../../mouse.h"
 #include "../../utils/utils.h"
 
+#include <variant>
 #include <sstream>
 
 namespace TankGame
 {
 	static ComboBox CreateQualityComboBox()
 	{
-		return ComboBox{ U"Low", U"Medium", U"High" };
+		return ComboBox{ "Low", "Medium", "High" };
 	}
 	
 	static ComboBox CreateBoolComboBox()
 	{
-		return ComboBox{ U"Disabled", U"Enabled" };
+		return ComboBox{ "Disabled", "Enabled" };
 	}
 	
-	const std::array<std::u32string, OptionsMenu::NUM_SECTIONS> OptionsMenu::SECTION_TITLES = 
-	{
-		U"Display",
-		U"Graphics Quality",
-		U"Sound"
-	};
-	
 	OptionsMenu::OptionsMenu()
-	    : m_settingLabels{
-	          Label(U"Display Mode"), Label(U"Fullscreen Resolution"), Label(U"V-Sync"), Label(U"Gamma"),
-	          Label(U"Resolution Scale"), Label(U"Lighting"), Label(U"Particles"), Label(U"Post Processing"), Label(U"Bloom"), Label(U"Frame Queueing"),
-	          Label(U"Master Volume"), Label(U"Music Volume"), Label(U"SFX Volume")
-	      },
-	      m_backButton(U"Back"), m_applyButton(U"Apply"), m_displayModeComboBox{ U"Fullscreen", U"Windowed" },
+	    : m_backButton("Back"), m_applyButton("Apply"),
 	      m_vSyncComboBox(CreateBoolComboBox()), m_gammaSlider(0.5f, 1.5f, 0.05f),
-	      m_resolutionScaleComboBox{ U"50%", U"75%", U"100%", U"125%", U"150%", U"200%" },
+	      m_resolutionScaleComboBox{ "50%", "75%", "100%", "125%", "150%", "200%" },
 	      m_lightingQualityComboBox(CreateQualityComboBox()), m_particlesQualityComboBox(CreateQualityComboBox()),
 	      m_postQualityComboBox(CreateQualityComboBox()), m_bloomComboBox(CreateBoolComboBox()),
-	      m_frameQueueComboBox(CreateBoolComboBox()),
 	      m_masterVolumeSlider(0, 100, 5), m_musicVolumeSlider(0, 100, 5), m_sfxVolumeSlider(0, 100, 5)
 	{
 		m_displayModeIndex = Settings::instance.IsFullscreen() ? 0 : 1;
@@ -66,15 +54,17 @@ namespace TankGame
 	
 	void OptionsMenu::Update(const UpdateInfo& updateInfo)
 	{
-		if (updateInfo.m_videoModes && !m_resolutionsComboBoxInitialized)
+		if (!updateInfo.m_videoModes->resolutions.empty() && !m_resolutionsComboBox)
 		{
-			m_resolutionsComboBoxInitialized = true;
+			m_displayModeComboBox = ComboBox{ "Fullscreen", "Windowed" };
+			m_resolutionsComboBox = ComboBox();
 			for (const glm::ivec2& res : updateInfo.m_videoModes->resolutions)
 			{
 				std::ostringstream labelStream;
 				labelStream << res.x << "x" << res.y;
-				m_resolutionsComboBox.AddEntry(UTF8ToUTF32(labelStream.str()));
+				m_resolutionsComboBox->AddEntry(labelStream.str());
 			}
+			LayoutContentWidgets();
 		}
 		
 		if (m_backButton.Update(updateInfo) && m_backCallback != nullptr)
@@ -94,15 +84,14 @@ namespace TankGame
 		}
 		
 		bool anyDropDownShown = 
-		        m_resolutionsComboBox.IsDropDownShown() ||
-		        m_displayModeComboBox.IsDropDownShown() ||
-		        m_vSyncComboBox.IsDropDownShown() ||
+		        (m_resolutionsComboBox && m_resolutionsComboBox->IsDropDownShown()) ||
+		        (m_displayModeComboBox && m_displayModeComboBox->IsDropDownShown()) ||
+		        (PLATFORM_CAN_CHANGE_VSYNC && m_vSyncComboBox.IsDropDownShown()) ||
 		        m_resolutionScaleComboBox.IsDropDownShown() ||
 		        m_lightingQualityComboBox.IsDropDownShown() ||
 		        m_particlesQualityComboBox.IsDropDownShown() ||
 		        m_postQualityComboBox.IsDropDownShown() ||
-		        m_bloomComboBox.IsDropDownShown() ||
-		        m_frameQueueComboBox.IsDropDownShown();
+		        m_bloomComboBox.IsDropDownShown();
 		
 		if (!anyDropDownShown && std::abs(updateInfo.m_mouse.GetDeltaScroll()) > 1E-6f)
 		{
@@ -110,17 +99,17 @@ namespace TankGame
 			LayoutContentWidgets();
 		}
 		
-		if (!anyDropDownShown || m_resolutionsComboBox.IsDropDownShown())
+		if (m_resolutionsComboBox && (!anyDropDownShown || m_resolutionsComboBox->IsDropDownShown()))
 		{
-			m_resolutionsComboBox.Update(updateInfo, m_currentResolutionIndex);
+			m_resolutionsComboBox->Update(updateInfo, m_currentResolutionIndex);
 		}
 		
-		if (!anyDropDownShown || m_displayModeComboBox.IsDropDownShown())
+		if (m_displayModeComboBox && (!anyDropDownShown || m_displayModeComboBox->IsDropDownShown()))
 		{
-			m_displayModeComboBox.Update(updateInfo, m_displayModeIndex);
+			m_displayModeComboBox->Update(updateInfo, m_displayModeIndex);
 		}
 		
-		if (!anyDropDownShown || m_vSyncComboBox.IsDropDownShown())
+		if (PLATFORM_CAN_CHANGE_VSYNC && (!anyDropDownShown || m_vSyncComboBox.IsDropDownShown()))
 		{
 			long vSyncEnabled = Settings::instance.EnableVSync();
 			if (m_vSyncComboBox.Update(updateInfo, vSyncEnabled))
@@ -186,13 +175,6 @@ namespace TankGame
 				Settings::instance.SetEnableBloom(bloomEnabled);
 		}
 		
-		if (!anyDropDownShown || m_frameQueueComboBox.IsDropDownShown())
-		{
-			long queueFrames = Settings::instance.QueueFrames();
-			if (m_frameQueueComboBox.Update(updateInfo, queueFrames))
-				Settings::instance.SetQueueFrames(queueFrames);
-		}
-		
 		if (!anyDropDownShown)
 		{
 			float volume = Settings::instance.GetMasterVolume() * 100.0f;
@@ -228,95 +210,92 @@ namespace TankGame
 		
 		PushScissorRect(m_scissorArea);
 		
-		for (size_t i = 0; i < NUM_SECTIONS; i++)
+		for (const Label& label : m_sectionTitleLabels)
 		{
-			uiRenderer.DrawString(Font::GetNamedFont(FontNames::MenuTitle), SECTION_TITLES[i],
-			                      m_sectionTitleRectangles[i], Alignment::Center, Alignment::Center, glm::vec4(1.0f));
+			uiRenderer.DrawString(Font::GetNamedFont(FontNames::MenuTitle), label.string, label.rectangle,
+			                      Alignment::Center, Alignment::Center, glm::vec4(1.0f));
 		}
 		
-		for (const Label& label : m_settingLabels)
+		std::for_each_n(m_settingLabels.begin(), m_numSettingLabels, [&] (const Label& label)
 		{
-			uiRenderer.DrawString(Font::GetNamedFont(FontNames::StandardUI), label.m_string, label.m_rectangle,
+			uiRenderer.DrawString(Font::GetNamedFont(FontNames::StandardUI), label.string, label.rectangle,
 			                      Alignment::Right, Alignment::Center, glm::vec4(1.0f));
-		}
+		});
 		
 		//It is important to draw elements in reverse order!
 		m_sfxVolumeSlider.Draw(uiRenderer);
 		m_musicVolumeSlider.Draw(uiRenderer);
 		m_masterVolumeSlider.Draw(uiRenderer);
-		m_frameQueueComboBox.Draw(uiRenderer);
 		m_bloomComboBox.Draw(uiRenderer);
 		m_postQualityComboBox.Draw(uiRenderer);
 		m_particlesQualityComboBox.Draw(uiRenderer);
 		m_lightingQualityComboBox.Draw(uiRenderer);
 		m_resolutionScaleComboBox.Draw(uiRenderer);
 		m_gammaSlider.Draw(uiRenderer);
-		m_vSyncComboBox.Draw(uiRenderer);
-		m_resolutionsComboBox.Draw(uiRenderer);
-		m_displayModeComboBox.Draw(uiRenderer);
+		if (PLATFORM_CAN_CHANGE_VSYNC)
+			m_vSyncComboBox.Draw(uiRenderer);
+		if (m_resolutionsComboBox)
+			m_resolutionsComboBox->Draw(uiRenderer);
+		if (m_displayModeComboBox)
+			m_displayModeComboBox->Draw(uiRenderer);
 		
 		PopScissorRect();
 	}
 	
 	void OptionsMenu::LayoutContentWidgets()
 	{
-		//A nullptr means the title for that section
-		IUIElement* uiElements[] = 
-		{
-			nullptr,
-			&m_displayModeComboBox,
-			&m_resolutionsComboBox,
-			&m_vSyncComboBox,
-			&m_gammaSlider,
-			nullptr,
-			&m_resolutionScaleComboBox,
-			&m_lightingQualityComboBox,
-			&m_particlesQualityComboBox,
-			&m_postQualityComboBox,
-			&m_bloomComboBox,
-			&m_frameQueueComboBox,
-			nullptr,
-			&m_masterVolumeSlider,
-			&m_musicVolumeSlider,
-			&m_sfxVolumeSlider
-		};
-		
 		float y = m_contentsBeginY + m_scroll;
-		int nextSectionTitle = 0;
-		int nextSettingLabel = 0;
+		size_t nextSectionTitle = 0;
+		m_numSettingLabels = 0;
 		
 		const Font& titleFont = Font::GetNamedFont(FontNames::MenuTitle);
 		
-		for (IUIElement* uiElement : uiElements)
+		auto AddUIElement = [&] (IUIElement& element, std::string label)
 		{
-			if (uiElement == nullptr)
+			glm::vec2 elementSize = element.GetSize();
+			
+			const float ELEMENT_MARGIN = 10;
+			
+			m_settingLabels.at(m_numSettingLabels++) = 
 			{
-				const float TITLE_MARGIN_UP = 30;
-				const float TITLE_MARGIN_DOWN = 10;
-				
-				glm::vec2 textSize = titleFont.MeasureString(SECTION_TITLES[nextSectionTitle]);
-				
-				m_sectionTitleRectangles[nextSectionTitle] = { m_scissorArea.x, y - TITLE_MARGIN_UP - textSize.y,
-				                                               m_scissorArea.w, textSize.y };
-				
-				y -= textSize.y + TITLE_MARGIN_UP + TITLE_MARGIN_DOWN;
-				
-				nextSectionTitle++;
-			}
-			else
+				.string = std::move(label),
+				.rectangle = Rectangle(0, y - elementSize.y, m_contentsBeginX - 10, elementSize.y)
+			};
+			
+			element.SetPosition(glm::vec2(m_contentsBeginX, y) + elementSize * glm::vec2(0.5f, -0.5f));
+			y -= elementSize.y + ELEMENT_MARGIN;
+		};
+		
+		auto AddSectionTitle = [&] (std::string title)
+		{
+			const float TITLE_MARGIN_UP = 30;
+			const float TITLE_MARGIN_DOWN = 10;
+			
+			glm::vec2 textSize = titleFont.MeasureString(title);
+			
+			m_sectionTitleLabels.at(nextSectionTitle++) = 
 			{
-				glm::vec2 elementSize = uiElement->GetSize();
-				
-				const float ELEMENT_MARGIN = 10;
-				
-				m_settingLabels[nextSettingLabel].m_rectangle = { 0, y - elementSize.y,
-				                                                  m_contentsBeginX - 10, elementSize.y };
-				
-				uiElement->SetPosition(glm::vec2(m_contentsBeginX, y) + elementSize * glm::vec2(0.5f, -0.5f));
-				y -= elementSize.y + ELEMENT_MARGIN;
-				
-				nextSettingLabel++;
-			}
-		}
+				.string = std::move(title),
+				.rectangle = Rectangle(m_scissorArea.x, y - TITLE_MARGIN_UP - textSize.y, m_scissorArea.w, textSize.y)
+			};
+			
+			y -= textSize.y + TITLE_MARGIN_UP + TITLE_MARGIN_DOWN;
+		};
+		
+		AddSectionTitle("Display");
+		if (m_displayModeComboBox) AddUIElement(*m_displayModeComboBox, "Display Mode");
+		if (m_resolutionsComboBox) AddUIElement(*m_resolutionsComboBox, "Fullscreen Resolution");
+		if (PLATFORM_CAN_CHANGE_VSYNC) AddUIElement(m_vSyncComboBox, "V-Sync");
+		AddUIElement(m_gammaSlider, "Gamma"),
+		AddSectionTitle("Graphics Quality");
+		AddUIElement(m_resolutionScaleComboBox, "Resolution Scale");
+		AddUIElement(m_lightingQualityComboBox, "Lighting");
+		AddUIElement(m_particlesQualityComboBox, "Particles");
+		AddUIElement(m_postQualityComboBox, "Post Processing");
+		AddUIElement(m_bloomComboBox, "Bloom");
+		AddSectionTitle("Sound");
+		AddUIElement(m_masterVolumeSlider, "Master Volume");
+		AddUIElement(m_musicVolumeSlider, "Music Volume");
+		AddUIElement(m_sfxVolumeSlider, "Effects Volume");
 	}
 }

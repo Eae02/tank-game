@@ -38,7 +38,7 @@ namespace TankGame
 		char magicNum[4];
 		stream.read(magicNum, sizeof(magicNum));
 		if (memcmp(magicNum, "lvl0", 4) != 0)
-			throw std::runtime_error("Invalid level file.");
+			return nullptr;
 		
 		std::vector<char> jsonSection = ReadSection(stream);
 		nlohmann::json json = nlohmann::json::parse(jsonSection.begin(), jsonSection.end());

@@ -24,7 +24,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten")
 	target_link_options(tankgame PRIVATE -sEXPORTED_RUNTIME_METHODS=['cwrap'] -sEXPORTED_FUNCTIONS=['_WebMain'])
 	target_link_options(tankgame PRIVATE -sALLOW_MEMORY_GROWTH=1 -sWASM=1 -sUSE_WEBGL2=1 -sFULL_ES3=1 -sFORCE_FILESYSTEM=1 -sFETCH=1 -sDISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0)
 	target_link_options(tankgame PRIVATE -lidbfs.js -lopenal ${USE_FLAGS})
-	target_link_options(tankgame PRIVATE --preload-file ${TankGame_SOURCE_DIR}/res@/res)
+	target_link_options(tankgame PRIVATE --preload-file ${TankGame_SOURCE_DIR}/res@/res --use-preload-plugins)
 	
 	target_compile_options(tankgame PRIVATE ${USE_FLAGS} -Wno-sign-conversion -Wno-shorten-64-to-32 -Wno-mismatched-tags -Wno-inconsistent-missing-override)
 	

@@ -1,6 +1,8 @@
 #include "tileshadowcastersbuffer.h"
 #include "gl/shadermodule.h"
 #include "shadowrenderer.h"
+#include "shadowmap.h"
+#include "gl/specializationinfo.h"
 #include "tilegridmaterial.h"
 #include "../world/tilegrid.h"
 #include "../utils/ioutils.h"
@@ -17,10 +19,17 @@ namespace TankGame
 	{
 		if (s_shadowShader == nullptr)
 		{
-			auto vs = ShaderModule::FromFile(
-				resDirectoryPath / "shaders" / "lighting" / "shadows" / "tileshadow.vs.glsl", GL_VERTEX_SHADER);
+			SpecializationInfo specInfo;
 			
-			s_shadowShader.reset(new ShaderProgram{ &vs });
+			std::unique_ptr<ShaderModule> fs;
+			if (!ShadowMap::useDepthShadowMaps)
+			{
+				fs = std::make_unique<ShaderModule>(ShaderModule::FromResFile("lighting/shadows/shadow.fs.glsl"));
+				specInfo.SetConstant("HAS_FRAGMENT_SHADER", "1");
+			}
+			
+			s_shadowShader = std::make_unique<ShaderProgram>(
+				ShaderModule::FromResFile("lighting/shadows/tileshadow.vs.glsl", &specInfo), fs.get());
 			
 			CallOnClose([] { s_shadowShader = nullptr; });
 		}
@@ -162,8 +171,8 @@ namespace TankGame
 			.regionRanges = std::move(regionRanges),
 			.numRegionsX  = numRegionsX,
 			.numRegionsY  = numRegionsY,
-			.vertexBuffer = Buffer(vertices.size() * sizeof(Vertex), vertices.data(), BufferUsage::StaticData),
-			.indexBuffer  = Buffer(indices.size() * sizeof(uint32_t), indices.data(), BufferUsage::StaticData)
+			.vertexBuffer = Buffer(vertices.size() * sizeof(Vertex), vertices.data(), BufferUsage::StaticVertex),
+			.indexBuffer  = Buffer(indices.size() * sizeof(uint32_t), indices.data(), BufferUsage::StaticIndex)
 		};
 	}
 	

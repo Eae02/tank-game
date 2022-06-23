@@ -1,5 +1,3 @@
-#version 330 core
-
 #include "shield-common.glh"
 
 layout(location=0) out vec4 color_out;

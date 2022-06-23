@@ -63,9 +63,9 @@ namespace Lua
 		int result = lua_pcall(state, numParams, numReturnValues, errorFuncLocation);
 		
 		if (result == LUA_ERRMEM)
-			throw std::bad_alloc();
+			Panic("Lua out of memory");
 		if (result == LUA_ERRERR)
-			throw std::runtime_error("Invalid result");
+			Panic("Lua error in lua_pcall");
 	}
 	
 	void DoString(const std::string& code, const Sandbox* sandbox)

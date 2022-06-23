@@ -7,11 +7,11 @@ namespace TankGame
 {
 	static std::unique_ptr<Texture2D> blankButtonTexture;
 	
-	void DrawButton(const std::u32string& text, UIRenderer& uiRenderer, glm::vec2 pos, float height, float opacity)
+	void DrawButton(const std::string& text, UIRenderer& uiRenderer, glm::vec2 pos, float height, float opacity)
 	{
 		if (blankButtonTexture== nullptr)
 		{
-			blankButtonTexture = std::make_unique<Texture2D>(Texture2D::FromFile(resDirectoryPath / "ui" / "key.png"));
+			blankButtonTexture = std::make_unique<Texture2D>(Texture2D::FromFile(resDirectoryPath / "ui" / "key.png", 4));
 			CallOnClose([] { blankButtonTexture = nullptr; });
 		}
 		

@@ -6,6 +6,7 @@
 #include "audio/almanager.h"
 #include "utils/ioutils.h"
 #include "lua/luavm.h"
+#include "profiling.h"
 
 #include <fstream>
 
@@ -32,17 +33,14 @@ namespace TankGame
 		m_gameWorld->SetLuaSandbox(m_luaSandbox.get());
 	}
 	
-	Level Level::FromName(const std::string& name, GameWorld::Types worldType)
+	std::optional<Level> Level::FromName(const std::string& name, GameWorld::Types worldType)
 	{
 		fs::path fullPath = Level::GetLevelsPath() / name;
-		if (!fs::exists(fullPath))
-			throw std::runtime_error("Level not found: '" + name + "'.");
-		
 		std::string fullPathString = fullPath.string();
 		
 		std::ifstream stream(fullPathString, std::ios::binary);
 		if (!stream)
-			throw std::runtime_error("Error opening file for reading: '" + fullPathString + "'.");
+			return { };
 		
 		Level level(stream, worldType);
 		
@@ -84,6 +82,8 @@ namespace TankGame
 	
 	void Level::Update(const UpdateInfo& updateInfo)
 	{
+		FUNC_TIMER
+		
 		m_gameWorld->Update(updateInfo);
 		
 		m_luaSandbox->Update(updateInfo.m_dt);

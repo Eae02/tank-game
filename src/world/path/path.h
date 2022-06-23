@@ -39,8 +39,6 @@ namespace TankGame
 		void AddNode(glm::vec2 position);
 		void InsertNode(glm::vec2 position, size_t index);
 		
-		TankGame::Buffer CreateGLBuffer() const;
-		
 		inline size_t GetNodeCount() const
 		{ return m_nodes.size(); }
 		

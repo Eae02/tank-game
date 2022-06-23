@@ -12,7 +12,7 @@ namespace TankGame
 	{
 		const PropClass* propClass = PropsManager::GetInstance().GetPropClassByName(name);
 		if (propClass == nullptr)
-			throw std::runtime_error("Prop class not found: ' " + name + "'.");
+			Panic("Prop class not found: ' " + name + "'.");
 		return *propClass;
 	}
 	

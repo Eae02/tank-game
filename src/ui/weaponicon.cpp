@@ -32,7 +32,7 @@ namespace TankGame
 			int ammoCount = m_weaponState->GetAmmoCount(static_cast<SpecialWeapons>(m_weaponIndex - 1));
 			if (ammoCount > m_lastAmmoCount)
 			{
-				m_incrementString = UTF8ToUTF32("+" + std::to_string(ammoCount - m_lastAmmoCount));
+				m_incrementString = "+" + std::to_string(ammoCount - m_lastAmmoCount);
 				m_incrementStringHideTime = frameBeginTime + 2.0;
 			}
 			
@@ -96,7 +96,7 @@ namespace TankGame
 		if (!s_icons.empty())
 			return;
 		
-		s_icons.push_back(Texture2D::FromFile(resDirectoryPath / "ui" / "weapon-plasma-gun.png"));
-		s_icons.push_back(Texture2D::FromFile(resDirectoryPath / "ui" / "weapon-rocket-launcher.png"));
+		s_icons.push_back(Texture2D::FromFile(resDirectoryPath / "ui" / "weapon-plasma-gun.png", 4));
+		s_icons.push_back(Texture2D::FromFile(resDirectoryPath / "ui" / "weapon-rocket-launcher.png", 4));
 	}
 }

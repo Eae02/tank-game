@@ -5,6 +5,7 @@
 #include "tilegridmaterial.h"
 
 #include <vector>
+#include <memory>
 #include <future>
 
 namespace TankGame
@@ -19,10 +20,8 @@ namespace TankGame
 	private:
 		TileGridMaterialLoadOperation() = default;
 		
-		using TextureLayerPtr = std::unique_ptr<uint8_t, FreeDeleter>;
-		
-		static TextureLayerPtr AllocateTextureLayer();
-		TextureLayerPtr LoadTextureLayer(const fs::path& path);
+		static std::unique_ptr<uint8_t, FreeDeleter> AllocateTextureLayer();
+		std::unique_ptr<uint8_t, FreeDeleter> LoadTextureLayer(const fs::path& path);
 		
 		int m_layers = 0;
 		
@@ -30,7 +29,7 @@ namespace TankGame
 		std::vector<TileGridMaterial::MaterialSettings> m_materialSettings;
 		std::vector<bool> m_isSolid;
 		
-		std::vector<TextureLayerPtr> m_diffuseLayers;
-		std::vector<TextureLayerPtr> m_normalSpecLayers;
+		std::vector<std::unique_ptr<uint8_t, FreeDeleter>> m_diffuseLayers;
+		std::vector<std::unique_ptr<uint8_t, FreeDeleter>> m_normalSpecLayers;
 	};
 }

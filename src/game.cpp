@@ -20,12 +20,12 @@
 #include "ui/levelslist.h"
 #include "graphics/frames.h"
 #include "platform/common.h"
-#include "exceptions/fatalexception.h"
 #include "world/props/propsmanager.h"
 #include "world/serialization/serializeworld.h"
 #include "imguiinterface.h"
 #include "levelmenuinfo.h"
 #include "loadingscreen.h"
+#include "profiling.h"
 #include "graphics/tilegridmaterial.h"
 
 #include <string>
@@ -38,9 +38,62 @@ namespace TankGame
 	
 	std::string glVendorName;
 	
+#if !defined(NDEBUG) && !defined(__EMSCRIPTEN__)
+#ifdef _WIN32
+	void __stdcall
+#else
+	void
+#endif
+	OpenGLMessageCallback(GLenum, GLenum type, GLuint id, GLenum severity, GLsizei, const GLchar* message, const void*)
+	{
+		if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
+			return;
+		
+		if (glVendorName == "NVIDIA Corporation")
+		{
+			if (id == 131204 || id == 131169)
+				return;
+		}
+		
+		if (glVendorName == "Intel Open Source Technology Center")
+		{
+			if (id == 5 || id == 56 || id == 57 || id == 65 || id == 66 || id == 83 || id == 87)
+				return;
+		}
+		
+		if (severity == GL_DEBUG_SEVERITY_HIGH || type == GL_DEBUG_TYPE_ERROR)
+			Panic(message);
+		
+		if (severity == GL_DEBUG_SEVERITY_LOW || GL_DEBUG_SEVERITY_MEDIUM)
+			GetLogStream() << LOG_WARNING;
+		
+		GetLogStream() << "GL #" << id << ": " << message;
+		if (message[strlen(message) - 1] != '\n')
+			GetLogStream() << "\n";
+	}
+#endif
+	
 	void RunGame(const ArgumentData& arguments, const VideoModes& videoModes)
 	{
+		enableCPUTimers = arguments.m_profiling;
+		
 		std::unique_ptr<Window> windowUP = std::make_unique<Window>(arguments);
+		
+		glVendorName = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+		
+		LoadOpenGLFunctions(arguments.m_useDSAWrapper);
+		
+#if !defined(NDEBUG) && !defined(__EMSCRIPTEN__)
+		if (glDebugMessageCallback && glDebugMessageControl)
+		{
+			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+			glDebugMessageCallback(OpenGLMessageCallback, nullptr);
+			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+		}
+#endif
+		
+		glDepthFunc(GL_LEQUAL);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		
 		VertexInputState::InitEmpty();
 		
@@ -132,9 +185,12 @@ namespace TankGame
 		Window::RunGameLoop(std::move(windowUP));
 	}
 	
-	void Game::LoadLevel(const std::string& name)
+	bool Game::LoadLevel(const std::string& name)
 	{
-		gameManager->SetLevel(CommandCallbackLevelFromName(name, GameWorld::Types::Game));
+		std::optional<Level> level = Level::FromName(name, GameWorld::Types::Game);
+		if (!level) return false;
+		
+		gameManager->SetLevel(std::move(*level));
 		
 		menuManager->Hide();
 		if (editor != nullptr)
@@ -143,20 +199,23 @@ namespace TankGame
 		Settings::instance.SetLastPlayedLevel(name);
 		
 		gameTime = 0;
+		return true;
 	}
 	
-	void Game::EditLevel(const std::string& name)
+	bool Game::EditLevel(const std::string& name)
 	{
-		menuManager->Hide();
-		
 		if (editor == nullptr)
 		{
 			editor = std::make_unique<Editor>(*gameManager);
 			editor->OnResize(windowWidth, windowHeight);
 		}
 		
-		editor->LoadLevel(name);
+		if (!editor->LoadLevel(name))
+			return false;
+		
+		menuManager->Hide();
 		gameManager->ExitLevel();
+		return true;
 	}
 	
 	void Game::Initialize(Window& window)
@@ -173,7 +232,8 @@ namespace TankGame
 		
 		menuManager->SetLoadLevelCallback([this] (const std::string& name, int checkpoint)
 		{
-			LoadLevel(name);
+			if (!LoadLevel(name))
+				Panic("Failed to load level: " + name + "'.");
 			gameManager->GetLevel()->GetGameWorld().SetProgressLevelName(name);
 			gameManager->GetLevel()->TryJumpToCheckpoint(checkpoint);
 		});
@@ -225,9 +285,7 @@ namespace TankGame
 		if (isEditorOpen)
 			editor->Update(updateInfo);
 		
-		double gameUpdateBegin = window.arguments.m_profiling ? GetTime() : 0;
 		gameManager->Update(updateInfo);
-		double gameUpdateTime = window.arguments.m_profiling ? (GetTime() - gameUpdateBegin) : 0;
 		
 		//Shows the console when tilde is pressed
 		if (window.keyboard.IsDown(Key::GraveAccent) && !window.keyboard.WasDown(Key::GraveAccent))
@@ -289,19 +347,13 @@ namespace TankGame
 			
 			profileTextStream
 				<< "FPS: " << static_cast<int>(1.0f / dt)
-				<< ", Frame Time: " << std::setprecision(3) << (dt * 1000) << "ms"
-				<< ", Game Update Time: " << std::setprecision(3) << (gameUpdateTime * 1000) << "ms\n";
+				<< ", Frame Time: " << std::setprecision(3) << (dt * 1000) << "ms";
 			
 			profileTextStream << "SM Updates: " << shadowRenderer.lastFrameShadowMapUpdates << "\n";
 			
 			if (gameManager->GetLevel() != nullptr)
 			{
 				auto& particlesManager = gameManager->GetLevel()->GetGameWorld().GetParticlesManager();
-				particlesManager.measureUpdateTime = true;
-				
-				profileTextStream << "Particle Update: " << std::setprecision(3) << (particlesManager.LastUpdateTime() * 1000.0) << "ms\n";
-				profileTextStream << "Particle Draw (CPU): " << std::setprecision(3) << (deferredRenderer.GetParticleRenderer().LastDrawCPUTime() * 1000.0) << "ms\n";
-				
 				profileTextStream << "Lights: " << gameManager->GetRenderer().GetRenderedLights() << "\n";
 				profileTextStream << "Particles: " << particlesManager.GetParticleCount() << "\n";
 				profileTextStream << "Drawn Particles: " << deferredRenderer.GetParticleRenderer().GetNumRenderedParticles() << "\n";
@@ -314,10 +366,58 @@ namespace TankGame
 			
 			for (const std::string& line : profInfoLines)
 			{
-				UIRenderer::GetInstance().DrawString(Font::GetNamedFont(FontNames::StandardUI), line,
+				UIRenderer::GetInstance().DrawString(Font::GetNamedFont(FontNames::Dev), line,
 			                                      	 viewRect, Alignment::Left, Alignment::Top, glm::vec4(1.0f));
-				viewRect.y -= 20;
+				viewRect.y -= 16;
 			}
+			
+			viewRect.y -= 10;
+			for (size_t i = 0; i < cpuTimers.size(); i++)
+			{
+				const CPUTimer& timer = cpuTimers[i];
+				int count = 1;
+				double totalTime = timer.elapsedTime;
+				while (i + 1 < cpuTimers.size() && cpuTimers[i+1].depth == cpuTimers[i].depth && cpuTimers[i+1].name == cpuTimers[i].name)
+				{
+					i++;
+					count++;
+					totalTime += cpuTimers[i].elapsedTime;
+				}
+				
+				std::ostringstream msgStream;
+				if (count > 1)
+					msgStream << count << "x ";
+				msgStream << 
+					std::fixed << std::setprecision(2) << std::setfill('0') << std::setw(5) <<
+					(totalTime * 1000) << "ms @ " << timer.name;
+				std::string str = msgStream.str();
+				
+				Rectangle rect = viewRect;
+				rect.x += timer.depth * 10;
+				UIRenderer::GetInstance().DrawString(Font::GetNamedFont(FontNames::Dev), str,
+			                                      	 rect, Alignment::Left, Alignment::Top, glm::vec4(1.0f));
+				viewRect.y -= 16;
+			}
+			
+			if (gameManager->GetLevel() != nullptr)
+			{
+				gameManager->GetLevel()->GetGameWorld().collectUpdateTimeStatistics = true;
+				viewRect.y -= 10;
+				for (auto& updateStats : gameManager->GetLevel()->GetGameWorld().GetUpdateTimeStatistics())
+				{
+					std::ostringstream msgStream;
+					msgStream << 
+						std::fixed << std::setprecision(2) << std::setfill('0') << std::setw(5) <<
+						(updateStats.totalTime * 1000) << "ms " << updateStats.count << "x " << updateStats.typeName;
+					std::string str = msgStream.str();
+					
+					UIRenderer::GetInstance().DrawString(Font::GetNamedFont(FontNames::Dev), str,
+														viewRect, Alignment::Left, Alignment::Top, glm::vec4(1.0f));
+					viewRect.y -= 16;
+				}
+			}
+			
+			cpuTimers.clear();
 		}
 		
 		glDisable(GL_BLEND);

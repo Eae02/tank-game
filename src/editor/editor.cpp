@@ -95,14 +95,14 @@ namespace TankGame
 			m_sendInputsToPropertyWindow = false;
 	}
 	
-	void Editor::LoadLevel(std::string name)
+	bool Editor::LoadLevel(std::string name)
 	{
 		fs::path fullPath = Level::GetLevelsPath() / name;
 		std::string fullPathString = fullPath.string();
 		
 		std::ifstream stream(fullPathString, std::ios::binary);
 		if (!stream)
-			throw std::runtime_error("Error opening file for reading: '" + fullPathString + "'.");
+			return false;
 		
 		m_gameWorld = DeserializeWorld(stream, GameWorld::Types::Editor);
 		
@@ -116,6 +116,8 @@ namespace TankGame
 		
 		if (m_editorRenderer != nullptr)
 			m_editorRenderer->SetWorld(m_gameWorld.get());
+		
+		return true;
 	}
 	
 	void Editor::Close()

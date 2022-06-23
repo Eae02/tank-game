@@ -18,7 +18,7 @@ namespace TankGame
 	TileGrid::TileGrid(int width, int height)
 	    : m_width(width), m_height(height),
 	      m_gridData(width * height, 0), m_rotationData(width * height, glm::vec2(1, 0)),
-	      m_idsTexture(width, height, 1, GL_R8UI), m_rotationsTexture(width, height, 1, GL_RG32F)
+	      m_idsTexture(width, height, 1, TextureFormat::R8UI), m_rotationsTexture(width, height, 1, TextureFormat::RG32F)
 	{
 		m_idsTexture.SetMinFilter(GL_NEAREST);
 		m_idsTexture.SetMagFilter(GL_NEAREST);
@@ -31,14 +31,14 @@ namespace TankGame
 	void TileGrid::SetTileID(glm::ivec2 pos, uint8_t tileID)
 	{
 		if (pos.x >= m_width || pos.y >= m_height || pos.x < 0 || pos.y < 0)
-			throw std::runtime_error("Tile index out of range.");
+			Panic("Tile index out of range.");
 		m_gridData[pos.x + pos.y * m_width] = tileID;
 	}
 	
 	void TileGrid::SetTileRotation(glm::ivec2 pos, float rotation)
 	{
 		if (pos.x >= m_width || pos.y >= m_height || pos.x < 0 || pos.y < 0)
-			throw std::runtime_error("Tile index out of range.");
+			Panic("Tile index out of range.");
 		
 		m_rotationData[pos.x + pos.y * m_width] = { std::cos(rotation), std::sin(rotation) };
 	}
@@ -46,7 +46,7 @@ namespace TankGame
 	uint8_t TileGrid::GetTileID(glm::ivec2 pos) const
 	{
 		if (pos.x > m_width || pos.y > m_height || pos.x < 0 || pos.y < 0)
-			throw std::runtime_error("Tile index out of range.");
+			Panic("Tile index out of range.");
 		return m_gridData[pos.x + pos.y * m_width];
 	}
 	
@@ -81,22 +81,15 @@ namespace TankGame
 		for (int i = 0; i < height; i++)
 		{
 			size_t index = x + (y + i) * m_width;
-			
-			glTextureSubImage2D(m_idsTexture.GetID(), 0, x, y + i, width, 1,
-			                    GL_RED_INTEGER, GL_UNSIGNED_BYTE, &m_gridData[index]);
-			
-			glTextureSubImage2D(m_rotationsTexture.GetID(), 0, x, y + i, width, 1,
-			                    GL_RG, GL_FLOAT, &m_rotationData[index]);
+			m_idsTexture.SetSubData(x, y + i, width, 1, { reinterpret_cast<char*>(&m_gridData[index]), (size_t)width });
+			m_idsTexture.SetSubData(x, y + i, width, 1, { reinterpret_cast<char*>(&m_rotationData[index]), width * sizeof(glm::vec2) });
 		}
 	}
 	
 	void TileGrid::UploadGridData()
 	{
-		glTextureSubImage2D(m_idsTexture.GetID(), 0, 0, 0, m_width, m_height,
-		                    GL_RED_INTEGER, GL_UNSIGNED_BYTE, &m_gridData[0]);
-		
-		glTextureSubImage2D(m_rotationsTexture.GetID(), 0, 0, 0, m_width, m_height,
-		                    GL_RG, GL_FLOAT, &m_rotationData[0]);
+		m_idsTexture.SetData({ reinterpret_cast<char*>(m_gridData.data()), m_gridData.size() });
+		m_rotationsTexture.SetData({ reinterpret_cast<char*>(m_rotationData.data()), m_rotationData.size() * sizeof(glm::vec2) });
 	}
 	
 	IntersectInfo TileGrid::GetIntersectInfo(const TileGridMaterial& material, const Circle& circle) const

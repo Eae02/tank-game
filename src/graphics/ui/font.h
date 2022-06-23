@@ -22,7 +22,8 @@ namespace TankGame
 		MenuButtonFont = 2,
 		HudFont = 2,
 		BigHudFont = 3,
-		ButtonFont = 3
+		ButtonFont = 3,
+		Dev = 4
 	};
 	
 	class Font
@@ -49,7 +50,7 @@ namespace TankGame
 		
 		const Glyph* TryGetGlyph(uint32_t charCode) const;
 		
-		glm::vec2 MeasureString(const std::u32string& string) const;
+		glm::vec2 MeasureString(const std::string& string) const;
 		
 		static const Font& GetNamedFont(FontNames name);
 		static void DestroyFonts();
@@ -57,7 +58,7 @@ namespace TankGame
 		inline FT_UInt GetSize() const
 		{ return m_size; }
 		
-		static constexpr int NUM_NAMED_FONTS = 4;
+		static constexpr int NUM_NAMED_FONTS = 5;
 		
 	private:
 		static Glyph RenderGlyph(FT_GlyphSlot ftGlyph);

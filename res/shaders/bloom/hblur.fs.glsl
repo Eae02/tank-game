@@ -1,5 +1,3 @@
-#version 330 core
-
 #include "bloom.glh"
 
 in vec2 texCoord_v;
@@ -12,7 +10,7 @@ vec3 sampleInput(vec2 tc)
 {
 	vec3 val = texture(inputSampler, tc).rgb;
 	
-	if (dot(val, vec3(0.2126, 0.7152, 0.0722)) < 1)
+	if (dot(val, vec3(0.2126, 0.7152, 0.0722)) < 1.0)
 		return vec3(0.0);
 	return val;
 }

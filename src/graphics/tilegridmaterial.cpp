@@ -32,7 +32,7 @@ namespace TankGame
 		auto vs = ShaderModule::FromFile(shaderPath / "tilegrid.vs.glsl", GL_VERTEX_SHADER, &specInfo);
 		auto fs = ShaderModule::FromFile(shaderPath / "tilegrid.fs.glsl", GL_FRAGMENT_SHADER);
 		
-		ShaderProgram program({ &vs, &fs });
+		ShaderProgram program(vs, fs);
 		program.SetUniformBlockBinding("MaterialSettingsUB", TileGridMaterial::MATERIAL_SETTINGS_BUFFER_BINDING);
 		program.SetTextureBinding("tileIDSampler", 0);
 		program.SetTextureBinding("tileRotationSampler", 1);
@@ -43,9 +43,9 @@ namespace TankGame
 	
 	TileGridMaterial::TileGridMaterial(int layerCount)
 	    : m_layerCount(layerCount),
-	      m_diffuseTextureArray(WIDTH, HEIGHT, layerCount, MIPMAP_COUNT, GL_RGB8),
-	      m_normalSpecTextureArray(WIDTH, HEIGHT, layerCount, MIPMAP_COUNT, GL_RGBA8),
-	      m_parametersBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(MaterialSettings) * layerCount, BufferUsage::DynamicData)),
+	      m_diffuseTextureArray(WIDTH, HEIGHT, layerCount, MIPMAP_COUNT, TextureFormat::RGBA8),
+	      m_normalSpecTextureArray(WIDTH, HEIGHT, layerCount, MIPMAP_COUNT, TextureFormat::RGBA8),
+	      m_parametersBuffer(BufferAllocator::GetInstance().AllocateUnique(sizeof(MaterialSettings) * layerCount, BufferUsage::DynamicUBO)),
 	      m_shader(LoadGridShader(layerCount))
 	{
 		std::fill(std::begin(m_isSolid), std::end(m_isSolid), false);

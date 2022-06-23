@@ -1,6 +1,7 @@
 #include "ambienceplayer.h"
 #include "../utils/random.h"
 #include "../settings.h"
+#include "../profiling.h"
 
 namespace TankGame
 {
@@ -25,6 +26,7 @@ namespace TankGame
 	
 	void AmbiencePlayer::Update()
 	{
+		FUNC_TIMER
 		if (!m_isPlaying)
 			return;
 		

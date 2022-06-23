@@ -1,0 +1,19 @@
+#pragma once
+
+#include <memory>
+#include <cstdint>
+
+#include "utils/filesystem.h"
+#include "utils/utils.h"
+
+namespace TankGame
+{
+	struct ImageData
+	{
+		std::unique_ptr<uint8_t, FreeDeleter> data;
+		uint32_t width;
+		uint32_t height;
+	};
+	
+	ImageData LoadImageData(const fs::path& path, int numChannels);
+}

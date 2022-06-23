@@ -8,14 +8,15 @@
 #include "../world/gameworld.h"
 #include "../utils/ioutils.h"
 #include "../utils/utils.h"
-#include "../exceptions/invalidstateexception.h"
+#include "../profiling.h"
 
 namespace TankGame
 {
 	void WorldRenderer::Prepare(const class ViewInfo& viewInfo, float gameTime) const
 	{
+		FUNC_TIMER
 		if (m_gameWorld == nullptr)
-			throw InvalidStateException("Game world not set.");
+			Panic("Invalid state: game world not set.");
 		
 		glm::vec2 centerPos = viewInfo.GetViewRectangle().Center();
 		m_renderSettings.Update(viewInfo, glm::vec3(centerPos.x, 5, centerPos.y), gameTime);
@@ -24,8 +25,9 @@ namespace TankGame
 	
 	void WorldRenderer::DrawGeometry(const ViewInfo& viewInfo) const
 	{
+		FUNC_TIMER
 		if (m_gameWorld == nullptr)
-			throw InvalidStateException("Game world not set.");
+			Panic("Invalid state: game world not set.");
 		
 		m_spriteRenderList.Begin();
 		
@@ -67,6 +69,7 @@ namespace TankGame
 	
 	void WorldRenderer::DrawTranslucentGeometry(const ViewInfo& viewInfo) const
 	{
+		FUNC_TIMER
 		m_translucentSpriteRenderList.Begin();
 		
 		m_gameWorld->IterateIntersectingEntities(viewInfo.GetViewRectangle(), [&] (const Entity& entity)
@@ -84,7 +87,7 @@ namespace TankGame
 	void WorldRenderer::DrawDistortions(const ViewInfo& viewInfo) const
 	{
 		if (m_gameWorld == nullptr)
-			throw InvalidStateException("Game world not set.");
+			Panic("Invalid state: game world not set.");
 		
 		for (const Entity::IDistortionDrawable* distortionDrawable : m_distortionDrawables)
 		{
@@ -94,8 +97,9 @@ namespace TankGame
 	
 	void WorldRenderer::DrawLighting(const ViewInfo& viewInfo) const
 	{
+		FUNC_TIMER
 		if (m_gameWorld == nullptr)
-			throw InvalidStateException("Game world not set.");
+			Panic("Invalid state: game world not set.");
 		
 		QuadMesh::GetInstance().BindVAO();
 		
@@ -132,7 +136,7 @@ namespace TankGame
 	void WorldRenderer::DrawParticles(const ViewInfo& viewInfo, class ParticleRenderer& renderer) const
 	{
 		if (m_gameWorld == nullptr)
-			throw InvalidStateException("Game world not set.");
+			Panic("Invalid state: game world not set.");
 		
 		m_gameWorld->IterateParticleEmitters([&] (const ParticleEmitter& emitter)
 		{
@@ -151,7 +155,7 @@ namespace TankGame
 	void WorldRenderer::DrawShadowCasters(const LightInfo& lightInfo, const class ViewInfo& viewInfo) const
 	{
 		if (m_gameWorld == nullptr)
-			throw InvalidStateException("Game world not set.");
+			Panic("Invalid state: game world not set.");
 		
 		const TileShadowCastersBuffer* shadowCastersBuffer = m_gameWorld->GetTileShadowCastersBuffer();
 		
@@ -163,8 +167,9 @@ namespace TankGame
 	
 	void WorldRenderer::DrawShadowMaps(class ShadowRenderer& shadowRenderer, const ViewInfo& viewInfo) const
 	{
+		FUNC_TIMER
 		if (m_gameWorld == nullptr)
-			throw InvalidStateException("Game world not set.");
+			Panic("Invalid state: game world not set.");
 		
 		shadowRenderer.lastFrameShadowMapUpdates = 0;
 		

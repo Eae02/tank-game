@@ -1,4 +1,5 @@
 #include "ioutils.h"
+#include "utils.h"
 
 #include <cstring>
 #include <fstream>
@@ -28,7 +29,7 @@ namespace TankGame
 		std::string pathString = path.string();
 		std::ifstream stream(pathString);
 		if (!stream)
-			throw std::runtime_error("Error opening file for reading: '" + pathString + "'.");
+			Panic("Error opening file for reading: '" + pathString + "'.");
 		
 		std::string result;
 		

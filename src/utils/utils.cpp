@@ -1,10 +1,16 @@
 #include "utils.h"
+#include "../platform/messagebox.h"
 
 #include <vector>
 #include <sstream>
+#include <iostream>
 #include <glm/gtc/color_space.hpp>
 #include <locale>
 #include <codecvt>
+
+#ifdef __linux__
+#include <signal.h>
+#endif
 
 namespace TankGame
 {
@@ -78,24 +84,37 @@ namespace TankGame
 		return (r << 16) | (g << 8) | b;
 	}
 	
-	std::u32string UTF8ToUTF32(const std::string & utf8String)
-	{
-		//MSVC's codecvt is bugged...
-		
-#ifdef _MSC_VER
-		std::wstring_convert<std::codecvt_utf8<int32_t>, int32_t> conv;
-		auto utf32String = conv.from_bytes(utf8String);
-		
-		return reinterpret_cast<const char32_t*>(utf32String.c_str());
-#else
-		std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
-		return conv.from_bytes(utf8String);
-#endif
-	}
-	
 	void UpdateTransition(float& value, float target, float dt)
 	{
 		float delta = target - value;
 		value += glm::min(dt, glm::abs(delta)) * glm::sign(delta);
 	}
+	
+	[[noreturn]] static inline void PanicBreakOrErrorMessage(const std::string& message)
+	{
+#if !defined(NDEBUG) && defined(__linux__)
+		raise(SIGTRAP);
+#else
+		ShowErrorMessage(message, "Unexpected Error");
+#endif
+		std::exit(1);
+	}
+	
+#ifdef __cpp_lib_source_location
+	void Panic(const std::string& message, std::source_location location)
+	{
+		std::cerr <<
+			"Panic:\n"
+			"  " << message << "\n"
+			"  " << location.function_name() << "\n" 
+			"  " << location.file_name() << ":" << location.line() << std::endl;
+		PanicBreakOrErrorMessage(message);
+	}
+#else
+	void Panic(const std::string& message)
+	{
+		std::cerr << "Panic:\n  " << message << std::endl;
+		PanicBreakOrErrorMessage(message);
+	}
+#endif
 }

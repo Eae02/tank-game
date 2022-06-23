@@ -7,6 +7,12 @@
 
 namespace TankGame
 {
+#ifdef __EMSCRIPTEN__
+	static constexpr std::launch LOADING_LAUNCH_POLICY = std::launch::deferred;
+#else
+	static constexpr std::launch LOADING_LAUNCH_POLICY = std::launch::async;
+#endif
+	
 	class ASyncWorkList
 	{
 	public:

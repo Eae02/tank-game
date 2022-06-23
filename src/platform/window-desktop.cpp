@@ -78,43 +78,6 @@ namespace TankGame
 		}
 	}
 	
-	static std::string glVendorName;
-	
-#ifndef NDEBUG
-#ifdef _WIN32
-	void __stdcall
-#else
-	void
-#endif
-	OpenGLMessageCallback(GLenum, GLenum type, GLuint id, GLenum severity, GLsizei, const GLchar* message, const void*)
-	{
-		if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
-			return;
-		
-		if (glVendorName == "NVIDIA Corporation")
-		{
-			if (id == 131204 || id == 131169)
-				return;
-		}
-		
-		if (glVendorName == "Intel Open Source Technology Center")
-		{
-			if (id == 5 || id == 56 || id == 57 || id == 65 || id == 66 || id == 83 || id == 87)
-				return;
-		}
-		
-		if (severity == GL_DEBUG_SEVERITY_HIGH || type == GL_DEBUG_TYPE_ERROR)
-			throw std::runtime_error(message);
-		
-		if (severity == GL_DEBUG_SEVERITY_LOW || GL_DEBUG_SEVERITY_MEDIUM)
-			GetLogStream() << LOG_WARNING;
-		
-		GetLogStream() << "GL #" << id << ": " << message;
-		if (message[strlen(message) - 1] != '\n')
-			GetLogStream() << "\n";
-	}
-#endif
-	
 	void SetDefaultWindowSize(Window& window, int fullscreenResX, int fullscreenResY)
 	{
 		if (window.isFullscreen)
@@ -198,23 +161,6 @@ namespace TankGame
 		CenterWindow();
 		
 		glfwMakeContextCurrent(m_window);
-		
-		glVendorName = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
-		
-		LoadOpenGLFunctions();
-		
-#ifndef NDEBUG
-		if (glDebugMessageCallback && glDebugMessageControl)
-		{
-			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-			glDebugMessageCallback(OpenGLMessageCallback, nullptr);
-			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-		}
-#endif
-		
-		glDepthFunc(GL_LEQUAL);
-		
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	}
 	
 	void Window::Close()

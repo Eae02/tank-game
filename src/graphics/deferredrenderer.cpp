@@ -4,27 +4,25 @@
 #include "gl/shadermodule.h"
 #include "../utils/ioutils.h"
 #include "../settings.h"
+#include "../profiling.h"
 
 namespace TankGame
 {
-	constexpr GLenum DeferredRenderer::COLOR_FORMAT;
-	constexpr GLenum DeferredRenderer::NORMALS_AND_SPECULAR_FORMAT;
-	constexpr GLenum DeferredRenderer::DISTORTION_BUFFER_FORMAT;
-	constexpr GLenum DeferredRenderer::LIGHT_ACC_FORMAT;
+	constexpr TextureFormat DeferredRenderer::COLOR_FORMAT;
+	constexpr TextureFormat DeferredRenderer::NORMALS_AND_SPECULAR_FORMAT;
+	constexpr TextureFormat DeferredRenderer::DISTORTION_BUFFER_FORMAT;
+	constexpr TextureFormat DeferredRenderer::LIGHT_ACC_FORMAT;
 	
 	static ShaderProgram LoadCompositionShader()
 	{
-		ShaderModule fragmentShader = ShaderModule::FromFile(
-				resDirectoryPath / "shaders" / "lighting" / "composition.fs.glsl", GL_FRAGMENT_SHADER);
-		
-		ShaderProgram program({ &QuadMesh::GetVertexShader(), &fragmentShader });
+		ShaderProgram program(QuadMesh::GetVertexShader(), ShaderModule::FromResFile("lighting/composition.fs.glsl"));
 		program.SetTextureBinding("colorSampler", 0);
 		program.SetTextureBinding("lightAccSampler", 1);
 		return program;
 	}
 	
 	DeferredRenderer::DeferredRenderer()
-	    : m_compositionShader(LoadCompositionShader()) { m_particleRenderer.measureDrawCPUTime = true; }
+	    : m_compositionShader(LoadCompositionShader()) {  }
 	
 	void DeferredRenderer::CreateFramebuffer(int width, int height)
 	{
@@ -36,7 +34,7 @@ namespace TankGame
 		
 		m_geometryFramebuffer = std::make_unique<Framebuffer>();
 		
-		m_depthBuffer = std::make_unique<Texture2D>(scaledW, scaledH, 1, GL_DEPTH_COMPONENT16);
+		m_depthBuffer = std::make_unique<Texture2D>(scaledW, scaledH, 1, TextureFormat::Depth16);
 		m_depthBuffer->SetupMipmapping(false);
 		
 		m_colorBuffer = std::make_unique<Texture2D>(scaledW, scaledH, 1, COLOR_FORMAT);
@@ -100,6 +98,8 @@ namespace TankGame
 	
 	void DeferredRenderer::Draw(const IRenderer& renderer, const class ViewInfo& viewInfo) const
 	{
+		FUNC_TIMER
+		
 		Framebuffer::Save();
 		Framebuffer::Bind(*m_geometryFramebuffer, 0, 0, m_colorBuffer->GetWidth(), m_colorBuffer->GetHeight());
 		

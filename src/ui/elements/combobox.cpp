@@ -15,13 +15,13 @@ namespace TankGame
 	
 	constexpr float ComboBox::HEIGHT;
 	
-	ComboBox::ComboBox(std::initializer_list<std::u32string> entries)
+	ComboBox::ComboBox(std::initializer_list<std::string> entries)
 	    : m_entries(entries)
 	{
 		m_scrollBar.SetContentSettings(m_entries.size(), MAX_ITEMS);
 	}
 	
-	void ComboBox::AddEntry(std::u32string entry)
+	void ComboBox::AddEntry(std::string entry)
 	{
 		m_entries.emplace_back(std::move(entry));
 		m_scrollBar.SetContentSettings(m_entries.size(), MAX_ITEMS);

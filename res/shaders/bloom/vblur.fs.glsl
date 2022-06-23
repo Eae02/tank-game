@@ -1,5 +1,3 @@
-#version 330 core
-
 #include "bloom.glh"
 
 in vec2 texCoord_v;

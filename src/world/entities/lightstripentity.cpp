@@ -23,10 +23,8 @@ namespace TankGame
 	{
 		if (s_shader== nullptr)
 		{
-			auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "lightstrip.vs.glsl", GL_VERTEX_SHADER);
-			auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "lightstrip.fs.glsl", GL_FRAGMENT_SHADER);
-			
-			s_shader.reset(new ShaderProgram{ &vs, &fs });
+			s_shader = std::make_unique<ShaderProgram>(
+				ShaderModule::FromResFile("lightstrip.vs.glsl"), ShaderModule::FromResFile("lightstrip.fs.glsl"));
 			s_colorUniformLoc = s_shader->GetUniformLocation("color");
 			
 			CallOnClose([] { s_shader = nullptr; });
@@ -196,8 +194,8 @@ namespace TankGame
 		m_numIndices = indices.size();
 		if (!vertices.empty())
 		{
-			m_vertexBuffer = std::make_unique<Buffer>(vertices.size() * sizeof(glm::vec2), vertices.data(), BufferUsage::StaticData);
-			m_indexBuffer = std::make_unique<Buffer>(indices.size() * sizeof(uint16_t), indices.data(), BufferUsage::StaticData);
+			m_vertexBuffer = std::make_unique<Buffer>(vertices.size() * sizeof(glm::vec2), vertices.data(), BufferUsage::StaticVertex);
+			m_indexBuffer = std::make_unique<Buffer>(indices.size() * sizeof(uint16_t), indices.data(), BufferUsage::StaticIndex);
 			
 			m_vertexInputState.UpdateAttribute(0, m_vertexBuffer->GetID(), VertexAttribFormat::Float32_2, 0, sizeof(float) * 2);
 		}

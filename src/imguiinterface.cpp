@@ -76,18 +76,15 @@ namespace TankGame::ImGuiInterface
 		
 		io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 		
-		theFontTexture = std::make_unique<Texture2D>(width, height, 1, GL_RGBA8);
-		glTextureSubImage2D(theFontTexture->GetID(), 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+		theFontTexture = std::make_unique<Texture2D>(width, height, 1, TextureFormat::RGBA8);
+		theFontTexture->SetData({ reinterpret_cast<char*>(pixels), (size_t)width * (size_t)height * 4 });
 		
 		io.Fonts->TexID = reinterpret_cast<void*>(static_cast<intptr_t>(theFontTexture->GetID()));
 	}
 	
 	static void CreateDeviceObjects()
 	{
-		auto vs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "imgui.vs.glsl", GL_VERTEX_SHADER);
-		auto fs = ShaderModule::FromFile(resDirectoryPath / "shaders" / "imgui.fs.glsl", GL_FRAGMENT_SHADER);
-		
-		theGuiShader.reset(new ShaderProgram{ &vs, &fs });
+		theGuiShader.reset(new ShaderProgram(ShaderModule::FromResFile("imgui.vs.glsl"), ShaderModule::FromResFile("imgui.fs.glsl")));
 		
 		theTextureUniformLoc = theGuiShader->GetUniformLocation("Texture");
 		theProjectionMatrixUniformLoc = theGuiShader->GetUniformLocation("ProjMtx");

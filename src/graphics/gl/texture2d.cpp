@@ -1,43 +1,34 @@
 #include "texture2d.h"
+#include "../../utils/utils.h"
+#include "../../loadimage.h"
 
-#include <stb_image.h>
 #include <memory>
 #include <cmath>
 #include <algorithm>
 
+#include <unordered_set>
+#include <iostream>
+
 namespace TankGame
 {
-	Texture2D Texture2D::FromFile(const fs::path& path)
+	Texture2D Texture2D::FromFile(const fs::path& path, int numChannels)
 	{
-		int width, height, components;
+		ImageData imageData = LoadImageData(path, numChannels);
 		
-		std::string pathString = path.string();
+		TextureFormat format;
+		if (numChannels == 1)
+			format = TextureFormat::R8;
+		else if (numChannels == 2)
+			format = TextureFormat::RG8;
+		else if (numChannels == 4)
+			format = TextureFormat::RGBA8;
+		else
+			Panic("Unexpected number of image channels: " + std::to_string(numChannels));
 		
-		std::unique_ptr<stbi_uc, decltype(&stbi_image_free)> data(
-				stbi_load(pathString.c_str(), &width, &height, &components, 0), &stbi_image_free
-		);
+		Texture2D texture(imageData.width, imageData.height,
+		                  GetMipmapCount(std::max(imageData.width, imageData.height)), format);
 		
-		if (data == nullptr)
-			throw std::runtime_error("Error loading image from '" + pathString + "': " + stbi_failure_reason() + ".");
-		
-		const GLenum INTERNAL_FORMATS[] = { GL_R8, GL_RG8, GL_RGB8, GL_RGBA8 };
-		const GLenum FORMATS[] = { GL_RED, GL_RG, GL_RGB, GL_RGBA };
-		
-		int numMipmaps = GetMipmapCount(std::max(width, height));
-		
-		Texture2D texture(width, height, numMipmaps, INTERNAL_FORMATS[components - 1]);
-		
-		glTextureSubImage2D(texture.GetID(), 0, 0, 0, width, height, FORMATS[components - 1],
-		                    GL_UNSIGNED_BYTE, data.get());
-		
-		if (components == 1)
-		{
-			glTextureParameteri(texture.GetID(), GL_TEXTURE_SWIZZLE_G, GL_RED);
-			glTextureParameteri(texture.GetID(), GL_TEXTURE_SWIZZLE_B, GL_RED);
-		}
-		
-		if (components < 4)
-			glTextureParameteri(texture.GetID(), GL_TEXTURE_SWIZZLE_A, GL_ONE);
+		texture.SetData({ reinterpret_cast<char*>(imageData.data.get()), imageData.width * imageData.height * numChannels });
 		
 		texture.SetupMipmapping(true);
 		
@@ -46,8 +37,8 @@ namespace TankGame
 		return texture;
 	}
 	
-	Texture2D::Texture2D(GLsizei width, GLsizei height, GLsizei levels, GLenum internalFormat)
-	    : Texture(levels, internalFormat), m_width(width), m_height(height)
+	Texture2D::Texture2D(GLsizei width, GLsizei height, GLsizei levels, TextureFormat format)
+	    : Texture(levels, format), m_width(width), m_height(height)
 	{
 		GLuint texture;
 		glCreateTextures(GL_TEXTURE_2D, 1, &texture);
@@ -55,16 +46,27 @@ namespace TankGame
 		
 		if (hasTextureStorage)
 		{
-			glTextureStorage2D(texture, levels, internalFormat, width, height);
+			glTextureStorage2D(texture, levels, TextureFormatGL::InternalFormat[(int)format], width, height);
 		}
 		else
 		{
 			glBindTexture(GL_TEXTURE_2D, texture);
-			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+			glTexImage2D(GL_TEXTURE_2D, 0, TextureFormatGL::InternalFormat[(int)format], width, height, 0,
+			             TextureFormatGL::Format[(int)format], TextureFormatGL::Type[(int)format], nullptr);
 		}
 		
+		glTextureParameteri(texture, GL_TEXTURE_BASE_LEVEL, 0);
+		glTextureParameteri(texture, GL_TEXTURE_MAX_LEVEL, levels - 1);
 		SetMinFilter(GL_LINEAR);
 		SetMagFilter(GL_LINEAR);
+	}
+	
+	void Texture2D::SetSubData(uint32_t x, uint32_t y, uint32_t width, uint32_t height, std::span<const char> data)
+	{
+		if (data.size() != width * height * TextureFormatGL::BytesPerPixel[(int)GetFormat()])
+			Panic("Incorrect texture data length");
+		glTextureSubImage2D(GetID(), 0, x, y, width, height,
+			TextureFormatGL::Format[(int)GetFormat()], TextureFormatGL::Type[(int)GetFormat()], data.data());
 	}
 	
 	void Texture2D::SetWrapMode(int wrapMode)

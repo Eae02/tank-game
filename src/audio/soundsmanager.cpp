@@ -1,5 +1,6 @@
 #include "soundsmanager.h"
 #include "../utils/ioutils.h"
+#include "../utils/utils.h"
 
 #include <nlohmann/json.hpp>
 
@@ -30,7 +31,7 @@ namespace TankGame
 	{
 		auto it = m_sounds.find(name);
 		if (it == m_sounds.end())
-			throw std::runtime_error("Sound '" + name + "' not loaded.");
+			Panic("Sound '" + name + "' not loaded.");
 		return it->second;
 	}
 }

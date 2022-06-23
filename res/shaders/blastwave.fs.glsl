@@ -1,5 +1,3 @@
-#version 330 core
-
 uniform float blastIntensity;
 uniform float blastRadius;
 

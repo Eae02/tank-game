@@ -7,13 +7,13 @@ in vec2 worldPos_v;
 in vec2 screenPos_v;
 in float angle_v;
 
-const float M_INNER = 5;
-const float M_OUTER = 30;
+const float M_INNER = 5.0;
+const float M_OUTER = 30.0;
 const float PI = 3.141592653589793;
 
 float modulateRotation(float rot)
 {
-	return rot - floor(rot / (2 * PI)) * 2 * PI;
+	return rot - floor(rot / (2.0 * PI)) * 2.0 * PI;
 }
 
 float rotationDifference(float a, float b)
@@ -25,10 +25,10 @@ float getShieldIntensity()
 {
 	float distParam = distance(centerWorld, worldPos_v) / radius;
 	
-	float d = clamp((distParam > 1) ? (M_OUTER * (1 - distParam) + 1) : (1 - M_INNER * (1 - distParam)), 0.0, 1.0);
+	float d = clamp((distParam > 1.0) ? (M_OUTER * (1.0 - distParam) + 1.0) : (1.0 - M_INNER * (1.0 - distParam)), 0.0, 1.0);
 	
 	float distToRippleCenter = abs(rotationDifference(angle_v, rippleCenter));
-	float r = 0.5 * rippleIntensity * (sin(clamp(rippleIntensity * (distToRippleCenter - rippleDistance), -PI, PI) + PI / 2.0) + 1) + 1;
+	float r = 0.5 * rippleIntensity * (sin(clamp(rippleIntensity * (distToRippleCenter - rippleDistance), -PI, PI) + PI / 2.0) + 1.0) + 1.0;
 	
 	return d * r * intensity;
 }

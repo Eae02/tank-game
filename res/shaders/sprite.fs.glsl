@@ -1,5 +1,3 @@
-#version 330 core
-
 #include "material.glh"
 
 uniform vec4 shade;

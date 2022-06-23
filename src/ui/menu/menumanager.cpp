@@ -7,6 +7,7 @@
 #include "../../graphics/deferredrenderer.h"
 #include "../../updateinfo.h"
 #include "../../progress.h"
+#include "../../profiling.h"
 
 #include <fstream>
 #include <random>
@@ -23,14 +24,7 @@ namespace TankGame
 		
 		for (const auto& menuBackgroundEl : backgroundsJson)
 		{
-			try
-			{
-				m_backgrounds.emplace_back(menuBackgroundEl);
-			}
-			catch (const std::exception& ex)
-			{
-				GetLogStream() << LOG_ERROR << "Error parsing menu background: " << ex.what() << "\n";
-			}
+			m_backgrounds.emplace_back(menuBackgroundEl);
 		}
 		
 		auto backCallback = [this] { SetCurrentMenu(MenuScreens::MainMenu); };
@@ -129,6 +123,8 @@ namespace TankGame
 	
 	void MenuManager::Draw(DeferredRenderer& deferredRenderer, ShadowRenderer& shadowRenderer, float gameTime) const
 	{
+		FUNC_TIMER
+		
 		if (m_backgroundWorld == nullptr)
 		{
 			glm::vec4 clearColor(ParseColorHexCodeSRGB(0x80ADBF), 1.0f);

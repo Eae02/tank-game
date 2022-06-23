@@ -34,7 +34,7 @@ namespace TankGame
 			});
 			
 			if (checkpointPos != checkpoints.end())
-				throw std::runtime_error("Multple checkpoints share index " + keyName + ".");
+				GetLogStream() << LOG_ERROR << "Multple checkpoints share index " << keyName << "!\n";
 			
 			checkpoints.push_back(checkpoint);
 		});
@@ -69,12 +69,12 @@ namespace TankGame
 	}
 #endif
 	
-	LevelMenuInfo::LevelMenuInfo(std::istream& stream)
+	bool LevelMenuInfo::Load(std::istream& stream)
 	{
 		char magicNum[4];
 		stream.read(magicNum, sizeof(magicNum));
 		if (memcmp(magicNum, "lmi0", 4) != 0)
-			throw std::runtime_error("Invalid level menu file.");
+			return false;
 		
 		std::vector<char> jsonSection = ReadSection(stream);
 		nlohmann::json json = nlohmann::json::parse(jsonSection);
@@ -99,5 +99,7 @@ namespace TankGame
 		
 		//Reads checkpoint images
 		m_checkpointImages = ScreenShotSerializer::Deserialize(stream);
+		
+		return true;
 	}
 }
