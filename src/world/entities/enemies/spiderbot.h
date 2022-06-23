@@ -38,6 +38,8 @@ namespace TankGame
 		
 		virtual std::unique_ptr<Entity> Clone() const override;
 		
+		virtual bool CanMoveDuringUpdate() const override { return true; }
+		
 	protected:
 		virtual void OnKilled() override;
 		

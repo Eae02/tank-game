@@ -24,6 +24,8 @@ namespace TankGame
 		
 		virtual Circle GetHitCircle() const final override;
 		
+		virtual bool CanMoveDuringUpdate() const override { return true; }
+		
 		virtual void DrawDistortions() const override;
 		
 		virtual const Entity::IDistortionDrawable* AsDistortionDrawable() const final override

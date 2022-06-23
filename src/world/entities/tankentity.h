@@ -60,8 +60,11 @@ namespace TankGame
 		
 		virtual ColliderInfo GetColliderInfo() const override;
 		virtual CollidableTypes GetCollidableType() const override = 0;
+		virtual bool IsStaticCollider() const override;
 		
 		virtual void RenderProperties() override;
+		
+		virtual bool CanMoveDuringUpdate() const override { return true; }
 		
 	protected:
 		TankEntity(glm::vec3 spotlightColor, const TextureInfo& textureInfo, int teamID, float maxHp);

@@ -8,17 +8,54 @@ namespace TankGame
 {
 	EntityHandle EntitiesManager::Spawn(std::unique_ptr<Entity> entity)
 	{
-		if (Entity::IUpdateable* updateable = entity->AsUpdatable())
-			m_updateableEntities.push_back(updateable);
-		if (const ICollidable* collidable = entity->AsCollidable())
-			m_collidableEntities.push_back(collidable);
 		if (ParticleSystemEntityBase* psEntity = dynamic_cast<ParticleSystemEntityBase*>(entity.get()))
 			m_particleSystemEntities.push_back(psEntity);
 		
 		uint64_t id = m_nextEntityID++;
+		
+		EntityHandle handle(*this, id, m_entities.size());
+		
+		bool canMove = false;
+		if (Entity::IUpdateable* updateable = entity->AsUpdatable())
+		{
+			canMove = updateable->CanMoveDuringUpdate();
+			m_updateableEntities.push_back(handle);
+		}
+		
+		PushToRegions(
+			handle, GetRegionBounds(entity->GetBoundingRectangle()),
+			canMove ? &Region::dynamicEntities : &Region::staticEntities);
+		
 		m_entities.emplace_back(std::move(entity), id);
 		
-		return EntityHandle(*this, id, m_entities.size() - 1);
+		return handle;
+	}
+	
+	std::pair<glm::ivec2, glm::ivec2> EntitiesManager::GetRegionBounds(const Rectangle& rectangle)
+	{
+		int lox = glm::clamp((int)std::floor(rectangle.x / REGION_SIZE), 0, (int)m_numRegionsX - 1);
+		int loy = glm::clamp((int)std::floor(rectangle.y / REGION_SIZE), 0, (int)m_numRegionsY - 1);
+		int hix = glm::clamp((int)std::floor(rectangle.FarX() / REGION_SIZE), 0, (int)m_numRegionsX - 1);
+		int hiy = glm::clamp((int)std::floor(rectangle.FarY() / REGION_SIZE), 0, (int)m_numRegionsY - 1);
+		return std::make_pair(glm::ivec2(lox, loy), glm::ivec2(hix, hiy));
+	}
+	
+	void EntitiesManager::PushToRegions(EntityHandle handle, std::pair<glm::ivec2, glm::ivec2> regionBounds, RegionField field)
+	{
+		for (int y = regionBounds.first.y; y <= regionBounds.second.y; y++)
+		{
+			for (int x = regionBounds.first.x; x <= regionBounds.second.x; x++)
+			{
+				(m_regions[y * m_numRegionsX + x].*field).push_back(handle);
+			}
+		}
+	}
+	
+	void EntitiesManager::InitializeBounds(float width, float height)
+	{
+		m_numRegionsX = (uint32_t)std::ceil(width / REGION_SIZE);
+		m_numRegionsY = (uint32_t)std::ceil(height / REGION_SIZE);
+		m_regions.resize(m_numRegionsX * m_numRegionsY);
 	}
 	
 	void EntitiesManager::Update(const UpdateInfo& updateInfo)
@@ -35,14 +72,33 @@ namespace TankGame
 			
 			for (long i = m_updateableEntities.size() - 1; i >= 0; i--)
 			{
+				Entity* entity = m_updateableEntities[i].Get();
+				if (!entity)
+				{
+					m_updateableEntities[i] = m_updateableEntities.back();
+					m_updateableEntities.pop_back();
+					continue;
+				}
+				
+				Entity::IUpdateable* updatable = entity->AsUpdatable();
+				if (!updatable)
+					continue;
+				
 				double startTime;
 				if (collectUpdateTimeStatistics)
 					startTime = GetTime();
-				m_updateableEntities[i]->Update(updateInfo);
+				
+				updatable->Update(updateInfo);
+				
+				if (updatable->CanMoveDuringUpdate())
+				{
+					PushToRegions(m_updateableEntities[i], GetRegionBounds(entity->GetBoundingRectangle()), &Region::dynamicEntities2);
+				}
+				
 				if (collectUpdateTimeStatistics)
 				{
 					double endTime = GetTime();
-					std::string_view name = typeid(*m_updateableEntities[i]).name();
+					std::string_view name = typeid(*entity).name();
 					auto it = updateTimes.emplace(name, EntityUpdateTimeStatistics { }).first;
 					it->second.typeName = name;
 					it->second.count++;
@@ -60,7 +116,8 @@ namespace TankGame
 			}
 		}
 		
-		if (!m_entitiesToDespawn.empty())
+		bool despawnAny = !m_entitiesToDespawn.empty();
+		if (despawnAny)
 		{
 			for (size_t i = 0; i < m_entities.size();)
 			{
@@ -74,6 +131,24 @@ namespace TankGame
 			}
 			
 			m_entitiesToDespawn.clear();
+		}
+		
+		for (Region& region : m_regions)
+		{
+			region.dynamicEntities2.swap(region.dynamicEntities);
+			region.dynamicEntities2.clear();
+			
+			if (despawnAny)
+			{
+				for (int64_t i = (int64_t)region.staticEntities.size() - 1; i >= 0; i--)
+				{
+					if (!region.staticEntities[i].IsAlive())
+					{
+						region.staticEntities[i] = region.staticEntities.back();
+						region.staticEntities.pop_back();
+					}
+				}
+			}
 		}
 		
 		SCOPE_TIMER("Spawn Particles")
@@ -139,8 +214,6 @@ namespace TankGame
 	{
 		m_entities[index].m_entity->OnDespawning();
 		
-		MaybeRemoveFromEntityList(m_entities[index].m_entity->AsUpdatable(), m_updateableEntities);
-		MaybeRemoveFromEntityList(m_entities[index].m_entity->AsCollidable(), m_collidableEntities);
 		MaybeRemoveFromEntityList(dynamic_cast<ParticleSystemEntityBase*>(m_entities[index].m_entity.get()),
 		                          m_particleSystemEntities);
 		

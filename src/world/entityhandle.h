@@ -38,6 +38,8 @@ namespace TankGame
 	private:
 		EntityHandle(class EntitiesManager& manager, uint64_t id, long index = -1);
 		
+		void UpdateLastIndex() const;
+		
 		bool IsValid() const;
 		
 		class EntitiesManager* m_manager;

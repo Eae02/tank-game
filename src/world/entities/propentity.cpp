@@ -48,6 +48,11 @@ namespace TankGame
 		return OrientedRectangle::FromTransformedNDC(GetTransform());
 	}
 	
+	bool PropEntity::IsStaticCollider() const
+	{
+		return true;
+	}
+	
 	CollidableTypes PropEntity::GetCollidableType() const
 	{
 		return CollidableTypes::Object;

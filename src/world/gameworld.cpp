@@ -26,9 +26,9 @@ namespace TankGame
 {
 	GameWorld::GameWorld(int width, int height, Types type)
 	    : m_width(width), m_height(height), m_type(type),
-	      m_quadTree(Rectangle(0, 0, width, height)), m_tileGridMaterial(&TileGridMaterial::GetInstance())
+	      m_tileGridMaterial(&TileGridMaterial::GetInstance())
 	{
-		
+		InitializeBounds(width + 1, height + 1);
 	}
 	
 	void GameWorld::Update(const UpdateInfo& updateInfo)
@@ -43,14 +43,10 @@ namespace TankGame
 		
 		float rotationDiff = GetRotationDifference(m_cameraRotation, targetRotation);
 		m_cameraRotation += rotationDiff * std::min(updateInfo.m_dt * 10, 1.0f);
-		
-		m_quadTree.Update();
 	}
 	
 	EntityHandle GameWorld::Spawn(std::unique_ptr<Entity> entity)
 	{
-		m_quadTree.Add(*entity);
-		
 		entity->OnSpawned(*this);
 		
 		return EntitiesManager::Spawn(std::move(entity));
@@ -60,8 +56,6 @@ namespace TankGame
 	{
 		if (m_focusEntity == &entity)
 			m_focusEntity = nullptr;
-		
-		m_quadTree.Remove(entity);
 	}
 	
 	glm::vec2 GameWorld::GetFocusLocation() const

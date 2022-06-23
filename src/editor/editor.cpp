@@ -206,8 +206,6 @@ namespace TankGame
 				if (ImGui::MenuItem("Update Shadows"))
 					UpdateShadows();
 				
-				ImGui::MenuItem("Quad Tree", nullptr, &m_drawQuadTree);
-				
 				if (ImGui::BeginMenu("Lighting"))
 				{
 					bool gameLighting = m_editorRenderer->UseGameLighting();
@@ -257,19 +255,6 @@ namespace TankGame
 		}
 		ImGui::End();
 		ImGui::PopStyleVar(1);
-		
-		//Draws the quadtree visualization
-		if (m_drawQuadTree)
-		{
-			glm::mat3 W(
-					m_halfScreenSize.x, 0.0f, 0.0f,
-					0.0f, m_halfScreenSize.y, 0.0f,
-					m_halfScreenSize.x, m_halfScreenSize.y, 1.0f
-			);
-			
-			m_quadTreeVisualizer.DrawQuadTree(UIRenderer::GetInstance(), m_gameWorld->GetQuadTree(),
-			                                  W * viewInfo.GetViewMatrix());
-		}
 		
 		m_tools[m_currentToolIndex]->DrawUI(viewInfo, UIRenderer::GetInstance());
 	}

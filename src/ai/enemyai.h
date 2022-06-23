@@ -26,11 +26,11 @@ namespace TankGame
 			Chasing
 		};
 		
-		EnemyAI(class EnemyTank& entity, AIParameters parameters, Path idlePath);
+		EnemyAI(AIParameters parameters, Path idlePath);
 		
-		void Update(glm::vec2 playerPosition, const class UpdateInfo& updateInfo);
+		void Update(class EnemyTank& entity, glm::vec2 playerPosition, const class UpdateInfo& updateInfo);
 		
-		void DetectPlayer(glm::vec2 playerPosition);
+		void DetectPlayer(class EnemyTank& entity, glm::vec2 playerPosition);
 		
 		inline void SetGameWorld(const class GameWorld* gameWorld)
 		{ m_gameWorld = gameWorld; }
@@ -48,14 +48,10 @@ namespace TankGame
 		void IdlePathChanged();
 		
 	private:
-		bool IsPointVisible(glm::vec2 point) const;
-		
-		void WalkPath(float dt, const Path& path, float& progress, bool modulate = false);
-		bool MaybeBeginChasing(glm::vec2 playerPosition);
+		bool MaybeBeginChasing(glm::vec2 selfPosition, glm::vec2 playerPosition);
 		
 		const class GameWorld* m_gameWorld;
 		
-		class EnemyTank& m_entity;
 		AIParameters m_parameters;
 		Path m_idlePath;
 		

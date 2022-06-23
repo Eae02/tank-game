@@ -29,6 +29,8 @@ namespace TankGame
 		virtual const char* GetSerializeClassName() const override;
 		virtual nlohmann::json Serialize() const override;
 		
+		virtual bool CanMoveDuringUpdate() const override { return true; }
+		
 	protected:
 		virtual void PushLuaMetaTable(lua_State* state) const override;
 		

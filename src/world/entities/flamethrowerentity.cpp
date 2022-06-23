@@ -243,7 +243,7 @@ namespace TankGame
 	
 	void FlameThrowerEntity::EditorMoved()
 	{
-		UpdateChildEntitiesTransform();
+		TransformModified();
 	}
 	
 	void FlameThrowerEntity::RenderProperties()
@@ -359,25 +359,24 @@ namespace TankGame
 		auto psEntity = MakeParticleSystemEntity<FlameThrowerParticleSystem>({ m_flameLength, GetGameWorld()->GetParticlesManager() });
 		psEntity->SetEditorVisible(false);
 		
-		m_particleSystemEntity = GetGameWorld()->Spawn(std::move(psEntity));
-		
 		auto lightEntity = std::make_unique<PointLightEntity>(LightColor, 0, Attenuation(0, 0.5f ));
 		lightEntity->SetEditorVisible(false);
 		lightEntity->SetShadowMode(EntityShadowModes::Static);
 		
-		m_lightEntity = GetGameWorld()->Spawn(std::move(lightEntity));
+		SetChildEntitiesTransform(psEntity.get(), lightEntity.get());
 		
-		UpdateChildEntitiesTransform();
+		m_particleSystemEntity = GetGameWorld()->Spawn(std::move(psEntity));
+		m_lightEntity = GetGameWorld()->Spawn(std::move(lightEntity));
 	}
 	
-	void FlameThrowerEntity::UpdateChildEntitiesTransform()
+	void FlameThrowerEntity::SetChildEntitiesTransform(Entity* psEntity, Entity* lightEntity)
 	{
-		if (Entity* psEntity = m_particleSystemEntity.Get())
+		if (psEntity != nullptr)
 		{
 			psEntity->GetTransform().SetPosition(GetTransform().GetPosition() + GetTransform().GetForward() * Size);
 			psEntity->GetTransform().SetRotation(GetTransform().GetRotation());
 			
-			if (Entity* lightEntity = m_lightEntity.Get())
+			if (lightEntity != nullptr)
 			{
 				lightEntity->GetTransform().SetPosition(GetMidFlamePos());
 			}
@@ -397,6 +396,11 @@ namespace TankGame
 	ColliderInfo FlameThrowerEntity::GetColliderInfo() const
 	{
 		return OrientedRectangle::FromTransformedNDC(GetTransform());
+	}
+	
+	bool FlameThrowerEntity::IsStaticCollider() const
+	{
+		return true;
 	}
 	
 	CollidableTypes FlameThrowerEntity::GetCollidableType() const

@@ -39,6 +39,7 @@ namespace TankGame
 		
 		virtual ColliderInfo GetColliderInfo() const override;
 		virtual CollidableTypes GetCollidableType() const override;
+		virtual bool IsStaticCollider() const override;
 		
 		virtual const char* GetSerializeClassName() const override;
 		virtual nlohmann::json Serialize() const override;

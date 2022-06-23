@@ -49,6 +49,41 @@ namespace TankGame
 		}
 		
 		template <typename CallbackTp>
+		void IterateIntersectingEntities(const Rectangle& rectangle, CallbackTp callback)
+		{
+			m_nextIterateIntersectingID++;
+			auto [lo, hi] = GetRegionBounds(rectangle);
+			for (int y = lo.y; y <= hi.y; y++)
+			{
+				for (int x = lo.x; x <= hi.x; x++)
+				{
+					const Region& reg = m_regions[y * m_numRegionsX + x];
+					for (const std::vector<EntityHandle>* entityList : { &reg.staticEntities, &reg.dynamicEntities })
+					{
+						for (EntityHandle handle : *entityList)
+						{
+							handle.UpdateLastIndex();
+							if (handle.m_lastIndex != -1 &&
+								m_entities[handle.m_lastIndex].m_iterateIntersectingID < m_nextIterateIntersectingID &&
+								m_entities[handle.m_lastIndex].m_entity->GetBoundingRectangle().Intersects(rectangle))
+							{
+								m_entities[handle.m_lastIndex].m_iterateIntersectingID = m_nextIterateIntersectingID;
+								callback(*m_entities[handle.m_lastIndex].m_entity);
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		template <typename CallbackTp>
+		void IterateIntersectingEntities(const Rectangle& rectangle, CallbackTp callback) const
+		{
+			const_cast<EntitiesManager*>(this)->IterateIntersectingEntities(
+				rectangle, [&] (Entity& ent) { callback(const_cast<const Entity&>(ent)); });
+		}
+		
+		template <typename CallbackTp>
 		void IterateParticleEmitters(CallbackTp callback) const
 		{
 			for (ParticleSystemEntityBase* psEntity : m_particleSystemEntities)
@@ -56,13 +91,6 @@ namespace TankGame
 				for (long i = psEntity->GetParticleSystem().GetEmitterCount() - 1; i >= 0; i--)
 					callback(*psEntity->GetParticleSystem().GetEmitter(i));
 			}
-		}
-		
-		template <typename CallbackTp>
-		void IterateCollidable(CallbackTp callback) const
-		{
-			for (const ICollidable* collidable : m_collidableEntities)
-				callback(*collidable);
 		}
 		
 		struct EntityUpdateTimeStatistics
@@ -77,6 +105,8 @@ namespace TankGame
 		const std::vector<EntityUpdateTimeStatistics>& GetUpdateTimeStatistics() const
 		{ return m_updateTimeStatistics; }
 		
+		void InitializeBounds(float width, float height);
+		
 	protected:
 		virtual void OnEntityDespawn(Entity& entity) { }
 		
@@ -89,6 +119,7 @@ namespace TankGame
 		{
 			std::unique_ptr<Entity> m_entity;
 			uint64_t m_id;
+			uint64_t m_iterateIntersectingID = 0;
 			
 			void Swap(EntityEntry& other);
 			
@@ -100,12 +131,30 @@ namespace TankGame
 		
 		ParticlesManager m_particlesManager;
 		
+		static constexpr float REGION_SIZE = 8;
+		
+		struct Region
+		{
+			std::vector<EntityHandle> staticEntities;
+			std::vector<EntityHandle> dynamicEntities;
+			std::vector<EntityHandle> dynamicEntities2;
+		};
+		std::vector<Region> m_regions;
+		uint32_t m_numRegionsX = 0;
+		uint32_t m_numRegionsY = 0;
+		
+		uint64_t m_nextIterateIntersectingID = 0;
+		
+		typedef std::vector<EntityHandle> Region::*RegionField;
+		
+		std::pair<glm::ivec2, glm::ivec2> GetRegionBounds(const Rectangle& rectangle);
+		void PushToRegions(EntityHandle handle, std::pair<glm::ivec2, glm::ivec2> regionBounds, RegionField field);
+		
 		std::vector<EntityEntry> m_entities;
 		
 		std::vector<Entity*> m_entitiesToDespawn;
 		
-		std::vector<Entity::IUpdateable*> m_updateableEntities;
-		std::vector<const ICollidable*> m_collidableEntities;
+		std::vector<EntityHandle> m_updateableEntities;
 		std::vector<ParticleSystemEntityBase*> m_particleSystemEntities;
 		
 		std::vector<EntityUpdateTimeStatistics> m_updateTimeStatistics;

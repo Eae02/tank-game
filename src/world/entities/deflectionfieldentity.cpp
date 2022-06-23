@@ -77,6 +77,11 @@ namespace TankGame
 		                         glm::vec2(0.1f, GetLength() / 2), GetTransform().GetRotation());
 	}
 	
+	bool DeflectionFieldEntity::IsStaticCollider() const
+	{
+		return true;
+	}
+	
 	CollidableTypes DeflectionFieldEntity::GetCollidableType() const
 	{
 		return CollidableTypes::Npc;

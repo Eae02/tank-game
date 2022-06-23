@@ -29,6 +29,8 @@ namespace TankGame
 		virtual const char* GetSerializeClassName() const override
 		{ return nullptr; }
 		
+		virtual bool CanMoveDuringUpdate() const override { return false; }
+		
 	private:
 		static void BindShader();
 		

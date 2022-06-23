@@ -27,6 +27,7 @@ namespace TankGame
 		
 		virtual ColliderInfo GetColliderInfo() const override;
 		virtual CollidableTypes GetCollidableType() const override;
+		virtual bool IsStaticCollider() const override;
 		
 		virtual const Entity::ISpriteDrawable* AsSpriteDrawable() const final override
 		{ return this; }
@@ -48,6 +49,8 @@ namespace TankGame
 		virtual nlohmann::json Serialize() const override;
 		
 		virtual std::unique_ptr<Entity> Clone() const override;
+		
+		virtual bool CanMoveDuringUpdate() const override { return true; }
 		
 	protected:
 		virtual void OnKilled() override;

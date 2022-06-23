@@ -26,6 +26,8 @@ namespace TankGame
 		virtual const ICollidable* AsCollidable() const final override
 		{ return this; }
 		
+		virtual bool CanMoveDuringUpdate() const override { return false; }
+		
 		virtual std::unique_ptr<Entity> Clone() const override;
 		
 		virtual void RenderProperties() override;
@@ -36,6 +38,7 @@ namespace TankGame
 		
 		virtual ColliderInfo GetColliderInfo() const override;
 		virtual CollidableTypes GetCollidableType() const override;
+		virtual bool IsStaticCollider() const override;
 		
 	private:
 		bool m_deflectEnemy = false;

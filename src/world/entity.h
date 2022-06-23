@@ -1,7 +1,6 @@
 #pragma once
 
 #include "intersectinfo.h"
-#include "quadtree/iquadtreeentry.h"
 #include "itransformationprovider.h"
 #include "../editor/properties/ipropertiesobject.h"
 #include "../transform.h"
@@ -15,13 +14,14 @@
 
 namespace TankGame
 {
-	class Entity : public IQuadTreeEntry, public ITransformationProvider, public IPropertiesObject
+	class Entity : public ITransformationProvider, public IPropertiesObject
 	{
 	public:
 		class IUpdateable : public Abstract
 		{
 		public:
 			virtual void Update(const class UpdateInfo& updateInfo) = 0;
+			virtual bool CanMoveDuringUpdate() const = 0;
 		};
 		
 		class ISpriteDrawable : public Abstract
@@ -42,7 +42,7 @@ namespace TankGame
 			virtual void DrawDistortions() const = 0;
 		};
 		
-		virtual Rectangle GetBoundingRectangle() const final override;
+		Rectangle GetBoundingRectangle() const;
 		
 		virtual Circle GetBoundingCircle() const;
 		

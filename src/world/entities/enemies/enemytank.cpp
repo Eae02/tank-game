@@ -36,7 +36,7 @@ namespace TankGame
 	
 	EnemyTank::EnemyTank(const Path& idlePath)
 	    : TankEntity(glm::vec3(1.0f), textureInfo, EnemyTeamID, 50),
-	      m_ai(*this, { 2.0f, GetTransform().GetBoundingCircle().GetRadius() * 0.7f }, idlePath)
+	      m_ai({ 2.0f, GetTransform().GetBoundingCircle().GetRadius() * 0.7f }, idlePath)
 	{
 		SetIsRocketTank(false);
 		
@@ -62,15 +62,15 @@ namespace TankGame
 	void EnemyTank::DetectPlayer()
 	{
 		if (const Entity* player = GetGameWorld()->GetEntityByName("player"))
-			m_ai.DetectPlayer(player->GetTransform().GetPosition());
+			m_ai.DetectPlayer(*this, player->GetTransform().GetPosition());
 	}
 	
 	void EnemyTank::Update(const UpdateInfo& updateInfo)
 	{
 		if (const Entity* player = GetGameWorld()->GetEntityByName("player"))
-			m_ai.Update(player->GetTransform().GetPosition(), updateInfo);
+			m_ai.Update(*this, player->GetTransform().GetPosition(), updateInfo);
 		else
-			m_ai.Update({ 0.0f, 0.0f }, updateInfo);
+			m_ai.Update(*this, { 0.0f, 0.0f }, updateInfo);
 		
 		TankEntity::Update(updateInfo);
 	}

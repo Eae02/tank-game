@@ -27,6 +27,8 @@ namespace TankGame
 		virtual Entity::IUpdateable* AsUpdatable() final override
 		{ return this; }
 		
+		virtual bool CanMoveDuringUpdate() const override { return false; }
+		
 		virtual void RenderProperties() override;
 		virtual const char* GetObjectName() const override;
 		

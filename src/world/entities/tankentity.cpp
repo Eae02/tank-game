@@ -143,6 +143,11 @@ namespace TankGame
 		return GetTransform().GetBoundingCircle();
 	}
 	
+	bool TankEntity::IsStaticCollider() const
+	{
+		return false;
+	}
+	
 	void TankEntity::RenderProperties()
 	{
 		RenderBaseProperties(Transform::Properties::Position | Transform::Properties::Rotation);

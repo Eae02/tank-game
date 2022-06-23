@@ -4,7 +4,6 @@
 #include "../graphics/viewinfo.h"
 #include "../graphics/ui/uirenderer.h"
 #include "../world/gameworld.h"
-#include "../world/quadtree/quadtreevisualizer.h"
 #include "../world/serialization/serializeworld.h"
 #include "editorrenderer.h"
 #include "tools/editortool.h"
@@ -66,9 +65,6 @@ namespace TankGame
 		std::vector<PropertiesWindow> m_propertyWindows;
 		
 		std::unique_ptr<EditorRenderer> m_editorRenderer;
-		
-		bool m_drawQuadTree = false;
-		QuadTreeVisualizer m_quadTreeVisualizer;
 		
 		IPropertiesObject* m_focusedPropertiesObject = nullptr;
 		

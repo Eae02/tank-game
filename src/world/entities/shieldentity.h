@@ -42,6 +42,8 @@ namespace TankGame
 		
 		void Ripple(float originAngle);
 		
+		virtual bool CanMoveDuringUpdate() const override { return true; }
+		
 	protected:
 		virtual void OnKilled() override;
 		

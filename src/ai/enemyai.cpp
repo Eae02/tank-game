@@ -14,47 +14,50 @@
 
 namespace TankGame
 {
-	bool EnemyAI::MaybeBeginChasing(glm::vec2 playerPosition)
+	bool EnemyAI::MaybeBeginChasing(glm::vec2 selfPosition, glm::vec2 playerPosition)
 	{
 		Path newPath;
-		
-		if (FindPath(*m_gameWorld, m_entity.GetTransform().GetPosition(),
-		             playerPosition, newPath, m_parameters.m_circleRadius))
-		{
-			m_chasePathProgress = 0.0f;
-			m_lastPathUpdateTime = frameBeginTime;
-			m_state = States::Chasing;
-			m_path = std::move(newPath);
-			return true;
-		}
-		
-		return false;
+		if (!FindPath(*m_gameWorld, selfPosition, playerPosition, newPath, m_parameters.m_circleRadius))
+			return false;
+		m_chasePathProgress = 0.0f;
+		m_lastPathUpdateTime = frameBeginTime;
+		m_state = States::Chasing;
+		m_path = std::move(newPath);
+		return true;
 	}
 	
-	EnemyAI::EnemyAI(EnemyTank& entity, AIParameters parameters, Path idlePath)
-	    : m_entity(entity), m_parameters(std::move(parameters)), m_idlePath(std::move(idlePath)) { }
+	EnemyAI::EnemyAI(AIParameters parameters, Path idlePath)
+	    : m_parameters(std::move(parameters)), m_idlePath(std::move(idlePath)) { }
 	
-	void EnemyAI::Update(glm::vec2 playerPosition, const UpdateInfo& updateInfo)
+	void EnemyAI::Update(EnemyTank& entity, glm::vec2 playerPosition, const UpdateInfo& updateInfo)
 	{
 		//if (m_state == States::Idle && glm::distance(updateInfo.m_viewInfo.GetViewRectangle().Center(), m_entity.GetTransform().GetPosition()) > 50)
 		//	return;
 		
-		glm::vec2 toPlayer = playerPosition - m_entity.GetTransform().GetPosition();
+		glm::vec2 toPlayer = playerPosition - entity.GetTransform().GetPosition();
 		const float SIGHT_RADIUS = 8;
 		const float FIRE_RADIUS = 7;
 		
-		const bool isPlayerVisible = IsPointVisible(playerPosition) && LengthSquared(toPlayer) < SIGHT_RADIUS * SIGHT_RADIUS;
+		const bool isPlayerVisible =
+			LengthSquared(toPlayer) < SIGHT_RADIUS * SIGHT_RADIUS &&
+			!m_gameWorld->IsRayObstructed(playerPosition, entity.GetTransform().GetPosition(), ICollidable::IsObject);
+		
+		auto WalkPath = [&] (const Path& path, float& progress, bool modulate)
+		{
+			TankGame::WalkPath(updateInfo.m_dt, path, progress, entity.GetTransform(),
+			                   m_parameters.m_movementSpeed, glm::radians(90.0f), modulate);
+		};
 		
 		switch (m_state)
 		{
 			case States::Idle:
 			{
 				if (isPlayerVisible)
-					MaybeBeginChasing(playerPosition);
+					MaybeBeginChasing(entity.GetTransform().GetPosition(), playerPosition);
 				else
 				{
-					WalkPath(updateInfo.m_dt, m_idlePath, m_idlePathProgress, true);
-					m_entity.SetCannonRotation(m_entity.GetTransform().GetRotation());
+					WalkPath(m_idlePath, m_idlePathProgress, true);
+					entity.SetCannonRotation(entity.GetTransform().GetRotation());
 				}
 				
 				break;
@@ -68,16 +71,16 @@ namespace TankGame
 					break;
 				}
 				
-				m_entity.SetCannonRotation(glm::half_pi<float>() + std::atan2(toPlayer.y, toPlayer.x));
+				entity.SetCannonRotation(glm::half_pi<float>() + std::atan2(toPlayer.y, toPlayer.x));
 				
 				const bool withinFiringRange = LengthSquared(toPlayer) < FIRE_RADIUS * FIRE_RADIUS;
 				
-				if (m_entity.CanFire(updateInfo.m_gameTime) && withinFiringRange)
+				if (entity.CanFire(updateInfo.m_gameTime) && withinFiringRange)
 				{
-					if (m_entity.IsRocketTank())
-						m_entity.FireRocket(35, updateInfo.m_gameTime, { });
+					if (entity.IsRocketTank())
+						entity.FireRocket(35, updateInfo.m_gameTime, { });
 					else
-						m_entity.FirePlasmaGun(ParseColorHexCodeSRGB(0xFF564A), 5, updateInfo.m_gameTime, { });
+						entity.FirePlasmaGun(ParseColorHexCodeSRGB(0xFF564A), 5, updateInfo.m_gameTime, { });
 				}
 				
 				if (frameBeginTime > m_lastPathUpdateTime + PATH_UPDATE_INTERVAL)
@@ -87,7 +90,7 @@ namespace TankGame
 					
 					Path newPath;
 					
-					if (FindPath(*m_gameWorld, m_entity.GetTransform().GetPosition(),
+					if (FindPath(*m_gameWorld, entity.GetTransform().GetPosition(),
 					             playerPosition, newPath, m_parameters.m_circleRadius))
 					{
 						m_path = std::move(newPath);
@@ -99,26 +102,26 @@ namespace TankGame
 					}
 				}
 				
-				WalkPath(updateInfo.m_dt, m_path, m_chasePathProgress);
+				WalkPath(m_path, m_chasePathProgress, false);
 				break;
 			}
 			
 			case States::Searching:
 			{
-				WalkPath(updateInfo.m_dt, m_path, m_chasePathProgress);
+				WalkPath(m_path, m_chasePathProgress, false);
 				
-				if (isPlayerVisible && MaybeBeginChasing(playerPosition))
+				if (isPlayerVisible && MaybeBeginChasing(entity.GetTransform().GetPosition(), playerPosition))
 					break;
 				
-				m_entity.SetCannonRotation(m_entity.GetTransform().GetRotation());
+				entity.SetCannonRotation(entity.GetTransform().GetRotation());
 				
 				if (m_chasePathProgress >= m_path.GetTotalLength())
 				{
 					Path newPath;
 					
-					auto returnPoint = m_idlePath.GetClosestPointOnPath(m_entity.GetTransform().GetPosition());
+					auto returnPoint = m_idlePath.GetClosestPointOnPath(entity.GetTransform().GetPosition());
 					
-					if (!FindPath(*m_gameWorld, m_entity.GetTransform().GetPosition(), returnPoint.m_position, newPath,
+					if (!FindPath(*m_gameWorld, entity.GetTransform().GetPosition(), returnPoint.m_position, newPath,
 					              m_parameters.m_circleRadius))
 					{
 						//This shouldn't happen, but if it does the entity is moved back to the start of the idle path.
@@ -140,11 +143,11 @@ namespace TankGame
 			
 			case States::ReturningToIdle:
 			{
-				if (isPlayerVisible && MaybeBeginChasing(playerPosition))
+				if (isPlayerVisible && MaybeBeginChasing(entity.GetTransform().GetPosition(), playerPosition))
 					break;
 				
-				WalkPath(updateInfo.m_dt, m_path, m_returnToIdleProgress);
-				m_entity.SetCannonRotation(m_entity.GetTransform().GetRotation());
+				WalkPath(m_path, m_returnToIdleProgress, false);
+				entity.SetCannonRotation(entity.GetTransform().GetRotation());
 				
 				if (m_returnToIdleProgress >= m_path.GetTotalLength())
 					m_state = States::Idle;
@@ -154,13 +157,13 @@ namespace TankGame
 		}
 	}
 	
-	void EnemyAI::DetectPlayer(glm::vec2 playerPosition)
+	void EnemyAI::DetectPlayer(EnemyTank& entity, glm::vec2 playerPosition)
 	{
 		if (m_state == States::Idle || m_state == States::ReturningToIdle)
 		{
 			Path path;
 			
-			if (FindPath(*m_gameWorld, m_entity.GetTransform().GetPosition(), playerPosition, path,
+			if (FindPath(*m_gameWorld, entity.GetTransform().GetPosition(), playerPosition, path,
 			             m_parameters.m_circleRadius))
 			{
 				m_path = std::move(path);
@@ -183,16 +186,5 @@ namespace TankGame
 			m_state = States::Idle;
 			m_idlePathProgress = 0.0f;
 		}
-	}
-	
-	bool EnemyAI::IsPointVisible(glm::vec2 point) const
-	{
-		return !m_gameWorld->IsRayObstructed(point, m_entity.GetTransform().GetPosition(), ICollidable::IsObject);
-	}
-	
-	void EnemyAI::WalkPath(float dt, const Path& path, float& progress, bool modulate)
-	{
-		TankGame::WalkPath(dt, path, progress, m_entity.GetTransform(), m_parameters.m_movementSpeed,
-		                   glm::radians(90.0f), modulate);
 	}
 }

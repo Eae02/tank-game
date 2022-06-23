@@ -23,6 +23,8 @@ namespace TankGame
 		virtual Entity::IUpdateable* AsUpdatable() final override
 		{ return this; }
 		
+		virtual bool CanMoveDuringUpdate() const override { return false; }
+		
 		virtual const char* GetSerializeClassName() const override;
 		virtual nlohmann::json Serialize() const override;
 		

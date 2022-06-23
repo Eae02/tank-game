@@ -23,6 +23,8 @@ namespace TankGame
 		inline bool IsHoming() const
 		{ return m_isHoming; }
 		
+		virtual bool CanMoveDuringUpdate() const override { return true; }
+		
 	protected:
 		enum ImpactFlags
 		{

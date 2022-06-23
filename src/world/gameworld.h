@@ -1,7 +1,6 @@
 #pragma once
 
 #include "entity.h"
-#include "quadtree/quadtree.h"
 #include "tilegrid.h"
 #include "icollidable.h"
 #include "intersectinfo.h"
@@ -16,6 +15,7 @@
 #include <memory>
 #include <vector>
 #include <set>
+#include <optional>
 #include <queue>
 #include <unordered_map>
 #include <cstdint>
@@ -36,7 +36,8 @@ namespace TankGame
 		
 		GameWorld(int width, int height, Types type);
 		
-		//No move constructors because the game world cannot move in memory.
+		GameWorld(const GameWorld& other) = delete;
+		GameWorld& operator=(const GameWorld& other) = delete;
 		GameWorld(GameWorld&& other) = delete;
 		GameWorld& operator=(GameWorld&& other) = delete;
 		
@@ -50,24 +51,6 @@ namespace TankGame
 		glm::vec2 GetFocusLocation() const;
 		
 		glm::vec2 GetGroundVelocity(glm::vec2 position) const;
-		
-		template <typename CallbackTp>
-		void IterateIntersectingEntities(const Rectangle& rectangle, CallbackTp callback) const
-		{
-			m_quadTree.IterateIntersecting([&] (const IQuadTreeEntry& entry)
-			{
-				callback(static_cast<const Entity&>(entry));
-			}, rectangle);
-		}
-		
-		template <typename CallbackTp>
-		void IterateIntersectingEntities(const Rectangle& rectangle, CallbackTp callback)
-		{
-			m_quadTree.IterateIntersecting([&] (const IQuadTreeEntry& entry)
-			{
-				callback(const_cast<Entity&>(static_cast<const Entity&>(entry)));
-			}, rectangle);
-		}
 		
 		inline Types GetWorldType() const
 		{ return m_type; }
@@ -88,7 +71,7 @@ namespace TankGame
 		bool IsRayObstructed(glm::vec2 start, glm::vec2 end, IgnoreCBType ignoreCB) const
 		{
 			float dist = glm::distance(start, end);
-			float intersectDist = GetRayIntersectionDistance(start, (end - start) / dist, ignoreCB);
+			float intersectDist = GetRayIntersectionDistance(start, (end - start) / dist, ignoreCB, dist);
 			return !std::isnan(intersectDist) && intersectDist < dist;
 		}
 		
@@ -116,22 +99,24 @@ namespace TankGame
 		
 		float GetTileRayIntersectionDistance(glm::vec2 start, glm::vec2 direction) const;
 		
-		inline float GetRayIntersectionDistance(glm::vec2 start, glm::vec2 direction) const
+		inline float GetRayIntersectionDistance(glm::vec2 start, glm::vec2 direction, std::optional<float> maxDist = {}) const
 		{
-			return GetRayIntersectionDistance(start, direction, [] (const ICollidable&) { return true; });
+			return GetRayIntersectionDistance(start, direction, [] (const ICollidable&) { return true; }, maxDist);
 		}
 		
 		template <typename IgnoreCBType>
-		float GetRayIntersectionDistance(glm::vec2 start, glm::vec2 direction, IgnoreCBType includeCB) const
+		float GetRayIntersectionDistance(glm::vec2 start, glm::vec2 direction, IgnoreCBType includeCB, std::optional<float> maxDist = {}) const
 		{
 			float dist = GetTileRayIntersectionDistance(start, direction);
-			
-			IterateCollidable([&] (const ICollidable& collidable)
+			if (maxDist.has_value() && dist > *maxDist)
+				dist = *maxDist;
+			glm::vec2 end = start + dist * direction;
+			IterateIntersectingEntities(Rectangle::FromMinMax(start, end), [&] (const Entity& entity)
 			{
-				if (includeCB(collidable))
-					CheckRayIntersection(collidable, start, direction, dist);
+				const ICollidable* col = entity.AsCollidable();
+				if (col && includeCB(*col))
+					CheckRayIntersection(*col, start, direction, dist);
 			});
-			
 			return dist;
 		}
 		
@@ -169,9 +154,6 @@ namespace TankGame
 		{ m_gameManager = gameManager; }
 		inline class GameManager* GetGameManager() const
 		{ return m_gameManager; }
-		
-		inline const QuadTree& GetQuadTree()
-		{ return m_quadTree; }
 		
 		inline int GetWidth() const
 		{ return m_width; }
@@ -217,8 +199,6 @@ namespace TankGame
 		
 		class IMainRenderer* m_renderer = nullptr;
 		class GameManager* m_gameManager = nullptr;
-		
-		QuadTree m_quadTree;
 		
 		std::unique_ptr<TileGrid> m_tileGrid;
 		const class TileGridMaterial* m_tileGridMaterial = nullptr;

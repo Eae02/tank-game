@@ -56,6 +56,7 @@ namespace TankGame
 		
 		virtual ColliderInfo GetColliderInfo() const override;
 		virtual CollidableTypes GetCollidableType() const override;
+		virtual bool IsStaticCollider() const override;
 		
 		virtual void RenderProperties() override;
 		virtual const char* GetObjectName() const override;
@@ -64,9 +65,11 @@ namespace TankGame
 		virtual nlohmann::json Serialize() const override;
 		virtual std::unique_ptr<Entity> Clone() const override;
 		
+		virtual bool CanMoveDuringUpdate() const override { return false; }
+		
 		inline void TransformModified()
 		{
-			UpdateChildEntitiesTransform();
+			SetChildEntitiesTransform(m_particleSystemEntity.Get(), m_lightEntity.Get());
 		}
 		
 	protected:
@@ -88,7 +91,7 @@ namespace TankGame
 		static std::unique_ptr<DistortionShader> s_distortionShader;
 		
 		void SpawnChildEntities();
-		void UpdateChildEntitiesTransform();
+		void SetChildEntitiesTransform(Entity* psEntity, Entity* lightEntity);
 		
 		//Returns the world space position of the middle of the flame.
 		glm::vec2 GetMidFlamePos() const;

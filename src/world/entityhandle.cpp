@@ -21,18 +21,21 @@ namespace TankGame
 		m_lastIndex = pos - manager.m_entities.begin();
 	}
 	
+	void EntityHandle::UpdateLastIndex() const
+	{
+		if (m_manager != nullptr && !IsValid())
+		{
+			m_lastIndex = m_manager->GetEntityIndexById(m_id);
+		}
+	}
+	
 	Entity* EntityHandle::Get() const
 	{
 		if (m_manager == nullptr)
 			return nullptr;
-		
-		if (!IsValid())
-		{
-			m_lastIndex = m_manager->GetEntityIndexById(m_id);
-			if (m_lastIndex == -1)
-				return nullptr;
-		}
-		
+		UpdateLastIndex();
+		if (m_lastIndex == -1)
+			return nullptr;
 		return m_manager->m_entities[m_lastIndex].m_entity.get();
 	}
 	

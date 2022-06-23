@@ -218,6 +218,11 @@ namespace TankGame
 		return CollidableTypes::Npc;
 	}
 	
+	bool RocketTurret::IsStaticCollider() const
+	{
+		return false;
+	}
+	
 	Circle RocketTurret::GetHitCircle() const
 	{
 		return GetTransform().GetBoundingCircle();

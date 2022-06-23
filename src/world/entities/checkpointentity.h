@@ -22,6 +22,8 @@ namespace TankGame
 		virtual Entity::IUpdateable* AsUpdatable() final override
 		{ return this; }
 		
+		virtual bool CanMoveDuringUpdate() const override { return false; }
+		
 		inline int GetCheckpointIndex() const
 		{ return m_checkpointIndex; }
 		inline void SetCheckpointIndex(int checkpointIndex)

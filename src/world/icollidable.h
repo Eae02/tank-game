@@ -17,6 +17,7 @@ namespace TankGame
 	public:
 		virtual ColliderInfo GetColliderInfo() const = 0;
 		virtual CollidableTypes GetCollidableType() const = 0;
+		virtual bool IsStaticCollider() const = 0;
 		
 		inline static bool IsObject(const ICollidable& collidable)
 		{
