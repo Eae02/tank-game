@@ -81,7 +81,6 @@ namespace TankGame
 		"ArrowDown", "PageUp", "PageDown", "Home", "End", "Delete", "CapsLock", "AltGraph", "Enter"
 	};
 	
-	static std::string newInputtedText;
 	static uint64_t keyState;
 	static glm::vec2 mouseCursorPos;
 	static uint8_t mouseButtonState;
@@ -141,7 +140,9 @@ namespace TankGame
 					keyState |= KeyToBitmask(keyIt->second);
 			}
 			if (keyEvent->location == DOM_KEY_LOCATION_STANDARD && nonTextKeys.find(keyEvent->key) == nonTextKeys.end())
-				newInputtedText += keyEvent->key;
+			{
+				ImGui::GetIO().AddInputCharactersUTF8(keyEvent->key);
+			}
 			return EM_TRUE;
 		});
 		

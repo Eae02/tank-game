@@ -6,24 +6,24 @@
 #include <memory>
 #include <cstdio>
 #include <vector>
+#include <AL/al.h>
 
 namespace TankGame
 {
-	void DestroyAudioBuffer(ALuint buffer)
+	uint32_t AudioBuffer::CreateAudioBuffer()
 	{
-		alDeleteBuffers(1, &buffer);
-	}
-	
-	ALuint AudioBuffer::CreateAudioBuffer()
-	{
-		ALuint id;
+		uint32_t id;
 		alGenBuffers(1, &id);
 		return id;
 	}
 	
-	void AudioBuffer::SetData(ALenum format, void* data, ALsizei dataSize, ALsizei frequency)
+	AudioBuffer::AudioBuffer()
+		: ALResource(CreateAudioBuffer(), alDeleteBuffers) { }
+	
+	void AudioBuffer::SetData(bool isStereo, std::span<const char> data, int frequency)
 	{
-		alBufferData(GetID(), format, data, dataSize, frequency);
+		ALenum format = isStereo ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
+		alBufferData(GetID(), format, data.data(), data.size_bytes(), frequency);
 	}
 	
 	AudioBuffer AudioBuffer::FromOGG(const std::string& path)
@@ -37,22 +37,18 @@ namespace TankGame
 		
 		vorbis_info* info = ov_info(&oggFile, -1);
 		
-		ALenum format = info->channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
-		
-		int bitStream;
-		
 		std::vector<char> data;
-		
 		char buffer[512];
-		long bytes;
+		long bytesRead;
 		do
 		{
-			bytes = ov_read(&oggFile, buffer, sizeof(buffer), 0, 2, 1, &bitStream);
-			data.insert(data.end(), buffer, buffer + bytes);
-		} while (bytes != 0);
+			int bitStream;
+			bytesRead = ov_read(&oggFile, buffer, sizeof(buffer), 0, 2, 1, &bitStream);
+			data.insert(data.end(), buffer, buffer + bytesRead);
+		} while (bytesRead != 0);
 		
 		AudioBuffer audioBuffer;
-		audioBuffer.SetData(format, data.data(), (ALsizei)data.size(), info->rate);
+		audioBuffer.SetData(info->channels == 2, data, info->rate);
 		
 		ov_clear(&oggFile);
 		

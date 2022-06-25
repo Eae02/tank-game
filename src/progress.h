@@ -9,13 +9,14 @@ namespace TankGame
 	class Progress
 	{
 	public:
-		Progress() = default;
-		Progress(const fs::path& path);
+		Progress();
 		
 		int GetLevelProgress(const std::string& name) const;
 		void UpdateLevelProgress(const std::string& name, int newProgress);
 		
-		void Save(const fs::path& path) const;
+		void Load();
+		
+		void Save() const;
 		
 		inline static Progress& GetInstance()
 		{ return s_instance; }
@@ -24,6 +25,8 @@ namespace TankGame
 		
 	private:
 		static Progress s_instance;
+		
+		fs::path m_path;
 		
 		std::unordered_map<std::string, int> m_levelProgresses;
 	};

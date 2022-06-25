@@ -8,12 +8,14 @@ namespace TankGame
 {
 	EntityHandle EntitiesManager::Spawn(std::unique_ptr<Entity> entity)
 	{
-		if (ParticleSystemEntityBase* psEntity = dynamic_cast<ParticleSystemEntityBase*>(entity.get()))
-			m_particleSystemEntities.push_back(psEntity);
-		
 		uint64_t id = m_nextEntityID++;
 		
 		EntityHandle handle(*this, id, m_entities.size());
+		
+		m_entityIDToIndex.emplace(id, m_entities.size());
+		
+		if (ParticleSystemEntityBase* psEntity = dynamic_cast<ParticleSystemEntityBase*>(entity.get()))
+			m_particleSystemEntities.emplace_back(handle, psEntity);
 		
 		bool canMove = false;
 		if (Entity::IUpdateable* updateable = entity->AsUpdatable())
@@ -152,8 +154,16 @@ namespace TankGame
 		}
 		
 		SCOPE_TIMER("Spawn Particles")
-		for (ParticleSystemEntityBase* psEntity : m_particleSystemEntities)
+		for (long i = (long)m_particleSystemEntities.size() - 1; i >= 0; i--)
 		{
+			if (!m_particleSystemEntities[i].first.IsAlive())
+			{
+				m_particleSystemEntities[i] = m_particleSystemEntities.back();
+				m_particleSystemEntities.pop_back();
+				continue;
+			}
+			
+			ParticleSystemEntityBase* psEntity = m_particleSystemEntities[i].second;
 			if (frameBeginTime > psEntity->GetDeathTime())
 			{
 				bool hasParticles = false;
@@ -169,6 +179,8 @@ namespace TankGame
 				if (!hasParticles)
 				{
 					psEntity->Despawn();
+					m_particleSystemEntities[i] = m_particleSystemEntities.back();
+					m_particleSystemEntities.pop_back();
 					continue;
 				}
 			}
@@ -194,50 +206,27 @@ namespace TankGame
 		return nullptr;
 	}
 	
-	template <typename Tp>
-	static void MaybeRemoveFromEntityList(Tp* entity, std::vector<Tp*>& vec)
-	{
-		if (entity == nullptr)
-			return;
-		
-		for (size_t i = 0; i < vec.size(); i++)
-		{
-			if (vec[i] == entity)
-			{
-				vec[i] = vec.back();
-				vec.pop_back();
-			}
-		}
-	}
-	
 	void EntitiesManager::DespawnAtIndex(size_t index)
 	{
-		m_entities[index].m_entity->OnDespawning();
+		m_entityIDToIndex.erase(m_entities[index].m_id);
 		
-		MaybeRemoveFromEntityList(dynamic_cast<ParticleSystemEntityBase*>(m_entities[index].m_entity.get()),
-		                          m_particleSystemEntities);
+		m_entities[index].m_entity->OnDespawning();
 		
 		OnEntityDespawn(*m_entities[index].m_entity);
 		
-		m_entities[index].Swap(m_entities.back());
+		if (index != m_entities.size() - 1)
+		{
+			m_entityIDToIndex.at(m_entities.back().m_id) = index;
+			m_entities[index] = std::move(m_entities.back());
+		}
 		m_entities.pop_back();
 	}
 	
 	long EntitiesManager::GetEntityIndexById(uint64_t id)
 	{
-		auto pos = std::find_if(m_entities.begin(), m_entities.end(), [&](const EntityEntry& entry)
-		{
-			return entry.m_id == id;
-		});
-		
-		if (pos == m_entities.end())
+		auto pos = m_entityIDToIndex.find(id);
+		if (pos == m_entityIDToIndex.end())
 			return -1;
-		return pos - m_entities.begin();
-	}
-	
-	void EntitiesManager::EntityEntry::Swap(EntitiesManager::EntityEntry& other)
-	{
-		m_entity.swap(other.m_entity);
-		std::swap(m_id, other.m_id);
+		return pos->second;
 	}
 }

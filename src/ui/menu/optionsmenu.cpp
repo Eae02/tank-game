@@ -7,6 +7,7 @@
 #include "../../platform/common.h"
 #include "../../mouse.h"
 #include "../../utils/utils.h"
+#include "../../utils/ioutils.h"
 
 #include <variant>
 #include <sstream>
@@ -80,6 +81,7 @@ namespace TankGame
 			}
 			bool isFullscreen = m_displayModeIndex == 0;
 			Settings::instance.SetIsFullscreen(isFullscreen);
+			Settings::instance.Save(dataDirectoryPath / "settings.json");
 			m_applyCallback(m_displayModeIndex == 0, res.x, res.y);
 		}
 		

@@ -86,10 +86,13 @@ namespace TankGame
 		template <typename CallbackTp>
 		void IterateParticleEmitters(CallbackTp callback) const
 		{
-			for (ParticleSystemEntityBase* psEntity : m_particleSystemEntities)
+			for (const auto& [entityHandle, psEntity] : m_particleSystemEntities)
 			{
-				for (long i = psEntity->GetParticleSystem().GetEmitterCount() - 1; i >= 0; i--)
-					callback(*psEntity->GetParticleSystem().GetEmitter(i));
+				if (entityHandle.IsAlive())
+				{
+					for (long i = psEntity->GetParticleSystem().GetEmitterCount() - 1; i >= 0; i--)
+						callback(*psEntity->GetParticleSystem().GetEmitter(i));
+				}
 			}
 		}
 		
@@ -121,8 +124,6 @@ namespace TankGame
 			uint64_t m_id;
 			uint64_t m_iterateIntersectingID = 0;
 			
-			void Swap(EntityEntry& other);
-			
 			inline EntityEntry(std::unique_ptr<Entity>&& entity, uint64_t id)
 			    : m_entity(std::move(entity)), m_id(id) { }
 		};
@@ -152,10 +153,12 @@ namespace TankGame
 		
 		std::vector<EntityEntry> m_entities;
 		
+		std::unordered_map<uint64_t, size_t> m_entityIDToIndex;
+		
 		std::vector<Entity*> m_entitiesToDespawn;
 		
 		std::vector<EntityHandle> m_updateableEntities;
-		std::vector<ParticleSystemEntityBase*> m_particleSystemEntities;
+		std::vector<std::pair<EntityHandle, ParticleSystemEntityBase*>> m_particleSystemEntities;
 		
 		std::vector<EntityUpdateTimeStatistics> m_updateTimeStatistics;
 	};

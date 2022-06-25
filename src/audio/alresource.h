@@ -1,57 +1,48 @@
 #pragma once
 
-#include <AL/al.h>
+#include <cstdint>
 
 namespace TankGame
 {
-	template <void (*DEL)(ALuint)>
 	class ALResource
 	{
 	public:
-		using Deleter = void (*)(ALuint);
+		using Deleter = void (*)(int, const uint32_t*);
 		
-		inline ALResource() : m_isNull(true) { }
+		inline ALResource() : m_deleter(nullptr), m_id(UINT32_MAX) { }
 		
-		inline explicit ALResource(ALuint id)
-				: m_isNull(false), m_id(id) { }
+		inline ALResource(uint32_t id, Deleter deleter)
+				: m_deleter(deleter), m_id(id) { }
 		
 		virtual ~ALResource()
 		{
-			if (!m_isNull)
-				DEL(m_id);
+			if (m_deleter)
+				m_deleter(1, &m_id);
 		}
 		
 		inline ALResource(ALResource&& other)
-		    : m_isNull(other.m_isNull), m_id(other.m_id)
+		    : m_deleter(other.m_deleter), m_id(other.m_id)
 		{
-			other.m_isNull = true;
+			other.m_deleter = nullptr;
+			other.m_id = UINT32_MAX;
 		}
 		
-		ALResource& operator=(ALResource&& other)
-		{
-			this->~GLResource();
-			
-			m_isNull = other.m_isNull;
-			m_id = other.m_id;
-			other.m_isNull = true;
-			
-			return *this;
-		}
+		ALResource& operator=(ALResource&& other);
 		
 		ALResource(const ALResource& other) = delete;
 		ALResource& operator=(const ALResource& other) = delete;
 		
 		bool operator==(decltype(nullptr)) const
-		{ return m_isNull; }
+		{ return m_deleter == nullptr; }
 		
-		inline ALuint GetID() const
+		inline uint32_t GetID() const
 		{ return m_id; }
 		
 		inline bool IsNull() const
-		{ return m_isNull; }
+		{ return m_deleter != nullptr; }
 		
 	private:
-		bool m_isNull;
-		ALuint m_id;
+		Deleter m_deleter;
+		uint32_t m_id;
 	};
 }

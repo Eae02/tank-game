@@ -315,8 +315,6 @@ namespace TankGame
 		
 		if (worldRenderer != nullptr)
 		{
-			AudioSource::SetViewInfo(m_viewInfo);
-			
 			worldRenderer->Prepare(m_viewInfo, gameTime);
 			worldRenderer->DrawShadowMaps(shadowRenderer, m_viewInfo);
 			deferredRenderer.Draw(*worldRenderer, m_viewInfo);

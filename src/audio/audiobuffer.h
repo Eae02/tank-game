@@ -3,22 +3,20 @@
 #include "alresource.h"
 
 #include <string>
+#include <span>
 
 namespace TankGame
 {
-	void DestroyAudioBuffer(ALuint buffer);
-	
-	class AudioBuffer : public ALResource<&DestroyAudioBuffer>
+	class AudioBuffer : public ALResource
 	{
 	public:
-		inline AudioBuffer()
-		    : ALResource(CreateAudioBuffer()) { }
+		AudioBuffer();
 		
-		void SetData(ALenum format, void* data, ALsizei dataSize, ALsizei frequency);
+		void SetData(bool isStereo, std::span<const char> data, int frequency);
 		
 		static AudioBuffer FromOGG(const std::string& path);
 		
 	private:
-		static ALuint CreateAudioBuffer();
+		static uint32_t CreateAudioBuffer();
 	};
 }

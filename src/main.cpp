@@ -60,9 +60,8 @@ static bool Initialize()
 	
 	InitOpenAL();
 	
-	fs::path progressPath(dataDirectoryPath / "progress.json");
-	if (fs::exists(progressPath))
-		Progress::SetInstance({ progressPath });
+	Progress::SetInstance(Progress());
+	Progress::GetInstance().Load();
 	
 	fs::path settingsPath(dataDirectoryPath / "settings.json");
 	if (fs::exists(settingsPath))
@@ -104,7 +103,7 @@ int main(int argc, const char** argv)
 	Lua::Destroy();
 	
 	Settings::instance.Save(dataDirectoryPath / "settings.json");
-	Progress::GetInstance().Save(dataDirectoryPath / "progress.json");
+	Progress::GetInstance().Save();
 	
 	SoundsManager::SetInstance(nullptr);
 	CloseOpenAL();

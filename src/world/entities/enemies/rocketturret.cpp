@@ -146,10 +146,7 @@ namespace TankGame
 		
 		SetLength(CalcLength(&cannonForward));
 		
-		m_ambienceSource.SetPosition(GetTransform().GetPosition());
 		m_ambienceSource.SetDirection(cannonForward);
-		
-		m_detectedSource.SetPosition(GetTransform().GetPosition());
 		m_detectedSource.SetDirection(cannonForward);
 	}
 	
@@ -201,7 +198,11 @@ namespace TankGame
 		m_playerEntity = dynamic_cast<const PlayerEntity*>(gameWorld.GetEntityByName("player"));
 		
 		if (gameWorld.GetWorldType() == GameWorld::Types::Game)
+		{
+			m_ambienceSource.SetPosition(GetTransform().GetPosition());
+			m_detectedSource.SetPosition(GetTransform().GetPosition());
 			m_ambienceSource.Play();
+		}
 		
 		RayLightEntity::OnSpawned(gameWorld);
 		

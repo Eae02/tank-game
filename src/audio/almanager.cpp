@@ -34,8 +34,15 @@ namespace TankGame
 		glm::vec2 velocity = playerEntity.GetVelocity();
 		alListener3f(AL_VELOCITY, velocity.x, velocity.y, 0);
 		
-		glm::vec2 forward = playerEntity.GetTransform().GetForward();
-		alListener3f(AL_DIRECTION, forward.x, forward.y, 0);
+		glm::vec2 pos = playerEntity.GetTransform().GetPosition();
+		alListener3f(AL_POSITION, pos.x, pos.y, 0);
+		
+		const float ori[6] = 
+		{
+			playerEntity.GetTransform().GetForward().x, playerEntity.GetTransform().GetForward().y, 0,
+			0, 0, 1,
+		};
+		alListenerfv(AL_ORIENTATION, ori);
 	}
 	
 	void SetMasterVolume(float volume)

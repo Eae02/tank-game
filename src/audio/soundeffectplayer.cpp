@@ -9,7 +9,7 @@ namespace TankGame
 	{
 		auto pos = std::find_if(m_audioSources.begin(), m_audioSources.end(), [] (const AudioSource& source)
 		{
-			return !source.IsPlaying();
+			return source.IsStopped();
 		});
 		
 		AudioSource* audioSource;

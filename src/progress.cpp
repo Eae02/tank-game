@@ -9,14 +9,19 @@ namespace TankGame
 {
 	Progress Progress::s_instance;
 	
-	Progress::Progress(const fs::path& path)
+	Progress::Progress() : m_path(dataDirectoryPath / "progress.json") { }
+	
+	void Progress::Load()
 	{
-		nlohmann::json json = nlohmann::json::parse(ReadFileContents(path));
-		
-		for (nlohmann::json::iterator it = json.begin(); it != json.end(); ++it)
+		if (fs::exists(m_path))
 		{
-			if (it.value().is_number_integer())
-				m_levelProgresses.emplace(it.key(), it.value().get<int>());
+			nlohmann::json json = nlohmann::json::parse(ReadFileContents(m_path));
+			
+			for (nlohmann::json::iterator it = json.begin(); it != json.end(); ++it)
+			{
+				if (it.value().is_number_integer())
+					m_levelProgresses.emplace(it.key(), it.value().get<int>());
+			}
 		}
 	}
 	
@@ -33,12 +38,18 @@ namespace TankGame
 		auto it = m_levelProgresses.find(name);
 		
 		if (it == m_levelProgresses.end())
+		{
 			m_levelProgresses.emplace(name, newProgress);
+			Save();
+		}
 		else if (newProgress > it->second)
+		{
 			it->second = newProgress;
+			Save();
+		}
 	}
 	
-	void Progress::Save(const fs::path& path) const
+	void Progress::Save() const
 	{
 		nlohmann::json json;
 		
@@ -47,7 +58,7 @@ namespace TankGame
 			json[levelProgress.first] = levelProgress.second;
 		}
 		
-		std::ofstream stream(path);
+		std::ofstream stream(m_path);
 		stream << json;
 		stream.close();
 		SyncFileSystem();

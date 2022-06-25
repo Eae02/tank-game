@@ -8,9 +8,7 @@
 
 namespace TankGame
 {
-	void DestroyAudioSource(ALuint source);
-	
-	class AudioSource : public ALResource<&DestroyAudioSource>
+	class AudioSource : public ALResource
 	{
 	public:
 		enum class VolumeModes
@@ -22,49 +20,26 @@ namespace TankGame
 		
 		explicit AudioSource(VolumeModes volumeMode = VolumeModes::None);
 		
-		inline void SetBuffer(const AudioBuffer& buffer)
-		{
-			alSourcei(GetID(), AL_BUFFER, buffer.GetID());
-		}
+		void SetBuffer(const AudioBuffer& buffer);
 		
 		void SetPosition(glm::vec2 position);
 		void SetVelocity(glm::vec2 velocity);
 		void SetDirection(glm::vec2 direction);
 		
-		inline void SetIsLooping(bool isLooping)
-		{
-			alSourcei(GetID(), AL_LOOPING, isLooping ? AL_TRUE : AL_FALSE);
-		}
+		void SetIsLooping(bool isLooping);
 		
 		void SetAttenuationSettings(float rolloffFactor, float refDistance);
 		
-		inline void Play() const
-		{
-			alSourcePlay(GetID());
-		}
-		
-		inline void Stop() const
-		{
-			alSourceStop(GetID());
-		}
+		void Play() const;
+		void Stop() const;
 		
 		void SetVolume(float volume);
-		
-		inline void SetPitch(float pitch)
-		{
-			alSourcef(GetID(), AL_PITCH, pitch);
-		}
+		void SetPitch(float pitch);
 		
 		bool IsPlaying() const;
-		
-		inline static void SetViewInfo(const ViewInfo& viewInfo)
-		{
-			s_viewInfo = viewInfo;
-		}
+		bool IsStopped() const;
 		
 	private:
-		static ViewInfo s_viewInfo;
-		
 		VolumeModes m_volumeMode;
 	};
 }
