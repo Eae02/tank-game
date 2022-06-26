@@ -5,20 +5,6 @@
 #include <fstream>
 #include <algorithm>
 
-#if defined(__linux__)
-#include <libgen.h>
-#include <linux/limits.h>
-#include <sys/types.h>
-#include <pwd.h>
-#include <unistd.h>
-#elif defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
-#define WINVER 0x0600
-#define _WIN32_WINNT 0x0600
-#include <windows.h>
-#include <shlobj.h>
-#endif
-
 namespace TankGame
 {
 	fs::path resDirectoryPath;
@@ -27,7 +13,7 @@ namespace TankGame
 	std::string ReadFileContents(const fs::path& path)
 	{
 		std::string pathString = path.string();
-		std::ifstream stream(pathString);
+		std::ifstream stream(pathString, std::ios::binary);
 		if (!stream)
 			Panic("Error opening file for reading: '" + pathString + "'.");
 		
