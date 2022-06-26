@@ -21,7 +21,7 @@ namespace TankGame
 	
 	void ScreenShotSerializer::WriteScreenShot(glm::vec2 position)
 	{
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) && !defined(NDEBUG)
 		ViewInfo viewInfo(position, 0, 20, m_aspectRatio);
 		
 		m_worldRenderer.DrawShadowMaps(m_shadowRenderer, viewInfo);
@@ -66,7 +66,7 @@ namespace TankGame
 	
 	void ScreenShotSerializer::WriteResult(std::ostream& outputStream) const
 	{
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) && !defined(NDEBUG)
 		uint64_t imageCount = m_imageDataStrings.size();
 		outputStream.write(reinterpret_cast<const char*>(&imageCount), sizeof(imageCount));
 		

@@ -30,7 +30,7 @@ namespace TankGame
 		                                                       TARGET_MAX_DISTANCE, TARGET_MAX_DISTANCE);
 		
 		Entity* homeTarget = nullptr;
-		float distToHomeTargetSq;
+		float distToHomeTargetSq = 0;
 		
 		GetGameWorld()->IterateIntersectingEntities(targetSearchArea, [&] (Entity& entity)
 		{

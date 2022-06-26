@@ -145,9 +145,9 @@ namespace TankGame
 			}
 		});
 		
-		glfwSetScrollCallback(m_window, [] (GLFWwindow* window, double, double yOffset)
+		glfwSetScrollCallback(m_window, [] (GLFWwindow* window, double xOffset, double yOffset)
 		{
-			reinterpret_cast<Window*>(glfwGetWindowUserPointer(window))->mouse.scrollPos += static_cast<float>(yOffset);
+			reinterpret_cast<Window*>(glfwGetWindowUserPointer(window))->mouse.scrollPos += glm::vec2(xOffset, yOffset);
 		});
 		
 		glfwSetCharCallback(m_window, [] (GLFWwindow*, unsigned int codePoint)

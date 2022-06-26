@@ -95,9 +95,9 @@ namespace TankGame
 		        m_postQualityComboBox.IsDropDownShown() ||
 		        m_bloomComboBox.IsDropDownShown();
 		
-		if (!anyDropDownShown && std::abs(updateInfo.m_mouse.GetDeltaScroll()) > 1E-6f)
+		if (!anyDropDownShown && std::abs(updateInfo.m_mouse.GetDeltaScroll().y) > 1E-6f)
 		{
-			m_scroll = glm::clamp(m_scroll - updateInfo.m_mouse.GetDeltaScroll() * 20, 0.0f, m_maxScroll);
+			m_scroll = glm::clamp(m_scroll - updateInfo.m_mouse.GetDeltaScroll().y * 20, 0.0f, m_maxScroll);
 			LayoutContentWidgets();
 		}
 		
@@ -220,6 +220,11 @@ namespace TankGame
 		
 		std::for_each_n(m_settingLabels.begin(), m_numSettingLabels, [&] (const Label& label)
 		{
+			Rectangle shadowRectangle = label.rectangle;
+			shadowRectangle.y -= 2.0f;
+			uiRenderer.DrawString(Font::GetNamedFont(FontNames::StandardUI), label.string, shadowRectangle,
+			                      Alignment::Right, Alignment::Center, glm::vec4(0, 0, 0, 0.5f));
+			
 			uiRenderer.DrawString(Font::GetNamedFont(FontNames::StandardUI), label.string, label.rectangle,
 			                      Alignment::Right, Alignment::Center, glm::vec4(1.0f));
 		});

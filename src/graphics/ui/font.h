@@ -1,20 +1,14 @@
 #pragma once
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_MODULE_H
-
 #include <string>
 #include <memory>
-#include <unordered_map>
+#include <optional>
 #include <glm/glm.hpp>
 
 #include "../gl/texture2d.h"
 
 namespace TankGame
 {
-	extern FT_Library theFTLibrary;
-	
 	enum class FontNames
 	{
 		StandardUI = 0,
@@ -28,25 +22,18 @@ namespace TankGame
 	
 	class Font
 	{
-		class FontFaceDeleter
-		{
-		public:
-			using pointer = FT_Face;
-			
-			inline void operator()(FT_Face face)
-			{ FT_Done_Face(face); }
-		};
-		
 	public:
 		struct Glyph
 		{
-			float m_advance;
-			glm::ivec2 m_bearing;
-			
-			std::unique_ptr<Texture2D> m_texture;
+			float advance;
+			glm::vec2 bearing;
+			glm::vec2 size;
+			glm::vec2 uvMin;
+			glm::vec2 uvMax;
+			bool hasImage;
 		};
 		
-		Font(const fs::path& path, FT_UInt size);
+		static Font Render(const fs::path& path, float size);
 		
 		const Glyph* TryGetGlyph(uint32_t charCode) const;
 		
@@ -55,18 +42,23 @@ namespace TankGame
 		static const Font& GetNamedFont(FontNames name);
 		static void DestroyFonts();
 		
-		inline FT_UInt GetSize() const
+		const Texture2D& GetTexture() const
+		{ return m_texture; }
+		
+		inline float GetSize() const
 		{ return m_size; }
 		
 		static constexpr int NUM_NAMED_FONTS = 5;
 		
 	private:
-		static Glyph RenderGlyph(FT_GlyphSlot ftGlyph);
+		Font(Texture2D texture, float size);
 		
-		mutable std::unordered_map<uint32_t, Glyph> m_glyphs;
+		std::unique_ptr<Glyph[]> m_glyphs;
 		
-		std::unique_ptr<FT_Face, FontFaceDeleter> m_fontFace;
+		Texture2D m_texture;
 		
-		FT_UInt m_size;
+		float m_size;
+		float m_ascent;
+		float m_descent;
 	};
 }

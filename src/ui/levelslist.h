@@ -88,8 +88,10 @@ namespace TankGame
 			Rectangle m_rectangle;
 			std::vector<StartLocation> m_startLocations;
 			
-			float m_scroll = 0.0f;
-			float m_maxScroll;
+			float m_scroll = 0;
+			float m_scrollVelocity = 0;
+			float m_maxScroll = 0;
+			float m_scrollBarWidthPercent = 0;
 			
 			void SetScroll(float scroll);
 		};

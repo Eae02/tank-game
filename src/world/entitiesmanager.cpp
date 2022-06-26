@@ -86,7 +86,7 @@ namespace TankGame
 				if (!updatable)
 					continue;
 				
-				double startTime;
+				double startTime = 0;
 				if (collectUpdateTimeStatistics)
 					startTime = GetTime();
 				

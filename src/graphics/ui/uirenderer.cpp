@@ -7,12 +7,13 @@
 #include "../../utils/mathutils.h"
 #include "../../utils/ioutils.h"
 
+#include <imgui.h>
+
 namespace TankGame
 {
 	std::unique_ptr<UIRenderer> UIRenderer::s_instance;
 	
 	UIRenderer::SpriteShader UIRenderer::s_spriteShader;
-	UIRenderer::TextShader UIRenderer::s_textShader;
 	
 	UIRenderer::QuadShader UIRenderer::s_quadShader;
 	UIRenderer::LineShader UIRenderer::s_lineShader;
@@ -29,6 +30,7 @@ namespace TankGame
 		s_spriteShader.m_targetRectMinLocation = s_spriteShader.m_shader->GetUniformLocation("targetRectMin");
 		s_spriteShader.m_targetRectMaxLocation = s_spriteShader.m_shader->GetUniformLocation("targetRectMax");
 		s_spriteShader.m_shadeLocation = s_spriteShader.m_shader->GetUniformLocation("shade");
+		s_spriteShader.m_redToAlphaLocation = glGetUniformLocation(s_spriteShader.m_shader->GetID(), "redToAlpha");
 	}
 	
 	void UIRenderer::LoadQuadShader()
@@ -52,33 +54,22 @@ namespace TankGame
 		s_lineShader.m_colorLocation = s_lineShader.m_shader->GetUniformLocation("color");
 	}
 	
-	void UIRenderer::LoadTextShader()
-	{
-		s_textShader.m_shader = std::make_unique<ShaderProgram>(
-			ShaderModule::FromResFile("ui/text.vs.glsl"), ShaderModule::FromResFile("ui/text.fs.glsl"));
-		CallOnClose([] { s_textShader.m_shader = nullptr; });
-		
-		s_textShader.m_shader->SetTextureBinding("glyph", 0);
-		s_textShader.m_offsetLocation = s_textShader.m_shader->GetUniformLocation("offset");
-		s_textShader.m_sizeLocation = s_textShader.m_shader->GetUniformLocation("size");
-		s_textShader.m_colorLocation = s_textShader.m_shader->GetUniformLocation("color");
-	}
-	
 	void UIRenderer::DrawSprite(const Texture2D& texture, const Rectangle& targetRectangle,
 	                            const Rectangle& sampleRectangle, const glm::vec4& shade) const
 	{
-		if (s_spriteShader.m_shader== nullptr)
+		if (s_spriteShader.m_shader == nullptr)
 			LoadSpriteShader();
 		s_spriteShader.m_shader->Use();
 		
+		if (s_spriteShader.m_redToAlphaLocation != -1)
+			glUniform1i(s_spriteShader.m_redToAlphaLocation, 0);
+		
 		texture.Bind(0);
 		
-		GLuint shaderID = s_spriteShader.m_shader->GetID();
-		
-		glProgramUniform2f(shaderID, s_spriteShader.m_sampleRectMinLocation,
-		                   sampleRectangle.x / texture.GetWidth(), sampleRectangle.y / texture.GetHeight());
-		glProgramUniform2f(shaderID, s_spriteShader.m_sampleRectMaxLocation,
-		                   sampleRectangle.FarX() / texture.GetWidth(), sampleRectangle.FarY() / texture.GetHeight());
+		glUniform2f(s_spriteShader.m_sampleRectMinLocation,
+		            sampleRectangle.x / texture.GetWidth(), sampleRectangle.y / texture.GetHeight());
+		glUniform2f(s_spriteShader.m_sampleRectMaxLocation,
+		            sampleRectangle.FarX() / texture.GetWidth(), sampleRectangle.FarY() / texture.GetHeight());
 		
 		glm::vec2 targetRectMin(targetRectangle.x / m_windowWidth, targetRectangle.y / m_windowHeight);
 		glm::vec2 targetRectMax(targetRectangle.FarX() / m_windowWidth, targetRectangle.FarY() / m_windowHeight);
@@ -86,10 +77,10 @@ namespace TankGame
 		targetRectMin = targetRectMin * 2.0f - glm::vec2(1.0f);
 		targetRectMax = targetRectMax * 2.0f - glm::vec2(1.0f);
 		
-		glProgramUniform2f(shaderID, s_spriteShader.m_targetRectMinLocation, targetRectMin.x, targetRectMin.y);
-		glProgramUniform2f(shaderID, s_spriteShader.m_targetRectMaxLocation, targetRectMax.x, targetRectMax.y);
+		glUniform2f(s_spriteShader.m_targetRectMinLocation, targetRectMin.x, targetRectMin.y);
+		glUniform2f(s_spriteShader.m_targetRectMaxLocation, targetRectMax.x, targetRectMax.y);
 		
-		glProgramUniform4fv(shaderID, s_spriteShader.m_shadeLocation, 1, reinterpret_cast<const GLfloat*>(&shade));
+		glUniform4fv(s_spriteShader.m_shadeLocation, 1, reinterpret_cast<const GLfloat*>(&shade));
 		
 		QuadMesh::GetInstance().BindVAO();
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -130,19 +121,16 @@ namespace TankGame
 			LoadQuadShader();
 		s_quadShader.m_shader->Use();
 		
-		glm::vec2 scaleToNDC = 2.0f / glm::vec2(m_windowWidth, m_windowHeight);
-		
-		glm::vec2 cornersNDC[4];
+		float cornersNDC[8];
 		for (size_t i = 0; i < 4; i++)
 		{
-			cornersNDC[i] = corners[i] * scaleToNDC - glm::vec2(1.0f);
+			cornersNDC[i * 2 + 0] = corners[i].x * 2.0f / (float)m_windowWidth - 1.0f;
+			cornersNDC[i * 2 + 1] = corners[i].y * 2.0f / (float)m_windowHeight - 1.0f;
 		}
 		
-		glProgramUniform2fv(s_quadShader.m_shader->GetID(), s_quadShader.m_cornersLocation, 4,
-		                    reinterpret_cast<const GLfloat*>(&cornersNDC));
+		glUniform2fv(s_quadShader.m_cornersLocation, 4, reinterpret_cast<const GLfloat*>(&cornersNDC));
 		
-		glProgramUniform4fv(s_quadShader.m_shader->GetID(), s_quadShader.m_colorLocation, 1,
-		                    reinterpret_cast<const GLfloat*>(&color));
+		glUniform4fv(s_quadShader.m_colorLocation, 1, &color.x);
 		
 		QuadMesh::GetInstance().BindVAO();
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -168,11 +156,9 @@ namespace TankGame
 		glm::vec2 vertex1 = (2.0f * a) / glm::vec2(m_windowWidth, m_windowHeight) - glm::vec2(1);
 		glm::vec2 vertex2 = (2.0f * b) / glm::vec2(m_windowWidth, m_windowHeight) - glm::vec2(1);
 		
-		glProgramUniform2f(s_lineShader.m_shader->GetID(), s_lineShader.m_vertex1Location, vertex1.x, vertex1.y);
-		glProgramUniform2f(s_lineShader.m_shader->GetID(), s_lineShader.m_vertex2Location, vertex2.x, vertex2.y);
-		
-		glProgramUniform4fv(s_lineShader.m_shader->GetID(), s_lineShader.m_colorLocation, 1,
-		                    reinterpret_cast<const GLfloat*>(&color));
+		glUniform2f(s_lineShader.m_vertex1Location, vertex1.x, vertex1.y);
+		glUniform2f(s_lineShader.m_vertex2Location, vertex2.x, vertex2.y);
+		glUniform4fv(s_lineShader.m_colorLocation, 1, reinterpret_cast<const GLfloat*>(&color));
 		
 		VertexInputState::BindEmpty();
 		glDrawArrays(GL_LINES, 0, 2);
@@ -181,9 +167,12 @@ namespace TankGame
 	glm::vec2 UIRenderer::DrawString(const Font& font, const std::string& string, Rectangle rectangle,
 	                                 Alignment alignX, Alignment alignY, const glm::vec4& color, float scale) const
 	{
-		if (s_textShader.m_shader== nullptr)
-			LoadTextShader();
-		s_textShader.m_shader->Use();
+		if (s_spriteShader.m_shader == nullptr)
+			LoadSpriteShader();
+		s_spriteShader.m_shader->Use();
+		
+		if (s_spriteShader.m_redToAlphaLocation != -1)
+			glUniform1i(s_spriteShader.m_redToAlphaLocation, 1);
 		
 		glm::vec2 size = font.MeasureString(string) * scale;
 		
@@ -191,12 +180,13 @@ namespace TankGame
 		position.x = rectangle.x + (static_cast<int>(alignX) / 2.0f) * (rectangle.w - size.x);
 		position.y = rectangle.y + (static_cast<int>(alignY) / 2.0f) * (rectangle.h - size.y);
 		
-		glm::vec2 halfScreenSize(m_windowWidth / 2.0f, m_windowHeight / 2.0f);
+		glUniform4fv(s_spriteShader.m_shadeLocation, 1, reinterpret_cast<const GLfloat*>(&color));
 		
-		GLuint shaderID = s_textShader.m_shader->GetID();
-		glProgramUniform4fv(shaderID, s_textShader.m_colorLocation, 1, reinterpret_cast<const GLfloat*>(&color));
+		glm::vec2 halfPixelSize(2.0f / (float)m_windowWidth, 2.0f / (float)m_windowHeight);
 		
 		QuadMesh::GetInstance().BindVAO();
+		
+		font.GetTexture().Bind(0);
 		
 		for (size_t i = 0; i < string.length(); i++)
 		{
@@ -205,22 +195,24 @@ namespace TankGame
 			if (glyph == nullptr)
 				continue;
 			
-			if (glyph->m_texture != nullptr)
+			if (glyph->hasImage)
 			{
-				glyph->m_texture->Bind(0);
+				glUniform2f(s_spriteShader.m_sampleRectMinLocation, glyph->uvMin.x, glyph->uvMin.y);
+				glUniform2f(s_spriteShader.m_sampleRectMaxLocation, glyph->uvMax.x, glyph->uvMax.y);
 				
-				glm::vec2 bearingOffset(glyph->m_bearing.x, glyph->m_bearing.y - glyph->m_texture->GetHeight());
-				glm::vec2 offset = (glm::floor(position + bearingOffset * scale) / halfScreenSize) - glm::vec2(1.0f);
-				glm::vec2 size =
-					(glm::vec2(glyph->m_texture->GetWidth(), glyph->m_texture->GetHeight()) * scale) / halfScreenSize;
+				glm::vec2 targetRectMin = position + glyph->bearing * scale;
+				glm::vec2 targetRectMax = targetRectMin + glyph->size * scale;
 				
-				glProgramUniform2f(shaderID, s_textShader.m_offsetLocation, offset.x, offset.y);
-				glProgramUniform2f(shaderID, s_textShader.m_sizeLocation, size.x, size.y);
+				targetRectMin = targetRectMin * halfPixelSize - glm::vec2(1.0f);
+				targetRectMax = targetRectMax * halfPixelSize - glm::vec2(1.0f);
+				
+				glUniform2f(s_spriteShader.m_targetRectMinLocation, targetRectMin.x, targetRectMin.y);
+				glUniform2f(s_spriteShader.m_targetRectMaxLocation, targetRectMax.x, targetRectMax.y);
 				
 				glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			}
 			
-			position.x += glyph->m_advance * scale;
+			position.x += glyph->advance * scale;
 		}
 		
 		return size;

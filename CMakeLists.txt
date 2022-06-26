@@ -19,7 +19,7 @@ target_compile_options(tankgame PRIVATE
 )
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Emscripten")
-	set(USE_FLAGS -sUSE_ZLIB=1 -sUSE_OGG=1 -sUSE_VORBIS=1 -sUSE_FREETYPE=1)
+	set(USE_FLAGS -sUSE_ZLIB=1 -sUSE_OGG=1 -sUSE_VORBIS=1)
 	
 	target_link_options(tankgame PRIVATE -sEXPORTED_RUNTIME_METHODS=['cwrap'] -sEXPORTED_FUNCTIONS=['_WebMain'])
 	target_link_options(tankgame PRIVATE -sALLOW_MEMORY_GROWTH=1 -sWASM=1 -sUSE_WEBGL2=1 -sFULL_ES3=1 -sFORCE_FILESYSTEM=1 -sFETCH=1 -sDISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0)
@@ -39,15 +39,13 @@ else()
 	find_package(OpenGL REQUIRED)
 	find_package(OpenAL REQUIRED)
 	find_package(OGG REQUIRED)
-	find_package(Vorbis REQUIRED)
-	find_package(VorbisFile REQUIRED)
-	find_package(Freetype REQUIRED)
+	find_package(VORBIS REQUIRED)
+	find_package(VORBISFILE REQUIRED)
 	find_package(ZLIB REQUIRED)
 	find_package(Lua REQUIRED)
-	find_package(nlohmann_json REQUIRED)
 	find_package(glfw3 REQUIRED)
 	
-	if (CMAKE_COMPILER_IS_GNUCXX)
+	if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 		find_package(PkgConfig REQUIRED)
 		pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
 		target_include_directories(tankgame PRIVATE ${GTK3_INCLUDE_DIRS})
@@ -57,9 +55,7 @@ else()
 	target_link_libraries(tankgame PRIVATE
 		OpenGL::GL
 		glfw
-		Freetype::Freetype
 		ZLIB::ZLIB
-		nlohmann_json::nlohmann_json
 		${OPENAL_LIBRARY}
 		${OGG_LIBRARY}
 		${VORBIS_LIBRARY}

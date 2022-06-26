@@ -30,7 +30,7 @@ namespace TankGame
 		inline bool WasDown(MouseButton button) const
 		{ return (m_preButtonState & (uint8_t)button) != 0 && !m_wasCaptured; }
 		
-		inline float GetDeltaScroll() const
+		inline glm::vec2 GetDeltaScroll() const
 		{ return scrollPos - m_oldScroll; }
 		
 		inline uint8_t GetButtonState() const { return m_buttonState; }
@@ -38,7 +38,7 @@ namespace TankGame
 		bool isCaptured = false;
 		
 		glm::vec2 pos;
-		float scrollPos = 0;
+		glm::vec2 scrollPos;
 		
 	private:
 		void OnFrameEnd() //Called by Window
@@ -55,7 +55,7 @@ namespace TankGame
 		float m_oldX = 0;
 		float m_oldY = 0;
 		
-		float m_oldScroll = 0;
+		glm::vec2 m_oldScroll;
 		
 		bool m_wasCaptured = false;
 		

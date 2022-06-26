@@ -40,7 +40,7 @@ namespace TankGame
 	{
 		for (const TextureLoadOperation& texture : m_textureLoadOperations)
 		{
-			m_propsManager->m_textures[texture.GetPath()] = std::make_unique<Texture2D>(texture.CreateTexture());
+			m_propsManager->m_textures[texture.GetPath().string()] = std::make_unique<Texture2D>(texture.CreateTexture());
 		}
 		
 		for (const ClassToLoad& classToLoad : m_classesToLoad)

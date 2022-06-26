@@ -73,6 +73,8 @@ namespace TankGame
 	{
 		m_rectangle = rectangle;
 		
+		float visibleWidth = rectangle.w - LEVEL_BOX_PADDING * 2;
+		
 		for (LevelEntry& levelEntry : m_levelEntries)
 		{
 			float w = -CHECKPOINT_IMAGE_SPACING;
@@ -83,12 +85,16 @@ namespace TankGame
 				w += CHECKPOINT_IMAGE_HEIGHT * imageAR + CHECKPOINT_IMAGE_SPACING;
 			}
 			
-			levelEntry.m_maxScroll = glm::max(w - (rectangle.w - LEVEL_BOX_PADDING * 2), 0.0f);
+			levelEntry.m_maxScroll = glm::max(w - visibleWidth, 0.0f);
 			levelEntry.SetScroll(levelEntry.m_scroll);
+			
+			levelEntry.m_scrollBarWidthPercent = visibleWidth / w;
 		}
 		
 		UpdateLevelRectangles();
 	}
+	
+	static constexpr float SCROLL_SPEED = 2000;
 	
 	void LevelsList::Update(const UpdateInfo& updateInfo)
 	{
@@ -96,10 +102,18 @@ namespace TankGame
 		{
 			int progress = Progress::GetInstance().GetLevelProgress(s_levelMenuInfos[i].m_levelFileName);
 			
-			if (m_levelEntries[i].m_rectangle.Contains(updateInfo.m_mouse.pos) &&
-			    std::abs(updateInfo.m_mouse.GetDeltaScroll()) > 1E-6f)
+			m_levelEntries[i].m_scrollVelocity *= 1 - std::min(updateInfo.m_dt * 10.0f, 1.0f);
+			if (m_levelEntries[i].m_rectangle.Contains(updateInfo.m_mouse.pos))
 			{
-				m_levelEntries[i].SetScroll(m_levelEntries[i].m_scroll - updateInfo.m_mouse.GetDeltaScroll() * 30);
+				float deltaScroll = updateInfo.m_mouse.GetDeltaScroll().x + updateInfo.m_mouse.GetDeltaScroll().y;
+				m_levelEntries[i].m_scrollVelocity -= deltaScroll * SCROLL_SPEED * 0.5f;
+				m_levelEntries[i].m_scrollVelocity = glm::clamp(m_levelEntries[i].m_scrollVelocity, -SCROLL_SPEED, SCROLL_SPEED);
+			}
+			
+			float scrollMove = m_levelEntries[i].m_scrollVelocity * updateInfo.m_dt;
+			if (std::abs(scrollMove) > 1E-4f)
+			{
+				m_levelEntries[i].SetScroll(m_levelEntries[i].m_scroll + scrollMove);
 				UpdateLevelRectangles();
 			}
 			
@@ -135,6 +149,20 @@ namespace TankGame
 		{
 			//Draws the level background
 			uiRenderer.DrawRectangle(m_levelEntries[i].m_rectangle, glm::vec4(ParseColorHexCodeSRGB(0x242424), 0.6f));
+			
+			if (m_levelEntries[i].m_maxScroll > 0)
+			{
+				constexpr float SCROLL_BAR_PADDING_X = 20;
+				float scrollAreaW = m_levelEntries[i].m_rectangle.w - SCROLL_BAR_PADDING_X * 2;
+				float scrollBarW = m_levelEntries[i].m_scrollBarWidthPercent * scrollAreaW;
+				float scrollBarX =
+					m_levelEntries[i].m_rectangle.x + SCROLL_BAR_PADDING_X +
+					(scrollAreaW - scrollBarW) * (m_levelEntries[i].m_scroll / m_levelEntries[i].m_maxScroll);
+				
+				float scrollBarY = m_levelEntries[i].m_rectangle.y + 5;
+				
+				uiRenderer.DrawRectangle(Rectangle(scrollBarX, scrollBarY, scrollBarW, 2), glm::vec4(1, 1, 1, 0.6f));
+			}
 			
 			Rectangle scissorRectangle = m_levelEntries[i].m_rectangle;
 			scissorRectangle.Inflate(-LEVEL_BOX_PADDING);

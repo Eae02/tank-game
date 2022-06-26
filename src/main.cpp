@@ -52,12 +52,6 @@ static bool Initialize()
 	
 	videoModes = DetectVideoModes();
 	
-	if (FT_Init_FreeType(&TankGame::theFTLibrary) != 0)
-	{
-		ShowErrorMessage("Error initializing freetype", "Error");
-		return false;
-	}
-	
 	InitOpenAL();
 	
 	Progress::SetInstance(Progress());
@@ -107,8 +101,6 @@ int main(int argc, const char** argv)
 	
 	SoundsManager::SetInstance(nullptr);
 	CloseOpenAL();
-	
-	FT_Done_FreeType(TankGame::theFTLibrary);
 	
 	PlatformShutdown();
 }

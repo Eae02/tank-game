@@ -63,7 +63,7 @@ namespace TankGame
 			}
 			else if (m_dropDownArea.Contains(updateInfo.m_mouse.pos))
 			{
-				SetScroll(m_dropDownScroll - updateInfo.m_mouse.GetDeltaScroll() * 0.5f);
+				SetScroll(m_dropDownScroll - updateInfo.m_mouse.GetDeltaScroll().y * 0.5f);
 				
 				m_hoveredItem = ((m_dropDownArea.FarY() - updateInfo.m_mouse.pos.y) / DROP_DOWN_ITEM_HEIGHT) + m_dropDownScroll;
 				
@@ -109,6 +109,8 @@ namespace TankGame
 		return changed;
 	}
 	
+	static constexpr float TEXT_PADDING_LEFT = 4;
+	
 	void ComboBox::Draw(const UIRenderer& uiRenderer) const
 	{
 		glm::vec4 backgroundColor = glm::mix(glm::vec4(ParseColorHexCodeSRGB(0x242424), 0.6f),
@@ -123,6 +125,7 @@ namespace TankGame
 			
 			PushScissorRect(textArea);
 			
+			textArea.x += TEXT_PADDING_LEFT;
 			uiRenderer.DrawString(Font::GetNamedFont(FontNames::StandardUI), m_entries[m_currentItem], textArea,
 			                      Alignment::Left, Alignment::Center, glm::vec4(1.0f));
 			
@@ -146,6 +149,7 @@ namespace TankGame
 				else if (static_cast<long>(i) == m_currentItem)
 					uiRenderer.DrawRectangle(entryRect, glm::vec4(ParseColorHexCodeSRGB(0x363636), 1.0f));
 				
+				entryRect.x += TEXT_PADDING_LEFT;
 				uiRenderer.DrawString(Font::GetNamedFont(FontNames::StandardUI), m_entries[i], entryRect,
 				                      Alignment::Left, Alignment::Center, glm::vec4(1.0f));
 			}

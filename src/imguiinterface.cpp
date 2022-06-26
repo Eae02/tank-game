@@ -223,7 +223,7 @@ namespace TankGame::ImGuiInterface
 			io.MouseDown[i] = updateInfo.m_mouse.GetButtonState() & (1 << i);
 		}
 		
-		io.MouseWheel = updateInfo.m_mouse.GetDeltaScroll();
+		io.MouseWheel = updateInfo.m_mouse.GetDeltaScroll().y;
 		
 		for (int key = 0; key <= MAX_KEY_ID; key++)
 			io.KeysDown[key] = updateInfo.m_keyboard.IsDown((Key)key, true);

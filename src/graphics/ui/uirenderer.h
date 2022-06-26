@@ -59,7 +59,6 @@ namespace TankGame
 		static void LoadSpriteShader();
 		static void LoadQuadShader();
 		static void LoadLineShader();
-		static void LoadTextShader();
 		
 		static std::unique_ptr<UIRenderer> s_instance;
 		
@@ -71,6 +70,7 @@ namespace TankGame
 			int m_targetRectMinLocation;
 			int m_targetRectMaxLocation;
 			int m_shadeLocation;
+			int m_redToAlphaLocation;
 		};
 		static SpriteShader s_spriteShader;
 		
@@ -90,15 +90,6 @@ namespace TankGame
 			int m_colorLocation;
 		};
 		static LineShader s_lineShader;
-		
-		struct TextShader
-		{
-			std::unique_ptr<ShaderProgram> m_shader;
-			int m_offsetLocation;
-			int m_sizeLocation;
-			int m_colorLocation;
-		};
-		static TextShader s_textShader;
 		
 		int m_windowWidth = 1;
 		int m_windowHeight = 1;

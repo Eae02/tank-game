@@ -11,7 +11,7 @@ from elftools.elf.dynamic import DynamicSection
 #List of libraries to be included in the archive.
 libs = ["glfw", "openal", "ogg", "vorbis", "vorbisfile", "lua", "stdc++"]
 
-binary = "bin/Debug/tankgame"
+binary = "bin/Release-Linux/tankgame"
 
 with tarfile.open("tankgame_linux.tar.gz", "w:gz") as tar:
 	tar.add(binary, arcname="tankgame")

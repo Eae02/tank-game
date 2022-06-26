@@ -186,7 +186,7 @@ namespace TankGame
 			[] (int eventType, const EmscriptenWheelEvent* wheelEvent, void* userData)
 		{
 			scrollY -= wheelEvent->deltaY;
-			scrollX += wheelEvent->deltaX;
+			scrollX -= wheelEvent->deltaX;
 			return EM_TRUE;
 		});
 		
@@ -203,6 +203,7 @@ namespace TankGame
 			}
 			
 			theWindow->mouse.pos = glm::vec2(mouseCursorPos.x, (float)height - mouseCursorPos.y);
+			theWindow->mouse.scrollPos = glm::vec2(scrollX, scrollY);
 			theWindow->mouse.m_buttonState = mouseButtonState;
 			theWindow->keyboard.m_keyStateBitmask = keyState;
 			

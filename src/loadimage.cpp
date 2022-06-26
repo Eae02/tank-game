@@ -17,7 +17,8 @@ namespace TankGame
 		data.reset(reinterpret_cast<uint8_t*>(emscripten_get_preloaded_image_data(path.c_str(), &width, &height)));
 		numChannels = 4;
 #else
-		data.reset(stbi_load(path.c_str(), &width, &height, &numChannels, 0));
+		std::string pathString = path.string();
+		data.reset(stbi_load(pathString.c_str(), &width, &height, &numChannels, 0));
 #endif
 		
 		if (data == nullptr)
