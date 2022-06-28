@@ -28,6 +28,8 @@ namespace TankGame
 		
 		std::unique_ptr<LoadingScreen> loadingScreen;
 		
+		std::array<GLsync, MAX_QUEUED_FRAMES> frameFences;
+		
 		int windowWidth;
 		int windowHeight;
 		

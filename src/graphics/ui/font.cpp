@@ -152,7 +152,7 @@ namespace TankGame
 		{ 24, "ui.ttf" },
 		{ 20, "orbitron.ttf" },
 		{ 40, "orbitron.ttf" },
-		{ 12, "mono.ttf" },
+		{ 16, "mono.ttf" },
 	};
 	
 	void Font::DestroyFonts()

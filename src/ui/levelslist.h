@@ -98,6 +98,9 @@ namespace TankGame
 		
 		std::vector<LevelEntry> m_levelEntries;
 		
+		int m_dragScrollingLevelIndex = -1;
+		glm::vec2 m_startMouseDownPos;
+		
 		Rectangle m_rectangle;
 	};
 }

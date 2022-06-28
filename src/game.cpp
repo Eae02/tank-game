@@ -106,6 +106,7 @@ namespace TankGame
 		
 		std::shared_ptr<Game> game = std::make_shared<Game>();
 		
+		game->frameFences = { };
 		game->videoModes = videoModes;
 		game->loadingScreen = std::make_unique<LoadingScreen>();
 		game->loadingScreen->Initialize();
@@ -265,6 +266,17 @@ namespace TankGame
 		float dt = frameBeginTime - lastFrameStartTime;
 		lastFrameStartTime = frameBeginTime;
 		
+		GLsync fence = frameFences[GetFrameQueueIndex()];
+		if (fence != nullptr)
+		{
+			GLenum waitReturn = GL_UNSIGNALED;
+			while (waitReturn != GL_ALREADY_SIGNALED && waitReturn != GL_CONDITION_SATISFIED)
+			{
+				waitReturn = glClientWaitSync(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 1);
+			}
+		}
+		float fenceWaitTime = window.arguments.m_profiling ? (GetTime() - frameBeginTime) : 0.0f;
+		
 		bool isEditorOpen = editor != nullptr && editor->IsOpen();
 		
 		if (gameManager->GetLevel() == nullptr)
@@ -345,7 +357,8 @@ namespace TankGame
 			
 			profileTextStream
 				<< "FPS: " << static_cast<int>(1.0f / dt)
-				<< ", Frame Time: " << std::setprecision(3) << (dt * 1000) << "ms";
+				<< ", FrameTime: " << std::setprecision(3) << std::setfill('0') << std::setw(5) << (dt * 1000) << "ms, "
+				"SyncTime: " << std::setprecision(3) << std::setfill('0') << std::setw(5) << (fenceWaitTime * 1000) << "ms\n";
 			
 			profileTextStream << "SM Updates: " << shadowRenderer.lastFrameShadowMapUpdates << "\n";
 			
@@ -419,5 +432,12 @@ namespace TankGame
 		}
 		
 		glDisable(GL_BLEND);
+		
+		if (fence != nullptr)
+			glDeleteSync(fence);
+		frameFences[GetFrameQueueIndex()] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+		glFlush();
+		if (Settings::instance.QueueFrames())
+			AdvanceFrameQueueIndex();
 	}
 }

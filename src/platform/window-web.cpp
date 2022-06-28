@@ -124,6 +124,35 @@ namespace TankGame
 		{
 			Panic("eglMakeCurrent failed: " + std::to_string(eglGetError()));
 		}
+		
+		std::vector<std::string> extensions = Split(reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS)), " ");
+		for (std::string ext : { "GL_EXT_color_buffer_float", "GL_EXT_float_blend", "GL_OES_texture_float_linear" })
+		{
+			if (std::find(extensions.begin(), extensions.end(), ext) == extensions.end())
+			{
+				Panic("Required OpenGL extension not supported: " + ext);
+			}
+		}
+	}
+	
+	EM_BOOL TouchCallback(int eventType, const EmscriptenTouchEvent* touchEvent, void* userData)
+	{
+		if (eventType == EMSCRIPTEN_EVENT_TOUCHEND && touchEvent->numTouches <= 1)
+		{
+			mouseButtonState &= ~1;
+		}
+		else if (eventType == EMSCRIPTEN_EVENT_TOUCHSTART)
+		{
+			mouseButtonState |= 1;
+			mouseCursorPos.x = touchEvent->touches[0].clientX;
+			mouseCursorPos.y = touchEvent->touches[0].clientY;
+		}
+		else if (eventType == EMSCRIPTEN_EVENT_TOUCHMOVE)
+		{
+			mouseCursorPos.x = touchEvent->touches[0].clientX;
+			mouseCursorPos.y = touchEvent->touches[0].clientY;
+		}
+		return EM_TRUE;
 	}
 	
 	void Window::RunGameLoop(std::unique_ptr<Window> window)
@@ -173,6 +202,10 @@ namespace TankGame
 				mouseButtonState &= ~(uint8_t)(1 << mouseEvent->button);
 			return EM_TRUE;
 		});
+		
+		emscripten_set_touchstart_callback(nullptr, nullptr, true, TouchCallback);
+		emscripten_set_touchend_callback(nullptr, nullptr, true, TouchCallback);
+		emscripten_set_touchmove_callback(nullptr, nullptr, true, TouchCallback);
 		
 		emscripten_set_mousemove_callback(nullptr, nullptr, true,
 			[] (int eventType, const EmscriptenMouseEvent* mouseEvent, void* userData)

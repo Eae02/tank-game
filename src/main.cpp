@@ -24,6 +24,10 @@ extern "C"
 }
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten/em_asm.h>
+#endif
+
 using namespace TankGame;
 
 static VideoModes videoModes;
@@ -69,11 +73,13 @@ static bool Initialize()
 }
 
 #ifdef __EMSCRIPTEN__
-extern "C" void WebMain()
+extern "C" void WebMain(bool profiling)
 {
 	if (Initialize())
 	{
-		RunGame(ArgumentData(), videoModes);
+		ArgumentData argumentData;
+		argumentData.m_profiling = EM_ASM_INT({ return window.location.search == "?prof"; });
+		RunGame(argumentData, videoModes);
 	}
 }
 #else

@@ -98,6 +98,9 @@ namespace TankGame
 	
 	void LevelsList::Update(const UpdateInfo& updateInfo)
 	{
+		if (updateInfo.m_mouse.IsDown(MouseButton::Left) && !updateInfo.m_mouse.WasDown(MouseButton::Left))
+			m_startMouseDownPos = updateInfo.m_mouse.pos;
+		
 		for (size_t i = 0; i < s_levelMenuInfos.size(); i++)
 		{
 			int progress = Progress::GetInstance().GetLevelProgress(s_levelMenuInfos[i].m_levelFileName);
@@ -108,13 +111,33 @@ namespace TankGame
 				float deltaScroll = updateInfo.m_mouse.GetDeltaScroll().x + updateInfo.m_mouse.GetDeltaScroll().y;
 				m_levelEntries[i].m_scrollVelocity -= deltaScroll * SCROLL_SPEED * 0.5f;
 				m_levelEntries[i].m_scrollVelocity = glm::clamp(m_levelEntries[i].m_scrollVelocity, -SCROLL_SPEED, SCROLL_SPEED);
+				
+				if (m_dragScrollingLevelIndex == -1 &&
+					updateInfo.m_mouse.IsDown(MouseButton::Left) &&
+					glm::distance(m_startMouseDownPos, updateInfo.m_mouse.pos) > 10)
+				{
+					m_dragScrollingLevelIndex = i;
+				}
+			}
+			
+			if (m_dragScrollingLevelIndex == (int)i)
+			{
+				float dx = updateInfo.m_mouse.GetOldPosition().x - updateInfo.m_mouse.pos.x;
+				if (std::abs(dx) > 0.01f)
+					m_levelEntries[i].m_scrollVelocity = dx / updateInfo.m_dt;
 			}
 			
 			float scrollMove = m_levelEntries[i].m_scrollVelocity * updateInfo.m_dt;
 			if (std::abs(scrollMove) > 1E-4f)
 			{
-				m_levelEntries[i].SetScroll(m_levelEntries[i].m_scroll + scrollMove);
-				UpdateLevelRectangles();
+				float newScroll = m_levelEntries[i].m_scroll + scrollMove;
+				if (newScroll < 0 || newScroll > m_levelEntries[i].m_maxScroll)
+					m_levelEntries[i].m_scrollVelocity = 0;
+				else
+				{
+					m_levelEntries[i].SetScroll(m_levelEntries[i].m_scroll + scrollMove);
+					UpdateLevelRectangles();
+				}
 			}
 			
 			for (StartLocation& startLocation : m_levelEntries[i].m_startLocations)
@@ -128,7 +151,7 @@ namespace TankGame
 					
 					if (updateInfo.m_mouse.IsDown(MouseButton::Left))
 						targetHoverProgress = 0.9f;
-					else if (updateInfo.m_mouse.WasDown(MouseButton::Left) && m_loadLevelCallback)
+					else if (m_dragScrollingLevelIndex == -1 && updateInfo.m_mouse.WasDown(MouseButton::Left) && m_loadLevelCallback)
 						m_loadLevelCallback(s_levelMenuInfos[i].m_levelFileName, startLocation.m_checkpointIndex);
 					
 					if (startLocation.m_hoverProgress == 0.0f)
@@ -139,6 +162,9 @@ namespace TankGame
 				                 updateInfo.m_dt * 10.0f);
 			}
 		}
+		
+		if (!updateInfo.m_mouse.IsDown(MouseButton::Left))
+			m_dragScrollingLevelIndex = -1;
 	}
 	
 	void LevelsList::Draw(const UIRenderer& uiRenderer) const
@@ -251,7 +277,4 @@ namespace TankGame
 	{
 		m_scroll = glm::clamp(scroll, 0.0f, m_maxScroll);
 	}
-	
-	
-	
 }

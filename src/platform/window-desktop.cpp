@@ -197,8 +197,6 @@ namespace TankGame
 	
 	void Window::RunGameLoop(std::unique_ptr<Window> window)
 	{
-		std::array<GLsync, MAX_QUEUED_FRAMES> frameFences = {};
-		
 		glfwGetWindowSize(window->m_window, &window->width, &window->height);
 		window->resizeCallback(*window, window->width, window->height);
 		
@@ -228,25 +226,7 @@ namespace TankGame
 			if (window->m_isCursorCaptured)
 				window->Platform_UpdateCursorCapture();
 			
-			GLsync fence = frameFences[GetFrameQueueIndex()];
-			if (fence != nullptr)
-			{
-				GLenum waitReturn = GL_UNSIGNALED;
-				while (waitReturn != GL_ALREADY_SIGNALED && waitReturn != GL_CONDITION_SATISFIED)
-				{
-					waitReturn = glClientWaitSync(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 1);
-				}
-			}
-			
 			window->updateCallback(*window);
-			
-			if (fence != nullptr)
-				glDeleteSync(fence);
-			frameFences[GetFrameQueueIndex()] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-			glFlush();
-			
-			if (Settings::instance.QueueFrames())
-				AdvanceFrameQueueIndex();
 			
 			window->keyboard.OnFrameEnd();
 			window->mouse.OnFrameEnd();
