@@ -74,6 +74,7 @@ namespace TankGame
 		float rippleCenter;
 		float rippleDistance;
 		float rippleIntensity;
+		float _padding;
 	};
 	
 	ShieldEntity::ShieldEntity(float hp, int teamID, float radius)
