@@ -2,7 +2,6 @@
 
 #include "alresource.h"
 
-#include <string>
 #include <span>
 
 namespace TankGame

@@ -1,7 +1,7 @@
 #include "jsonparseutils.h"
 #include "utils.h"
 
-#include <stdexcept>
+#include <nlohmann/json.hpp>
 #include <glm/gtc/color_space.hpp>
 
 namespace TankGame

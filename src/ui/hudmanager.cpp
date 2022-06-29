@@ -9,7 +9,6 @@
 #include "../updateinfo.h"
 #include "../profiling.h"
 
-#include <glm/gtc/constants.hpp>
 
 namespace TankGame
 {

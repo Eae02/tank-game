@@ -5,6 +5,7 @@
 #include "../gameworld.h"
 #include "../../audio/soundsmanager.h"
 
+#include <nlohmann/json.hpp>
 #include <imgui.h>
 
 namespace TankGame

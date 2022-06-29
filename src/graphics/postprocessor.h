@@ -6,7 +6,6 @@
 #include "gl/shaderprogram.h"
 #include "noisetexture.h"
 #include "blurpostprocess.h"
-#include "../utils/filesystem.h"
 
 namespace TankGame
 {

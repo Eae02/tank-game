@@ -8,8 +8,6 @@
 #include "../../utils/ioutils.h"
 #include "../../utils/utils.h"
 
-#include <glm/gtc/constants.hpp>
-
 namespace TankGame
 {
 	std::unique_ptr<ShaderProgram> ShieldEntity::s_distortionShader;

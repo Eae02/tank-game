@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <memory>
 
 #include "functions.h"
 #include "buffer.h"

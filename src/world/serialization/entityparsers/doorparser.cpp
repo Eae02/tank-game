@@ -1,6 +1,8 @@
 #include "doorparser.h"
 #include "../../entities/doorentity.h"
 
+#include <nlohmann/json.hpp>
+
 namespace TankGame
 {
 	std::unique_ptr<Entity> DoorParser::ParseEntity(const nlohmann::json& json, const ParseParams& params) const

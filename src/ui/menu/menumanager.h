@@ -4,11 +4,9 @@
 #include "optionsmenu.h"
 #include "playmenu.h"
 #include "../../world/gameworld.h"
-#include "../../utils/filesystem.h"
 #include "../../graphics/worldrenderer.h"
 
-#include <memory>
-#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 namespace TankGame
 {

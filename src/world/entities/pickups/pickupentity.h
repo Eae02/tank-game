@@ -23,8 +23,7 @@ namespace TankGame
 		
 		virtual const char* GetSerializeClassName() const override
 		{ return nullptr; }
-		virtual nlohmann::json Serialize() const override
-		{ return { }; }
+		virtual nlohmann::json Serialize() const override;
 		
 		virtual std::unique_ptr<Entity> Clone() const override;
 		

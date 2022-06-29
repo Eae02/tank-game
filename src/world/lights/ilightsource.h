@@ -4,7 +4,6 @@
 #include "../../utils/abstract.h"
 #include "../../graphics/gl/shaderprogram.h"
 
-#include <glm/glm.hpp>
 
 namespace TankGame
 {

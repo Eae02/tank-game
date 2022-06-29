@@ -8,7 +8,6 @@
 #include "../../mouse.h"
 #include "../../keyboard.h"
 
-#include <cmath>
 
 namespace TankGame
 {

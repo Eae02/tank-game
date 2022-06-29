@@ -2,7 +2,6 @@
 #include "../../utils/ioutils.h"
 #include "../../utils/utils.h"
 
-#include <cstring>
 #include <stb_rect_pack.h>
 #include <stb_truetype.h>
 

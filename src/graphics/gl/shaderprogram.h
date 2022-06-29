@@ -3,7 +3,6 @@
 #include "glresource.h"
 
 #include <initializer_list>
-#include <string>
 
 namespace TankGame
 {

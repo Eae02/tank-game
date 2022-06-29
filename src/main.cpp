@@ -12,7 +12,6 @@
 #include "orientedrectangle.h"
 #include "lua/luavm.h"
 
-#include <cstring>
 #include <iostream>
 
 #ifdef _WIN32

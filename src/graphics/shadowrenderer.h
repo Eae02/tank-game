@@ -5,8 +5,6 @@
 #include "../utils/abstract.h"
 #include "../world/lights/ilightsource.h"
 
-#include <glm/glm.hpp>
-#include <memory>
 
 namespace TankGame
 {

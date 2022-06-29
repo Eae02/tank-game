@@ -4,7 +4,6 @@
 
 #include <AL/al.h>
 #include <AL/alc.h>
-#include <stdexcept>
 
 namespace TankGame
 {

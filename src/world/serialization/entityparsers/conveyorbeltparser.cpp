@@ -1,6 +1,8 @@
 #include "conveyorbeltparser.h"
 #include "../../entities/conveyorbeltentity.h"
 
+#include <nlohmann/json.hpp>
+
 namespace TankGame
 {
 	std::unique_ptr<Entity> ConveyorBeltParser::ParseEntity(const nlohmann::json& json, const ParseParams& params) const

@@ -3,6 +3,8 @@
 #include "../../entities/lightstripentity.h"
 #include "../../../utils/jsonparseutils.h"
 
+#include <nlohmann/json.hpp>
+
 namespace TankGame
 {
 	std::unique_ptr<Entity> LightStripParser::ParseEntity(const nlohmann::json& json, const ParseParams& params) const

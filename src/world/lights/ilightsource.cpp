@@ -4,10 +4,7 @@
 #include "../../utils/random.h"
 #include "../../graphics/gl/shadermodule.h"
 
-#include <memory>
-#include <algorithm>
 #include <random>
-#include <glm/gtc/constants.hpp>
 
 namespace TankGame
 {

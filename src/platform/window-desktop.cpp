@@ -6,7 +6,6 @@
 #include "../settings.h"
 #include "../utils/utils.h"
 
-#include <optional>
 
 #include <imgui.h>
 #include <GLFW/glfw3.h>

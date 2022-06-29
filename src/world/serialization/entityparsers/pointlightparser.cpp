@@ -3,6 +3,8 @@
 #include "../../lights/pointlightentity.h"
 #include "../../../utils/jsonparseutils.h"
 
+#include <nlohmann/json.hpp>
+
 namespace TankGame
 {
 	std::unique_ptr<Entity> PointLightParser::ParseEntity(const nlohmann::json& json, const ParseParams& params) const

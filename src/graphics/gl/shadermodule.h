@@ -1,9 +1,7 @@
 #pragma once
 
-#include <string>
 
 #include "glresource.h"
-#include "../../utils/filesystem.h"
 
 namespace TankGame
 {

@@ -12,15 +12,6 @@
 #include "../lua/sandbox.h"
 #include "../lua/luainc.h"
 
-#include <memory>
-#include <vector>
-#include <set>
-#include <optional>
-#include <queue>
-#include <unordered_map>
-#include <cstdint>
-#include <limits>
-
 namespace TankGame
 {
 	class GameWorld final : public EntitiesManager

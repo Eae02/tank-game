@@ -8,7 +8,6 @@
 #include "../../../graphics/spritematerial.h"
 #include "../../../audio/audiosource.h"
 
-#include <memory>
 
 namespace TankGame
 {

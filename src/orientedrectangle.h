@@ -1,6 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
 #include "world/intersectinfo.h"
 #include "transform.h"
 

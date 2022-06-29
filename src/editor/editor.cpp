@@ -10,7 +10,6 @@
 #include "../world/serialization/serializeworld.h"
 #include "../world/serialization/deserializeworld.h"
 
-#include <glm/gtc/color_space.hpp>
 #include <imgui.h>
 #include <fstream>
 #include <iomanip>

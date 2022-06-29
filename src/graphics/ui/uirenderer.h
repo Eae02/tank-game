@@ -4,9 +4,6 @@
 #include "../gl/shaderprogram.h"
 #include "../../rectangle.h"
 
-#include <glm/glm.hpp>
-#include <memory>
-#include <string>
 
 namespace TankGame
 {

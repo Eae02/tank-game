@@ -9,7 +9,6 @@
 #include "../../graphics/gl/texture2d.h"
 #include "../../graphics/spritematerial.h"
 
-#include <memory>
 #include <random>
 
 namespace TankGame

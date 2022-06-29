@@ -1,6 +1,8 @@
 #include "checkpointparser.h"
 #include "../../entities/checkpointentity.h"
 
+#include <nlohmann/json.hpp>
+
 namespace TankGame
 {
 	std::unique_ptr<Entity> CheckpointParser::ParseEntity(const nlohmann::json& json, const ParseParams& params) const

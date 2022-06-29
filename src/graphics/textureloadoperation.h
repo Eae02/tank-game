@@ -2,7 +2,6 @@
 
 #include "gl/texture2d.h"
 #include "../utils/utils.h"
-#include "../utils/filesystem.h"
 #include "../loadimage.h"
 
 #include <future>

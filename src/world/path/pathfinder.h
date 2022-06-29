@@ -1,6 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
 
 #include "path.h"
 #include "../../graphics/tilegridmaterial.h"

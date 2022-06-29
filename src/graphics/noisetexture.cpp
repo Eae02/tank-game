@@ -1,7 +1,6 @@
 #include "noisetexture.h"
 #include "../utils/random.h"
 
-#include <vector>
 #include <random>
 
 namespace TankGame

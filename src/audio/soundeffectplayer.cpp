@@ -1,7 +1,6 @@
 #include "soundeffectplayer.h"
 #include "soundsmanager.h"
 
-#include <algorithm>
 
 namespace TankGame
 {

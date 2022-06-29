@@ -17,9 +17,6 @@
 #include "../platform/common.h"
 #include "../profiling.h"
 
-#include <glm/gtc/constants.hpp>
-#include <algorithm>
-#include <limits>
 #include <imgui.h>
 
 namespace TankGame

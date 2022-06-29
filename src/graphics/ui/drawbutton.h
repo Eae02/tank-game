@@ -1,7 +1,6 @@
 #pragma once
 
 #include "uirenderer.h"
-#include <glm/glm.hpp>
 
 namespace TankGame
 {

@@ -7,7 +7,7 @@
 #include "../../../updateinfo.h"
 #include "../../../graphics/spriterenderlist.h"
 
-#include <glm/gtc/constants.hpp>
+#include <nlohmann/json.hpp>
 #include <random>
 
 namespace TankGame
@@ -92,4 +92,6 @@ namespace TankGame
 	{
 		return nullptr;
 	}
+	
+	nlohmann::json PickupEntity::Serialize() const { return { }; }
 }

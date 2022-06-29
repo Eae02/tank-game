@@ -7,9 +7,7 @@
 #include "../../graphics/gl/texture2darray.h"
 #include "../../graphics/gl/bufferallocator.h"
 
-#include <vector>
 #include <random>
-#include <limits>
 
 namespace TankGame
 {

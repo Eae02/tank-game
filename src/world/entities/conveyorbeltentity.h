@@ -5,7 +5,6 @@
 #include "../../graphics/gl/shaderprogram.h"
 #include "../../graphics/gl/bufferallocator.h"
 
-#include <memory>
 
 namespace TankGame
 {

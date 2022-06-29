@@ -12,6 +12,7 @@
 #include "../../../utils/ioutils.h"
 #include "../../../graphics/spritematerial.h"
 
+#include <nlohmann/json.hpp>
 #include <imgui.h>
 
 namespace TankGame

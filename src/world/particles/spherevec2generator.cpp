@@ -2,7 +2,6 @@
 #include "../itransformationprovider.h"
 #include "../../transform.h"
 
-#include <glm/gtc/constants.hpp>
 
 namespace TankGame
 {

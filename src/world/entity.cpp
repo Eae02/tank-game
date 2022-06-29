@@ -2,6 +2,7 @@
 #include "gameworld.h"
 
 #include <imgui.h>
+#include <nlohmann/json.hpp>
 
 namespace TankGame
 {

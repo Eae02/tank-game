@@ -8,7 +8,6 @@
 #include "progress.h"
 
 #include <fstream>
-#include <string>
 
 namespace TankGame
 {

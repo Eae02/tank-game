@@ -12,6 +12,7 @@
 #include "../../lua/luavm.h"
 
 #include <imgui.h>
+#include <nlohmann/json.hpp>
 
 namespace TankGame
 {

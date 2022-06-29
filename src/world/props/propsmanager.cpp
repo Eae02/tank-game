@@ -1,10 +1,7 @@
 #include "propsmanager.h"
 #include "propclassloadoperation.h"
-#include "../../utils/filesystem.h"
 #include "../../utils/utils.h"
 
-#include <iostream>
-#include <algorithm>
 #include <imgui.h>
 
 namespace TankGame

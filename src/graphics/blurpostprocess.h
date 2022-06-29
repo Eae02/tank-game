@@ -4,7 +4,6 @@
 #include "gl/framebuffer.h"
 #include "gl/shaderprogram.h"
 
-#include <memory>
 
 namespace TankGame
 {

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vector>
 #include "../graphics/gl/texture2d.h"
 #include "../rectangle.h"
 

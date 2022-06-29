@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <glm/glm.hpp>
 
 #include "../../graphics/gl/buffer.h"
 

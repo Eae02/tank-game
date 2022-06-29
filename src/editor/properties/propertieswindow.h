@@ -2,7 +2,6 @@
 
 #include "ipropertiesobject.h"
 
-#include <string>
 
 namespace TankGame
 {

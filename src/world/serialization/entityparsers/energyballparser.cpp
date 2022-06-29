@@ -2,6 +2,8 @@
 #include "../../entities/energyball.h"
 #include "../../../utils/jsonparseutils.h"
 
+#include <nlohmann/json.hpp>
+
 namespace TankGame
 {
 	std::unique_ptr<Entity> EnergyBallParser::ParseEntity(const nlohmann::json& json, const ParseParams& params) const

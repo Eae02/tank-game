@@ -1,7 +1,6 @@
 #include "viewinfo.h"
 #include "../circle.h"
 
-#include <limits>
 
 namespace TankGame
 {

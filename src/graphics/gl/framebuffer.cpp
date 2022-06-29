@@ -5,7 +5,7 @@ namespace TankGame
 {
 	Framebuffer::StackEntry Framebuffer::s_currentFramebuffer;
 	
-	std::stack<Framebuffer::StackEntry> Framebuffer::s_framebufferStack;
+	std::vector<Framebuffer::StackEntry> Framebuffer::s_framebufferStack;
 	
 	Framebuffer::Framebuffer()
 	{
@@ -16,7 +16,7 @@ namespace TankGame
 	
 	void Framebuffer::Save()
 	{
-		s_framebufferStack.push(s_currentFramebuffer);
+		s_framebufferStack.push_back(s_currentFramebuffer);
 	}
 	
 	void Framebuffer::Bind(const Framebuffer& framebuffer, int vpX, int vpY, int vpWidth, int vpHeight)
@@ -35,8 +35,8 @@ namespace TankGame
 		if (s_framebufferStack.empty())
 			return;
 		
-		s_currentFramebuffer = s_framebufferStack.top();
-		s_framebufferStack.pop();
+		s_currentFramebuffer = s_framebufferStack.back();
+		s_framebufferStack.pop_back();
 		
 		glBindFramebuffer(GL_FRAMEBUFFER, s_currentFramebuffer.m_framebufferID);
 		glViewport(s_currentFramebuffer.m_viewportX, s_currentFramebuffer.m_viewportY,

@@ -3,6 +3,7 @@
 #include "../../utils/mathutils.h"
 #include "../../utils/utils.h"
 
+#include <nlohmann/json.hpp>
 #include <glm/gtc/color_space.hpp>
 #include <imgui.h>
 #include <cstdio>

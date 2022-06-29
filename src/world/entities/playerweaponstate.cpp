@@ -1,7 +1,5 @@
 #include "playerweaponstate.h"
 
-#include <glm/glm.hpp>
-#include <algorithm>
 
 namespace TankGame
 {

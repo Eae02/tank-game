@@ -8,8 +8,6 @@
 #include "../../graphics/gl/bufferallocator.h"
 #include "../../editor/ieditablepathprovider.h"
 
-#include <glm/glm.hpp>
-#include <memory>
 
 namespace TankGame
 {

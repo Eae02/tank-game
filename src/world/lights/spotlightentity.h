@@ -1,7 +1,6 @@
 #pragma once
 
 #include "lightsourceentity.h"
-#include <glm/gtc/constants.hpp>
 
 namespace TankGame
 {

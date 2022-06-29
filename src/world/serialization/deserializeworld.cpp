@@ -5,8 +5,7 @@
 #include "../entities/playerentity.h"
 #include "../../utils/jsonparseutils.h"
 
-#include <algorithm>
-#include <iostream>
+#include <nlohmann/json.hpp>
 
 namespace TankGame
 {

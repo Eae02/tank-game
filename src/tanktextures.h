@@ -3,8 +3,6 @@
 #include "graphics/gl/texture2d.h"
 #include "graphics/spritematerial.h"
 
-#include <array>
-#include <memory>
 
 namespace TankGame
 {

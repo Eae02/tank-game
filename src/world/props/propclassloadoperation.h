@@ -1,7 +1,6 @@
 #pragma once
 
 #include "propsmanager.h"
-#include "../../utils/filesystem.h"
 #include "../../graphics/textureloadoperation.h"
 
 #include <nlohmann/json.hpp>

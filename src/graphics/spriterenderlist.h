@@ -8,11 +8,6 @@
 #include "frames.h"
 #include "../rectangle.h"
 
-#include <unordered_map>
-#include <vector>
-#include <memory>
-#include <glm/glm.hpp>
-
 namespace TankGame
 {
 	class SpriteRenderList

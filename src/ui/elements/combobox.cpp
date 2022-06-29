@@ -6,7 +6,6 @@
 #include "../../mouse.h"
 #include "../../keyboard.h"
 
-#include <algorithm>
 
 namespace TankGame
 {

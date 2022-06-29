@@ -7,7 +7,6 @@
 #include "../../graphics/ui/uirenderer.h"
 #include "../../world/path/path.h"
 
-#include <vector>
 
 namespace TankGame
 {

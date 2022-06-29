@@ -1,8 +1,6 @@
 #pragma once
 
-#include <string>
-#include <nlohmann/json.hpp>
-#include <glm/glm.hpp>
+#include <nlohmann/json_fwd.hpp>
 #include "../transform.h"
 
 namespace TankGame

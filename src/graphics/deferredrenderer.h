@@ -9,7 +9,6 @@
 
 #include "../settings.h"
 
-#include <memory>
 
 namespace TankGame
 {

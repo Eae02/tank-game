@@ -9,8 +9,7 @@
 #include "../lua/registryreference.h"
 #include "../lua/luainc.h"
 
-#include <nlohmann/json.hpp>
-#include <glm/glm.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 namespace TankGame
 {

@@ -1,15 +1,12 @@
 #pragma once
 
-#include <vector>
-#include <memory>
-#include <unordered_map>
-#include <string>
-
 #include "particles/particlesmanager.h"
 #include "entities/particlesystementity.h"
 #include "entity.h"
 #include "entityhandle.h"
 #include "icollidable.h"
+
+#include <unordered_map>
 
 namespace TankGame
 {

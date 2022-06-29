@@ -1,7 +1,6 @@
 #include "bufferallocator.h"
 #include "../../utils/utils.h"
 
-#include <algorithm>
 #include <iostream>
 
 namespace TankGame

@@ -2,9 +2,6 @@
 #include "frames.h"
 #include "../world/particles/particle.h"
 
-#include <iostream>
-#include <cstring>
-
 namespace TankGame
 {
 	constexpr int ParticleBatch::BATCH_SIZE;

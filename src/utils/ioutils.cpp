@@ -1,9 +1,7 @@
 #include "ioutils.h"
 #include "utils.h"
 
-#include <cstring>
 #include <fstream>
-#include <algorithm>
 
 namespace TankGame
 {

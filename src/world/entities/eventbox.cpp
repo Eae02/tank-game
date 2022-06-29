@@ -7,6 +7,7 @@
 #include "../../utils/imgui.h"
 #include "../../lua/luavm.h"
 
+#include <nlohmann/json.hpp>
 #include <imgui.h>
 
 namespace TankGame

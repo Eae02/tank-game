@@ -1,7 +1,6 @@
 #pragma once
 
 #include "glresource.h"
-#include <stack>
 
 namespace TankGame
 {
@@ -40,6 +39,6 @@ namespace TankGame
 		
 		static StackEntry s_currentFramebuffer;
 		
-		static std::stack<StackEntry> s_framebufferStack;
+		static std::vector<StackEntry> s_framebufferStack;
 	};
 }

@@ -1,6 +1,8 @@
 #include "activatorparser.h"
 #include "../../entities/activatorentity.h"
 
+#include <nlohmann/json.hpp>
+
 namespace TankGame
 {
 	std::unique_ptr<Entity> ActivatorParser::ParseEntity(const nlohmann::json& json, const ParseParams& params) const

@@ -4,7 +4,6 @@
 #include "../spherevec2generator.h"
 #include "../../../graphics/gl/texture2darray.h"
 
-#include <memory>
 
 namespace TankGame
 {

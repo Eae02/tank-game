@@ -1,9 +1,6 @@
 #include "circle.h"
 #include "utils/mathutils.h"
 
-#include <cmath>
-#include <limits>
-
 namespace TankGame
 {
 	bool Circle::Intersects(const Circle& other) const

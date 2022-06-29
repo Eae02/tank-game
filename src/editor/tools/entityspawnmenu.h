@@ -1,12 +1,10 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <memory>
-#include <vector>
-
 #include "../../rectangle.h"
 #include "../../world/entity.h"
 #include "../../world/serialization/entityparsers/entityparser.h"
+
+#include <nlohmann/json.hpp>
 
 namespace TankGame
 {

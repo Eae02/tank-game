@@ -6,7 +6,6 @@
 #include "../transform.h"
 #include "../utils/utils.h"
 
-#include <algorithm>
 
 namespace TankGame
 {

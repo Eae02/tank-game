@@ -1,5 +1,4 @@
 #include "mathutils.h"
-#include <glm/gtc/constants.hpp>
 
 namespace TankGame
 {

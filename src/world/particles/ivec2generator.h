@@ -2,7 +2,6 @@
 
 #include "../../utils/abstract.h"
 
-#include <glm/glm.hpp>
 #include <pcg_random.hpp>
 
 namespace TankGame

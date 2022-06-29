@@ -5,6 +5,8 @@
 #include "../../utils/jsonparseutils.h"
 #include "../../graphics/defaultnormalmap.h"
 
+#include <nlohmann/json.hpp>
+
 namespace TankGame
 {
 	PropClass PropClass::FromJSON(const nlohmann::json& json, const fs::path& parentPath, PropsManager& propsManager)

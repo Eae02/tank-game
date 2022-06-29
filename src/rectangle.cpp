@@ -1,7 +1,5 @@
 #include "rectangle.h"
 
-#include <algorithm>
-#include <cmath>
 
 namespace TankGame
 {

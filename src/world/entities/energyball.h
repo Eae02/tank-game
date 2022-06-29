@@ -5,7 +5,6 @@
 #include "particlesystementity.h"
 #include "hittable.h"
 
-#include <glm/glm.hpp>
 
 namespace TankGame
 {

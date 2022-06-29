@@ -1,9 +1,6 @@
 #include "tilegridmaterial.h"
 #include "gl/shadermodule.h"
 
-#include <string>
-#include <vector>
-#include <stdexcept>
 #include <iostream>
 #include <sstream>
 #include <nlohmann/json.hpp>

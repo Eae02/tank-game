@@ -1,9 +1,6 @@
 #pragma once
 
-#include <string>
 #include <iosfwd>
-#include <vector>
-#include <glm/glm.hpp>
 
 #include "graphics/gl/texture2d.h"
 

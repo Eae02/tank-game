@@ -1,6 +1,8 @@
 #include "deflectionfieldparser.h"
 #include "../../entities/deflectionfieldentity.h"
 
+#include <nlohmann/json.hpp>
+
 namespace TankGame
 {
 	std::unique_ptr<Entity> DeflectionFieldParser::ParseEntity(const nlohmann::json& json, const ParseParams& params) const

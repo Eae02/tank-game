@@ -2,7 +2,6 @@
 #include "../../platform/common.h"
 #include "../../profiling.h"
 
-#include <algorithm>
 
 namespace TankGame
 {

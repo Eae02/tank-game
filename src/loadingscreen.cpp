@@ -10,8 +10,6 @@
 #include "utils/ioutils.h"
 #include "audio/soundsmanager.h"
 
-#include <cmath>
-
 namespace TankGame
 {
 	LoadingScreen::LoadingScreen()

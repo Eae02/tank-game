@@ -5,13 +5,11 @@
 #include "../graphics/gl/texture2d.h"
 #include "../graphics/gl/buffer.h"
 #include "../graphics/gl/vertexinputstate.h"
-#include "../utils/filesystem.h"
 #include "../world/entities/playerweaponstate.h"
 #include "weaponicon.h"
 #include "pausemenu.h"
 #include "levelcompletemenu.h"
 
-#include <memory>
 
 namespace TankGame
 {

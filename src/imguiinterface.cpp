@@ -8,7 +8,6 @@
 #include "mouse.h"
 #include "updateinfo.h"
 
-#include <memory>
 
 namespace TankGame::ImGuiInterface
 {

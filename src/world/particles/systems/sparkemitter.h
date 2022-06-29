@@ -3,7 +3,6 @@
 #include "../particleemitter.h"
 #include "../spherevec2generator.h"
 
-#include <memory>
 
 namespace TankGame
 {

@@ -4,6 +4,7 @@
 #include "../../utils/mathutils.h"
 
 #include <unordered_map>
+#include <queue>
 
 namespace TankGame
 {

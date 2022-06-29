@@ -8,7 +8,6 @@
 #include "../../mouse.h"
 
 #include <imgui.h>
-#include <algorithm>
 
 namespace TankGame
 {

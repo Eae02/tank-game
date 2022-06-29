@@ -6,7 +6,6 @@
 #include "../entity.h"
 #include "hittable.h"
 
-#include <memory>
 
 namespace TankGame
 {

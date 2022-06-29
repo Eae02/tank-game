@@ -1,7 +1,6 @@
 #include "utils.h"
 #include "../platform/messagebox.h"
 
-#include <vector>
 #include <sstream>
 #include <iostream>
 #include <glm/gtc/color_space.hpp>

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "functions.h"
-#include <cmath>
 
 #include "glresource.h"
 

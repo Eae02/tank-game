@@ -1,7 +1,6 @@
 #pragma once
 
 #include <istream>
-#include <memory>
 #include "../gameworld.h"
 
 namespace TankGame

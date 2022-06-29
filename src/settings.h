@@ -1,10 +1,5 @@
 ﻿#pragma once
 
-#include "utils/filesystem.h"
-
-#include <glm/glm.hpp>
-#include <vector>
-#include <nlohmann/json.hpp>
 
 namespace TankGame
 {

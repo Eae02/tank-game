@@ -1,6 +1,5 @@
 #include "colliderinfo.h"
 
-#include <limits>
 
 namespace TankGame
 {

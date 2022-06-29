@@ -2,13 +2,6 @@
 #include "../../utils/utils.h"
 #include "../../loadimage.h"
 
-#include <memory>
-#include <cmath>
-#include <algorithm>
-
-#include <unordered_set>
-#include <iostream>
-
 namespace TankGame
 {
 	Texture2D Texture2D::FromFile(const fs::path& path, int numChannels)

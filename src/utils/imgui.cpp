@@ -1,7 +1,6 @@
 #include "imgui.h"
 
 #include <imgui.h>
-#include <array>
 
 namespace TankGame
 {

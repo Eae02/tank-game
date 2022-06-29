@@ -2,9 +2,6 @@
 #include "../frames.h"
 #include "../../utils/mathutils.h"
 
-#include <algorithm>
-#include <cstring>
-
 namespace TankGame
 {
 	Buffer::Buffer(size_t size, const void* data, BufferUsage usage) : m_size(size)

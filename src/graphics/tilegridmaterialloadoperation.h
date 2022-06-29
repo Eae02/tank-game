@@ -1,11 +1,8 @@
 #pragma once
 
-#include "../utils/filesystem.h"
 #include "../utils/utils.h"
 #include "tilegridmaterial.h"
 
-#include <vector>
-#include <memory>
 #include <future>
 
 namespace TankGame

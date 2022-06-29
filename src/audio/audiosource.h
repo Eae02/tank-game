@@ -4,7 +4,6 @@
 #include "audiobuffer.h"
 #include "../graphics/viewinfo.h"
 
-#include <glm/glm.hpp>
 
 namespace TankGame
 {

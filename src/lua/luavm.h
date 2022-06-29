@@ -2,8 +2,6 @@
 
 #include "luainc.h"
 
-#include <memory>
-#include <string>
 #include <functional>
 
 namespace TankGame

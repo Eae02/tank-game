@@ -1,8 +1,7 @@
 #include "omniflamethrowerparser.h"
 #include "../../entities/omniflamethrower.h"
 
-#include <algorithm>
-#include <cstddef>
+#include <nlohmann/json.hpp>
 
 namespace TankGame
 {

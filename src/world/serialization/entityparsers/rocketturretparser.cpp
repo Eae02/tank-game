@@ -1,8 +1,7 @@
 #include "rocketturretparser.h"
 #include "../../entities/enemies/rocketturret.h"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
+#include <nlohmann/json.hpp>
 
 namespace TankGame
 {

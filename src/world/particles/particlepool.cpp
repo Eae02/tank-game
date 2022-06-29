@@ -2,8 +2,6 @@
 #include "../../utils/utils.h"
 #include "../../platform/common.h"
 
-#include <iostream>
-
 namespace TankGame
 {
 	bool ParticlePool::SpawnParticle(const ParticleInfo& info)

@@ -3,10 +3,7 @@
 #include "gl/texture2darray.h"
 #include "gl/bufferallocator.h"
 #include "gl/shaderprogram.h"
-#include "../utils/filesystem.h"
 
-#include <glm/vec2.hpp>
-#include <algorithm>
 
 namespace TankGame
 {

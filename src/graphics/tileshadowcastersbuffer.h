@@ -4,7 +4,6 @@
 #include "gl/vertexinputstate.h"
 #include "gl/shaderprogram.h"
 
-#include <memory>
 
 namespace TankGame
 {

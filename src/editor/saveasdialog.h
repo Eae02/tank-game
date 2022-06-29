@@ -1,8 +1,6 @@
 #pragma once
 
 #include <functional>
-#include <string>
-#include <array>
 
 namespace TankGame
 {

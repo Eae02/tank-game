@@ -11,7 +11,7 @@
 #include "../../utils/random.h"
 #include "../../utils/mathutils.h"
 
-#include <glm/gtc/constants.hpp>
+#include <nlohmann/json.hpp>
 #include <imgui.h>
 
 namespace TankGame
@@ -102,10 +102,7 @@ namespace TankGame
 		return Circle(GetTransform().GetPosition(), 0.2f);
 	}
 	
-	void EnergyBall::DrawDistortions() const
-	{
-		
-	}
+	void EnergyBall::DrawDistortions() const { }
 	
 	void EnergyBall::OnSpawned(GameWorld& gameWorld)
 	{

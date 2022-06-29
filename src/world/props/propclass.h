@@ -2,9 +2,8 @@
 
 #include "../../graphics/gl/texture2d.h"
 #include "../../graphics/spritematerial.h"
-#include "../../utils/filesystem.h"
 
-#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 namespace TankGame
 {

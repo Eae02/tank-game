@@ -1,10 +1,6 @@
 ﻿#pragma once
 
-#include <cstddef>
-#include <vector>
-#include <string>
 #include <iosfwd>
-#include <glm/glm.hpp>
 
 #include <version>
 #ifdef __cpp_lib_source_location

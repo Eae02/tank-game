@@ -1,7 +1,5 @@
 #include "scissor.h"
 
-#include <stack>
-
 namespace TankGame
 {
 	struct ScissorRect
@@ -15,14 +13,14 @@ namespace TankGame
 		    : m_x(x), m_y(y), m_width(width), m_height(height) { }
 	};
 	
-	static std::stack<ScissorRect> scissorRectStack;
+	static std::vector<ScissorRect> scissorRectStack;
 	
 	void PopScissorRect()
 	{
 		if (scissorRectStack.empty())
 		    return;
 		
-		scissorRectStack.pop();
+		scissorRectStack.pop_back();
 		
 		if (scissorRectStack.empty())
 		{
@@ -30,7 +28,7 @@ namespace TankGame
 		}
 		else
 		{
-			ScissorRect scissor = scissorRectStack.top();
+			ScissorRect scissor = scissorRectStack.back();
 			glScissor(scissor.m_x, scissor.m_y, scissor.m_width, scissor.m_height);
 		}
 	}
@@ -43,7 +41,7 @@ namespace TankGame
 		}
 		else
 		{
-			const ScissorRect& currentRect = scissorRectStack.top();
+			const ScissorRect& currentRect = scissorRectStack.back();
 			
 			x = glm::max(x, currentRect.m_x);
 			y = glm::max(y, currentRect.m_y);
@@ -52,7 +50,7 @@ namespace TankGame
 			h = glm::max(glm::min(y + h, currentRect.m_y + currentRect.m_height) - y, 0);
 		}
 		
-		scissorRectStack.emplace(x, y, w, h);
+		scissorRectStack.emplace_back(x, y, w, h);
 		glScissor(x, y, w, h);
 	}
 	

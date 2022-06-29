@@ -1,9 +1,6 @@
 #pragma once
 
-#include <array>
-#include <string>
 #include <functional>
-#include <vector>
 #include <unordered_map>
 
 class ImGuiInputTextCallbackData;

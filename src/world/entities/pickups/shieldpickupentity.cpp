@@ -3,6 +3,8 @@
 #include "../../../audio/soundeffectplayer.h"
 #include "../../../utils/utils.h"
 
+#include <nlohmann/json.hpp>
+
 namespace TankGame
 {
 	static SoundEffectPlayer pickupEffectPlayer{ "ShieldPickup" };

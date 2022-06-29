@@ -7,7 +7,7 @@
 #include "../../orientedrectangle.h"
 #include "../../utils/jsonparseutils.h"
 
-#include <algorithm>
+#include <nlohmann/json.hpp>
 #include <imgui.h>
 
 namespace TankGame

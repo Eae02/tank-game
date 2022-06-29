@@ -10,7 +10,6 @@
 #include "../../graphics/quadmesh.h"
 #include "../../platform/common.h"
 
-#include <glm/gtc/constants.hpp>
 #include <initializer_list>
 
 namespace TankGame

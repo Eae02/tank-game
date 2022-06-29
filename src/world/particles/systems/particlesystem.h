@@ -4,7 +4,6 @@
 #include "../../../transform.h"
 #include "../../itransformationprovider.h"
 
-#include <cstddef>
 
 namespace TankGame
 {

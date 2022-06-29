@@ -9,9 +9,6 @@
 #include "../updateinfo.h"
 #include "../platform/common.h"
 
-#include <glm/gtc/constants.hpp>
-#include <iostream>
-
 namespace TankGame
 {
 	bool EnemyAI::MaybeBeginChasing(glm::vec2 selfPosition, glm::vec2 playerPosition)

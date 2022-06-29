@@ -1,5 +1,4 @@
 #include "energyballparticlesystem.h"
-#include <glm/gtc/constants.hpp>
 
 namespace TankGame
 {

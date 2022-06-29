@@ -1,6 +1,7 @@
 #include "deflectionfieldentity.h"
 #include "../../updateinfo.h"
 
+#include <nlohmann/json.hpp>
 #include <imgui.h>
 
 namespace TankGame

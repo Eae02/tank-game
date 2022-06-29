@@ -1,8 +1,5 @@
 #include "playerpowerupstate.h"
 
-#include <algorithm>
-#include <iterator>
-
 namespace TankGame
 {
 	float GetPowerUpTime(PowerUps powerUp)
@@ -37,6 +34,4 @@ namespace TankGame
 		for (float& powerUpTime : m_powerUpTimes)
 			powerUpTime = std::max(powerUpTime - dt, 0.0f);
 	}
-	
-	
 }

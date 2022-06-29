@@ -17,6 +17,8 @@
 #include "../../../graphics/spriterenderlist.h"
 #include "../../../graphics/ui/uirenderer.h"
 
+#include <nlohmann/json.hpp>
+
 namespace TankGame
 {
 	static const float CIRCLE_RADIUS = 0.4f;

@@ -1,8 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <vector>
-
 namespace TankGame
 {
 	constexpr int MIN_RES_X = 600;

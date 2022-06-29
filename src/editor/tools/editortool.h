@@ -1,6 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
 
 #include "../../updateinfo.h"
 #include "../../graphics/gl/texture2d.h"

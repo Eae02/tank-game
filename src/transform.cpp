@@ -1,9 +1,8 @@
 #include "transform.h"
 #include "utils/mathutils.h"
 
-#include <cmath>
-#include <algorithm>
 #include <imgui.h>
+#include <nlohmann/json.hpp>
 
 namespace TankGame
 {

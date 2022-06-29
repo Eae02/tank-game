@@ -11,8 +11,8 @@
 #include "../../utils/ioutils.h"
 #include "../../audio/soundsmanager.h"
 
+#include <nlohmann/json.hpp>
 #include <imgui.h>
-#include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace TankGame

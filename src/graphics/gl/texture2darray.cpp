@@ -3,7 +3,6 @@
 #include "../../loadimage.h"
 
 #include <stb_image_resize.h>
-#include <memory>
 
 namespace TankGame
 {

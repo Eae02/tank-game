@@ -1,12 +1,7 @@
 #pragma once
 
-#include "utils/filesystem.h"
 #include "world/gameworld.h"
 #include "lua/sandbox.h"
-
-#include <string>
-#include <memory>
-#include <optional>
 
 namespace TankGame
 {

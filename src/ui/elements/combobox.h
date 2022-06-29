@@ -1,8 +1,6 @@
 #pragma once
 
 #include <initializer_list>
-#include <string>
-#include <vector>
 
 #include "scrollbar.h"
 #include "iuielement.h"

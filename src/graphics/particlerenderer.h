@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <memory>
 #include "particlebatch.h"
 #include "gl/shaderprogram.h"
 

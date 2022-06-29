@@ -4,7 +4,6 @@
 #include "../../utils/utils.h"
 #include "../../graphics/viewinfo.h"
 
-#include <glm/gtc/constants.hpp>
 
 namespace TankGame
 {

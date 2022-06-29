@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <glm/vec2.hpp>
 
 #include "intersectinfo.h"
 #include "path/path.h"

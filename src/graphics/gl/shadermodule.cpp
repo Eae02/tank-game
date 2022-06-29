@@ -3,10 +3,7 @@
 #include "../../utils/ioutils.h"
 #include "../../utils/utils.h"
 
-#include <cstddef>
-#include <cstring>
 #include <sstream>
-#include <algorithm>
 
 namespace TankGame
 {

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
 #include "rendersettingsbuffer.h"
 #include "spriterenderlist.h"
 #include "irenderer.h"

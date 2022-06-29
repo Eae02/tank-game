@@ -9,7 +9,6 @@
 #include "../../../utils/random.h"
 
 #include <random>
-#include <glm/gtc/constants.hpp>
 
 namespace TankGame
 {

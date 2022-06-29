@@ -7,7 +7,6 @@
 #include "frames.h"
 #include "../world/lights/ilightsource.h"
 
-#include <memory>
 
 namespace TankGame
 {

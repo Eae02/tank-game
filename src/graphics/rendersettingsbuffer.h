@@ -1,6 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
 
 #include "gl/buffer.h"
 #include "frames.h"

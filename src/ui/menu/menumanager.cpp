@@ -9,10 +9,9 @@
 #include "../../progress.h"
 #include "../../profiling.h"
 
+#include <nlohmann/json.hpp>
 #include <fstream>
 #include <random>
-#include <algorithm>
-#include <glm/gtc/constants.hpp>
 
 using namespace std::chrono;
 

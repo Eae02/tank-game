@@ -13,10 +13,6 @@
 #include "saveasdialog.h"
 #include "properties/propertieswindow.h"
 
-#include <set>
-#include <vector>
-#include <memory>
-
 namespace TankGame
 {
 	class Editor

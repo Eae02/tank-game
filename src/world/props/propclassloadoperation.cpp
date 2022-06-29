@@ -3,8 +3,6 @@
 #include "../../asyncworklist.h"
 #include "../../utils/ioutils.h"
 
-#include <algorithm>
-
 namespace TankGame
 {
 	std::future<PropClassLoadOperation> PropClassLoadOperation::Load(fs::path dirPath)

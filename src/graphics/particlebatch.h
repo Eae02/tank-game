@@ -2,7 +2,6 @@
 
 #include "gl/buffer.h"
 #include "frames.h"
-#include <cstdint>
 
 namespace TankGame
 {

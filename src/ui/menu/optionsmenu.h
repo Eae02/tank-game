@@ -5,8 +5,6 @@
 #include "../elements/slider.h"
 
 #include <functional>
-#include <optional>
-#include <array>
 
 namespace TankGame
 {

@@ -1,9 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <ostream>
 #include <istream>
-#include <cstddef>
 
 namespace TankGame
 {

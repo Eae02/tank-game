@@ -15,8 +15,8 @@
 #include "../../../audio/soundsmanager.h"
 #include "../../../graphics/ui/uirenderer.h"
 
+#include <nlohmann/json.hpp>
 #include <imgui.h>
-#include <glm/glm.hpp>
 
 namespace TankGame
 {

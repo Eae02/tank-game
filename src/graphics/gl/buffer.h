@@ -2,7 +2,6 @@
 
 #include "glresource.h"
 
-#include <memory>
 
 namespace TankGame
 {

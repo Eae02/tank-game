@@ -1,4 +1,3 @@
-#include <cstring>
 #include "shadowmap.h"
 #include "../utils/utils.h"
 #include "../utils/mathutils.h"

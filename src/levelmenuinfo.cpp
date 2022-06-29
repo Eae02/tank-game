@@ -8,7 +8,7 @@
 
 #include <ostream>
 #include <istream>
-#include <cstring>
+#include <nlohmann/json.hpp>
 
 namespace TankGame
 {

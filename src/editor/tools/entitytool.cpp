@@ -16,7 +16,6 @@
 #include "../../world/lights/spotlightentity.h"
 
 #include <glm/gtc/color_space.hpp>
-#include <algorithm>
 #include <imgui.h>
 
 namespace TankGame

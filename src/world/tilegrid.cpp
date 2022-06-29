@@ -7,11 +7,7 @@
 #include "../utils/utils.h"
 #include "../utils/ioutils.h"
 
-#include <iostream>
-#include <glm/gtc/constants.hpp>
 #include <glm/gtx/fast_square_root.hpp>
-
-#include <unordered_map>
 
 namespace TankGame
 {

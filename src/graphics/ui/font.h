@@ -1,9 +1,5 @@
 #pragma once
 
-#include <string>
-#include <memory>
-#include <optional>
-#include <glm/glm.hpp>
 
 #include "../gl/texture2d.h"
 

@@ -4,7 +4,6 @@
 #include "../mouse.h"
 #include "../argumentdata.h"
 
-#include <memory>
 #include <functional>
 
 struct GLFWwindow;

@@ -3,7 +3,6 @@
 #include "quadmesh.h"
 #include "../utils/ioutils.h"
 
-#include <glm/glm.hpp>
 
 namespace TankGame
 {

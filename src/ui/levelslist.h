@@ -1,8 +1,6 @@
 #pragma once
 
-#include <vector>
 #include <functional>
-#include <memory>
 
 #include "../rectangle.h"
 #include "../levelmenuinfo.h"

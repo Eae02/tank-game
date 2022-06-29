@@ -28,8 +28,6 @@
 #include "profiling.h"
 #include "graphics/tilegridmaterial.h"
 
-#include <string>
-#include <array>
 
 namespace TankGame
 {

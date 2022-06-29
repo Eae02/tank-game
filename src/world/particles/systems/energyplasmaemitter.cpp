@@ -2,7 +2,6 @@
 #include "../../../utils/utils.h"
 #include "../../../utils/ioutils.h"
 
-#include <glm/gtc/constants.hpp>
 
 namespace TankGame
 {

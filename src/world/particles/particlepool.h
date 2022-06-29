@@ -4,7 +4,6 @@
 #include "../../rectangle.h"
 #include "../../utils/objectpool.h"
 
-#include <array>
 
 namespace TankGame
 {

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.16)
 project(TankGame CXX)
 
 set(BUILD_DIR_NAME ${CMAKE_BUILD_TYPE})
@@ -20,6 +20,8 @@ file(GLOB_RECURSE SOURCE_FILES ${TankGame_SOURCE_DIR}/src/*.cpp)
 add_executable(tankgame ${SOURCE_FILES}
 	deps/imgui/imgui.cpp deps/imgui/imgui_draw.cpp deps/imgui/imgui_tables.cpp deps/imgui/imgui_widgets.cpp
 )
+
+target_precompile_headers(tankgame PRIVATE ${TankGame_SOURCE_DIR}/inc/pch.h)
 
 target_compile_options(tankgame PRIVATE
 	-DGLM_FORCE_RADIANS -DZLIB_CONST -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_CTOR_INIT

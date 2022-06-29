@@ -3,9 +3,7 @@
 #include "../utils/utils.h"
 
 #include <vorbis/vorbisfile.h>
-#include <memory>
 #include <cstdio>
-#include <vector>
 #include <AL/al.h>
 
 namespace TankGame

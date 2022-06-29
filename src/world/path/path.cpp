@@ -2,7 +2,6 @@
 #include "../../utils/utils.h"
 
 #include <stdexcept>
-#include <algorithm>
 
 namespace TankGame
 {

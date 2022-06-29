@@ -1,6 +1,8 @@
 #include "eventboxparser.h"
 #include "../../entities/eventbox.h"
 
+#include <nlohmann/json.hpp>
+
 namespace TankGame
 {
 	std::unique_ptr<Entity> EventBoxParser::ParseEntity(const nlohmann::json& json, const ParseParams& params) const

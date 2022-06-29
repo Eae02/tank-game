@@ -1,6 +1,5 @@
 #include "orientedrectangle.h"
 
-#include <limits>
 
 namespace TankGame
 {

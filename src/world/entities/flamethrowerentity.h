@@ -8,8 +8,6 @@
 #include "../../graphics/ui/uirenderer.h"
 #include "../../graphics/gl/shaderprogram.h"
 
-#include <memory>
-
 namespace TankGame
 {
 	class FlameThrowerEntity : public Entity, public Entity::ISpriteDrawable, public Entity::IDistortionDrawable,

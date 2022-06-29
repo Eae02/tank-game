@@ -1,8 +1,6 @@
 #include "aiutils.h"
 #include "../utils/mathutils.h"
 
-#include <glm/gtc/constants.hpp>
-#include <cmath>
 
 namespace TankGame
 {

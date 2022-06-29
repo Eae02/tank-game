@@ -2,9 +2,7 @@
 #include "../../utils/utils.h"
 
 #include <zlib.h>
-#include <algorithm>
 #include <cassert>
-#include <stdexcept>
 
 namespace TankGame
 {

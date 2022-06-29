@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../utils/abstract.h"
-#include <glm/glm.hpp>
 
 namespace TankGame
 {

@@ -3,8 +3,6 @@
 #include "../settings.h"
 #include "../utils/mathutils.h"
 
-#include <cstring>
-
 namespace TankGame
 {
 	static const size_t BUFFER_SIZE = sizeof(float) * 32;

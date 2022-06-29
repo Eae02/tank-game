@@ -4,8 +4,6 @@
 #include "../particles/systems/particlesystem.h"
 #include "../../utils/abstract.h"
 
-#include <limits>
-#include <memory>
 
 namespace TankGame
 {

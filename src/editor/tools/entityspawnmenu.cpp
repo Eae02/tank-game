@@ -8,9 +8,6 @@
 #include "../../world/gameworld.h"
 #include "../../world/serialization/parseutils.h"
 
-#include <codecvt>
-#include <locale>
-#include <algorithm>
 #include <imgui.h>
 
 namespace TankGame
