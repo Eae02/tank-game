@@ -7,6 +7,14 @@ set(CMAKE_MODULE_PATH "${TankGame_SOURCE_DIR}/cmake")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TankGame_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${TankGame_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 
+#gets the commit hash
+execute_process(COMMAND git log -1 --format=%h
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+	OUTPUT_VARIABLE COMMIT_HASH
+	OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+string(TIMESTAMP BUILD_DATE "%d-%m-%Y")
+
 file(GLOB_RECURSE SOURCE_FILES ${TankGame_SOURCE_DIR}/src/*.cpp)
 
 add_executable(tankgame ${SOURCE_FILES}
@@ -15,6 +23,7 @@ add_executable(tankgame ${SOURCE_FILES}
 
 target_compile_options(tankgame PRIVATE
 	-DGLM_FORCE_RADIANS -DZLIB_CONST -DGLM_ENABLE_EXPERIMENTAL -DGLM_FORCE_CTOR_INIT
+	-DMENU_BUILD_INFO="${COMMIT_HASH} ${BUILD_DATE}"
 	-Wall -Wpedantic -Wfatal-errors
 )
 

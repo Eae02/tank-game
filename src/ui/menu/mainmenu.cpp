@@ -1,4 +1,5 @@
 #include "mainmenu.h"
+#include "../../graphics/ui/font.h"
 #include "../../updateinfo.h"
 #include "../../utils/ioutils.h"
 
@@ -31,6 +32,13 @@ namespace TankGame
 #endif
 		
 		uiRenderer.DrawSprite(m_title, m_titleRectangle, glm::vec4(1.0f));
+		
+#if defined(MENU_BUILD_INFO)
+		uiRenderer.DrawString(
+			Font::GetNamedFont(FontNames::StandardUI), MENU_BUILD_INFO,
+			Rectangle(5, 5, uiRenderer.GetWindowWidth(), uiRenderer.GetWindowHeight()),
+			Alignment::Left, Alignment::Bottom, glm::vec4(1, 1, 1, 0.4f));
+#endif
 	}
 	
 	void MainMenu::OnOpen()
