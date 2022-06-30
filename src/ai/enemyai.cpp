@@ -36,7 +36,7 @@ namespace TankGame
 		const float FIRE_RADIUS = 7;
 		
 		const bool isPlayerVisible =
-			LengthSquared(toPlayer) < SIGHT_RADIUS * SIGHT_RADIUS &&
+			glm::length2(toPlayer) < SIGHT_RADIUS * SIGHT_RADIUS &&
 			!m_gameWorld->IsRayObstructed(playerPosition, entity.GetTransform().GetPosition(), ICollidable::IsObject);
 		
 		auto WalkPath = [&] (const Path& path, float& progress, bool modulate)
@@ -70,7 +70,7 @@ namespace TankGame
 				
 				entity.SetCannonRotation(glm::half_pi<float>() + std::atan2(toPlayer.y, toPlayer.x));
 				
-				const bool withinFiringRange = LengthSquared(toPlayer) < FIRE_RADIUS * FIRE_RADIUS;
+				const bool withinFiringRange = glm::length2(toPlayer) < FIRE_RADIUS * FIRE_RADIUS;
 				
 				if (entity.CanFire(updateInfo.m_gameTime) && withinFiringRange)
 				{

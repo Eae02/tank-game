@@ -13,10 +13,6 @@ namespace TankGame
 	float GetRotationDifference(float rotationA, float rotationB);
 	
 	template <typename T>
-	inline float LengthSquared(T vector)
-	{ return glm::dot(vector, vector); }
-	
-	template <typename T>
 	inline T RoundToNextMultiple(T value, T multiple)
 	{
 		T valModMul = value % multiple;

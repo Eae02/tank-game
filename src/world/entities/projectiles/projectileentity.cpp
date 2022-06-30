@@ -37,7 +37,7 @@ namespace TankGame
 			if (hittable == nullptr || hittable->GetTeamID() == m_teamID || &entity == m_sourceEntity)
 				return;
 			
-			float distToTargetSq = LengthSquared(entity.GetTransform().GetPosition() - GetTransform().GetPosition());
+			float distToTargetSq = glm::distance2(entity.GetTransform().GetPosition(), GetTransform().GetPosition());
 			
 			if (homeTarget == nullptr || distToHomeTargetSq < distToTargetSq)
 			{
@@ -163,7 +163,7 @@ namespace TankGame
 			if (!intersectInfo.m_intersects)
 				return;
 			
-			float penetrationLenSquared = LengthSquared(intersectInfo.m_penetration);
+			float penetrationLenSquared = glm::length2(intersectInfo.m_penetration);
 			
 			if (penetrationLenSquared > hitEntityPenetrationLenSquared)
 			{

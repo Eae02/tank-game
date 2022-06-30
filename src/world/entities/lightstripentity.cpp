@@ -186,7 +186,7 @@ namespace TankGame
 		float maxDistanceToCenterSq = 0;
 		for (size_t i = 0; i < vertices.size(); i++)
 		{
-			maxDistanceToCenterSq = glm::max(LengthSquared(vertices[i] - center), maxDistanceToCenterSq);
+			maxDistanceToCenterSq = glm::max(glm::distance2(vertices[i], center), maxDistanceToCenterSq);
 		}
 		
 		m_boundingCircle = { center, std::sqrt(maxDistanceToCenterSq) };

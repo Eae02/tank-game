@@ -33,7 +33,7 @@ namespace TankGame
 			
 			glm::vec2 nodePosSS(viewMatrix * glm::vec3(path[i], 1.0f));
 			
-			if (LengthSquared(nodePosSS - screenCoordinate) < MAX_DIST_SQ)
+			if (glm::distance2(nodePosSS, screenCoordinate) < MAX_DIST_SQ)
 				return i;
 		}
 		
@@ -121,8 +121,8 @@ namespace TankGame
 		{
 			glm::vec2 center = (path[i] + path[i - 1]) / 2.0f;
 			
-			float maxDistSq = LengthSquared(center - path[i]) * 0.8f;
-			float distToCenterSq = LengthSquared(center - worldMouseCoords);
+			float maxDistSq = glm::distance2(center, path[i]) * 0.8f;
+			float distToCenterSq = glm::distance2(center, worldMouseCoords);
 			
 			if (distToCenterSq < closestCenterDistSq && distToCenterSq < maxDistSq)
 			{

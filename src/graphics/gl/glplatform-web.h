@@ -5,8 +5,6 @@ typedef double GLclampd;
 typedef float GLclampf;
 #include <GL/glext.h>
 
-#define glTexStorage2D  ((void(*)(...))nullptr)
-#define glTexStorage3D  ((void(*)(...))nullptr)
 #define glBufferStorage ((void(*)(...))nullptr)
 #define glGetnTexImage  ((void(*)(...))nullptr)
 #define glDrawBuffer    ((void(*)(...))nullptr)

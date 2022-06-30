@@ -129,7 +129,7 @@ namespace TankGame
 			
 			glm::vec2 toPlayer = m_player->GetTransform().GetPosition() - GetTransform().GetPosition();
 			
-			if (LengthSquared(toPlayer) < DETECT_DISTANCE * DETECT_DISTANCE &&
+			if (glm::length2(toPlayer) < DETECT_DISTANCE * DETECT_DISTANCE &&
 			    !GetGameWorld()->IsRayObstructed(GetTransform().GetPosition(), m_player->GetTransform().GetPosition(),
 			                                     ICollidable::IsObject))
 			{

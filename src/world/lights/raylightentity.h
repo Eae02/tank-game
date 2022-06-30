@@ -45,7 +45,7 @@ namespace TankGame
 		
 		virtual const ShaderProgram& GetShader() const override;
 		virtual void Bind() const override;
-		virtual LightInfo GetLightInfo() const override;
+		virtual std::optional<LightInfo> GetLightInfo() const override;
 		
 		virtual class ShadowMap* GetShadowMap() const { return nullptr; }
 		virtual void InvalidateShadowMap() { }

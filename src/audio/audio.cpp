@@ -37,13 +37,13 @@ namespace TankGame
 	
 	void CloseOpenAL()
 	{
-		if (theALContext && alcDestroyContext)
+		if (theALContext)
 		{
 			alcDestroyContext(theALContext);
 			theALContext = nullptr;
 		}
 		
-		if (theALDevice && alcCloseDevice)
+		if (theALDevice)
 		{
 			alcCloseDevice(theALDevice);
 			theALDevice = nullptr;

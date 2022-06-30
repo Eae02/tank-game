@@ -21,7 +21,7 @@ namespace TankGame
 		virtual const ShaderProgram& GetShader() const override = 0;
 		virtual void Bind() const override;
 		
-		virtual LightInfo GetLightInfo() const override;
+		virtual std::optional<LightInfo> GetLightInfo() const override;
 		
 		inline const glm::vec3& GetColor() const
 		{ return m_color; }

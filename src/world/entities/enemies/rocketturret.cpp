@@ -157,7 +157,7 @@ namespace TankGame
 		
 		glm::vec2 toPlayer = m_playerEntity->GetTransform().GetPosition() - GetTransform().GetPosition();
 		
-		if (LengthSquared(toPlayer) > GetLength() * GetLength())
+		if (glm::length2(toPlayer) > GetLength() * GetLength())
 			return false;
 		
 		glm::vec2 forward = GetTransform().GetForward();

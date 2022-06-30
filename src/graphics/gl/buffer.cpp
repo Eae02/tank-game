@@ -79,6 +79,11 @@ namespace TankGame
 			glBindBuffer(m_target, GetID());
 			glBufferSubData(m_target, offset, range, m_fakeMemoryMapping.get() + offset);
 		}
+		else if (!glFlushMappedNamedBufferRange)
+		{
+			glBindBuffer(m_target, GetID());
+			glFlushMappedBufferRange(m_target, offset, range);
+		}
 		else
 		{
 			glFlushMappedNamedBufferRange(GetID(), offset, range);

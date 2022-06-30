@@ -19,5 +19,6 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
+#include <glm/gtx/norm.hpp>
 
 namespace fs = std::filesystem;

@@ -27,11 +27,18 @@ namespace TankGame
 		SetShadowMode(EntityShadowModes::Dynamic);
 	}
 	
+	//Hit detection is disabled when further away from the player than this distance
+	static constexpr float OUT_OF_RANGE_DISTANCE = 50;
+	
 	void EnergyBall::Update(const UpdateInfo& updateInfo)
 	{
 		GetTransform().Translate(m_direction * updateInfo.m_dt * 1.5f);
 		
 		Circle circle = GetHitCircle();
+		
+		const bool outOfRange =
+			glm::distance2(GetGameWorld()->GetFocusLocation(), GetTransform().GetPosition()) >
+			OUT_OF_RANGE_DISTANCE * OUT_OF_RANGE_DISTANCE;
 		
 		//Checks for intersections with tiles and object type collidable entities
 		IntersectInfo intersectInfo = GetGameWorld()->GetIntersectInfo(circle, [] (const ICollidable& collidable)
@@ -57,43 +64,46 @@ namespace TankGame
 			GetGameWorld()->Spawn(std::move(psEntity));
 		}
 		
-		Hittable* hitEntity = nullptr;
-		glm::vec2 hitEntityPenetration;
-		float hitEntityPenetrationLenSquared = 0;
-		
-		//Checks for intersections with hittable entities
-		GetGameWorld()->IterateIntersectingEntities(circle.GetBoundingRectangle(), [&] (Entity& entity)
+		if (!outOfRange)
 		{
-			if (&entity == this)
-				return;
+			Hittable* hitEntity = nullptr;
+			glm::vec2 hitEntityPenetration;
+			float hitEntityPenetrationLenSquared = 0;
 			
-			Hittable* hittable = entity.AsHittable();
-			if (hittable == nullptr)
-				return;
-			
-			IntersectInfo intersectInfo = circle.GetIntersectInfo(hittable->GetHitCircle());
-			if (!intersectInfo.m_intersects)
-				return;
-			
-			float penetrationLenSquared = LengthSquared(intersectInfo.m_penetration);
-			
-			if (penetrationLenSquared > hitEntityPenetrationLenSquared)
+			//Checks for intersections with hittable entities
+			GetGameWorld()->IterateIntersectingEntities(circle.GetBoundingRectangle(), [&] (Entity& entity)
 			{
-				hitEntity = hittable;
-				hitEntityPenetrationLenSquared = penetrationLenSquared;
-				hitEntityPenetration = intersectInfo.m_penetration;
-			}
-		});
-		
-		if (hitEntity != nullptr)
-		{
-			//Spawns an explosion at the energy ball's position.
-			auto explosionEntity = std::make_unique<ExplosionEntity>(GetGameWorld()->GetParticlesManager());
-			explosionEntity->GetTransform().SetPosition(GetTransform().GetPosition());
-			GetGameWorld()->Spawn(std::move(explosionEntity));
+				if (&entity == this)
+					return;
+				
+				Hittable* hittable = entity.AsHittable();
+				if (hittable == nullptr)
+					return;
+				
+				IntersectInfo intersectInfo = circle.GetIntersectInfo(hittable->GetHitCircle());
+				if (!intersectInfo.m_intersects)
+					return;
+				
+				float penetrationLenSquared = glm::length2(intersectInfo.m_penetration);
+				
+				if (penetrationLenSquared > hitEntityPenetrationLenSquared)
+				{
+					hitEntity = hittable;
+					hitEntityPenetrationLenSquared = penetrationLenSquared;
+					hitEntityPenetration = intersectInfo.m_penetration;
+				}
+			});
 			
-			hitEntity->SetHp(hitEntity->GetHp() - m_damage * damageMulDist(globalRNG));
-			Despawn();
+			if (hitEntity != nullptr)
+			{
+				//Spawns an explosion at the energy ball's position.
+				auto explosionEntity = std::make_unique<ExplosionEntity>(GetGameWorld()->GetParticlesManager());
+				explosionEntity->GetTransform().SetPosition(GetTransform().GetPosition());
+				GetGameWorld()->Spawn(std::move(explosionEntity));
+				
+				hitEntity->SetHp(hitEntity->GetHp() - m_damage * damageMulDist(globalRNG));
+				Despawn();
+			}
 		}
 	}
 	

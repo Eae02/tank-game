@@ -138,8 +138,11 @@ namespace TankGame
 		
 		for (Region& region : m_regions)
 		{
-			region.dynamicEntities2.swap(region.dynamicEntities);
-			region.dynamicEntities2.clear();
+			if (!updateInfo.m_isEditorOpen)
+			{
+				region.dynamicEntities2.swap(region.dynamicEntities);
+				region.dynamicEntities2.clear();
+			}
 			
 			if (despawnAny)
 			{

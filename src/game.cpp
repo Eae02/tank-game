@@ -13,7 +13,7 @@
 #include "world/particles/systems/smokeparticlesystem.h"
 #include "world/entities/playerentity.h"
 #include "world/entities/checkpointentity.h"
-#include "audio/almanager.h"
+#include "audio/audio.h"
 #include "utils/ioutils.h"
 #include "utils/mathutils.h"
 #include "utils/utils.h"
@@ -76,9 +76,9 @@ namespace TankGame
 		
 		std::unique_ptr<Window> windowUP = std::make_unique<Window>(arguments);
 		
-		glVendorName = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
-		
 		LoadOpenGLFunctions(arguments.m_useDSAWrapper);
+		
+		glVendorName = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
 		
 #if !defined(NDEBUG) && !defined(__EMSCRIPTEN__)
 		if (glDebugMessageCallback && glDebugMessageControl)

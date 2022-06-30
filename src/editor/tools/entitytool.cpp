@@ -68,7 +68,7 @@ namespace TankGame
 		{
 			if (m_wasMouseLeftPressed)
 			{
-				if (LengthSquared(updateInfo.m_mouse.pos - updateInfo.m_mouse.GetOldPosition()) > 1E-6)
+				if (glm::distance2(updateInfo.m_mouse.pos, updateInfo.m_mouse.GetOldPosition()) > 1E-6)
 				{
 					if (m_isMovingSelected)
 					{
@@ -106,7 +106,7 @@ namespace TankGame
 			else
 			{
 				if (frameBeginTime <= m_timeOfLastMouseRelease + 0.4 &&
-					LengthSquared(m_positionOfLastMouseRelease - updateInfo.m_mouse.pos) < 5 * 5)
+					glm::distance2(m_positionOfLastMouseRelease, updateInfo.m_mouse.pos) < 5 * 5)
 				{
 					Entity* propertiesEntity = nullptr;
 					

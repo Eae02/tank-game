@@ -37,8 +37,9 @@ namespace TankGame
 		{
 			if (const ILightSource* lightSource = entity.AsLightSource())
 			{
-				LightInfo lightInfo = lightSource->GetLightInfo();
-				if (viewInfo.Visible({ lightInfo.m_position, lightInfo.m_range }) && lightInfo.m_range > 1E-6)
+				std::optional<LightInfo> lightInfo = lightSource->GetLightInfo();
+				if (lightInfo.has_value() && lightInfo->m_range > 1E-6 &&
+					viewInfo.Visible(Circle(lightInfo->m_position, lightInfo->m_range)))
 				{
 					m_lightSources.push_back(lightSource);
 				}
@@ -174,11 +175,16 @@ namespace TankGame
 		
 		m_gameWorld->IterateIntersectingEntities(viewInfo.GetViewRectangle(), [&] (const Entity& entity)
 		{
-			const ILightSource* lightSource = entity.AsLightSource();
-			if (lightSource == nullptr)
-				return;
-			if (class ShadowMap* shadowMap = lightSource->GetShadowMap())
-				shadowRenderer.RenderShadowMap(*shadowMap, lightSource->GetLightInfo(), viewInfo, *this);
+			if (const ILightSource* lightSource = entity.AsLightSource())
+			{
+				if (std::optional<LightInfo> lightInfo = lightSource->GetLightInfo())
+				{
+					if (class ShadowMap* shadowMap = lightSource->GetShadowMap())
+					{
+						shadowRenderer.RenderShadowMap(*shadowMap, *lightInfo, viewInfo, *this);
+					}
+				}
+			}
 		});
 	}
 }

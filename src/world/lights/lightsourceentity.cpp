@@ -61,8 +61,10 @@ namespace TankGame
 			ShadowMap::BindDefault(SHADOW_MAP_TEXTURE_BINDING);
 	}
 	
-	LightInfo LightSourceEntity::GetLightInfo() const
+	std::optional<LightInfo> LightSourceEntity::GetLightInfo() const
 	{
+		if (!m_enabled || m_intensity == 0)
+			return { };
 		return LightInfo(GetTransform().GetPosition(), m_range);
 	}
 	

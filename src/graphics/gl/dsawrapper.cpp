@@ -53,9 +53,6 @@ namespace TankGame
 			glProgramUniformMatrix4fv = ProgramUniformMatrix4fv;
 			
 			glCreateBuffers = glGenBuffers;
-			glMapNamedBuffer = nullptr;
-			glMapNamedBufferRange = nullptr;
-			glUnmapNamedBuffer = nullptr;
 			glFlushMappedNamedBufferRange = nullptr;
 			glNamedBufferSubData = nullptr;
 		}

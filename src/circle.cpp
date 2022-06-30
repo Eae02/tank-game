@@ -41,9 +41,9 @@ namespace TankGame
 	{
 		glm::vec2 toCenter = start - m_center;
 		
-		float a = LengthSquared(direction);
+		float a = glm::length2(direction);
 		float b = 2 * glm::dot(direction, toCenter);
-		float c = LengthSquared(toCenter) - m_radius * m_radius;
+		float c = glm::length2(toCenter) - m_radius * m_radius;
 		
 		float det = b * b - 4 * a * c;
 		if (det < 0)

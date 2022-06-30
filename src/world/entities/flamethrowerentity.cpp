@@ -41,6 +41,9 @@ namespace TankGame
 		m_audioSource.SetAttenuationSettings(1.0f, 1.0f);
 	}
 	
+	//Particle system and hit detection is disabled when further away from the player than this distance
+	static constexpr float OUT_OF_RANGE_DISTANCE = 40;
+	
 	void FlameThrowerEntity::Update(const UpdateInfo& updateInfo)
 	{
 		bool enabled = m_manuallyEnabled;
@@ -69,10 +72,10 @@ namespace TankGame
 		
 		// ** Updates whether the particle system is enabled **
 		
-		const float distToFocusSq = LengthSquared(GetGameWorld()->GetFocusLocation() - GetTransform().GetPosition());
-		const float maxDistance = 40;
+		const float distToFocusSq = glm::distance2(GetGameWorld()->GetFocusLocation(), GetTransform().GetPosition());
+		const bool outOfRange = distToFocusSq > OUT_OF_RANGE_DISTANCE * OUT_OF_RANGE_DISTANCE;
 		
-		const bool enablePS = enabled && distToFocusSq < (maxDistance * maxDistance);
+		const bool enablePS = enabled && !outOfRange;
 		if (enablePS != m_psEnabled)
 		{
 			if (ParticleSystemEntityBase* psEntity = m_particleSystemEntity.Get())
@@ -108,7 +111,7 @@ namespace TankGame
 		const float flameEndPos = enabled ? fireDist : m_flameLength;
 		const float flameLength = flameEndPos - flameBeginPos;
 		
-		if (flameLength > 0.01f)
+		if (flameLength > 0.01f && !outOfRange)
 		{
 			//The distance from the center of the emitter to the center of the flame.
 			const float centerFlameDist = Size + (flameBeginPos + flameEndPos) * 0.5f;

@@ -37,7 +37,7 @@ namespace TankGame
 		if (m_playerEntity != nullptr)
 		{
 			glm::vec2 toPlayer = m_playerEntity->GetTransform().GetPosition() - GetTransform().GetPosition();
-			float distToPlayerSq = LengthSquared(toPlayer);
+			float distToPlayerSq = glm::length2(toPlayer);
 			
 			if (distToPlayerSq < 0.2f)
 			{

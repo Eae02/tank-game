@@ -13,8 +13,9 @@
 #ifdef __EMSCRIPTEN__
 #include "glplatform-web.h"
 #else
-#include <GL/gl.h>
+#include <GL/glcorearb.h>
 #include <GL/glext.h>
+#include <GL/gl.h>
 #endif
 
 namespace TankGame
@@ -28,7 +29,7 @@ namespace TankGame
 	
 #ifdef __EMSCRIPTEN__
 	constexpr bool hasBufferStorage = false;
-	constexpr bool hasTextureStorage = false;
+	constexpr bool hasTextureStorage = true;
 #else
 	extern bool hasBufferStorage;
 	extern bool hasTextureStorage;

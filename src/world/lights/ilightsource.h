@@ -30,7 +30,7 @@ namespace TankGame
 		virtual const ShaderProgram& GetShader() const = 0;
 		virtual void Bind() const = 0;
 		
-		virtual LightInfo GetLightInfo() const = 0;
+		virtual std::optional<LightInfo> GetLightInfo() const = 0;
 		
 		virtual class ShadowMap* GetShadowMap() const = 0;
 		virtual void InvalidateShadowMap() = 0;

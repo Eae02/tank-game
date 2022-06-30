@@ -24,7 +24,7 @@ namespace TankGame
 	
 	Circle RayLightEntity::GetBoundingCircle() const
 	{
-		LightInfo lightInfo = GetLightInfo();
+		LightInfo lightInfo = *GetLightInfo();
 		return Circle(lightInfo.m_position, lightInfo.m_range);
 	}
 	
@@ -107,7 +107,7 @@ namespace TankGame
 		                          reinterpret_cast<GLfloat*>(&worldTransform));
 	}
 	
-	LightInfo RayLightEntity::GetLightInfo() const
+	std::optional<LightInfo> RayLightEntity::GetLightInfo() const
 	{
 		glm::vec2 forward = GetTransform().GetForward();
 		float halfLen = m_length * 0.5f;

@@ -42,7 +42,7 @@ namespace TankGame
 	
 	static bool Vec2Equal(glm::vec2 a, glm::vec2 b)
 	{
-		return LengthSquared(a - b) < 1E-6f;
+		return glm::distance2(a, b) < 1E-6f;
 	}
 	
 	static constexpr float DIAGONAL_DISTANCE = 1.4142135623730951f;

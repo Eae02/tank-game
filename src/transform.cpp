@@ -88,7 +88,7 @@ namespace TankGame
 		
 		glm::vec2 center = (corner1 + corner2) / 2.0f;
 		
-		return Circle(center, std::sqrt(glm::min(LengthSquared(side1 - center), LengthSquared(side2 - center))));
+		return Circle(center, std::sqrt(glm::min(glm::distance2(side1, center), glm::distance2(side2, center))));
 	}
 	
 	nlohmann::json Transform::Serialize(Properties propertiesToSerialize) const
