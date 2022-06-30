@@ -1,7 +1,6 @@
 #include "soundeffectplayer.h"
 #include "soundsmanager.h"
 
-
 namespace TankGame
 {
 	void SoundEffectPlayer::Play(glm::vec2 position, float volume, float pitch, float rolloffFactor, float refDistance)

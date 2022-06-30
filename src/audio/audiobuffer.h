@@ -15,6 +15,10 @@ namespace TankGame
 		
 		static AudioBuffer FromOGG(const std::string& path);
 		
+#ifdef TG_AUDIO_DYNAMIC_LOAD
+		void LoadAudioFunctions(void* alLibrary, void* oggVorbisLibrary);
+#endif
+		
 	private:
 		static uint32_t CreateAudioBuffer();
 	};

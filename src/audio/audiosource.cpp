@@ -1,8 +1,7 @@
 #include "audiosource.h"
 #include "audiobuffer.h"
+#include "audiolib.h"
 #include "../settings.h"
-
-#include <AL/al.h>
 
 namespace TankGame
 {
@@ -19,8 +18,6 @@ namespace TankGame
 		SetVolume(1.0f);
 		SetPitch(1.0f);
 		alSourcei(GetID(), AL_SOURCE_RELATIVE, false);
-		SetVelocity(glm::vec2(0.0f));
-		SetDirection(glm::vec2(0.0f));
 	}
 	
 	void AudioSource::SetBuffer(const AudioBuffer& buffer)
@@ -45,22 +42,38 @@ namespace TankGame
 	
 	void AudioSource::SetPitch(float pitch)
 	{
-		alSourcef(GetID(), AL_PITCH, pitch);
+		if (std::abs(pitch - m_currentPitch) > 1E-6)
+		{
+			alSourcef(GetID(), AL_PITCH, pitch);
+			m_currentPitch = pitch;
+		}
 	}
 	
 	void AudioSource::SetPosition(glm::vec2 position)
 	{
-		alSource3f(GetID(), AL_POSITION, position.x, position.y, 0);
+		if (m_currentPosition != position)
+		{
+			alSource3f(GetID(), AL_POSITION, position.x, position.y, 0);
+			m_currentPosition = position;
+		}
 	}
 	
 	void AudioSource::SetVelocity(glm::vec2 velocity)
 	{
-		alSource3f(GetID(), AL_VELOCITY, velocity.x, velocity.y, 0);
+		if (m_currentVelocity != velocity)
+		{
+			alSource3f(GetID(), AL_POSITION, velocity.x, velocity.y, 0);
+			m_currentVelocity = velocity;
+		}
 	}
 	
 	void AudioSource::SetDirection(glm::vec2 direction)
 	{
-		alSource3f(GetID(), AL_DIRECTION, direction.x, direction.y, 0);
+		if (m_currentDirection != direction)
+		{
+			alSource3f(GetID(), AL_POSITION, direction.x, direction.y, 0);
+			m_currentDirection = direction;
+		}
 	}
 	
 	void AudioSource::SetAttenuationSettings(float rolloffFactor, float refDistance)
@@ -76,7 +89,11 @@ namespace TankGame
 		if (m_volumeMode == VolumeModes::Effect)
 			volume *= Settings::instance.GetSFXGain();
 		
-		alSourcef(GetID(), AL_GAIN, volume);
+		if (std::abs(volume - m_currentVolume) > 1E-6)
+		{
+			alSourcef(GetID(), AL_GAIN, volume);
+			m_currentVolume = volume;
+		}
 	}
 	
 	bool AudioSource::IsPlaying() const

@@ -56,6 +56,8 @@ else()
 	find_package(Lua REQUIRED)
 	find_package(glfw3 REQUIRED)
 	
+	target_compile_options(tankgame PRIVATE -DTG_AUDIO_DYNAMIC_LOAD)
+	
 	if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 		find_package(PkgConfig REQUIRED)
 		pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
@@ -64,13 +66,8 @@ else()
 	endif()
 	
 	target_link_libraries(tankgame PRIVATE
-		OpenGL::GL
 		glfw
 		ZLIB::ZLIB
-		${OPENAL_LIBRARY}
-		${OGG_LIBRARY}
-		${VORBIS_LIBRARY}
-		${VORBISFILE_LIBRARY}
 		${LUA_LIBRARIES}
 		${CMAKE_DL_LIBS}
 		${CMAKE_THREAD_LIBS_INIT}

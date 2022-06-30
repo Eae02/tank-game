@@ -1,10 +1,10 @@
 #include "audiobuffer.h"
+#include "audiolib.h"
 #include "../utils/ioutils.h"
 #include "../utils/utils.h"
 
 #include <vorbis/vorbisfile.h>
 #include <cstdio>
-#include <AL/al.h>
 
 namespace TankGame
 {
@@ -26,6 +26,9 @@ namespace TankGame
 	
 	AudioBuffer AudioBuffer::FromOGG(const std::string& path)
 	{
+		if (!ov_open)
+			return AudioBuffer();
+		
 		FILE* file = fopen(path.c_str(), "rb");
 		if (file == nullptr)
 			Panic("Error opening audio file for reading: '" + path + "'.");

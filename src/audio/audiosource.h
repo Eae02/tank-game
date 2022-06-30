@@ -4,7 +4,6 @@
 #include "audiobuffer.h"
 #include "../graphics/viewinfo.h"
 
-
 namespace TankGame
 {
 	class AudioSource : public ALResource
@@ -40,5 +39,11 @@ namespace TankGame
 		
 	private:
 		VolumeModes m_volumeMode;
+		
+		float m_currentVolume = 0;
+		float m_currentPitch = 0;
+		glm::vec2 m_currentPosition;
+		glm::vec2 m_currentVelocity;
+		glm::vec2 m_currentDirection;
 	};
 }
