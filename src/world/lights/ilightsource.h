@@ -4,7 +4,6 @@
 #include "../../utils/abstract.h"
 #include "../../graphics/gl/shaderprogram.h"
 
-
 namespace TankGame
 {
 	struct LightInfo
@@ -18,6 +17,13 @@ namespace TankGame
 		    : m_position(position), m_range(range) { }
 	};
 	
+	enum class EntityShadowModes
+	{
+		None = 0,
+		Static = 1,
+		Dynamic = 2
+	};
+	
 	class ILightSource : public Abstract
 	{
 	public:
@@ -25,6 +31,9 @@ namespace TankGame
 		virtual void Bind() const = 0;
 		
 		virtual LightInfo GetLightInfo() const = 0;
+		
+		virtual class ShadowMap* GetShadowMap() const = 0;
+		virtual void InvalidateShadowMap() = 0;
 		
 		static const ShaderModule& GetVertexShader();
 		static ShaderProgram MakeShaderProgram(const std::string& fragmentShaderName);

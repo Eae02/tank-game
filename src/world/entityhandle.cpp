@@ -3,6 +3,7 @@
 
 namespace TankGame
 {
+	/*
 	EntityHandle::EntityHandle(EntitiesManager& manager, const Entity& entity)
 	{
 		auto pos = std::find_if(manager.m_entities.begin(), manager.m_entities.end(), [&] (const auto& e)
@@ -20,32 +21,33 @@ namespace TankGame
 		m_id = pos->m_id;
 		m_lastIndex = pos - manager.m_entities.begin();
 	}
+	*/
 	
-	void EntityHandle::UpdateLastIndex() const
+	Entity* EntityHandleData::GetEntity()
 	{
-		if (m_manager != nullptr && !IsValid())
-		{
-			m_lastIndex = m_manager->GetEntityIndexById(m_id);
-		}
-	}
-	
-	Entity* EntityHandle::Get() const
-	{
-		if (m_manager == nullptr)
-			return nullptr;
-		UpdateLastIndex();
-		if (m_lastIndex == -1)
+		if (!CheckValidity())
 			return nullptr;
 		return m_manager->m_entities[m_lastIndex].m_entity.get();
 	}
 	
-	EntityHandle::EntityHandle(EntitiesManager& manager, uint64_t id, long index)
-	    : m_manager(&manager), m_id(id), m_lastIndex(index) { }
-	
-	bool EntityHandle::IsValid() const
+	bool EntityHandleData::CheckValidity()
 	{
-		if (m_manager == nullptr || m_lastIndex < 0 || m_lastIndex >= static_cast<long>(m_manager->m_entities.size()))
+		if (m_manager == nullptr)
 			return false;
-		return m_manager->m_entities[m_lastIndex].m_id == m_id;
+		
+		if (m_lastIndex >= 0 && (size_t)m_lastIndex < m_manager->m_entities.size() &&
+			m_manager->m_entities[m_lastIndex].m_entity->GetEntityID() == m_id)
+		{
+			return true;
+		}
+		
+		m_lastIndex = m_manager->GetEntityIndexById(m_id);
+		if (m_lastIndex == -1)
+		{
+			m_manager = nullptr;
+			return false;
+		}
+		
+		return true;
 	}
 }

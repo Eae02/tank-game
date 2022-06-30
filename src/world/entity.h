@@ -16,6 +16,8 @@ namespace TankGame
 	class Entity : public ITransformationProvider, public IPropertiesObject
 	{
 	public:
+		friend class EntitiesManager;
+		
 		class IUpdateable : public Abstract
 		{
 		public:
@@ -73,10 +75,13 @@ namespace TankGame
 		virtual IUpdateable* AsUpdatable()
 		{ return nullptr; }
 		
-		virtual const class ILightSource* AsLightSource() const
+		virtual class ILightSource* AsLightSource()
 		{ return nullptr; }
 		virtual class Hittable* AsHittable()
 		{ return nullptr; }
+		
+		const class ILightSource* AsLightSource() const
+		{ return const_cast<Entity*>(this)->AsLightSource(); }
 		
 		inline void SetEditorVisible(bool editorVisible)
 		{ m_editorVisible = editorVisible; }
@@ -102,6 +107,8 @@ namespace TankGame
 		
 		void PushLuaInstance(lua_State* state);
 		
+		uint64_t GetEntityID() const { return m_entityID; }
+		
 	protected:
 		virtual void PushLuaMetaTable(lua_State* state) const;
 		
@@ -120,6 +127,8 @@ namespace TankGame
 		Lua::RegistryReference m_luaObject;
 		
 		class GameWorld* m_world = nullptr;
+		
+		uint64_t m_entityID = UINT64_MAX;
 		
 		Transform m_transform;
 		

@@ -4,7 +4,6 @@
 #include "tilegridmaterial.h"
 #include "gl/shadermodule.h"
 #include "../world/lights/ilightsource.h"
-#include "../world/lights/ishadowlightsource.h"
 #include "../world/gameworld.h"
 #include "../utils/ioutils.h"
 #include "../utils/utils.h"
@@ -178,14 +177,8 @@ namespace TankGame
 			const ILightSource* lightSource = entity.AsLightSource();
 			if (lightSource == nullptr)
 				return;
-			
-			if (auto shadowLightSource = dynamic_cast<const IShadowLightSource*>(lightSource))
-			{
-				class ShadowMap* shadowMap = shadowLightSource->GetShadowMap();
-				
-				if (shadowMap != nullptr)
-					shadowRenderer.RenderShadowMap(*shadowMap, shadowLightSource->GetLightInfo(), viewInfo, *this);
-			}
+			if (class ShadowMap* shadowMap = lightSource->GetShadowMap())
+				shadowRenderer.RenderShadowMap(*shadowMap, lightSource->GetLightInfo(), viewInfo, *this);
 		});
 	}
 }

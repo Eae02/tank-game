@@ -4,7 +4,7 @@
 #include "../entity.h"
 #include "ilightsource.h"
 #include "attenuation.h"
-#include "ishadowlightsource.h"
+#include "ilightsource.h"
 
 #include "../../graphics/gl/bufferallocator.h"
 #include "../../graphics/shadowmap.h"
@@ -13,7 +13,7 @@
 
 namespace TankGame
 {
-	class LightSourceEntity : public virtual Entity, public IShadowLightSource
+	class LightSourceEntity : public virtual Entity, public ILightSource
 	{
 	public:
 		virtual Circle GetBoundingCircle() const override;
@@ -57,7 +57,7 @@ namespace TankGame
 		
 		virtual void OnSpawned(class GameWorld& gameWorld) override;
 		
-		virtual const ILightSource* AsLightSource() const final override
+		virtual ILightSource* AsLightSource() final override
 		{ return this; }
 		
 		virtual nlohmann::json Serialize() const;

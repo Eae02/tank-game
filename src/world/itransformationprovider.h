@@ -2,7 +2,6 @@
 
 #include "../utils/abstract.h"
 
-
 namespace TankGame
 {
 	class ITransformationProvider : public Abstract

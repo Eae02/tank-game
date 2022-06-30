@@ -86,7 +86,7 @@ namespace TankGame
 		
 		TextureInfo m_textureInfo;
 		
-		EntityHandle m_shieldHandle;
+		EntityHandle<> m_shieldHandle;
 		
 		int m_teamID;
 		

@@ -14,12 +14,13 @@ namespace TankGame
 {
 	void EventBox::Update(const UpdateInfo& updateInfo)
 	{
-		if (m_player == nullptr)
+		PlayerEntity* player = m_player.Get();
+		if (player == nullptr)
 			return;
 		
 		OrientedRectangle rectangle = OrientedRectangle::FromTransformedNDC(GetTransform());
 		
-		bool isPlayerInBox = rectangle.GetIntersectInfo(m_player->GetHitCircle()).m_intersects;
+		bool isPlayerInBox = rectangle.GetIntersectInfo(player->GetHitCircle()).m_intersects;
 		
 		if (isPlayerInBox && !m_wasPlayerInBox && !m_playerEnterScript.empty())
 			Lua::DoString(m_playerEnterScript, GetGameWorld()->GetLuaSandbox());
@@ -31,7 +32,8 @@ namespace TankGame
 	
 	void EventBox::OnSpawned(GameWorld& gameWorld)
 	{
-		m_player = dynamic_cast<const PlayerEntity*>(gameWorld.GetEntityByName("player"));
+		if (PlayerEntity* player = dynamic_cast<PlayerEntity*>(gameWorld.GetEntityByName("player")))
+			m_player = EntityHandle<PlayerEntity>(gameWorld, *player);
 		Entity::OnSpawned(gameWorld);
 	}
 	

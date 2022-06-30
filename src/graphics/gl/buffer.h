@@ -2,7 +2,6 @@
 
 #include "glresource.h"
 
-
 namespace TankGame
 {
 	size_t GetUniformBufferOffsetAlignment();

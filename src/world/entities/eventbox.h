@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../entity.h"
+#include "../entityhandle.h"
 #include "../../editor/ieditoruientity.h"
 
 namespace TankGame
@@ -43,6 +44,6 @@ namespace TankGame
 		
 		bool m_wasPlayerInBox = false;
 		
-		const class PlayerEntity* m_player = nullptr;
+		EntityHandle<class PlayerEntity> m_player;
 	};
 }

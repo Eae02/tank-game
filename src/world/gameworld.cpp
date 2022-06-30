@@ -42,7 +42,7 @@ namespace TankGame
 		m_cameraRotation += rotationDiff * std::min(updateInfo.m_dt * 10, 1.0f);
 	}
 	
-	EntityHandle GameWorld::Spawn(std::unique_ptr<Entity> entity)
+	EntityHandle<> GameWorld::Spawn(std::unique_ptr<Entity> entity)
 	{
 		entity->OnSpawned(*this);
 		

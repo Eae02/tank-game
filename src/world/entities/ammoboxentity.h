@@ -43,6 +43,6 @@ namespace TankGame
 		
 		AudioSource m_audioSource;
 		
-		EntityHandle m_playerHandle;
+		EntityHandle<class PlayerEntity> m_playerHandle;
 	};
 }

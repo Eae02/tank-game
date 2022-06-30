@@ -43,7 +43,8 @@ namespace TankGame
 			
 			if (persistentMap)
 			{
-				static constexpr GLbitfield MAP_FLAGS = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT | GL_MAP_UNSYNCHRONIZED_BIT;
+				static constexpr GLbitfield MAP_FLAGS =
+					GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT | GL_MAP_UNSYNCHRONIZED_BIT;
 				m_mappedMemory = static_cast<char*>(glMapBufferRange(m_target, 0, m_fullSize, MAP_FLAGS));
 			}
 		}

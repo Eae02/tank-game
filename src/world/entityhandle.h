@@ -1,48 +1,79 @@
 #pragma once
 
-
 #include "entity.h"
 
 namespace TankGame
 {
+	class EntityHandleData
+	{
+	public:
+		EntityHandleData() : m_manager(nullptr) { }
+		
+		EntityHandleData(class EntitiesManager& manager, uint64_t id, long index)
+			: m_manager(&manager), m_id(id), m_lastIndex(index) { }
+		
+		bool CheckValidity();
+		
+		Entity* GetEntity();
+		
+		long GetLastIndex() const { return m_lastIndex; }
+		
+	private:
+		class EntitiesManager* m_manager;
+		uint64_t m_id;
+		long m_lastIndex;
+	};
+	
+	template <typename T = Entity>
 	class EntityHandle
 	{
 		friend class EntitiesManager;
 		
 	public:
-		inline EntityHandle() : m_manager(nullptr) { }
+		EntityHandle() = default;
 		
-		EntityHandle(class EntitiesManager& manager, const class Entity& entity);
+		EntityHandle(class EntitiesManager& manager, T& entity)
+			: m_data(manager, entity.GetEntityID(), -1), m_entity(&entity) { }
 		
-		inline void Despawn() const
+		void Despawn() const
 		{
 			if (Entity* entity = Get())
 				entity->Despawn();
 		}
 		
-		inline bool IsNull() const
-		{ return m_manager == nullptr; }
-		
-		inline bool IsAlive() const
+		bool IsAlive() const
 		{ return Get() != nullptr; }
 		
-		inline class Entity* operator->() const
+		T* operator->() const
 		{ return Get(); }
 		
-		inline class Entity& operator*() const
+		T& operator*() const
 		{ return *Get(); }
 		
-		class Entity* Get() const;
+		T* Get() const
+		{
+			if (!m_data.CheckValidity())
+				return nullptr;
+			return m_entity;
+		}
+		
+		Entity* GetEntity() const
+		{
+			return m_data.GetEntity();
+		}
+		
+		template <typename U>
+		EntityHandle<U> DynamicCast() const
+		{
+			if (U* u = dynamic_cast<U*>(Get()))
+				return EntityHandle<U>(m_data, u);
+			return EntityHandle<U>();
+		}
 		
 	private:
-		EntityHandle(class EntitiesManager& manager, uint64_t id, long index = -1);
+		EntityHandle(EntityHandleData data, T* entity) : m_data(data), m_entity(entity) { }
 		
-		void UpdateLastIndex() const;
-		
-		bool IsValid() const;
-		
-		class EntitiesManager* m_manager;
-		uint64_t m_id;
-		mutable long m_lastIndex;
+		mutable EntityHandleData m_data;
+		T* m_entity;
 	};
 }

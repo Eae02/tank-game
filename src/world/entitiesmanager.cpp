@@ -6,29 +6,30 @@
 
 namespace TankGame
 {
-	EntityHandle EntitiesManager::Spawn(std::unique_ptr<Entity> entity)
+	EntityHandle<> EntitiesManager::Spawn(std::unique_ptr<Entity> entity)
 	{
-		uint64_t id = m_nextEntityID++;
+		entity->m_entityID = m_nextEntityID++;
 		
-		EntityHandle handle(*this, id, m_entities.size());
+		EntityHandleData handleData(*this, entity->m_entityID, m_entities.size());
 		
-		m_entityIDToIndex.emplace(id, m_entities.size());
+		m_entityIDToIndex.emplace(entity->m_entityID, m_entities.size());
 		
 		if (ParticleSystemEntityBase* psEntity = dynamic_cast<ParticleSystemEntityBase*>(entity.get()))
-			m_particleSystemEntities.emplace_back(handle, psEntity);
+			m_particleSystemEntities.push_back({ handleData, psEntity });
 		
 		bool canMove = false;
 		if (Entity::IUpdateable* updateable = entity->AsUpdatable())
 		{
 			canMove = updateable->CanMoveDuringUpdate();
-			m_updateableEntities.push_back(handle);
+			m_updateableEntities.push_back({ handleData, updateable });
 		}
 		
 		PushToRegions(
-			handle, GetRegionBounds(entity->GetBoundingRectangle()),
+			handleData, GetRegionBounds(entity->GetBoundingRectangle()),
 			canMove ? &Region::dynamicEntities : &Region::staticEntities);
 		
-		m_entities.emplace_back(std::move(entity), id);
+		EntityHandle<> handle(handleData, entity.get());
+		m_entities.push_back(EntityEntry { std::move(entity), 0 });
 		
 		return handle;
 	}
@@ -42,7 +43,7 @@ namespace TankGame
 		return std::make_pair(glm::ivec2(lox, loy), glm::ivec2(hix, hiy));
 	}
 	
-	void EntitiesManager::PushToRegions(EntityHandle handle, std::pair<glm::ivec2, glm::ivec2> regionBounds, RegionField field)
+	void EntitiesManager::PushToRegions(EntityHandleData handle, std::pair<glm::ivec2, glm::ivec2> regionBounds, RegionField field)
 	{
 		for (int y = regionBounds.first.y; y <= regionBounds.second.y; y++)
 		{
@@ -74,17 +75,15 @@ namespace TankGame
 			
 			for (long i = m_updateableEntities.size() - 1; i >= 0; i--)
 			{
-				Entity* entity = m_updateableEntities[i].Get();
-				if (!entity)
+				Entity::IUpdateable* updatable = m_updateableEntities[i].Get();
+				if (!updatable)
 				{
 					m_updateableEntities[i] = m_updateableEntities.back();
 					m_updateableEntities.pop_back();
 					continue;
 				}
 				
-				Entity::IUpdateable* updatable = entity->AsUpdatable();
-				if (!updatable)
-					continue;
+				Entity* entity = m_updateableEntities[i].m_data.GetEntity();
 				
 				double startTime = 0;
 				if (collectUpdateTimeStatistics)
@@ -94,7 +93,9 @@ namespace TankGame
 				
 				if (updatable->CanMoveDuringUpdate())
 				{
-					PushToRegions(m_updateableEntities[i], GetRegionBounds(entity->GetBoundingRectangle()), &Region::dynamicEntities2);
+					PushToRegions(
+						m_updateableEntities[i].m_data,
+						GetRegionBounds(entity->GetBoundingRectangle()), &Region::dynamicEntities2);
 				}
 				
 				if (collectUpdateTimeStatistics)
@@ -144,7 +145,7 @@ namespace TankGame
 			{
 				for (int64_t i = (int64_t)region.staticEntities.size() - 1; i >= 0; i--)
 				{
-					if (!region.staticEntities[i].IsAlive())
+					if (!region.staticEntities[i].CheckValidity())
 					{
 						region.staticEntities[i] = region.staticEntities.back();
 						region.staticEntities.pop_back();
@@ -156,14 +157,14 @@ namespace TankGame
 		SCOPE_TIMER("Spawn Particles")
 		for (long i = (long)m_particleSystemEntities.size() - 1; i >= 0; i--)
 		{
-			if (!m_particleSystemEntities[i].first.IsAlive())
+			ParticleSystemEntityBase* psEntity = m_particleSystemEntities[i].Get();
+			if (!psEntity)
 			{
 				m_particleSystemEntities[i] = m_particleSystemEntities.back();
 				m_particleSystemEntities.pop_back();
 				continue;
 			}
 			
-			ParticleSystemEntityBase* psEntity = m_particleSystemEntities[i].second;
 			if (frameBeginTime > psEntity->GetDeathTime())
 			{
 				bool hasParticles = false;
@@ -208,7 +209,7 @@ namespace TankGame
 	
 	void EntitiesManager::DespawnAtIndex(size_t index)
 	{
-		m_entityIDToIndex.erase(m_entities[index].m_id);
+		m_entityIDToIndex.erase(m_entities[index].m_entity->m_entityID);
 		
 		m_entities[index].m_entity->OnDespawning();
 		
@@ -216,7 +217,7 @@ namespace TankGame
 		
 		if (index != m_entities.size() - 1)
 		{
-			m_entityIDToIndex.at(m_entities.back().m_id) = index;
+			m_entityIDToIndex.at(m_entities.back().m_entity->m_entityID) = index;
 			m_entities[index] = std::move(m_entities.back());
 		}
 		m_entities.pop_back();

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "particlesystementity.h"
 #include "../icollidable.h"
 #include "../entityhandle.h"
 #include "../lights/pointlightentity.h"
@@ -117,7 +118,7 @@ namespace TankGame
 		
 		const class PropClass& m_flameThrowerPropClass;
 		
-		EntityHandle m_particleSystemEntity;
-		EntityHandle m_lightEntity;
+		EntityHandle<ParticleSystemEntityBase> m_particleSystemEntity;
+		EntityHandle<PointLightEntity> m_lightEntity;
 	};
 }

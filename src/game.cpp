@@ -28,7 +28,6 @@
 #include "profiling.h"
 #include "graphics/tilegridmaterial.h"
 
-
 namespace TankGame
 {
 	//Defined in utils.cpp
@@ -264,6 +263,7 @@ namespace TankGame
 		float dt = frameBeginTime - lastFrameStartTime;
 		lastFrameStartTime = frameBeginTime;
 		
+#ifndef __EMSCRIPTEN__
 		GLsync fence = frameFences[GetFrameQueueIndex()];
 		if (fence != nullptr)
 		{
@@ -273,6 +273,7 @@ namespace TankGame
 				waitReturn = glClientWaitSync(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 1);
 			}
 		}
+#endif
 		float fenceWaitTime = window.arguments.m_profiling ? (GetTime() - frameBeginTime) : 0.0f;
 		
 		bool isEditorOpen = editor != nullptr && editor->IsOpen();
@@ -431,10 +432,12 @@ namespace TankGame
 		
 		glDisable(GL_BLEND);
 		
+#ifndef __EMSCRIPTEN__
 		if (fence != nullptr)
 			glDeleteSync(fence);
 		frameFences[GetFrameQueueIndex()] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 		glFlush();
+#endif
 		if (Settings::instance.QueueFrames())
 			AdvanceFrameQueueIndex();
 	}

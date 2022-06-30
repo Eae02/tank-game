@@ -12,10 +12,18 @@ namespace TankGame
 {
 	class EntitiesManager
 	{
-		friend class EntityHandle;
+		friend class EntityHandleData;
 		
 	public:
-		virtual EntityHandle Spawn(std::unique_ptr<Entity> entity);
+		virtual EntityHandle<> Spawn(std::unique_ptr<Entity> entity);
+		
+		template <typename T>
+		EntityHandle<T> SpawnT(std::unique_ptr<T> entity)
+		{
+			T* entityPtr = entity.get();
+			EntityHandle<> genericHandle = Spawn(std::move(entity));
+			return EntityHandle<T>(genericHandle.m_data, entityPtr);
+		}
 		
 		inline void Despawn(Entity* entity)
 		{
@@ -55,17 +63,18 @@ namespace TankGame
 				for (int x = lo.x; x <= hi.x; x++)
 				{
 					const Region& reg = m_regions[y * m_numRegionsX + x];
-					for (const std::vector<EntityHandle>* entityList : { &reg.staticEntities, &reg.dynamicEntities })
+					for (const std::vector<EntityHandleData>* entityList : { &reg.staticEntities, &reg.dynamicEntities })
 					{
-						for (EntityHandle handle : *entityList)
+						for (EntityHandleData handle : *entityList)
 						{
-							handle.UpdateLastIndex();
-							if (handle.m_lastIndex != -1 &&
-								m_entities[handle.m_lastIndex].m_iterateIntersectingID < m_nextIterateIntersectingID &&
-								m_entities[handle.m_lastIndex].m_entity->GetBoundingRectangle().Intersects(rectangle))
+							if (!handle.CheckValidity())
+								continue;
+							
+							if (m_entities[handle.GetLastIndex()].m_iterateIntersectingID < m_nextIterateIntersectingID &&
+								m_entities[handle.GetLastIndex()].m_entity->GetBoundingRectangle().Intersects(rectangle))
 							{
-								m_entities[handle.m_lastIndex].m_iterateIntersectingID = m_nextIterateIntersectingID;
-								callback(*m_entities[handle.m_lastIndex].m_entity);
+								m_entities[handle.GetLastIndex()].m_iterateIntersectingID = m_nextIterateIntersectingID;
+								callback(*m_entities[handle.GetLastIndex()].m_entity);
 							}
 						}
 					}
@@ -83,9 +92,9 @@ namespace TankGame
 		template <typename CallbackTp>
 		void IterateParticleEmitters(CallbackTp callback) const
 		{
-			for (const auto& [entityHandle, psEntity] : m_particleSystemEntities)
+			for (EntityHandle<ParticleSystemEntityBase> entityHandle : m_particleSystemEntities)
 			{
-				if (entityHandle.IsAlive())
+				if (const ParticleSystemEntityBase* psEntity = entityHandle.Get())
 				{
 					for (long i = psEntity->GetParticleSystem().GetEmitterCount() - 1; i >= 0; i--)
 						callback(*psEntity->GetParticleSystem().GetEmitter(i));
@@ -118,11 +127,7 @@ namespace TankGame
 		struct EntityEntry
 		{
 			std::unique_ptr<Entity> m_entity;
-			uint64_t m_id;
 			uint64_t m_iterateIntersectingID = 0;
-			
-			inline EntityEntry(std::unique_ptr<Entity>&& entity, uint64_t id)
-			    : m_entity(std::move(entity)), m_id(id) { }
 		};
 		
 		uint64_t m_nextEntityID = 0;
@@ -133,9 +138,9 @@ namespace TankGame
 		
 		struct Region
 		{
-			std::vector<EntityHandle> staticEntities;
-			std::vector<EntityHandle> dynamicEntities;
-			std::vector<EntityHandle> dynamicEntities2;
+			std::vector<EntityHandleData> staticEntities;
+			std::vector<EntityHandleData> dynamicEntities;
+			std::vector<EntityHandleData> dynamicEntities2;
 		};
 		std::vector<Region> m_regions;
 		uint32_t m_numRegionsX = 0;
@@ -143,10 +148,10 @@ namespace TankGame
 		
 		uint64_t m_nextIterateIntersectingID = 0;
 		
-		typedef std::vector<EntityHandle> Region::*RegionField;
+		typedef std::vector<EntityHandleData> Region::*RegionField;
 		
 		std::pair<glm::ivec2, glm::ivec2> GetRegionBounds(const Rectangle& rectangle);
-		void PushToRegions(EntityHandle handle, std::pair<glm::ivec2, glm::ivec2> regionBounds, RegionField field);
+		void PushToRegions(EntityHandleData handle, std::pair<glm::ivec2, glm::ivec2> regionBounds, RegionField field);
 		
 		std::vector<EntityEntry> m_entities;
 		
@@ -154,8 +159,8 @@ namespace TankGame
 		
 		std::vector<Entity*> m_entitiesToDespawn;
 		
-		std::vector<EntityHandle> m_updateableEntities;
-		std::vector<std::pair<EntityHandle, ParticleSystemEntityBase*>> m_particleSystemEntities;
+		std::vector<EntityHandle<Entity::IUpdateable>> m_updateableEntities;
+		std::vector<EntityHandle<ParticleSystemEntityBase>> m_particleSystemEntities;
 		
 		std::vector<EntityUpdateTimeStatistics> m_updateTimeStatistics;
 	};

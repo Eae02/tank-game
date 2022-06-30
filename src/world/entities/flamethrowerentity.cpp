@@ -75,7 +75,7 @@ namespace TankGame
 		const bool enablePS = enabled && distToFocusSq < (maxDistance * maxDistance);
 		if (enablePS != m_psEnabled)
 		{
-			if (auto* psEntity = dynamic_cast<ParticleSystemEntityBase*>(m_particleSystemEntity.Get()))
+			if (ParticleSystemEntityBase* psEntity = m_particleSystemEntity.Get())
 				psEntity->SetEnabled(enablePS);
 			m_psEnabled = enablePS;
 		}
@@ -84,7 +84,7 @@ namespace TankGame
 		
 		if (std::abs(oldEnableProgress - m_enableProgress) > 0.001f)
 		{
-			if (LightSourceEntity* lightEntity = dynamic_cast<LightSourceEntity*>(m_lightEntity.Get()))
+			if (PointLightEntity* lightEntity = m_lightEntity.Get())
 			{
 				lightEntity->SetIntensity(m_enableProgress * MaxLightIntensity);
 			}
@@ -365,8 +365,8 @@ namespace TankGame
 		
 		SetChildEntitiesTransform(psEntity.get(), lightEntity.get());
 		
-		m_particleSystemEntity = GetGameWorld()->Spawn(std::move(psEntity));
-		m_lightEntity = GetGameWorld()->Spawn(std::move(lightEntity));
+		m_particleSystemEntity = GetGameWorld()->SpawnT<ParticleSystemEntityBase>(std::move(psEntity));
+		m_lightEntity = GetGameWorld()->SpawnT(std::move(lightEntity));
 	}
 	
 	void FlameThrowerEntity::SetChildEntitiesTransform(Entity* psEntity, Entity* lightEntity)

@@ -31,6 +31,12 @@ namespace TankGame
 		lua_pop(Lua::GetState(), 1);
 		
 		m_gameWorld->SetLuaSandbox(m_luaSandbox.get());
+		
+		m_gameWorld->IterateEntities([&] (const Entity& entity)
+		{
+			if (const CheckpointEntity* checkpointEntity = dynamic_cast<const CheckpointEntity*>(&entity))
+				m_checkpointEntitiesByIndex.emplace(checkpointEntity->GetCheckpointIndex(), checkpointEntity);
+		});
 	}
 	
 	std::optional<Level> Level::FromName(const std::string& name, GameWorld::Types worldType)
@@ -55,16 +61,10 @@ namespace TankGame
 	
 	const CheckpointEntity* Level::GetCheckpointFromIndex(int index) const
 	{
-		const CheckpointEntity* checkpoint = nullptr;
-		
-		m_gameWorld->IterateEntities([&] (const Entity& entity)
-		{
-			const CheckpointEntity* checkpointEntity = dynamic_cast<const CheckpointEntity*>(&entity);
-			if (checkpointEntity != nullptr && checkpointEntity->GetCheckpointIndex() == index)
-				checkpoint = checkpointEntity;
-		});
-		
-		return checkpoint;
+		auto it = m_checkpointEntitiesByIndex.find(index);
+		if (it == m_checkpointEntitiesByIndex.end())
+			return nullptr;
+		return it->second;
 	}
 	
 	bool Level::TryJumpToCheckpoint(int index)

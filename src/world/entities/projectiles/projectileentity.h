@@ -44,7 +44,7 @@ namespace TankGame
 		bool SearchForHomeTarget();
 		
 		bool m_isHoming = false;
-		EntityHandle m_homeTarget;
+		EntityHandle<> m_homeTarget;
 		
 		int m_teamID;
 		const Entity* m_sourceEntity;

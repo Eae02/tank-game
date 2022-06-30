@@ -56,7 +56,7 @@ namespace TankGame
 	{
 		if (GetGameWorld()->GetWorldType() != GameWorld::Types::Editor)
 		{
-			for (const EntityHandle& flameThrower : m_flameThrowers)
+			for (const EntityHandle<>& flameThrower : m_flameThrowers)
 				flameThrower.Despawn();
 		}
 	}

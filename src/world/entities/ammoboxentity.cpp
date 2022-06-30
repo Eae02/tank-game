@@ -110,19 +110,15 @@ namespace TankGame
 	
 	PlayerWeaponState* AmmoBoxEntity::GetWeaponState()
 	{
-		if (!m_playerHandle.IsAlive())
+		PlayerEntity* player = m_playerHandle.Get();
+		if (player == nullptr)
 		{
-			const Entity* player = GetGameWorld()->GetEntityByName("player");
+			player = dynamic_cast<PlayerEntity*>(GetGameWorld()->GetEntityByName("player"));
 			if (player == nullptr)
 				return nullptr;
-			m_playerHandle = EntityHandle(*GetGameWorld(), *player);
+			m_playerHandle = EntityHandle<PlayerEntity>(*GetGameWorld(), *player);
 		}
-		
-		PlayerEntity* playerEntity = dynamic_cast<PlayerEntity*>(m_playerHandle.Get());
-		if (playerEntity == nullptr)
-			return nullptr;
-		
-		return &playerEntity->GetWeaponState();
+		return &player->GetWeaponState();
 	}
 	
 	void AmmoBoxEntity::OnKilled()

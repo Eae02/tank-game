@@ -3,6 +3,8 @@
 #include "world/gameworld.h"
 #include "lua/sandbox.h"
 
+#include <unordered_map>
+
 namespace TankGame
 {
 	class Level
@@ -39,5 +41,7 @@ namespace TankGame
 		std::unique_ptr<Lua::Sandbox> m_luaSandbox;
 		
 		class PlayerEntity* m_playerEntity;
+		
+		std::unordered_map<int, const CheckpointEntity*> m_checkpointEntitiesByIndex;
 	};
 }

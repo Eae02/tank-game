@@ -57,7 +57,7 @@ namespace TankGame
 		{
 			lua_newtable(state);
 			
-			EntityHandle* userDataPtr = reinterpret_cast<EntityHandle*>(lua_newuserdata(state, sizeof(EntityHandle)));
+			EntityHandle<>* userDataPtr = reinterpret_cast<EntityHandle<>*>(lua_newuserdata(state, sizeof(EntityHandle<>)));
 			*userDataPtr = EntityHandle(*m_world, *this);
 			
 			luaL_getmetatable(state, "Entity");
@@ -205,7 +205,7 @@ namespace TankGame
 	{
 		lua_getfield(state, 1, "__instance");
 		
-		EntityHandle* entityHandle = reinterpret_cast<EntityHandle*>(luaL_checkudata(state, -1, "Entity"));
+		EntityHandle<>* entityHandle = reinterpret_cast<EntityHandle<>*>(luaL_checkudata(state, -1, "Entity"));
 		lua_pop(state, 1);
 		
 		Entity* entity = entityHandle->Get();

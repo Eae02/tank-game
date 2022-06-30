@@ -1,6 +1,5 @@
 #include "editor.h"
 #include "../world/gameworld.h"
-#include "../world/lights/ishadowlightsource.h"
 #include "../utils/ioutils.h"
 #include "../utils/utils.h"
 #include "../mouse.h"
@@ -283,9 +282,8 @@ namespace TankGame
 		
 		m_gameWorld->IterateEntities([&] (Entity& entity)
 		{
-			if (entity.AsLightSource() != nullptr)
-				if (IShadowLightSource* shadowLightSource = dynamic_cast<IShadowLightSource*>(&entity))
-					shadowLightSource->InvalidateShadowMap();
+			if (ILightSource* lightSource = entity.AsLightSource())
+				lightSource->InvalidateShadowMap();
 		});
 	}
 	

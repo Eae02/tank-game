@@ -3,7 +3,6 @@
 #include "../entity.h"
 #include "ilightsource.h"
 #include "attenuation.h"
-#include "ishadowlightsource.h"
 
 #include "../../graphics/gl/bufferallocator.h"
 #include "../../graphics/shadowmap.h"
@@ -48,7 +47,10 @@ namespace TankGame
 		virtual void Bind() const override;
 		virtual LightInfo GetLightInfo() const override;
 		
-		virtual const ILightSource* AsLightSource() const final override
+		virtual class ShadowMap* GetShadowMap() const { return nullptr; }
+		virtual void InvalidateShadowMap() { }
+		
+		virtual ILightSource* AsLightSource() final override
 		{ return this; }
 		
 		glm::mat3 GetWorldTransform() const;

@@ -39,7 +39,7 @@ namespace TankGame
 		
 		void UpdateChildEntityTransforms();
 		
-		std::vector<EntityHandle> m_flameThrowers;
+		std::vector<EntityHandle<>> m_flameThrowers;
 		
 		bool m_enabled = false;
 		

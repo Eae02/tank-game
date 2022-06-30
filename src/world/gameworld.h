@@ -36,7 +36,7 @@ namespace TankGame
 		
 		ViewInfo GetViewInfo(float aspectRatio) const;
 		
-		virtual EntityHandle Spawn(std::unique_ptr<Entity> entity) final override;
+		virtual EntityHandle<> Spawn(std::unique_ptr<Entity> entity) final override;
 		
 		void SetFocusEntity(const Entity* entity);
 		glm::vec2 GetFocusLocation() const;
