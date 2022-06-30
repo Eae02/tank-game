@@ -1,8 +1,7 @@
 #ifdef TG_AUDIO_DYNAMIC_LOAD
 #include "audiolib.h"
+#include "../platform/common.h"
 #include "../utils/utils.h"
-
-#include <dlfcn.h>
 
 namespace TankGame
 {
@@ -27,7 +26,7 @@ namespace TankGame
 	
 	static inline void* TryLoadDynamicLibrary(const char* name)
 	{
-		void* lib = dlopen(name, RTLD_LAZY);
+		void* lib = DLOpen(name);
 		if (lib == nullptr)
 			GetLogStream() << LOG_ERROR << "Failed to load dynamic library " << name << "\n";
 		return lib;
@@ -36,7 +35,7 @@ namespace TankGame
 	template <typename T>
 	static inline bool TryLoadLibrarySymbol(void* library, const char* symbolName, T& symbolOut)
 	{
-		void* symbol = dlsym(library, symbolName);
+		void* symbol = DLSym(library, symbolName);
 		if (symbol == nullptr)
 		{
 			GetLogStream() << LOG_ERROR << "Audio function failed to load: " << symbolName << "\n";

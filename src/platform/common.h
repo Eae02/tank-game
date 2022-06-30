@@ -20,6 +20,9 @@ namespace TankGame
 	
 	void SyncFileSystem();
 	
+	void* DLOpen(const char* name);
+	void* DLSym(void* library, const char* name);
+	
 #ifdef __EMSCRIPTEN__
 	constexpr bool PLATFORM_CAN_CHANGE_VSYNC = false;
 #else

@@ -4,6 +4,13 @@
 
 #include <GLFW/glfw3.h>
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#else
+#include <dlfcn.h>
+#endif
+
 namespace TankGame
 {
 	double GetTime()
@@ -65,6 +72,24 @@ namespace TankGame
 	void PlatformShutdown() { }
 	
 	void SyncFileSystem() { }
+	
+	void* DLOpen(const char* name)
+	{
+#ifdef _WIN32
+		return reinterpret_cast<void*>(LoadLibrary(name));
+#else
+		return dlopen(name, RTLD_LAZY);
+#endif
+	}
+	
+	void* DLSym(void* library, const char* name)
+	{
+#ifdef _WIN32
+		return reinterpret_cast<void*>(GetProcAddress(reinterpret_cast<HMODULE>(library), name));
+#else
+		return dlsym(library, name);
+#endif
+	}
 }
 
 #endif

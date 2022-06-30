@@ -31,6 +31,9 @@ namespace TankGame
 			FS.syncfs(false, function (err) { });
 		);
 	}
+	
+	void* DLOpen(const char* name) { return nullptr; }
+	void* DLSym(void* library, const char* name) { return nullptr; }
 }
 
 #endif
