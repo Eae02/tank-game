@@ -1,10 +1,12 @@
 # Tank Game
-A tank shooter written in modern C++ and OpenGL 4.4.
+A tank shooter written in modern C++ and OpenGL.
+
+Browser version available [here](https://eae02.github.io/tankgame/) (requires WebGL 2.0).
 
 ![Ingame Screenshot](https://raw.githubusercontent.com/Eae02/tank-game/master/screenshot.jpg)
 
 ## Precompiled binaries
- * [Windows](https://www.dropbox.com/s/aevhdaysm028ur9/tankgame_win32.zip?dl=1). You may also need to install the visual C++ 2015 redistributable (x86 version), which you can get [here](https://download.microsoft.com/download/9/3/F/93FCF1E7-E6A4-478B-96E7-D4B285925B00/vc_redist.x86.exe).
+ * [Windows](https://www.dropbox.com/s/aevhdaysm028ur9/tankgame_win32.zip?dl=1).
  * [Linux](https://www.dropbox.com/s/u0wxsf4hvspbdxv/tankgame_linux.tar.gz?dl=1). Some of the runtime dependencies are included in the archive. Not included are zlib, glib, xlib, and freetype. Install these with your package manager if you don't already have them.
 
 ## Compiling from source
